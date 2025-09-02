@@ -1,0 +1,16 @@
+{
+  "type": "code",
+  "modid": "showcraftable",
+  "name": "ShowCraftable",
+  "authors": [
+    "Interzoner"
+  ],
+  "description": "To be added",
+  "VersionMap": {
+    "VS1.20": "1.0.0",
+    "VS1.21": "1.0.0"
+  },
+  "dependencies": {
+    "game": ""
+  }
+}

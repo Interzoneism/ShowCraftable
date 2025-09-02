@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36414.22 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShowCraftable", "ShowCraftable\ShowCraftable\ShowCraftable.csproj", "{99C2F772-86BC-4433-8FE7-32CBE8EA2586}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CakeBuild", "ShowCraftable\ZZCakeBuild\CakeBuild.csproj", "{EEB81A1C-865B-4D6E-8C5C-07355F09EB7D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{99C2F772-86BC-4433-8FE7-32CBE8EA2586}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99C2F772-86BC-4433-8FE7-32CBE8EA2586}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99C2F772-86BC-4433-8FE7-32CBE8EA2586}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99C2F772-86BC-4433-8FE7-32CBE8EA2586}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EEB81A1C-865B-4D6E-8C5C-07355F09EB7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EEB81A1C-865B-4D6E-8C5C-07355F09EB7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EEB81A1C-865B-4D6E-8C5C-07355F09EB7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EEB81A1C-865B-4D6E-8C5C-07355F09EB7D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C30DE9B8-9903-4C83-A839-51DB27A693BB}
+	EndGlobalSection
+EndGlobal
