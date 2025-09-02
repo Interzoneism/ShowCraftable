@@ -65,29 +65,52 @@ namespace ShowCraftable
             catch { }
         }
 
-        // Try to get any "inventory" from a BlockEntity (handles IBlockEntityContainer and custom fields like toolracks)
+        // In ShowCraftableSystem (so server can call it)
         internal static IInventory TryGetInventoryFromBE(BlockEntity be)
         {
             if (be == null) return null;
 
-            // Standard route
             if (be is IBlockEntityContainer ibec && ibec.Inventory != null) return ibec.Inventory;
 
-            // Property "Inventory"
-            var pi = be.GetType().GetProperty("Inventory", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            var t = be.GetType();
+            var pi = t.GetProperty("Inventory", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             var invObj = pi?.GetValue(be);
-
-            // Field "Inventory"
             if (invObj == null)
-                invObj = be.GetType().GetField("Inventory", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)?.GetValue(be);
-
-            // Field "inventory" (lowercase, e.g. tool rack)
+                invObj = t.GetField("Inventory", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)?.GetValue(be);
             if (invObj == null)
-                invObj = be.GetType().GetField("inventory", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)?.GetValue(be);
+                invObj = t.GetField("inventory", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)?.GetValue(be);
 
             return invObj as IInventory;
         }
 
+        // --- Debounced scan trigger ---
+        private static DateTime _lastScanAt = DateTime.MinValue;
+
+        private static void RequestServerScan(ICoreClientAPI capi, int radius, bool includeCrates)
+        {
+            // Avoid flooding on quick tab switches
+            var now = DateTime.UtcNow;
+            if ((now - _lastScanAt).TotalMilliseconds < 400) return;
+            _lastScanAt = now;
+
+            if (ScanInProgress) return;
+            ScanInProgress = true;
+
+            try
+            {
+                capi.Network.GetChannel(ChannelName).SendPacket(new CraftScanRequest
+                {
+                    Radius = radius,
+                    IncludeCrates = includeCrates
+                });
+                LogEverywhere(capi, $"[Craftable] Requested server scan (r={radius}, crates={includeCrates})");
+            }
+            catch (Exception e)
+            {
+                ScanInProgress = false;
+                LogEverywhere(capi, $"[Craftable] scan send failed: {e}", toChat: true);
+            }
+        }
 
         // -------------------- Lifecycle --------------------
         public override void StartClientSide(ICoreClientAPI capi)
@@ -127,12 +150,16 @@ namespace ShowCraftable
                 });
 
             capi.ChatCommands.Create("craftablescan")
-                .WithDescription("Rebuild Craftable cache (player + nearby unopened containers via server)")
+                .WithDescription("Rebuild Craftable cache (player + nearby containers via server)")
                 .HandleWith(args =>
                 {
-                    if (ScanInProgress) { LogEverywhere(capi, "[Craftable] Scan already in progress…", toChat: true); return TextCommandResult.Success(); }
+                    if (UseServerNearbyScan)
+                    {
+                        RequestServerScan(capi, NearbyRadius, includeCrates: true);
+                        return TextCommandResult.Success();
+                    }
 
-                    ScanInProgress = true;
+        ScanInProgress = true;
                     try
                     {
                         if (UseServerNearbyScan)
@@ -273,6 +300,10 @@ namespace ShowCraftable
             {
                 if (!string.Equals(code, CraftableCategoryCode, StringComparison.Ordinal)) return;
 
+                var fiCapi = AccessTools.Field(__instance.GetType(), "capi");
+                var capi = fiCapi?.GetValue(__instance) as ICoreClientAPI;
+
+                // Clear search (as you already do)
                 var fiOverview = AccessTools.Field(__instance.GetType(), "overviewGui");
                 var composer = fiOverview?.GetValue(__instance);
                 if (composer != null)
@@ -281,17 +312,21 @@ namespace ShowCraftable
                     var searchInput = miGetTextInput?.Invoke(composer, new object[] { "searchField" });
                     searchInput?.GetType().GetMethod("SetValue")?.Invoke(searchInput, new object[] { "", true });
                 }
-
                 var fiSearch = AccessTools.Field(__instance.GetType(), "currentSearchText");
                 fiSearch?.SetValue(__instance, null);
 
+                // Refresh now (so the list doesn’t look stale)…
                 AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
-                // Kick an auto scan whenever the user selects Craftable
-                BeginScan((ICoreClientAPI)AccessTools.Field(__instance.GetType(), "capi").GetValue(__instance), silent: true);
 
+                // …and kick a server-side rescan (debounced)
+                if (capi != null && UseServerNearbyScan)
+                {
+                    RequestServerScan(capi, NearbyRadius, includeCrates: true);
+                }
             }
             catch { }
         }
+
 
         // -------------------- After pages loaded: refresh our tab if active --------------------
         public static void AfterPagesLoaded_Postfix(object __instance)
@@ -327,13 +362,14 @@ namespace ShowCraftable
                 var fiLoading = AccessTools.Field(__instance.GetType(), "loadingPagesAsync");
 
                 var capi = fiCapi?.GetValue(__instance) as ICoreClientAPI;
+                var shown = fiShown?.GetValue(__instance) as System.Collections.IList;
                 var composer = fiOverview?.GetValue(__instance);
                 string q = (string)fiSearch?.GetValue(__instance);
                 bool loading = fiLoading != null && (bool)fiLoading.GetValue(__instance);
 
-                if (composer == null) return true;
+                if (shown == null || composer == null) return true;
 
-                // Map pagecodes -> actual page objects in this dialog
+                // Karta: pagecode -> index
                 var pageMap = AccessTools.Field(__instance.GetType(), "pageNumberByPageCode")?.GetValue(__instance) as Dictionary<string, int>;
                 var allPages = AccessTools.Field(__instance.GetType(), "allHandbookPages")?.GetValue(__instance) as System.Collections.IList;
                 if (pageMap == null || allPages == null) return true;
@@ -359,7 +395,7 @@ namespace ShowCraftable
                     LogEverywhere(capi, $"[Craftable] UI resolve: cached={codesSnapshot.Count}, resolved={resolvedPages.Count}, missing={missing}, loading={loading}, sample codes=[{sampleCodes}]");
                 }
 
-                // Search filter
+                // Sökfilter (vanilla-likt)
                 List<object> finalPages;
                 if (!string.IsNullOrWhiteSpace(q))
                 {
@@ -378,51 +414,75 @@ namespace ShowCraftable
                     finalPages = resolvedPages;
                 }
 
-                // Ensure Visible=true for the pages we want to show (FlatList only renders Visible ones)
+                // Se till att sidor är Visible=true
                 foreach (var p in finalPages)
                 {
                     var visProp = p.GetType().GetProperty("Visible", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                     try { visProp?.SetValue(p, true); } catch { }
                 }
 
-                // Write into the GUI’s CURRENT elements list (do NOT rebind Elements!)
-                var miGetFlat = composer.GetType().GetMethod("GetFlatList", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                var miGetElem = composer.GetType().GetMethod("GetElement", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                object stacklist = miGetFlat?.Invoke(composer, new object[] { "stacklist" }) ?? miGetElem?.Invoke(composer, new object[] { "stacklist" });
-                if (stacklist == null) { LogEverywhere(capi, "[Craftable] UI: could not obtain stacklist element"); return false; }
+                // Fyll listan
+                shown.Clear();
+                foreach (var p in finalPages) shown.Add(p);
 
-                // Elements field on GuiElementFlatList
-                var fiElements = stacklist.GetType().GetField("Elements", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                var elementsList = fiElements?.GetValue(stacklist) as System.Collections.IList;
-                if (elementsList == null) return false;
+                // Höjd som vanilla använder
+                double listHeight = 500d;
+                if (fiListH != null)
+                {
+                    var vh = fiListH.GetValue(__instance);
+                    if (vh is double dh) listHeight = dh;
+                    else if (vh != null) listHeight = Convert.ToDouble(vh);
+                }
 
-                elementsList.Clear();
-                foreach (var p in finalPages) elementsList.Add(p);
+                // Nollställ scroll vid filter/sök – då hamnar träffarna högst upp
+                bool resetToTop = !string.IsNullOrWhiteSpace(q);
 
-                // Keep handbook’s shownHandbookPages pointing at the SAME instance the list is rendering
-                fiShown?.SetValue(__instance, elementsList);
+                TryBindAndResizeList(capi, composer, shown, listHeight, resetToTop);
 
-                // Recalc size/scroll
-                double listHeight = (double)(fiListH?.GetValue(__instance) ?? 500d);
-                TryBindAndResizeList(capi, composer, stacklist, listHeight);
-
-                return false; // handled
+                return false;
             }
-            catch { return true; }
+            catch
+            {
+                return true;
+            }
         }
 
-        // Only size/scroll recalculation; no rebinding of Elements here.
-        private static void TryBindAndResizeList(ICoreClientAPI capi, object composer, object stacklist, double listHeight)
+
+        private static void TryBindAndResizeList(ICoreClientAPI capi, object composer, System.Collections.IList shown, double listHeight, bool resetToTop = false)
         {
             try
             {
-                if (composer == null || stacklist == null) return;
+                if (composer == null) return;
 
-                // Recompute total height
+                // Hämta flatlist-elementet
+                object stacklist = null;
+                var miGetFlat = composer.GetType().GetMethod("GetFlatList", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                if (miGetFlat != null) stacklist = miGetFlat.Invoke(composer, new object[] { "stacklist" });
+                if (stacklist == null)
+                {
+                    var miGetElem = composer.GetType().GetMethod("GetElement", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    stacklist = miGetElem?.Invoke(composer, new object[] { "stacklist" });
+                }
+                if (stacklist == null)
+                {
+                    LogEverywhere(capi, "[Craftable] UI: could not obtain stacklist element");
+                    return;
+                }
+
+                // Koppla om Elements -> shown
+                var fiElements = stacklist.GetType().GetField("Elements", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                var current = fiElements?.GetValue(stacklist) as System.Collections.IList;
+                if (fiElements != null && !object.ReferenceEquals(current, shown))
+                {
+                    fiElements.SetValue(stacklist, shown);
+                    LogEverywhere(capi, "[Craftable] UI: rebound FlatList.Elements to shownHandbookPages");
+                }
+
+                // Recalc höjd
                 stacklist.GetType().GetMethod("CalcTotalHeight", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                          ?.Invoke(stacklist, Array.Empty<object>());
 
-                // Scrollbar heights (vanilla style)
+                // Scrollbar heights
                 var miGetScrollbar = composer.GetType().GetMethod("GetScrollbar", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                 var scrollbar = miGetScrollbar?.Invoke(composer, new object[] { "scrollbar" });
 
@@ -437,25 +497,39 @@ namespace ShowCraftable
                 scrollbar?.GetType().GetMethod("SetHeights", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                          ?.Invoke(scrollbar, new object[] { (float)listHeight, (float)total });
 
-                // Debug
-                var fiElements = stacklist.GetType().GetField("Elements", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                var elementsList = fiElements?.GetValue(stacklist) as System.Collections.IList;
-                int visible = 0;
-                if (elementsList != null)
+                // Nollställ scrollen så träffarna syns på toppen
+                if (resetToTop)
                 {
-                    foreach (var e in elementsList)
+                    // 1) Scrollbarens visuella position
+                    var piCur = scrollbar?.GetType().GetProperty("CurrentYPosition", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    piCur?.SetValue(scrollbar, 0f);
+
+                    // 2) Listans offset (samma effekt som OnNewScrollbarvalue... i vanilla)
+                    if (insideBounds != null)
                     {
-                        var vis = e?.GetType().GetProperty("Visible", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(e) as bool?;
-                        if (vis == true) visible++;
+                        var fiFixedY = insideBounds.GetType().GetField("fixedY", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        fiFixedY?.SetValue(insideBounds, 0.0);
+                        insideBounds.GetType().GetMethod("CalcWorldBounds", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                                    ?.Invoke(insideBounds, null);
                     }
-                    LogEverywhere(capi, $"[Craftable] UI: shown.Count={elementsList.Count}, visible={visible}, totalHeight={total:F1}");
                 }
+
+                // Debug
+                int visible = 0;
+                foreach (var e in shown)
+                {
+                    var vis = e?.GetType().GetProperty("Visible", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(e) as bool?;
+                    if (vis == true) visible++;
+                }
+                LogEverywhere(capi, $"[Craftable] UI: shown.Count={shown.Count}, visible={visible}, totalHeight={total:F1}, resetTop={resetToTop}");
             }
             catch (Exception e)
             {
-                LogEverywhere(capi, $"[Craftable] UI size/scroll error: {e}");
+                LogEverywhere(capi, $"[Craftable] UI bind/resize error: {e}");
             }
         }
+
+
 
         // -------------------- Dialog helpers --------------------
         private static void OpenCraftableTab(ICoreClientAPI capi)
@@ -1173,55 +1247,73 @@ namespace ShowCraftable
 
         private void OnScanRequest(IServerPlayer fromPlayer, CraftScanRequest req)
         {
-            try
-            {
-                var pos = fromPlayer.Entity.Pos.AsBlockPos;
-                var ba = sapi.World.BlockAccessor;
-                int r = Math.Max(0, req.Radius);
+            var pos = fromPlayer.Entity.Pos.AsBlockPos;
+            var ba = sapi.World.BlockAccessor;
+            int r = Math.Max(0, req.Radius);
 
-                var sum = new Dictionary<string, (int count, EnumItemClass cls)>();
+            var sum = new Dictionary<string, (int count, EnumItemClass cls)>();
 
-                for (int dx = -r; dx <= r; dx++)
-                    for (int dy = -1; dy <= 2; dy++)
-                        for (int dz = -r; dz <= r; dz++)
+            for (int dx = -r; dx <= r; dx++)
+                for (int dy = -1; dy <= 2; dy++)
+                    for (int dz = -r; dz <= r; dz++)
+                    {
+                        var be = ba.GetBlockEntity(pos.AddCopy(dx, dy, dz));
+                        if (be == null) continue;
+
+                        var inv = ShowCraftableSystem.TryGetInventoryFromBE(be);
+                        if (inv == null) continue;
+
+                        // --- Special handling for crates: they only ever hold 1 item type; sum all slots into one ---
+                        if (be is BlockEntityCrate)
                         {
-                            var be = ba.GetBlockEntity(pos.AddCopy(dx, dy, dz));
-                            if (be == null) continue;
+                            if (!req.IncludeCrates) continue;
 
-                            // Skip crates if requested (unchanged)
-                            if (be is BlockEntityCrate && !req.IncludeCrates) continue;
-
-                            // Use the same inventory probing as client
-                            var inv = ShowCraftableSystem.TryGetInventoryFromBE(be);
-                            if (inv == null) continue;
+                            ItemStack sample = null;
+                            int total = 0;
 
                             foreach (var slot in inv)
                             {
                                 var st = slot?.Itemstack;
-                                if (st?.Collectible?.Code == null) continue;
-
-                                string code = st.Collectible.Code.ToString();
-                                int add = Math.Max(1, st.StackSize);
-                                var cls = st.Class;
-
-                                if (sum.TryGetValue(code, out var cur)) sum[code] = (cur.count + add, cls);
-                                else sum[code] = (add, cls);
+                                if (st == null || st.Collectible?.Code == null) continue;
+                                if (sample == null) sample = st;
+                                total += Math.Max(1, st.StackSize);
                             }
+
+                            if (sample != null && total > 0)
+                            {
+                                string code = sample.Collectible.Code.ToString();
+                                var cls = sample.Class;
+                                if (sum.TryGetValue(code, out var cur)) sum[code] = (cur.count + total, cls);
+                                else sum[code] = (total, cls);
+                            }
+
+                            continue; // crate handled; skip generic path
                         }
 
-                var reply = new CraftScanReply
-                {
-                    Codes = sum.Keys.ToList(),
-                    Counts = sum.Values.Select(v => v.count).ToList(),
-                    Classes = sum.Values.Select(v => v.cls).ToList()
-                };
+                        // --- Generic path: sum each slot as-is (works for chests, vessels, shelves, racks, etc.) ---
+                        foreach (var slot in inv)
+                        {
+                            var st = slot?.Itemstack;
+                            if (st?.Collectible?.Code == null) continue;
 
-                sapi.Network.GetChannel(ShowCraftableSystem.ChannelName).SendPacket(reply, fromPlayer);
-            }
-            catch (Exception e)
+                            string code = st.Collectible.Code.ToString();
+                            int add = Math.Max(1, st.StackSize);
+                            var cls = st.Class;
+
+                            if (sum.TryGetValue(code, out var cur)) sum[code] = (cur.count + add, cls);
+                            else sum[code] = (add, cls);
+                        }
+                    }
+
+            var reply = new CraftScanReply
             {
-                sapi?.Logger?.Error("[Craftable] Server OnScanRequest error: {0}", e);
-            }
+                Codes = sum.Keys.ToList(),
+                Counts = sum.Values.Select(v => v.count).ToList(),
+                Classes = sum.Values.Select(v => v.cls).ToList()
+            };
+
+            sapi.Network.GetChannel(ShowCraftableSystem.ChannelName).SendPacket(reply, fromPlayer);
         }
+
     }
 }
