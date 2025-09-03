@@ -31,7 +31,7 @@ namespace ShowCraftable
 
         private static bool UseServerNearbyScan = true;
         public const string ChannelName = "showcraftablescan";
-        private static int NearbyRadius = 8; // standard
+        private static int NearbyRadius = 12; // standard
 
         // ---- Cache (page codes, not page objects) ----
         private static readonly object CacheLock = new();
@@ -379,12 +379,31 @@ namespace ShowCraftable
             return arr;
         }
 
-        // -------------------- Select tab: clear search & refresh --------------------
+        private static int _pendingScanId;
+
+        private static bool DialogIsOpen(object inst)
+        {
+            // Fast path
+            if (inst is GuiDialog dlg) return dlg.IsOpened();
+
+            // Fallback via reflection (defensive across minor API changes)
+            var mi = inst.GetType().GetMethod("IsOpened", BindingFlags.Instance | BindingFlags.Public);
+            return mi != null && mi.ReturnType == typeof(bool) && (bool)mi.Invoke(inst, Array.Empty<object>());
+        }
+
         public static void SelectTab_Postfix(object __instance, string code)
         {
             try
             {
                 CraftableTabActive = string.Equals(code, CraftableCategoryCode, StringComparison.Ordinal);
+
+                // Bail early if the dialog isn’t open (e.g., rapid close after click)
+                if (!DialogIsOpen(__instance))
+                {
+                    // cancel any pending debounced scan tied to this dialog/tab
+                    _pendingScanId++;
+                    return;
+                }
 
                 var fiCapi = AccessTools.Field(__instance.GetType(), "capi");
                 var capi = fiCapi?.GetValue(__instance) as ICoreClientAPI;
@@ -392,12 +411,17 @@ namespace ShowCraftable
                 var fiOverview = AccessTools.Field(__instance.GetType(), "overviewGui");
                 var composer = fiOverview?.GetValue(__instance);
 
-                // make overview the active composer (like vanilla Search())
-                var piSingle = AccessTools.Property(__instance.GetType(), "SingleComposer")
-                           ?? AccessTools.Property(__instance.GetType().BaseType, "SingleComposer");
-                try { piSingle?.SetValue(__instance, composer); } catch { }
+                // Make overview the active composer (like vanilla Search())
+                var piSingle =
+                    AccessTools.Property(__instance.GetType(), "SingleComposer")
+                    ?? AccessTools.Property(__instance.GetType().BaseType, "SingleComposer");
+                try { piSingle?.SetValue(__instance, composer); } catch { /* ignore */ }
 
-                if (!CraftableTabActive) return;
+                if (!CraftableTabActive)
+                {
+                    _pendingScanId++; // stop any in-flight debounce
+                    return;
+                }
 
                 // Clear search box & state, then refresh + debounced server scan
                 var miGetTextInput = composer?.GetType().GetMethod("GetTextInput");
@@ -405,15 +429,25 @@ namespace ShowCraftable
                 searchInput?.GetType().GetMethod("SetValue")?.Invoke(searchInput, new object[] { "", true });
 
                 AccessTools.Field(__instance.GetType(), "currentSearchText")?.SetValue(__instance, null);
-
                 AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
 
                 if (capi != null && UseServerNearbyScan)
                 {
-                    RequestServerScan(capi, NearbyRadius, includeCrates: true);
+                    // Debounce: capture a token; only the latest token is allowed to run
+                    var myScanId = ++_pendingScanId;
+
+                    // If you already have your own debounce utility, use it; otherwise a simple delayed callback works.
+                    capi.Event.EnqueueMainThreadTask(() =>
+                    {
+                        // Drop if a newer scan superseded this or dialog closed in the meantime
+                        if (myScanId != _pendingScanId) return;
+                        if (!DialogIsOpen(__instance) || !CraftableTabActive) return;
+
+                        RequestServerScan(capi, NearbyRadius, includeCrates: true);
+                    }, "CraftableScanKickoff");
                 }
             }
-            catch { }
+            catch (Exception) { /* keep postfix bulletproof */ }
         }
 
 
