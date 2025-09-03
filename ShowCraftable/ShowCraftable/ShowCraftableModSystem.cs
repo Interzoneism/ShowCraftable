@@ -26,6 +26,8 @@ namespace ShowCraftable
         private Harmony _harmony;
         private ICoreClientAPI _capi;
 
+        private static volatile bool CraftableTabActive;
+
         public const string HarmonyId = "showcraftable.core";
         public const string CraftableCategoryCode = "craftable";
 
@@ -139,6 +141,7 @@ namespace ShowCraftable
 
             var miLoadAsync = AccessTools.Method(tBase, "LoadPages_Async");
             _harmony.Patch(miLoadAsync, postfix: new HarmonyMethod(typeof(ShowCraftableSystem), nameof(AfterPagesLoaded_Postfix)));
+
 
             // Commands
             capi.ChatCommands.Create("craftable")
@@ -298,27 +301,30 @@ namespace ShowCraftable
         {
             try
             {
-                if (!string.Equals(code, CraftableCategoryCode, StringComparison.Ordinal)) return;
+                CraftableTabActive = string.Equals(code, CraftableCategoryCode, StringComparison.Ordinal);
 
                 var fiCapi = AccessTools.Field(__instance.GetType(), "capi");
                 var capi = fiCapi?.GetValue(__instance) as ICoreClientAPI;
 
-                // Clear search (as you already do)
                 var fiOverview = AccessTools.Field(__instance.GetType(), "overviewGui");
                 var composer = fiOverview?.GetValue(__instance);
-                if (composer != null)
-                {
-                    var miGetTextInput = composer.GetType().GetMethod("GetTextInput");
-                    var searchInput = miGetTextInput?.Invoke(composer, new object[] { "searchField" });
-                    searchInput?.GetType().GetMethod("SetValue")?.Invoke(searchInput, new object[] { "", true });
-                }
-                var fiSearch = AccessTools.Field(__instance.GetType(), "currentSearchText");
-                fiSearch?.SetValue(__instance, null);
 
-                // Refresh now (so the list doesn’t look stale)…
+                // make overview the active composer (like vanilla Search())
+                var piSingle = AccessTools.Property(__instance.GetType(), "SingleComposer")
+                           ?? AccessTools.Property(__instance.GetType().BaseType, "SingleComposer");
+                try { piSingle?.SetValue(__instance, composer); } catch { }
+
+                if (!CraftableTabActive) return;
+
+                // Clear search box & state, then refresh + debounced server scan
+                var miGetTextInput = composer?.GetType().GetMethod("GetTextInput");
+                var searchInput = miGetTextInput?.Invoke(composer, new object[] { "searchField" });
+                searchInput?.GetType().GetMethod("SetValue")?.Invoke(searchInput, new object[] { "", true });
+
+                AccessTools.Field(__instance.GetType(), "currentSearchText")?.SetValue(__instance, null);
+
                 AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
 
-                // …and kick a server-side rescan (debounced)
                 if (capi != null && UseServerNearbyScan)
                 {
                     RequestServerScan(capi, NearbyRadius, includeCrates: true);
@@ -326,6 +332,7 @@ namespace ShowCraftable
             }
             catch { }
         }
+
 
 
         // -------------------- After pages loaded: refresh our tab if active --------------------
@@ -363,11 +370,15 @@ namespace ShowCraftable
 
                 var capi = fiCapi?.GetValue(__instance) as ICoreClientAPI;
                 var shown = fiShown?.GetValue(__instance) as System.Collections.IList;
-                var composer = fiOverview?.GetValue(__instance);
+                if (fiOverview?.GetValue(__instance) is not GuiComposer composer) return true;
                 string q = (string)fiSearch?.GetValue(__instance);
                 bool loading = fiLoading != null && (bool)fiLoading.GetValue(__instance);
 
                 if (shown == null || composer == null) return true;
+                // Ensure the overview composer is the active one (mirrors vanilla Search()).
+                var piSingle = AccessTools.Property(__instance.GetType(), "SingleComposer")
+                           ?? AccessTools.Property(__instance.GetType().BaseType, "SingleComposer");
+                try { piSingle?.SetValue(__instance, composer); } catch { /* ignore */ }
 
                 // Karta: pagecode -> index
                 var pageMap = AccessTools.Field(__instance.GetType(), "pageNumberByPageCode")?.GetValue(__instance) as Dictionary<string, int>;
@@ -427,19 +438,36 @@ namespace ShowCraftable
 
                 // Höjd som vanilla använder
                 double listHeight = 500d;
-                if (fiListH != null)
+                // ... inside FilterItems_Prefix, after you finish the loop that populates the `shown` list ...
+
+                // Replicate the exact UI update logic from the end of the vanilla FilterItems method.
+                // This is the correct way for this version of the game.
+                GuiElementFlatList stacklist = composer.GetFlatList("stacklist");
+                if (stacklist != null)
                 {
-                    var vh = fiListH.GetValue(__instance);
-                    if (vh is double dh) listHeight = dh;
-                    else if (vh != null) listHeight = Convert.ToDouble(vh);
+                    // 1. Tell the list to recalculate its total height based on the new items.
+                    stacklist.CalcTotalHeight();
+
+                    // 2. Get the scrollbar.
+                    var scrollbar = composer.GetScrollbar("scrollbar");
+                    if (scrollbar != null)
+                    {
+                        // 3. Set the scrollbar's heights.
+                        // The 'listHeight' field holds the height of the visible area (the viewport).
+                        // The stacklist's 'insideBounds.fixedHeight' now holds the correct total height of all content.
+                        scrollbar.SetHeights((float)listHeight, (float)stacklist.insideBounds.fixedHeight);
+
+                        // 4. (Optional but recommended) Reset scroll to the top when the user is searching.
+                        if (!string.IsNullOrWhiteSpace(q))
+                        {
+                            scrollbar.CurrentYPosition = 0;
+                            stacklist.insideBounds.fixedY = 3f; // Resets the list's visual position
+                            stacklist.insideBounds.CalcWorldBounds();
+                        }
+                    }
                 }
 
-                // Nollställ scroll vid filter/sök – då hamnar träffarna högst upp
-                bool resetToTop = !string.IsNullOrWhiteSpace(q);
-
-                TryBindAndResizeList(capi, composer, shown, listHeight, resetToTop);
-
-                return false;
+                return false; // This must stay to prevent the original method from running
             }
             catch
             {
@@ -448,13 +476,13 @@ namespace ShowCraftable
         }
 
 
-        private static void TryBindAndResizeList(ICoreClientAPI capi, object composer, System.Collections.IList shown, double listHeight, bool resetToTop = false)
+        private static void TryBindAndResizeList(ICoreClientAPI capi, object composer, System.Collections.IList filtered, double listHeight, bool resetToTop = false)
         {
             try
             {
                 if (composer == null) return;
 
-                // Hämta flatlist-elementet
+                // 1) Get the FlatList ("stacklist") and Scrollbar
                 object stacklist = null;
                 var miGetFlat = composer.GetType().GetMethod("GetFlatList", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                 if (miGetFlat != null) stacklist = miGetFlat.Invoke(composer, new object[] { "stacklist" });
@@ -463,48 +491,81 @@ namespace ShowCraftable
                     var miGetElem = composer.GetType().GetMethod("GetElement", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                     stacklist = miGetElem?.Invoke(composer, new object[] { "stacklist" });
                 }
-                if (stacklist == null)
-                {
-                    LogEverywhere(capi, "[Craftable] UI: could not obtain stacklist element");
-                    return;
-                }
+                if (stacklist == null) { LogEverywhere(capi, "[Craftable] UI: no stacklist"); return; }
 
-                // Koppla om Elements -> shown
-                var fiElements = stacklist.GetType().GetField("Elements", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                var current = fiElements?.GetValue(stacklist) as System.Collections.IList;
-                if (fiElements != null && !object.ReferenceEquals(current, shown))
-                {
-                    fiElements.SetValue(stacklist, shown);
-                    LogEverywhere(capi, "[Craftable] UI: rebound FlatList.Elements to shownHandbookPages");
-                }
-
-                // Recalc höjd
-                stacklist.GetType().GetMethod("CalcTotalHeight", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                         ?.Invoke(stacklist, Array.Empty<object>());
-
-                // Scrollbar heights
                 var miGetScrollbar = composer.GetType().GetMethod("GetScrollbar", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                 var scrollbar = miGetScrollbar?.Invoke(composer, new object[] { "scrollbar" });
 
-                double total = 0d;
+                // 2) Force the FlatList to point at the *filtered* list instance
+                var fiElements = stacklist.GetType().GetField("Elements", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                var curElems = fiElements?.GetValue(stacklist) as System.Collections.IList;
+                if (fiElements != null && !object.ReferenceEquals(curElems, filtered))
+                {
+                    fiElements.SetValue(stacklist, filtered);
+                }
+
+                // 3) Recalculate content height
+                stacklist.GetType().GetMethod("CalcTotalHeight", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                         ?.Invoke(stacklist, Array.Empty<object>());
+
+                // Prefer the list’s measured content height
+                float contentHeight = 0f;
                 var insideBounds = stacklist.GetType().GetField("insideBounds", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(stacklist);
                 if (insideBounds != null)
                 {
                     var fiFixedH = insideBounds.GetType().GetField("fixedHeight", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                    if (fiFixedH != null) total = Convert.ToDouble(fiFixedH.GetValue(insideBounds));
+                    if (fiFixedH != null) contentHeight = Convert.ToSingle(fiFixedH.GetValue(insideBounds));
                 }
 
-                scrollbar?.GetType().GetMethod("SetHeights", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                         ?.Invoke(scrollbar, new object[] { (float)listHeight, (float)total });
+                // 4) If that still didn’t reflect filtered count, compute from item height * filtered.Count
+                if (contentHeight <= 0f && filtered != null)
+                {
+                    float itemH = 0f;
 
-                // Nollställ scrollen så träffarna syns på toppen
+                    // Try common names
+                    var fiItemH = stacklist.GetType().GetField("itemHeight", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                               ?? stacklist.GetType().GetField("lineHeight", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (fiItemH != null) itemH = Convert.ToSingle(fiItemH.GetValue(stacklist));
+
+                    // Derive from old measurement if available
+                    if (itemH <= 0f && curElems != null && curElems.Count > 0 && insideBounds != null)
+                    {
+                        var fiFixedH = insideBounds.GetType().GetField("fixedHeight", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (fiFixedH != null)
+                        {
+                            var prevTotal = Convert.ToSingle(fiFixedH.GetValue(insideBounds));
+                            if (prevTotal > 0f) itemH = prevTotal / Math.Max(1, curElems.Count);
+                        }
+                    }
+
+                    if (itemH <= 0f) itemH = 26f; // conservative default
+
+                    contentHeight = itemH * filtered.Count;
+                }
+
+                // 5) Viewport height (like vanilla: listHeight, with a robust fallback)
+                float viewportHeight = (float)(listHeight > 0 ? listHeight : 0f);
+                if (viewportHeight <= 0f)
+                {
+                    var bounds = stacklist.GetType().GetField("bounds", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(stacklist);
+                    if (bounds != null)
+                    {
+                        var fiBFixedH = bounds.GetType().GetField("fixedHeight", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (fiBFixedH != null) viewportHeight = Convert.ToSingle(fiBFixedH.GetValue(bounds));
+                    }
+                }
+                if (viewportHeight <= 0f) viewportHeight = 500f;
+
+                // 6) Apply to the live scrollbar
+                scrollbar?.GetType().GetMethod("SetHeights", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                         ?.Invoke(scrollbar, new object[] { viewportHeight, contentHeight });
+
+                // 7) Reset to top when typing
                 if (resetToTop)
                 {
-                    // 1) Scrollbarens visuella position
                     var piCur = scrollbar?.GetType().GetProperty("CurrentYPosition", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                    piCur?.SetValue(scrollbar, 0f);
+                    try { piCur?.SetValue(scrollbar, 0f); } catch { }
 
-                    // 2) Listans offset (samma effekt som OnNewScrollbarvalue... i vanilla)
                     if (insideBounds != null)
                     {
                         var fiFixedY = insideBounds.GetType().GetField("fixedY", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
@@ -514,20 +575,16 @@ namespace ShowCraftable
                     }
                 }
 
-                // Debug
-                int visible = 0;
-                foreach (var e in shown)
-                {
-                    var vis = e?.GetType().GetProperty("Visible", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(e) as bool?;
-                    if (vis == true) visible++;
-                }
-                LogEverywhere(capi, $"[Craftable] UI: shown.Count={shown.Count}, visible={visible}, totalHeight={total:F1}, resetTop={resetToTop}");
+                // Debug for tuning
+                LogEverywhere(capi, $"[Craftable] UI resize: filtered={filtered?.Count ?? -1}, viewport={viewportHeight:F1}, content={contentHeight:F1}, resetTop={resetToTop}");
             }
             catch (Exception e)
             {
                 LogEverywhere(capi, $"[Craftable] UI bind/resize error: {e}");
             }
         }
+
+
 
 
 
@@ -844,36 +901,142 @@ namespace ShowCraftable
             public EnumItemClass Type;
         }
 
+        // Presence-only check over source pool (not the tmp copy)
+        private static bool HasWildcard(
+            ResourcePool pool,
+            EnumItemClass type,
+            AssetLocation patternCode,
+            Dictionary<string, string[]> allowed)
+        {
+            if (patternCode == null) return false;
+
+            foreach (var kv in pool.Counts)
+            {
+                if (kv.Value <= 0) continue;
+                if (!pool.Classes.TryGetValue(kv.Key, out var cls) || cls != type) continue;
+
+                var al = new AssetLocation(kv.Key.Code);
+                if (WildcardMatch(patternCode, al, allowed))
+                    return true;
+            }
+            return false;
+        }
+
+        // Presence-only: any option present in pool.Counts
+        private static bool HasAnyOption(ResourcePool pool, IList<ItemStack> options)
+        {
+            if (options == null || options.Count == 0) return false;
+
+            for (int i = 0; i < options.Count; i++)
+            {
+                var st = options[i];
+                var coll = st?.Collectible;
+                var code = coll?.Code?.ToString();
+                if (string.IsNullOrEmpty(code)) continue;
+
+                var key = new Key { Code = code };
+                if (pool.Counts.TryGetValue(key, out int have) && have > 0)
+                    return true;
+            }
+            return false;
+        }
+
+        // Aggregate across all matching keys until need reaches 0
+        private static bool TryConsumeWildcard(
+            ResourcePool pool,
+            Dictionary<Key, int> tmpCounts,
+            EnumItemClass type,
+            AssetLocation patternCode,
+            Dictionary<string, string[]> allowed,
+            int need)
+        {
+            if (patternCode == null || need <= 0) return need <= 0;
+
+            foreach (var kv in pool.Counts)
+            {
+                if (need <= 0) break;
+
+                var key = kv.Key;
+                if (!pool.Classes.TryGetValue(key, out var cls) || cls != type) continue;
+                if (!tmpCounts.TryGetValue(key, out int have) || have <= 0) continue;
+
+                var al = new AssetLocation(key.Code);
+                if (!WildcardMatch(patternCode, al, allowed)) continue;
+
+                int take = have < need ? have : need;
+                if (take <= 0) continue;
+
+                tmpCounts[key] = have - take;
+                need -= take;
+            }
+
+            return need == 0;
+        }
+
+        // Aggregate consumption across multiple specific options
+        private static bool TryConsumeOptions(
+            Dictionary<Key, int> tmpCounts,
+            IList<ItemStack> options,
+            int need)
+        {
+            if (options == null || options.Count == 0) return false;
+
+            for (int i = 0; i < options.Count && need > 0; i++)
+            {
+                var st = options[i];
+                var coll = st?.Collectible;
+                var code = coll?.Code?.ToString();
+                if (string.IsNullOrEmpty(code)) continue;
+
+                var key = new Key { Code = code };
+                if (!tmpCounts.TryGetValue(key, out int have) || have <= 0) continue;
+
+                int take = have < need ? have : need;
+                if (take <= 0) continue;
+
+                tmpCounts[key] = have - take;
+                need -= take;
+            }
+
+            return need == 0;
+        }
+
+
         private static bool IsCraftable(GridRecipeShim r, ResourcePool pool)
         {
-            var tmp = new ResourcePool();
-            foreach (var kv in pool.Counts) tmp.Counts[kv.Key] = kv.Value;
-            foreach (var kv in pool.Classes) tmp.Classes[kv.Key] = kv.Value;
+            // Copy only counts; use pool.Classes for class lookups.
+            var tmpCounts = new Dictionary<Key, int>(pool.Counts);
 
-            // Tools: presence only
+            // 1) Tools: presence check only (never consumed)
             foreach (var ing in r.Ingredients)
             {
                 if (!ing.IsTool) continue;
+
                 if (ing.IsWild)
                 {
-                    if (!tmp.TryConsumeWildcard(ing.Type, ing.PatternCode, ing.Allowed, 1, consume: false))
+                    if (!HasWildcard(pool, ing.Type, ing.PatternCode, ing.Allowed))
                         return false;
                 }
                 else
                 {
-                    if (!tmp.HasAny(ing.Options)) return false;
+                    if (!HasAnyOption(pool, ing.Options))
+                        return false;
                 }
             }
-            // Consumables
+
+            // 2) Materials: must be consumable (may aggregate across many keys/options)
             foreach (var ing in r.Ingredients)
             {
                 if (ing.IsTool) continue;
+
                 int need = Math.Max(1, ing.QuantityRequired);
                 bool ok = ing.IsWild
-                    ? tmp.TryConsumeWildcard(ing.Type, ing.PatternCode, ing.Allowed, need, consume: true)
-                    : tmp.TryConsumeAny(ing.Options, need, consume: true);
+                    ? TryConsumeWildcard(pool, tmpCounts, ing.Type, ing.PatternCode, ing.Allowed, need)
+                    : TryConsumeOptions(tmpCounts, ing.Options, need);
+
                 if (!ok) return false;
             }
+
             return true;
         }
 
