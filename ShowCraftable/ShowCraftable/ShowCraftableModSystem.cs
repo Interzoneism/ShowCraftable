@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading; // <— for Interlocked
+using System.Threading;
 using Vintagestory.API.Client;
 using Vintagestory.API.Server;
 using Vintagestory.API.Common;
@@ -25,9 +25,6 @@ namespace ShowCraftable
 
         public const string HarmonyId = "showcraftable.core";
         public const string CraftableCategoryCode = "craftable";
-
-        private static bool IncludeNearbyContainers = false;   // legacy local scan flag (not used when server-scan is on)
-        private static int ScanRadius = 8;
 
         private static bool UseServerNearbyScan = true;
         public const string ChannelName = "showcraftablescan";
@@ -450,8 +447,6 @@ namespace ShowCraftable
             catch (Exception) { /* keep postfix bulletproof */ }
         }
 
-
-
         // -------------------- After pages loaded: refresh our tab if active --------------------
         public static void AfterPagesLoaded_Postfix(object __instance)
         {
@@ -582,119 +577,6 @@ namespace ShowCraftable
                 return true;
             }
         }
-
-
-        private static void TryBindAndResizeList(ICoreClientAPI capi, object composer, System.Collections.IList filtered, double listHeight, bool resetToTop = false)
-        {
-            try
-            {
-                if (composer == null) return;
-
-                // 1) Get the FlatList ("stacklist") and Scrollbar
-                object stacklist = null;
-                var miGetFlat = composer.GetType().GetMethod("GetFlatList", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                if (miGetFlat != null) stacklist = miGetFlat.Invoke(composer, new object[] { "stacklist" });
-                if (stacklist == null)
-                {
-                    var miGetElem = composer.GetType().GetMethod("GetElement", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                    stacklist = miGetElem?.Invoke(composer, new object[] { "stacklist" });
-                }
-                if (stacklist == null) { LogEverywhere(capi, "[Craftable] UI: no stacklist"); return; }
-
-                var miGetScrollbar = composer.GetType().GetMethod("GetScrollbar", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                var scrollbar = miGetScrollbar?.Invoke(composer, new object[] { "scrollbar" });
-
-                // 2) Force the FlatList to point at the *filtered* list instance
-                var fiElements = stacklist.GetType().GetField("Elements", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                var curElems = fiElements?.GetValue(stacklist) as System.Collections.IList;
-                if (fiElements != null && !object.ReferenceEquals(curElems, filtered))
-                {
-                    fiElements.SetValue(stacklist, filtered);
-                }
-
-                // 3) Recalculate content height
-                stacklist.GetType().GetMethod("CalcTotalHeight", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                         ?.Invoke(stacklist, Array.Empty<object>());
-
-                // Prefer the list’s measured content height
-                float contentHeight = 0f;
-                var insideBounds = stacklist.GetType().GetField("insideBounds", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(stacklist);
-                if (insideBounds != null)
-                {
-                    var fiFixedH = insideBounds.GetType().GetField("fixedHeight", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                    if (fiFixedH != null) contentHeight = Convert.ToSingle(fiFixedH.GetValue(insideBounds));
-                }
-
-                // 4) If that still didn’t reflect filtered count, compute from item height * filtered.Count
-                if (contentHeight <= 0f && filtered != null)
-                {
-                    float itemH = 0f;
-
-                    // Try common names
-                    var fiItemH = stacklist.GetType().GetField("itemHeight", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                               ?? stacklist.GetType().GetField("lineHeight", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                    if (fiItemH != null) itemH = Convert.ToSingle(fiItemH.GetValue(stacklist));
-
-                    // Derive from old measurement if available
-                    if (itemH <= 0f && curElems != null && curElems.Count > 0 && insideBounds != null)
-                    {
-                        var fiFixedH = insideBounds.GetType().GetField("fixedHeight", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                        if (fiFixedH != null)
-                        {
-                            var prevTotal = Convert.ToSingle(fiFixedH.GetValue(insideBounds));
-                            if (prevTotal > 0f) itemH = prevTotal / Math.Max(1, curElems.Count);
-                        }
-                    }
-
-                    if (itemH <= 0f) itemH = 26f; // conservative default
-
-                    contentHeight = itemH * filtered.Count;
-                }
-
-                // 5) Viewport height (like vanilla: listHeight, with a robust fallback)
-                float viewportHeight = (float)(listHeight > 0 ? listHeight : 0f);
-                if (viewportHeight <= 0f)
-                {
-                    var bounds = stacklist.GetType().GetField("bounds", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(stacklist);
-                    if (bounds != null)
-                    {
-                        var fiBFixedH = bounds.GetType().GetField("fixedHeight", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                        if (fiBFixedH != null) viewportHeight = Convert.ToSingle(fiBFixedH.GetValue(bounds));
-                    }
-                }
-                if (viewportHeight <= 0f) viewportHeight = 500f;
-
-                // 6) Apply to the live scrollbar
-                scrollbar?.GetType().GetMethod("SetHeights", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                         ?.Invoke(scrollbar, new object[] { viewportHeight, contentHeight });
-
-                // 7) Reset to top when typing
-                if (resetToTop)
-                {
-                    var piCur = scrollbar?.GetType().GetProperty("CurrentYPosition", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                    try { piCur?.SetValue(scrollbar, 0f); } catch { }
-
-                    if (insideBounds != null)
-                    {
-                        var fiFixedY = insideBounds.GetType().GetField("fixedY", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                        fiFixedY?.SetValue(insideBounds, 0.0);
-                        insideBounds.GetType().GetMethod("CalcWorldBounds", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                                    ?.Invoke(insideBounds, null);
-                    }
-                }
-
-                // Debug for tuning
-                LogEverywhere(capi, $"[Craftable] UI resize: filtered={filtered?.Count ?? -1}, viewport={viewportHeight:F1}, content={contentHeight:F1}, resetTop={resetToTop}");
-            }
-            catch (Exception e)
-            {
-                LogEverywhere(capi, $"[Craftable] UI bind/resize error: {e}");
-            }
-        }
-
-
-
-
 
         // -------------------- Dialog helpers --------------------
         private static void OpenCraftableTab(ICoreClientAPI capi)
@@ -1148,59 +1030,6 @@ namespace ShowCraftable
             return true;
         }
 
-        private static long _lastAutoScanMs = 0;
-
-        private static void BeginScan(ICoreClientAPI capi, bool silent = true, int radiusOverride = -1)
-        {
-            // Debounce a bit to avoid double-firing from UI noise
-            long now = capi.World.ElapsedMilliseconds;
-            if (now - _lastAutoScanMs < 300) return;
-            _lastAutoScanMs = now;
-
-            if (ScanInProgress) return;
-            ScanInProgress = true;
-
-            // We may hand control to async server reply; hold pause until then.
-            HandbookPauseGuard.Acquire(capi);
-            bool handedToServer = false;
-
-            try
-            {
-                if (UseServerNearbyScan)
-                {
-                    capi.Network.GetChannel(ChannelName).SendPacket(new CraftScanRequest
-                    {
-                        Radius = radiusOverride > 0 ? radiusOverride : NearbyRadius,
-                        IncludeCrates = false
-                    });
-                    handedToServer = true;
-                    if (!silent) LogEverywhere(capi, $"[Craftable] Requested server-side nearby scan (r={NearbyRadius})…", toChat: true);
-                    // ScanInProgress cleared & guard released in OnServerScanReply
-                }
-                else
-                {
-                    // Local fallback scan (synchronous)
-                    int pages = RebuildCache(capi, includeNearby: true, radius: radiusOverride > 0 ? radiusOverride : NearbyRadius,
-                                             out int outputs, out int fetched, out int usable);
-                    if (!silent) LogEverywhere(capi, $"[Craftable] Local scan done: outputs={outputs}, pages={pages}, fetched={fetched}, usable={usable}", toChat: true);
-                    TryRefreshOpenDialog(capi);
-                }
-            }
-            catch (Exception e)
-            {
-                LogEverywhere(capi, $"[Craftable] Auto-scan failed: {e}", toChat: !silent);
-            }
-            finally
-            {
-                if (!UseServerNearbyScan || !handedToServer)
-                {
-                    ScanInProgress = false;
-                    HandbookPauseGuard.Release(capi);
-                }
-            }
-        }
-
-
         private static List<GridRecipeShim> GetAllGridRecipes(ICoreClientAPI capi, out int fetched, out int usable)
         {
             var list = new List<GridRecipeShim>();
@@ -1349,17 +1178,11 @@ namespace ShowCraftable
                         var p0 = pars[0].ParameterType;
                         if (p0.IsInstanceOfType(capi.World)) { mi.Invoke(raw, new object[] { capi.World }); return; }
                         if (p0.IsInstanceOfType(capi.World?.Api)) { mi.Invoke(raw, new object[] { capi.World.Api }); return; }
-                        if (p0.IsInstanceOfType(capi)) { mi.Invoke(raw, new object[] { capi }); return; }
+                        if (p0.IsInstanceOfType(capi)) { object[] parameters = new object[] { capi }; mi.Invoke(raw, parameters); return; }
                     }
                 }
                 catch { }
             }
-        }
-
-        private static object TryGetMember(object obj, string name)
-        {
-            if (obj == null) return null;
-            return TryGetMember(obj.GetType(), obj, name);
         }
 
         private static object TryGetMember(Type t, object obj, string name)
