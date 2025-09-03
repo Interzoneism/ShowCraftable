@@ -1,15 +1,10 @@
-﻿// File: ShowCraftableModSystem.cs
-// Adds a "Craftable" tab that lists handbook pages for items currently craftable in the 3x3 grid.
-// The list is built on-demand via .craftablescan and cached as page codes (stable across dialog rebuilds).
-//
-// Requires: HarmonyLib, VintagestoryAPI.dll, VintagestoryLib.dll, Vintagestory.GameContent.dll
-
-using HarmonyLib;
+﻿using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading; // <— for Interlocked
 using Vintagestory.API.Client;
 using Vintagestory.API.Server;
 using Vintagestory.API.Common;
@@ -43,6 +38,84 @@ namespace ShowCraftable
         private static List<string> CachedPageCodes = new();   // PageCode strings
 
         private static bool ScanInProgress = false;
+
+        // -------------------- Pause Guard for Handbook --------------------
+        /// <summary>
+        /// Ensures the handbook does not pause the world while a scan runs.
+        /// - On first acquire: set noHandbookPause=true, unpause, sync toggle visuals
+        /// - On last release: restore original noHandbookPause; if handbook still open and original implied pause, pause again; sync visuals
+        /// Safe for overlapping acquires via refcount.
+        /// </summary>
+        private static class HandbookPauseGuard
+        {
+            private static int _refCount;
+            private static bool _savedNoHandbookPause;
+
+            public static void Acquire(ICoreClientAPI capi)
+            {
+                if (capi == null || !capi.IsSinglePlayer || capi.OpenedToLan) return;
+
+                if (Interlocked.Increment(ref _refCount) == 1)
+                {
+                    try
+                    {
+                        _savedNoHandbookPause = capi.Settings.Bool["noHandbookPause"];
+                        capi.Settings.Bool["noHandbookPause"] = true;
+                        capi.PauseGame(false);
+                        SyncToggleVisual(capi);
+                    }
+                    catch { /* best-effort */ }
+                }
+            }
+
+            public static void Release(ICoreClientAPI capi)
+            {
+                if (capi == null || !capi.IsSinglePlayer || capi.OpenedToLan) return;
+
+                if (Interlocked.Decrement(ref _refCount) == 0)
+                {
+                    try
+                    {
+                        capi.Settings.Bool["noHandbookPause"] = _savedNoHandbookPause;
+
+                        // Only re-pause if the handbook is currently open and the original setting implied pause
+                        if (IsHandbookOpen(capi) && !_savedNoHandbookPause)
+                        {
+                            capi.PauseGame(true);
+                        }
+
+                        SyncToggleVisual(capi);
+                    }
+                    catch { /* best-effort */ }
+                }
+            }
+
+            private static bool IsHandbookOpen(ICoreClientAPI capi)
+            {
+                try { return capi.OpenedGuis?.OfType<GuiDialogHandbook>()?.Any() == true; }
+                catch { return false; }
+            }
+
+            private static void SyncToggleVisual(ICoreClientAPI capi)
+            {
+                try
+                {
+                    var dlg = capi.OpenedGuis?.OfType<GuiDialogHandbook>()?.FirstOrDefault();
+                    if (dlg == null) return;
+
+                    bool shouldBePaused = !capi.Settings.Bool["noHandbookPause"];
+
+                    // Try both composers; either may be active depending on which view is shown
+                    var tDlg = typeof(GuiDialogHandbook);
+                    var overview = tDlg.GetField("overviewGui", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)?.GetValue(dlg) as GuiComposer;
+                    var detail = tDlg.GetField("detailViewGui", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)?.GetValue(dlg) as GuiComposer;
+
+                    overview?.GetToggleButton("pausegame")?.SetValue(shouldBePaused);
+                    detail?.GetToggleButton("pausegame")?.SetValue(shouldBePaused);
+                }
+                catch { /* best-effort */ }
+            }
+        }
 
         // --------------- Logging (chat + client/server logger + file) ---------------
         private static void LogEverywhere(ICoreClientAPI capi, string msg, bool toChat = false)
@@ -98,6 +171,9 @@ namespace ShowCraftable
             if (ScanInProgress) return;
             ScanInProgress = true;
 
+            // Hold the unpaused state for the duration of the async scan
+            HandbookPauseGuard.Acquire(capi);
+
             try
             {
                 capi.Network.GetChannel(ChannelName).SendPacket(new CraftScanRequest
@@ -110,6 +186,7 @@ namespace ShowCraftable
             catch (Exception e)
             {
                 ScanInProgress = false;
+                HandbookPauseGuard.Release(capi);
                 LogEverywhere(capi, $"[Craftable] scan send failed: {e}", toChat: true);
             }
         }
@@ -162,7 +239,8 @@ namespace ShowCraftable
                         return TextCommandResult.Success();
                     }
 
-        ScanInProgress = true;
+                    ScanInProgress = true;
+                    HandbookPauseGuard.Acquire(capi);
                     try
                     {
                         if (UseServerNearbyScan)
@@ -187,7 +265,12 @@ namespace ShowCraftable
                     {
                         LogEverywhere(capi, $"[Craftable] Scan failed: {e}", toChat: true);
                     }
-                    finally { ScanInProgress = false; }
+                    finally
+                    {
+                        ScanInProgress = false;
+                        // Local path releases; server path releases in OnServerScanReply
+                        if (!UseServerNearbyScan) HandbookPauseGuard.Release(capi);
+                    }
 
                     return TextCommandResult.Success();
                 });
@@ -438,30 +521,21 @@ namespace ShowCraftable
 
                 // Höjd som vanilla använder
                 double listHeight = 500d;
-                // ... inside FilterItems_Prefix, after you finish the loop that populates the `shown` list ...
-
                 // Replicate the exact UI update logic from the end of the vanilla FilterItems method.
-                // This is the correct way for this version of the game.
                 GuiElementFlatList stacklist = composer.GetFlatList("stacklist");
                 if (stacklist != null)
                 {
-                    // 1. Tell the list to recalculate its total height based on the new items.
                     stacklist.CalcTotalHeight();
 
-                    // 2. Get the scrollbar.
                     var scrollbar = composer.GetScrollbar("scrollbar");
                     if (scrollbar != null)
                     {
-                        // 3. Set the scrollbar's heights.
-                        // The 'listHeight' field holds the height of the visible area (the viewport).
-                        // The stacklist's 'insideBounds.fixedHeight' now holds the correct total height of all content.
                         scrollbar.SetHeights((float)listHeight, (float)stacklist.insideBounds.fixedHeight);
 
-                        // 4. (Optional but recommended) Reset scroll to the top when the user is searching.
                         if (!string.IsNullOrWhiteSpace(q))
                         {
                             scrollbar.CurrentYPosition = 0;
-                            stacklist.insideBounds.fixedY = 3f; // Resets the list's visual position
+                            stacklist.insideBounds.fixedY = 3f;
                             stacklist.insideBounds.CalcWorldBounds();
                         }
                     }
@@ -1052,6 +1126,10 @@ namespace ShowCraftable
             if (ScanInProgress) return;
             ScanInProgress = true;
 
+            // We may hand control to async server reply; hold pause until then.
+            HandbookPauseGuard.Acquire(capi);
+            bool handedToServer = false;
+
             try
             {
                 if (UseServerNearbyScan)
@@ -1061,23 +1139,30 @@ namespace ShowCraftable
                         Radius = radiusOverride > 0 ? radiusOverride : NearbyRadius,
                         IncludeCrates = false
                     });
+                    handedToServer = true;
                     if (!silent) LogEverywhere(capi, $"[Craftable] Requested server-side nearby scan (r={NearbyRadius})…", toChat: true);
-                    // ScanInProgress will be cleared in OnServerScanReply
+                    // ScanInProgress cleared & guard released in OnServerScanReply
                 }
                 else
                 {
-                    // Local fallback scan
+                    // Local fallback scan (synchronous)
                     int pages = RebuildCache(capi, includeNearby: true, radius: radiusOverride > 0 ? radiusOverride : NearbyRadius,
                                              out int outputs, out int fetched, out int usable);
                     if (!silent) LogEverywhere(capi, $"[Craftable] Local scan done: outputs={outputs}, pages={pages}, fetched={fetched}, usable={usable}", toChat: true);
                     TryRefreshOpenDialog(capi);
-                    ScanInProgress = false;
                 }
             }
             catch (Exception e)
             {
                 LogEverywhere(capi, $"[Craftable] Auto-scan failed: {e}", toChat: !silent);
-                ScanInProgress = false;
+            }
+            finally
+            {
+                if (!UseServerNearbyScan || !handedToServer)
+                {
+                    ScanInProgress = false;
+                    HandbookPauseGuard.Release(capi);
+                }
             }
         }
 
@@ -1320,6 +1405,7 @@ namespace ShowCraftable
             finally
             {
                 ScanInProgress = false;
+                HandbookPauseGuard.Release(_capi);
             }
         }
 
