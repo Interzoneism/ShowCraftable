@@ -28,6 +28,11 @@
 		<GameDllRoot>$(VINTAGE_STORY)</GameDllRoot>
 	</PropertyGroup>
 	<ItemGroup>
+	  <Compile Remove="VS_1.21_Decompiled\**" />
+	  <EmbeddedResource Remove="VS_1.21_Decompiled\**" />
+	  <None Remove="VS_1.21_Decompiled\**" />
+	</ItemGroup>
+	<ItemGroup>
 	  <Compile Remove="ShowCraftableModSystemAlt.cs" />
 	  <Compile Remove="ShowCraftableModSystem_old.cs" />
 	</ItemGroup>
