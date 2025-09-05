@@ -139,7 +139,7 @@ public class FillGridButton : ButtonRTC
         var ingredients = recipe.resolvedIngredients;
 
         // Samla brister som vi inte kan fylla lokalt; skickas till servern efter lokala moves
-        var needs = new List<ShowCraftableSystem.NeedSlotInfo>();
+        var needs = new List<NeedSlotInfo>();
 
         // Matcha grid-innehåll mot recept och töm icke-matchande
         if (recipe.Shapeless)
