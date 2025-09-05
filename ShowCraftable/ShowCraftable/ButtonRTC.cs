@@ -140,10 +140,11 @@ public abstract class ButtonRTC : RichTextComponentBase {
     }
 
     private class GlobalBounds : ElementBounds {
-        public GlobalBounds(double x, double y, double width, double height) { 
+        public GlobalBounds(double x, double y, double width, double height)
+        {
             absFixedX = x;
-            absFixedX = y;
-            absInnerWidth  = fixedWidth  = width;
+            absFixedY = y;
+            absInnerWidth = fixedWidth = width;
             absInnerHeight = fixedHeight = height;
             BothSizing = ElementSizing.Fixed;
             ParentBounds = new();
