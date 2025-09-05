@@ -71,6 +71,10 @@ public class FillGridButton : ButtonRTC
         var recipe = recipes
             .FirstOrDefault(x => x.Matches(player, input, 3));
         recipe ??= recipes.FirstOrDefault(CanMake);
+        // Fallback to the first recipe even when we don't yet have
+        // ingredients in inventory. This allows the server-side fetch
+        // logic to pull required items from nearby containers.
+        recipe ??= recipes.FirstOrDefault();
 
         bool result = false;
         if (recipe != null)
