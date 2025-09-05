@@ -1,17 +1,20 @@
 ﻿using HarmonyLib;
+using ImprovedHandbookRecipes;
+using ProtoBuf;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using Vintagestory.API.Client;
-using Vintagestory.API.Server;
 using Vintagestory.API.Common;
 using Vintagestory.API.MathTools;
+using Vintagestory.API.Server;
 using Vintagestory.API.Util;
 using Vintagestory.GameContent;
-using ProtoBuf;
 
 namespace ShowCraftable
 {
@@ -26,9 +29,13 @@ namespace ShowCraftable
         public const string HarmonyId = "showcraftable.core";
         public const string CraftableCategoryCode = "craftable";
 
-        private static bool UseServerNearbyScan = true;
         public const string ChannelName = "showcraftablescan";
         private static int NearbyRadius = 12; // standard
+
+        // Expose default radius for ImprovedHandbookRecipes.FillGridButton
+        public static int DefaultNearbyRadius => NearbyRadius;
+
+        private static TaskCompletionSource<bool> fetchCheckTcs;
 
         // ---- Cache (page codes, not page objects) ----
         private static readonly object CacheLock = new();
@@ -199,7 +206,10 @@ namespace ShowCraftable
                 .RegisterChannel(ChannelName)
                 .RegisterMessageType(typeof(CraftScanRequest))
                 .RegisterMessageType(typeof(CraftScanReply))
-                .SetMessageHandler<CraftScanReply>(OnServerScanReply);
+                .RegisterMessageType(typeof(FetchToGridRequest))
+                .RegisterMessageType(typeof(FetchToGridResult))
+                .SetMessageHandler<CraftScanReply>(OnServerScanReply)
+                .SetMessageHandler<FetchToGridResult>(OnFetchResult);
 
             // Patch tabs & list population
             var tSurv = AccessTools.TypeByName("Vintagestory.GameContent.GuiDialogSurvivalHandbook");
@@ -216,6 +226,10 @@ namespace ShowCraftable
             var miLoadAsync = AccessTools.Method(tBase, "LoadPages_Async");
             _harmony.Patch(miLoadAsync, postfix: new HarmonyMethod(typeof(ShowCraftableSystem), nameof(AfterPagesLoaded_Postfix)));
 
+            // Initialize Improved Handbook UI and behavior (identical to original; only source slots differ via our scan)
+            Handbook_Patch.SetAPI(capi);
+            Textures.Load(capi);
+            _harmony.PatchAll(typeof(Handbook_Patch).Assembly);
 
             // Commands
             capi.ChatCommands.Create("craftable")
@@ -230,45 +244,7 @@ namespace ShowCraftable
                 .WithDescription("Rebuild Craftable cache (player + nearby containers via server)")
                 .HandleWith(args =>
                 {
-                    if (UseServerNearbyScan)
-                    {
-                        RequestServerScan(capi, NearbyRadius, includeCrates: true);
-                        return TextCommandResult.Success();
-                    }
-
-                    ScanInProgress = true;
-                    HandbookPauseGuard.Acquire(capi);
-                    try
-                    {
-                        if (UseServerNearbyScan)
-                        {
-                            capi.Network.GetChannel(ChannelName).SendPacket(new CraftScanRequest
-                            {
-                                Radius = NearbyRadius,
-                                IncludeCrates = true // tills vidare
-                            });
-                            LogEverywhere(capi, $"[Craftable] Requested server-side nearby container scan (r={NearbyRadius})…", toChat: true);
-                            // Rest happens in OnServerScanReply
-                            return TextCommandResult.Success();
-                        }
-
-                        // Fallback: local-only scan (client side)
-                        int pages = RebuildCache(capi, includeNearby: true, radius: NearbyRadius,
-                                                 out int outputs, out int fetched, out int usable);
-                        LogEverywhere(capi, $"[Craftable] Local scan done: outputs={outputs}, pages={pages}, fetched={fetched}, usable={usable}", toChat: true);
-                        TryRefreshOpenDialog(capi);
-                    }
-                    catch (Exception e)
-                    {
-                        LogEverywhere(capi, $"[Craftable] Scan failed: {e}", toChat: true);
-                    }
-                    finally
-                    {
-                        ScanInProgress = false;
-                        // Local path releases; server path releases in OnServerScanReply
-                        if (!UseServerNearbyScan) HandbookPauseGuard.Release(capi);
-                    }
-
+                    RequestServerScan(capi, NearbyRadius, includeCrates: true);
                     return TextCommandResult.Success();
                 });
 
@@ -428,7 +404,7 @@ namespace ShowCraftable
                 AccessTools.Field(__instance.GetType(), "currentSearchText")?.SetValue(__instance, null);
                 AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
 
-                if (capi != null && UseServerNearbyScan)
+                if (capi != null)
                 {
                     // Debounce: capture a token; only the latest token is allowed to run
                     var myScanId = ++_pendingScanId;
@@ -682,15 +658,6 @@ namespace ShowCraftable
             return null;
         }
 
-        private static int RebuildCache(ICoreClientAPI capi, bool includeNearby, int radius,
-                                        out int craftableOutputsCount, out int fetched, out int usable)
-        {
-            craftableOutputsCount = 0; fetched = 0; usable = 0;
-
-            var pool = BuildResourcePool(capi, includeNearby, radius);
-            return RebuildCacheWithPool(capi, pool, out craftableOutputsCount, out fetched, out usable);
-        }
-
         // -------------------- Resource pool --------------------
         private struct Key : IEquatable<Key>
         {
@@ -731,6 +698,20 @@ namespace ShowCraftable
 
                 var k = new Key { Code = code };
                 int q = Math.Max(1, stack.StackSize);
+
+                Counts[k] = Counts.TryGetValue(k, out var cur) ? cur + q : q;
+                if (!Classes.ContainsKey(k)) Classes[k] = stack.Class;
+            }
+
+            public void Add(ItemStack stack, int explicitCount)
+            {
+                if (stack == null) return;
+                var coll = stack.Collectible;
+                var code = coll?.Code?.ToString();
+                if (string.IsNullOrEmpty(code)) return;
+
+                var k = new Key { Code = code };
+                int q = Math.Max(1, explicitCount);
 
                 Counts[k] = Counts.TryGetValue(k, out var cur) ? cur + q : q;
                 if (!Classes.ContainsKey(k)) Classes[k] = stack.Class;
@@ -795,81 +776,6 @@ namespace ShowCraftable
                 }
                 return false;
             }
-        }
-
-        private static void TryAddInventoryFromBE(BlockEntity be, ResourcePool pool)
-        {
-            var inv = TryGetInventoryFromBE(be);
-            if (inv == null) return;
-
-            foreach (var slot in inv)
-            {
-                var st = slot?.Itemstack;
-                if (st?.Collectible != null) pool.Add(st);
-            }
-        }
-
-
-        private static ResourcePool BuildResourcePool(ICoreClientAPI capi, bool includeNearby, int radius)
-        {
-            var pool = new ResourcePool();
-            var mgr = capi.World?.Player?.InventoryManager;
-
-            if (mgr != null)
-            {
-                void AddInv(IInventory inv)
-                {
-                    if (inv == null) return;
-                    foreach (var slot in inv) if (slot?.Itemstack != null) pool.Add(slot.Itemstack);
-                }
-                AddInv(mgr.GetOwnInventory("craftinggrid"));
-                AddInv(mgr.GetOwnInventory("backpack"));
-                AddInv(mgr.GetHotbarInventory());
-
-                // Opened containers
-                foreach (var inv in mgr.OpenedInventories)
-                {
-                    if (inv is InventoryGeneric gen)
-                        foreach (var slot in gen) if (slot?.Itemstack != null) pool.Add(slot.Itemstack);
-                }
-            }
-
-            if (includeNearby)
-            {
-                var pos = capi.World?.Player?.Entity?.ServerPos.AsBlockPos ?? capi.World?.Player?.Entity?.Pos.AsBlockPos;
-                if (pos != null)
-                {
-                    BlockPos bp = pos;
-                    int r = Math.Max(0, radius);
-                    for (int dx = -r; dx <= r; dx++)
-                        for (int dy = -1; dy <= 2; dy++)
-                            for (int dz = -r; dz <= r; dz++)
-                            {
-                                var be = capi.World.BlockAccessor.GetBlockEntity(bp.AddCopy(dx, dy, dz));
-                                TryAddInventoryFromBE(be, pool);
-                            }
-                }
-            }
-
-            return pool;
-        }
-
-        private static ResourcePool BuildResourcePoolPlayerOnly(ICoreClientAPI capi)
-        {
-            var pool = new ResourcePool();
-            var mgr = capi.World?.Player?.InventoryManager;
-            if (mgr == null) return pool;
-
-            void AddInv(IInventory inv)
-            {
-                if (inv == null) return;
-                foreach (var slot in inv) if (slot?.Itemstack != null) pool.Add(slot.Itemstack);
-            }
-
-            AddInv(mgr.GetOwnInventory("craftinggrid"));
-            AddInv(mgr.GetOwnInventory("backpack"));
-            AddInv(mgr.GetHotbarInventory());
-            return pool;
         }
 
         // -------------------- Recipes (grid) --------------------
@@ -991,7 +897,6 @@ namespace ShowCraftable
             return need == 0;
         }
 
-
         private static bool IsCraftable(GridRecipeShim r, ResourcePool pool)
         {
             // Copy only counts; use pool.Classes for class lookups.
@@ -1030,35 +935,6 @@ namespace ShowCraftable
             return true;
         }
 
-        private static List<GridRecipeShim> GetAllGridRecipes(ICoreClientAPI capi, out int fetched, out int usable)
-        {
-            var list = new List<GridRecipeShim>();
-            fetched = 0; usable = 0;
-
-            var world = capi.World;
-            IEnumerable<object> rawRecipes = Enumerable.Empty<object>();
-
-            var pi = world.GetType().GetProperty("GridRecipes", BindingFlags.Public | BindingFlags.Instance);
-            var fi = world.GetType().GetField("GridRecipes", BindingFlags.Public | BindingFlags.Instance);
-            object val = pi?.GetValue(world) ?? fi?.GetValue(world);
-            if (val is System.Collections.IEnumerable en) rawRecipes = en.Cast<object>();
-            else rawRecipes = FetchGridRecipesMulti(capi);
-
-            foreach (var raw in rawRecipes)
-            {
-                fetched++;
-                var shim = TryBuildGridShimResolving(raw, capi);
-                if (shim != null && shim.Outputs.Count > 0)
-                {
-                    usable++;
-                    list.Add(shim);
-                }
-            }
-
-            LogEverywhere(capi, $"[Craftable] Grid recipes fetched={fetched}, usable={usable}");
-            return list;
-        }
-
         private static IEnumerable<object> FetchGridRecipesMulti(ICoreClientAPI capi)
         {
             var w = capi.World;
@@ -1094,11 +970,116 @@ namespace ShowCraftable
             }
         }
 
+        private static List<GridRecipeShim> GetAllGridRecipes(ICoreClientAPI capi, out int fetched, out int usable)
+        {
+            var list = new List<GridRecipeShim>();
+            fetched = 0; usable = 0;
+
+            var world = capi.World;
+            IEnumerable<object> rawRecipes = Enumerable.Empty<object>();
+
+            var pi = world.GetType().GetProperty("GridRecipes", BindingFlags.Public | BindingFlags.Instance);
+            var fi = world.GetType().GetField("GridRecipes", BindingFlags.Public | BindingFlags.Instance);
+            object val = pi?.GetValue(world) ?? fi?.GetValue(world);
+            if (val is System.Collections.IEnumerable en) rawRecipes = en.Cast<object>();
+            else rawRecipes = FetchGridRecipesMulti(capi);
+
+            foreach (var raw in rawRecipes)
+            {
+                fetched++;
+                var shim = TryBuildGridShimResolving(raw, capi);
+                if (shim != null && shim.Outputs.Count > 0)
+                {
+                    usable++;
+                    list.Add(shim);
+                }
+            }
+
+            LogEverywhere(capi, $"[Craftable] Grid recipes fetched={fetched}, usable={usable}");
+            return list;
+        }
+
         private sealed class ReferenceEqualityComparer : IEqualityComparer<object>
         {
             public static readonly ReferenceEqualityComparer Instance = new();
             public new bool Equals(object x, object y) => ReferenceEquals(x, y);
             public int GetHashCode(object obj) => System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(obj);
+        }
+
+        private static object TryGetMember(Type t, object obj, string name)
+        {
+            if (t == null || obj == null || string.IsNullOrEmpty(name)) return null;
+
+            try
+            {
+                var pi = t.GetProperty(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                if (pi != null) return pi.GetValue(obj);
+            }
+            catch { }
+
+            try
+            {
+                var fi = t.GetField(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                if (fi != null) return fi.GetValue(obj);
+            }
+            catch { }
+
+            try
+            {
+                var getter = t.GetMethod("get_" + name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                if (getter != null && getter.GetParameters().Length == 0) return getter.Invoke(obj, null);
+            }
+            catch { }
+
+            return null;
+        }
+
+        private static bool WildcardMatch(AssetLocation pattern, AssetLocation code, Dictionary<string, string[]> allowed)
+        {
+            if (pattern == null || code == null) return false;
+
+            // exact
+            if (pattern.Equals(code)) return true;
+
+            // domain/* and */path and */* etc.
+            if (pattern.Path == "*")
+            {
+                if (pattern.Domain == "*" || string.Equals(pattern.Domain, code.Domain, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+
+            if (pattern.Domain == "*")
+            {
+                if (pattern.Path == "*" || string.Equals(pattern.Path, code.Path, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+
+            // Allowed variant filters
+            if (allowed != null && allowed.Count > 0)
+            {
+                foreach (var kv in allowed)
+                {
+                    var key = kv.Key;
+                    var vals = kv.Value;
+                    if (vals == null || vals.Length == 0) continue;
+
+                    // simple contains check on code.Path (e.g., "*-aged" etc.). Can be extended if needed.
+                    foreach (var v in vals)
+                    {
+                        if (code.Path?.Contains(v, StringComparison.OrdinalIgnoreCase) == true)
+                            return true;
+                    }
+                }
+            }
+
+            // simple wildcard '*'
+            if (pattern.Path?.Contains("*") == true)
+            {
+                var pat = pattern.Path.Replace("*", "");
+                if (code.Path?.Contains(pat, StringComparison.OrdinalIgnoreCase) == true) return true;
+            }
+
+            return false;
         }
 
         private static GridRecipeShim TryBuildGridShimResolving(object raw, ICoreClientAPI capi)
@@ -1178,56 +1159,22 @@ namespace ShowCraftable
                         var p0 = pars[0].ParameterType;
                         if (p0.IsInstanceOfType(capi.World)) { mi.Invoke(raw, new object[] { capi.World }); return; }
                         if (p0.IsInstanceOfType(capi.World?.Api)) { mi.Invoke(raw, new object[] { capi.World.Api }); return; }
-                        if (p0.IsInstanceOfType(capi)) { object[] parameters = new object[] { capi }; mi.Invoke(raw, parameters); return; }
+                        if (p0.IsInstanceOfType(capi)) { mi.Invoke(raw, new object[] { capi }); return; }
+                    }
+                    else if (pars.Length == 0)
+                    {
+                        mi.Invoke(raw, null); return;
                     }
                 }
                 catch { }
             }
         }
 
-        private static object TryGetMember(Type t, object obj, string name)
-        {
-            if (t == null || obj == null) return null;
-            var pi = t.GetProperty(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-            if (pi != null) return pi.GetValue(obj);
-            var fi = t.GetField(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-            if (fi != null) return fi.GetValue(obj);
-            return null;
-        }
-
-        // -------------------- Wildcard matching helper --------------------
-        private static bool WildcardMatch(AssetLocation pattern, AssetLocation code, Dictionary<string, string[]> allowed)
-        {
-            var methods = typeof(WildcardUtil).GetMethods(BindingFlags.Public | BindingFlags.Static)
-                                              .Where(m => m.Name == "Match");
-            foreach (var m in methods)
-            {
-                var ps = m.GetParameters();
-                if (ps.Length == 3 &&
-                    ps[0].ParameterType == typeof(AssetLocation) &&
-                    ps[1].ParameterType == typeof(AssetLocation) &&
-                    ps[2].ParameterType == typeof(Dictionary<string, string[]>))
-                {
-                    return (bool)m.Invoke(null, new object[] { pattern, code, allowed });
-                }
-            }
-
-            var mi2 = typeof(WildcardUtil).GetMethod("Match", new[] { typeof(AssetLocation), typeof(AssetLocation), typeof(string[]) });
-            if (mi2 != null) return (bool)mi2.Invoke(null, new object[] { pattern, code, null });
-
-            var mi3 = typeof(WildcardUtil).GetMethod("Match", new[] { typeof(AssetLocation), typeof(AssetLocation) });
-            if (mi3 != null) return (bool)mi3.Invoke(null, new object[] { pattern, code });
-
-            return pattern != null && code != null && pattern.Equals(code);
-        }
-
-        // -------------------- Server scan reply handler (client) --------------------
         private void OnServerScanReply(CraftScanReply data)
         {
             try
             {
-                // 1) Player-only pool (avoid counting already opened containers twice)
-                var pool = BuildResourcePoolPlayerOnly(_capi);
+                var pool = new ResourcePool();
 
                 for (int i = 0; i < data.Codes.Count; i++)
                 {
@@ -1250,9 +1197,8 @@ namespace ShowCraftable
                     if (st != null) pool.Add(st);
                 }
 
-                // 3) Compute pages
                 int pages = RebuildCacheWithPool(_capi, pool, out int outputs, out int fetched, out int usable);
-                LogEverywhere(_capi, $"[Craftable] Server nearby scan merged: outputs={outputs}, pages={pages}, fetched={fetched}, usable={usable}", toChat: true);
+                LogEverywhere(_capi, $"[Craftable] Server nearby scan ok: outputs={outputs}, pages={pages}, fetched={fetched}, usable={usable}", toChat: true);
                 TryRefreshOpenDialog(_capi);
             }
             catch (Exception e)
@@ -1264,6 +1210,11 @@ namespace ShowCraftable
                 ScanInProgress = false;
                 HandbookPauseGuard.Release(_capi);
             }
+        }
+
+        private static void OnFetchResult(FetchToGridResult res)
+        {
+            fetchCheckTcs?.TrySetResult(res.Success);
         }
 
         // -------------------- Rebuild with precomputed resource pool --------------------
@@ -1315,40 +1266,247 @@ namespace ShowCraftable
 
             return resultPageCodes.Count;
         }
-    }
-
-    // ----------------------------- NET PACKETS -----------------------------
-    [ProtoContract]
-    public class CraftScanRequest
-    {
-        [ProtoMember(1)] public int Radius { get; set; }
-        [ProtoMember(2)] public bool IncludeCrates { get; set; }
-    }
-
-    [ProtoContract]
-    public class CraftScanReply
-    {
-        [ProtoMember(1)] public List<string> Codes { get; set; } = new();
-        [ProtoMember(2)] public List<int> Counts { get; set; } = new();
-        [ProtoMember(3)] public List<EnumItemClass> Classes { get; set; } = new();
-    }
-
-
-
-    // ----------------------------- SERVER SYSTEM -----------------------------
-    public class ShowCraftableServerSystem : ModSystem
-    {
-        private ICoreServerAPI sapi;
 
         public override void StartServerSide(ICoreServerAPI api)
         {
             sapi = api;
 
-            api.Network
+           api.Network
                .RegisterChannel(ShowCraftableSystem.ChannelName)
                .RegisterMessageType(typeof(CraftScanRequest))
                .RegisterMessageType(typeof(CraftScanReply))
-               .SetMessageHandler<CraftScanRequest>(OnScanRequest);
+               .RegisterMessageType(typeof(FetchToGridRequest))
+               .RegisterMessageType(typeof(FetchToGridResult))
+               .SetMessageHandler<CraftScanRequest>(OnScanRequest)
+               .SetMessageHandler<FetchToGridRequest>(OnFetchToGridRequest);
+
+        }
+
+        private ICoreServerAPI sapi;
+
+        private void OnFetchToGridRequest(IServerPlayer player, FetchToGridRequest req)
+        {
+            try
+            {
+                var mgr = player.InventoryManager;
+                var crafting = mgr.GetOwnInventory("craftinggrid");
+                if (crafting == null) return;
+
+                var pos = player.Entity.Pos.AsBlockPos;
+                var ba = sapi.World.BlockAccessor;
+                int r = Math.Max(0, req.Radius);
+
+                var sources = new List<ItemSlot>();
+                for (int dx = -r; dx <= r; dx++)
+                    for (int dy = -1; dy <= 2; dy++)
+                        for (int dz = -r; dz <= r; dz++)
+                        {
+                            var be = ba.GetBlockEntity(pos.AddCopy(dx, dy, dz));
+                            var inv = ShowCraftableSystem.TryGetInventoryFromBE(be);
+                            if (inv == null) continue;
+
+                            foreach (var s in inv)
+                                if (s?.Itemstack != null && s.Itemstack.StackSize > 0)
+                                    sources.Add(s);
+                        }
+
+                bool AnyMatch(NeedSlotInfo need, ItemStack st)
+                {
+                    if (st == null || st.StackSize <= 0) return false;
+                    if (need.ItemClass != 0 && (int)st.Class != need.ItemClass) { }
+                    if (need.IsWild)
+                    {
+                        if (need.PatternCode == null) return false;
+                        var pat = new AssetLocation(need.PatternCode);
+                        var code = st.Collectible?.Code;
+                        if (code == null) return false;
+                        return Vintagestory.API.Util.WildcardUtil.Match(pat, code, need.AllowedVariants);
+                    }
+                    else
+                    {
+                        if (need.OptionCodes == null || need.OptionCodes.Length == 0) return false;
+                        var scode = st.Collectible?.Code?.ToString();
+                        if (string.IsNullOrEmpty(scode)) return false;
+                        return Array.IndexOf(need.OptionCodes, scode) >= 0;
+                    }
+                }
+
+                bool success = true;
+                var remaining = sources.ToDictionary(s => s, s => s.StackSize);
+                foreach (var need in req.Needs)
+                {
+                    int left = Math.Max(1, need.Quantity);
+                    foreach (var src in sources)
+                    {
+                        if (left <= 0) break;
+                        if (!AnyMatch(need, src.Itemstack)) continue;
+                        int take = Math.Min(remaining[src], left);
+                        remaining[src] -= take;
+                        left -= take;
+                    }
+                    if (left > 0) { success = false; break; }
+                }
+
+                if (req.CheckOnly)
+                {
+                    sapi.Network.GetChannel(ShowCraftableSystem.ChannelName)
+                        .SendPacket(new FetchToGridResult { Success = success }, player);
+                    return;
+                }
+
+                if (!success) return;
+
+                foreach (var need in req.Needs)
+                {
+                    int left = Math.Max(1, need.Quantity);
+                    if (need.SlotIndex < 0 || need.SlotIndex >= crafting.Count) continue;
+                    var target = crafting[need.SlotIndex];
+
+                    foreach (var src in sources.ToArray())
+                    {
+                        if (left <= 0) break;
+                        if (!AnyMatch(need, src.Itemstack)) continue;
+                        var op = new ItemStackMoveOperation(sapi.World, EnumMouseButton.Left, 0, EnumMergePriority.AutoMerge, left)
+                        {
+                            ActingPlayer = player
+                        };
+                        int before = target.StackSize;
+                        mgr.TryTransferTo(src, target, ref op);
+                        if (target.StackSize > before)
+                        {
+                            left -= (target.StackSize - before);
+                            try
+                            {
+                                src.Inventory?.PerformNotifySlot(src.Inventory.GetSlotId(src));
+                                target.Inventory?.PerformNotifySlot(target.Inventory.GetSlotId(target));
+                            }
+                            catch { }
+                        }
+                        if (src.Empty) sources.Remove(src);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                sapi.World.Logger.Warning($"[Craftable] OnFetchToGridRequest error: {e}");
+            }
+        }
+
+        public static bool CanFetchToGrid(ICoreClientAPI capi, List<NeedSlotInfo> needs, int radius)
+        {
+            if (needs == null || needs.Count == 0) return true;
+            fetchCheckTcs = new TaskCompletionSource<bool>();
+            try
+            {
+                capi.Network.GetChannel(ChannelName)
+                    .SendPacket(new FetchToGridRequest { Radius = radius, Needs = needs, CheckOnly = true });
+            }
+            catch (Exception e)
+            {
+                capi.Logger.Warning($"[Craftable] Fetch check failed: {e}");
+                fetchCheckTcs.TrySetResult(false);
+            }
+            return fetchCheckTcs.Task.Result;
+        }
+
+        public static void RequestFetchToGrid(ICoreClientAPI capi, List<NeedSlotInfo> needs, int radius)
+        {
+            if (needs == null || needs.Count == 0) return;
+            try
+            {
+                capi.Network.GetChannel(ChannelName)
+                    .SendPacket(new FetchToGridRequest { Radius = radius, Needs = needs, CheckOnly = false });
+            }
+            catch (Exception e)
+            {
+                capi.Logger.Warning($"[Craftable] Fetch request failed: {e}");
+            }
+        }
+
+        // Bygger NeedSlotInfo från ett recept-ingredient och mål-slot i grid
+        public static NeedSlotInfo MakeNeedForSlot(GridRecipeIngredient ingr, ItemSlot target, int n)
+        {
+            if (ingr == null || target == null || n <= 0) return null;
+
+            // --- Hitta slot-index utan SlotNumber ---
+            int slotIndex = 0;
+            try
+            {
+                var inv = target.Inventory;
+                if (inv != null)
+                {
+                    slotIndex = -1;
+                    for (int i = 0; i < inv.Count; i++)
+                    {
+                        // referensjämförelse för att hitta just den här sloten
+                        if (object.ReferenceEquals(inv[i], target))
+                        {
+                            slotIndex = i;
+                            break;
+                        }
+                    }
+                    if (slotIndex < 0) slotIndex = 0; // defensivt fallback
+                }
+            }
+            catch { /* fallback till 0 om något går snett */ }
+
+            var info = new NeedSlotInfo
+            {
+                SlotIndex = slotIndex,
+                Quantity = n
+            };
+
+            // --- Wildcard/konkret ingrediens ---
+            if (ingr.IsWildCard)
+            {
+                info.IsWild = true;
+                info.ItemClass = (int)ingr.Type;
+                info.PatternCode = ingr.Code?.ToString();
+                info.AllowedVariants = ingr.AllowedVariants;
+                return info;
+            }
+
+            // --- Samla alla konkreta alternativkoder ---
+            var optionCodes = new List<string>();
+
+            // Singulärt resolved stack (finns i alla versioner)
+            try
+            {
+                var single = ingr.ResolvedItemstack;
+                var code = single?.Collectible?.Code?.ToString();
+                if (!string.IsNullOrEmpty(code)) optionCodes.Add(code);
+            }
+            catch { /* ignorera om ej finns i denna version */ }
+
+            // Multi-resolved stacks: hantera olika namn/kapslingar via reflektion
+            try
+            {
+                var t = ingr.GetType();
+
+                object val = null;
+                var pi = t.GetProperty("ResolvedItemstacks") ?? t.GetProperty("ResolvedItemStacks");
+                if (pi != null) val = pi.GetValue(ingr);
+
+                if (val == null)
+                {
+                    var fi = t.GetField("ResolvedItemstacks") ?? t.GetField("ResolvedItemStacks");
+                    if (fi != null) val = fi.GetValue(ingr);
+                }
+
+                if (val is IEnumerable en)
+                {
+                    foreach (var obj in en)
+                    {
+                        var st = obj as ItemStack;
+                        var c = st?.Collectible?.Code?.ToString();
+                        if (!string.IsNullOrEmpty(c)) optionCodes.Add(c);
+                    }
+                }
+            }
+            catch { /* helt ok om den inte finns i denna version */ }
+
+            info.OptionCodes = optionCodes.Distinct().ToArray();
+            return info;
         }
 
         private void OnScanRequest(IServerPlayer fromPlayer, CraftScanRequest req)
@@ -1358,6 +1516,25 @@ namespace ShowCraftable
             int r = Math.Max(0, req.Radius);
 
             var sum = new Dictionary<string, (int count, EnumItemClass cls)>();
+
+            var mgr = fromPlayer.InventoryManager;
+            void AddInv(IInventory inv)
+            {
+                if (inv == null) return;
+                foreach (var slot in inv)
+                {
+                    var st = slot?.Itemstack;
+                    if (st?.Collectible?.Code == null) continue;
+                    string code = st.Collectible.Code.ToString();
+                    int add = Math.Max(1, st.StackSize);
+                    var cls = st.Class;
+                    if (sum.TryGetValue(code, out var cur)) sum[code] = (cur.count + add, cls);
+                    else sum[code] = (add, cls);
+                }
+            }
+            AddInv(mgr.GetOwnInventory("craftinggrid"));
+            AddInv(mgr.GetOwnInventory("backpack"));
+            AddInv(mgr.GetHotbarInventory());
 
             for (int dx = -r; dx <= r; dx++)
                 for (int dy = -1; dy <= 2; dy++)
@@ -1380,14 +1557,15 @@ namespace ShowCraftable
                             foreach (var slot in inv)
                             {
                                 var st = slot?.Itemstack;
-                                if (st == null || st.Collectible?.Code == null) continue;
+                                if (st?.Collectible?.Code == null) continue;
+
                                 if (sample == null) sample = st;
                                 total += Math.Max(1, st.StackSize);
                             }
 
-                            if (sample != null && total > 0)
+                            if (sample != null)
                             {
-                                string code = sample.Collectible.Code.ToString();
+                                var code = sample.Collectible.Code?.ToString();
                                 var cls = sample.Class;
                                 if (sum.TryGetValue(code, out var cur)) sum[code] = (cur.count + total, cls);
                                 else sum[code] = (total, cls);
@@ -1420,6 +1598,47 @@ namespace ShowCraftable
 
             sapi.Network.GetChannel(ShowCraftableSystem.ChannelName).SendPacket(reply, fromPlayer);
         }
+    }
 
+    // ----------------------------- PACKETS -----------------------------
+    [ProtoContract]
+    public class CraftScanRequest
+    {
+        [ProtoMember(1)] public int Radius { get; set; }
+        [ProtoMember(2)] public bool IncludeCrates { get; set; }
+    }
+
+    [ProtoContract]
+    public class CraftScanReply
+    {
+        [ProtoMember(1)] public List<string> Codes { get; set; } = new();
+        [ProtoMember(2)] public List<int> Counts { get; set; } = new();
+        [ProtoMember(3)] public List<EnumItemClass> Classes { get; set; } = new();
+    }
+
+    [ProtoContract]
+    public class FetchToGridRequest
+    {
+        [ProtoMember(1)] public int Radius { get; set; } = ShowCraftableSystem.DefaultNearbyRadius;
+        [ProtoMember(2)] public List<NeedSlotInfo> Needs { get; set; } = new();
+        [ProtoMember(3)] public bool CheckOnly { get; set; } = false;
+    }
+
+    [ProtoContract]
+    public class FetchToGridResult
+    {
+        [ProtoMember(1)] public bool Success { get; set; }
+    }
+
+    [ProtoContract]
+    public class NeedSlotInfo
+    {
+        [ProtoMember(1)] public int SlotIndex { get; set; }         // mål-slot i craftinggrid (0..8)
+        [ProtoMember(2)] public bool IsWild { get; set; }
+        [ProtoMember(3)] public int Quantity { get; set; }
+        [ProtoMember(4)] public int ItemClass { get; set; }         // (int) EnumItemClass
+        [ProtoMember(5)] public string PatternCode { get; set; }    // "domain:path"
+        [ProtoMember(6)] public string[] AllowedVariants { get; set; }
+        [ProtoMember(7)] public string[] OptionCodes { get; set; }  // konkreta koder om ej wildcard
     }
 }

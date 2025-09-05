@@ -1,0 +1,18 @@
+namespace Vintagestory.API.MathTools;
+
+[DocumentAsJson]
+public enum EnumTransformFunction
+{
+	IDENTICAL,
+	LINEAR,
+	LINEARNULLIFY,
+	LINEARREDUCE,
+	LINEARINCREASE,
+	QUADRATIC,
+	INVERSELINEAR,
+	ROOT,
+	SINUS,
+	CLAMPEDPOSITIVESINUS,
+	COSINUS,
+	SMOOTHSTEP
+}
