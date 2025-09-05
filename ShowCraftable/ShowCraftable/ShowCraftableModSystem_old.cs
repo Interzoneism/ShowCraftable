@@ -15,7 +15,7 @@ using ProtoBuf;
 
 namespace ShowCraftable
 {
-    // ----------------------------- CLIENT SYSTEM -----------------------------
+    
     public class ShowCraftableSystem : ModSystem
     {
         private Harmony _harmony;
@@ -28,21 +28,21 @@ namespace ShowCraftable
 
         private static bool UseServerNearbyScan = true;
         public const string ChannelName = "showcraftablescan";
-        private static int NearbyRadius = 12; // standard
+        private static int NearbyRadius = 12; 
 
-        // ---- Cache (page codes, not page objects) ----
+        
         private static readonly object CacheLock = new();
-        private static List<string> CachedPageCodes = new();   // PageCode strings
+        private static List<string> CachedPageCodes = new();   
 
         private static bool ScanInProgress = false;
 
-        // -------------------- Pause Guard for Handbook --------------------
-        /// <summary>
-        /// Ensures the handbook does not pause the world while a scan runs.
-        /// - On first acquire: set noHandbookPause=true, unpause, sync toggle visuals
-        /// - On last release: restore original noHandbookPause; if handbook still open and original implied pause, pause again; sync visuals
-        /// Safe for overlapping acquires via refcount.
-        /// </summary>
+        
+        
+        
+        
+        
+        
+        
         private static class HandbookPauseGuard
         {
             private static int _refCount;
@@ -61,7 +61,7 @@ namespace ShowCraftable
                         capi.PauseGame(false);
                         SyncToggleVisual(capi);
                     }
-                    catch { /* best-effort */ }
+                    catch {  }
                 }
             }
 
@@ -75,7 +75,7 @@ namespace ShowCraftable
                     {
                         capi.Settings.Bool["noHandbookPause"] = _savedNoHandbookPause;
 
-                        // Only re-pause if the handbook is currently open and the original setting implied pause
+                        
                         if (IsHandbookOpen(capi) && !_savedNoHandbookPause)
                         {
                             capi.PauseGame(true);
@@ -83,7 +83,7 @@ namespace ShowCraftable
 
                         SyncToggleVisual(capi);
                     }
-                    catch { /* best-effort */ }
+                    catch {  }
                 }
             }
 
@@ -102,7 +102,7 @@ namespace ShowCraftable
 
                     bool shouldBePaused = !capi.Settings.Bool["noHandbookPause"];
 
-                    // Try both composers; either may be active depending on which view is shown
+                    
                     var tDlg = typeof(GuiDialogHandbook);
                     var overview = tDlg.GetField("overviewGui", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)?.GetValue(dlg) as GuiComposer;
                     var detail = tDlg.GetField("detailViewGui", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)?.GetValue(dlg) as GuiComposer;
@@ -110,11 +110,11 @@ namespace ShowCraftable
                     overview?.GetToggleButton("pausegame")?.SetValue(shouldBePaused);
                     detail?.GetToggleButton("pausegame")?.SetValue(shouldBePaused);
                 }
-                catch { /* best-effort */ }
+                catch {  }
             }
         }
 
-        // --------------- Logging (chat + client/server logger + file) ---------------
+        
         private static void LogEverywhere(ICoreClientAPI capi, string msg, bool toChat = false)
         {
             try { capi.Logger?.Notification(msg); } catch { }
@@ -137,7 +137,7 @@ namespace ShowCraftable
             catch { }
         }
 
-        // In ShowCraftableSystem (so server can call it)
+        
         internal static IInventory TryGetInventoryFromBE(BlockEntity be)
         {
             if (be == null) return null;
@@ -155,12 +155,12 @@ namespace ShowCraftable
             return invObj as IInventory;
         }
 
-        // --- Debounced scan trigger ---
+        
         private static DateTime _lastScanAt = DateTime.MinValue;
 
         private static void RequestServerScan(ICoreClientAPI capi, int radius, bool includeCrates)
         {
-            // Avoid flooding on quick tab switches
+            
             var now = DateTime.UtcNow;
             if ((now - _lastScanAt).TotalMilliseconds < 400) return;
             _lastScanAt = now;
@@ -168,7 +168,7 @@ namespace ShowCraftable
             if (ScanInProgress) return;
             ScanInProgress = true;
 
-            // Hold the unpaused state for the duration of the async scan
+            
             HandbookPauseGuard.Acquire(capi);
 
             try
@@ -188,20 +188,20 @@ namespace ShowCraftable
             }
         }
 
-        // -------------------- Lifecycle --------------------
+        
         public override void StartClientSide(ICoreClientAPI capi)
         {
             _capi = capi;
             _harmony = new Harmony(HarmonyId);
 
-            // Register net channel early
+            
             capi.Network
                 .RegisterChannel(ChannelName)
                 .RegisterMessageType(typeof(CraftScanRequest))
                 .RegisterMessageType(typeof(CraftScanReply))
                 .SetMessageHandler<CraftScanReply>(OnServerScanReply);
 
-            // Patch tabs & list population
+            
             var tSurv = AccessTools.TypeByName("Vintagestory.GameContent.GuiDialogSurvivalHandbook");
             var miGenTabs = AccessTools.Method(tSurv, "genTabs");
             _harmony.Patch(miGenTabs, postfix: new HarmonyMethod(typeof(ShowCraftableSystem), nameof(GenTabs_Postfix)));
@@ -217,7 +217,7 @@ namespace ShowCraftable
             _harmony.Patch(miLoadAsync, postfix: new HarmonyMethod(typeof(ShowCraftableSystem), nameof(AfterPagesLoaded_Postfix)));
 
 
-            // Commands
+            
             capi.ChatCommands.Create("craftable")
                 .WithDescription("Open Survival Handbook at the Craftable tab (no rescan)")
                 .HandleWith(args =>
@@ -245,14 +245,14 @@ namespace ShowCraftable
                             capi.Network.GetChannel(ChannelName).SendPacket(new CraftScanRequest
                             {
                                 Radius = NearbyRadius,
-                                IncludeCrates = true // tills vidare
+                                IncludeCrates = true 
                             });
                             LogEverywhere(capi, $"[Craftable] Requested server-side nearby container scan (r={NearbyRadius})…", toChat: true);
-                            // Rest happens in OnServerScanReply
+                            
                             return TextCommandResult.Success();
                         }
 
-                        // Fallback: local-only scan (client side)
+                        
                         int pages = RebuildCache(capi, includeNearby: true, radius: NearbyRadius,
                                                  out int outputs, out int fetched, out int usable);
                         LogEverywhere(capi, $"[Craftable] Local scan done: outputs={outputs}, pages={pages}, fetched={fetched}, usable={usable}", toChat: true);
@@ -265,7 +265,7 @@ namespace ShowCraftable
                     finally
                     {
                         ScanInProgress = false;
-                        // Local path releases; server path releases in OnServerScanReply
+                        
                         if (!UseServerNearbyScan) HandbookPauseGuard.Release(capi);
                     }
 
@@ -308,7 +308,7 @@ namespace ShowCraftable
                     return TextCommandResult.Success();
                 });
 
-            // Clear cache on level finalize (avoid stale state)
+            
             capi.Event.LevelFinalize += () =>
             {
                 lock (CacheLock) CachedPageCodes.Clear();
@@ -318,7 +318,7 @@ namespace ShowCraftable
 
         public override void Dispose() => _harmony?.UnpatchAll(HarmonyId);
 
-        // -------------------- Tab injection --------------------
+        
         public static void GenTabs_Postfix(object __instance, ref object __result, ref int curTab)
         {
             try
@@ -326,7 +326,7 @@ namespace ShowCraftable
                 var tabs = ((Array)__result)?.Cast<object>().ToList() ?? new List<object>();
                 if (tabs.Count == 0) return;
 
-                // Fallback between versions
+                
                 var tabType = AccessTools.TypeByName("Vintagestory.GameContent.HandbookTab")
                            ?? AccessTools.TypeByName("Vintagestory.GameContent.GuiTab");
                 if (tabType == null) return;
@@ -362,7 +362,7 @@ namespace ShowCraftable
                 SetPF(tabType, newTab, "DataInt", tabs.Count);
                 SetPF(tabType, newTab, "PaddingTop", 20.0);
 
-                int insertAt = Math.Min(2, tabs.Count); // after "Everything"
+                int insertAt = Math.Min(2, tabs.Count); 
                 tabs.Insert(insertAt, newTab);
                 __result = ToTypedArray(tabType, tabs);
             }
@@ -380,10 +380,10 @@ namespace ShowCraftable
 
         private static bool DialogIsOpen(object inst)
         {
-            // Fast path
+            
             if (inst is GuiDialog dlg) return dlg.IsOpened();
 
-            // Fallback via reflection (defensive across minor API changes)
+            
             var mi = inst.GetType().GetMethod("IsOpened", BindingFlags.Instance | BindingFlags.Public);
             return mi != null && mi.ReturnType == typeof(bool) && (bool)mi.Invoke(inst, Array.Empty<object>());
         }
@@ -394,10 +394,10 @@ namespace ShowCraftable
             {
                 CraftableTabActive = string.Equals(code, CraftableCategoryCode, StringComparison.Ordinal);
 
-                // Bail early if the dialog isn’t open (e.g., rapid close after click)
+                
                 if (!DialogIsOpen(__instance))
                 {
-                    // cancel any pending debounced scan tied to this dialog/tab
+                    
                     _pendingScanId++;
                     return;
                 }
@@ -408,19 +408,19 @@ namespace ShowCraftable
                 var fiOverview = AccessTools.Field(__instance.GetType(), "overviewGui");
                 var composer = fiOverview?.GetValue(__instance);
 
-                // Make overview the active composer (like vanilla Search())
+                
                 var piSingle =
                     AccessTools.Property(__instance.GetType(), "SingleComposer")
                     ?? AccessTools.Property(__instance.GetType().BaseType, "SingleComposer");
-                try { piSingle?.SetValue(__instance, composer); } catch { /* ignore */ }
+                try { piSingle?.SetValue(__instance, composer); } catch {  }
 
                 if (!CraftableTabActive)
                 {
-                    _pendingScanId++; // stop any in-flight debounce
+                    _pendingScanId++; 
                     return;
                 }
 
-                // Clear search box & state, then refresh + debounced server scan
+                
                 var miGetTextInput = composer?.GetType().GetMethod("GetTextInput");
                 var searchInput = miGetTextInput?.Invoke(composer, new object[] { "searchField" });
                 searchInput?.GetType().GetMethod("SetValue")?.Invoke(searchInput, new object[] { "", true });
@@ -430,13 +430,13 @@ namespace ShowCraftable
 
                 if (capi != null && UseServerNearbyScan)
                 {
-                    // Debounce: capture a token; only the latest token is allowed to run
+                    
                     var myScanId = ++_pendingScanId;
 
-                    // If you already have your own debounce utility, use it; otherwise a simple delayed callback works.
+                    
                     capi.Event.EnqueueMainThreadTask(() =>
                     {
-                        // Drop if a newer scan superseded this or dialog closed in the meantime
+                        
                         if (myScanId != _pendingScanId) return;
                         if (!DialogIsOpen(__instance) || !CraftableTabActive) return;
 
@@ -444,10 +444,10 @@ namespace ShowCraftable
                     }, "CraftableScanKickoff");
                 }
             }
-            catch (Exception) { /* keep postfix bulletproof */ }
+            catch (Exception) {  }
         }
 
-        // -------------------- After pages loaded: refresh our tab if active --------------------
+        
         public static void AfterPagesLoaded_Postfix(object __instance)
         {
             try
@@ -465,7 +465,7 @@ namespace ShowCraftable
             catch { }
         }
 
-        // -------------------- FilterItems override for Craftable tab --------------------
+        
         public static bool FilterItems_Prefix(object __instance)
         {
             try
@@ -487,12 +487,12 @@ namespace ShowCraftable
                 bool loading = fiLoading != null && (bool)fiLoading.GetValue(__instance);
 
                 if (shown == null || composer == null) return true;
-                // Ensure the overview composer is the active one (mirrors vanilla Search()).
+                
                 var piSingle = AccessTools.Property(__instance.GetType(), "SingleComposer")
                            ?? AccessTools.Property(__instance.GetType().BaseType, "SingleComposer");
-                try { piSingle?.SetValue(__instance, composer); } catch { /* ignore */ }
+                try { piSingle?.SetValue(__instance, composer); } catch {  }
 
-                // Karta: pagecode -> index
+                
                 var pageMap = AccessTools.Field(__instance.GetType(), "pageNumberByPageCode")?.GetValue(__instance) as Dictionary<string, int>;
                 var allPages = AccessTools.Field(__instance.GetType(), "allHandbookPages")?.GetValue(__instance) as System.Collections.IList;
                 if (pageMap == null || allPages == null) return true;
@@ -518,7 +518,7 @@ namespace ShowCraftable
                     LogEverywhere(capi, $"[Craftable] UI resolve: cached={codesSnapshot.Count}, resolved={resolvedPages.Count}, missing={missing}, loading={loading}, sample codes=[{sampleCodes}]");
                 }
 
-                // Sökfilter (vanilla-likt)
+                
                 List<object> finalPages;
                 if (!string.IsNullOrWhiteSpace(q))
                 {
@@ -537,20 +537,20 @@ namespace ShowCraftable
                     finalPages = resolvedPages;
                 }
 
-                // Se till att sidor är Visible=true
+                
                 foreach (var p in finalPages)
                 {
                     var visProp = p.GetType().GetProperty("Visible", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                     try { visProp?.SetValue(p, true); } catch { }
                 }
 
-                // Fyll listan
+                
                 shown.Clear();
                 foreach (var p in finalPages) shown.Add(p);
 
-                // Höjd som vanilla använder
+                
                 double listHeight = 500d;
-                // Replicate the exact UI update logic from the end of the vanilla FilterItems method.
+                
                 GuiElementFlatList stacklist = composer.GetFlatList("stacklist");
                 if (stacklist != null)
                 {
@@ -570,7 +570,7 @@ namespace ShowCraftable
                     }
                 }
 
-                return false; // This must stay to prevent the original method from running
+                return false; 
             }
             catch
             {
@@ -578,7 +578,7 @@ namespace ShowCraftable
             }
         }
 
-        // -------------------- Dialog helpers --------------------
+        
         private static void OpenCraftableTab(ICoreClientAPI capi)
         {
             try
@@ -637,7 +637,7 @@ namespace ShowCraftable
             return null;
         }
 
-        // -------------------- Cache rebuild (on-demand) --------------------
+        
         private static Dictionary<string, string> BuildPageCodeMapFromAllStacks(ICoreClientAPI capi)
         {
             var map = new Dictionary<string, string>();
@@ -691,7 +691,7 @@ namespace ShowCraftable
             return RebuildCacheWithPool(capi, pool, out craftableOutputsCount, out fetched, out usable);
         }
 
-        // -------------------- Resource pool --------------------
+        
         private struct Key : IEquatable<Key>
         {
             public string Code;
@@ -709,10 +709,10 @@ namespace ShowCraftable
             {
                 if (stack == null) return;
 
-                // Normal path
+                
                 CollectibleObject coll = stack.Collectible;
 
-                // Very old-build fallback via reflection (no compile-time reference!)
+                
                 if (coll == null)
                 {
                     try
@@ -721,7 +721,7 @@ namespace ShowCraftable
                             BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
                         coll = pi?.GetValue(stack) as CollectibleObject;
                     }
-                    catch { /* ignore */ }
+                    catch {  }
                 }
 
                 if (coll == null) return;
@@ -826,7 +826,7 @@ namespace ShowCraftable
                 AddInv(mgr.GetOwnInventory("backpack"));
                 AddInv(mgr.GetHotbarInventory());
 
-                // Opened containers
+                
                 foreach (var inv in mgr.OpenedInventories)
                 {
                     if (inv is InventoryGeneric gen)
@@ -872,7 +872,7 @@ namespace ShowCraftable
             return pool;
         }
 
-        // -------------------- Recipes (grid) --------------------
+        
         private sealed class GridRecipeShim
         {
             public object Raw;
@@ -891,7 +891,7 @@ namespace ShowCraftable
             public EnumItemClass Type;
         }
 
-        // Presence-only check over source pool (not the tmp copy)
+        
         private static bool HasWildcard(
             ResourcePool pool,
             EnumItemClass type,
@@ -912,7 +912,7 @@ namespace ShowCraftable
             return false;
         }
 
-        // Presence-only: any option present in pool.Counts
+        
         private static bool HasAnyOption(ResourcePool pool, IList<ItemStack> options)
         {
             if (options == null || options.Count == 0) return false;
@@ -931,7 +931,7 @@ namespace ShowCraftable
             return false;
         }
 
-        // Aggregate across all matching keys until need reaches 0
+        
         private static bool TryConsumeWildcard(
             ResourcePool pool,
             Dictionary<Key, int> tmpCounts,
@@ -963,7 +963,7 @@ namespace ShowCraftable
             return need == 0;
         }
 
-        // Aggregate consumption across multiple specific options
+        
         private static bool TryConsumeOptions(
             Dictionary<Key, int> tmpCounts,
             IList<ItemStack> options,
@@ -994,10 +994,10 @@ namespace ShowCraftable
 
         private static bool IsCraftable(GridRecipeShim r, ResourcePool pool)
         {
-            // Copy only counts; use pool.Classes for class lookups.
+            
             var tmpCounts = new Dictionary<Key, int>(pool.Counts);
 
-            // 1) Tools: presence check only (never consumed)
+            
             foreach (var ing in r.Ingredients)
             {
                 if (!ing.IsTool) continue;
@@ -1014,7 +1014,7 @@ namespace ShowCraftable
                 }
             }
 
-            // 2) Materials: must be consumable (may aggregate across many keys/options)
+            
             foreach (var ing in r.Ingredients)
             {
                 if (ing.IsTool) continue;
@@ -1149,7 +1149,7 @@ namespace ShowCraftable
                 }
             }
 
-            // Output via CraftingRecipeIngredient.ResolvedItemstack
+            
             var outputIng = TryGetMember(t, raw, "Output");
             if (outputIng != null)
             {
@@ -1195,7 +1195,7 @@ namespace ShowCraftable
             return null;
         }
 
-        // -------------------- Wildcard matching helper --------------------
+        
         private static bool WildcardMatch(AssetLocation pattern, AssetLocation code, Dictionary<string, string[]> allowed)
         {
             var methods = typeof(WildcardUtil).GetMethods(BindingFlags.Public | BindingFlags.Static)
@@ -1221,12 +1221,12 @@ namespace ShowCraftable
             return pattern != null && code != null && pattern.Equals(code);
         }
 
-        // -------------------- Server scan reply handler (client) --------------------
+        
         private void OnServerScanReply(CraftScanReply data)
         {
             try
             {
-                // 1) Player-only pool (avoid counting already opened containers twice)
+                
                 var pool = BuildResourcePoolPlayerOnly(_capi);
 
                 for (int i = 0; i < data.Codes.Count; i++)
@@ -1250,7 +1250,7 @@ namespace ShowCraftable
                     if (st != null) pool.Add(st);
                 }
 
-                // 3) Compute pages
+                
                 int pages = RebuildCacheWithPool(_capi, pool, out int outputs, out int fetched, out int usable);
                 LogEverywhere(_capi, $"[Craftable] Server nearby scan merged: outputs={outputs}, pages={pages}, fetched={fetched}, usable={usable}", toChat: true);
                 TryRefreshOpenDialog(_capi);
@@ -1266,7 +1266,7 @@ namespace ShowCraftable
             }
         }
 
-        // -------------------- Rebuild with precomputed resource pool --------------------
+        
         private static int RebuildCacheWithPool(ICoreClientAPI capi, ResourcePool pool,
                                                 out int craftableOutputsCount, out int fetched, out int usable)
         {
@@ -1317,7 +1317,7 @@ namespace ShowCraftable
         }
     }
 
-    // ----------------------------- NET PACKETS -----------------------------
+    
     [ProtoContract]
     public class CraftScanRequest
     {
@@ -1335,7 +1335,7 @@ namespace ShowCraftable
 
 
 
-    // ----------------------------- SERVER SYSTEM -----------------------------
+    
     public class ShowCraftableServerSystem : ModSystem
     {
         private ICoreServerAPI sapi;
@@ -1369,7 +1369,7 @@ namespace ShowCraftable
                         var inv = ShowCraftableSystem.TryGetInventoryFromBE(be);
                         if (inv == null) continue;
 
-                        // --- Special handling for crates: they only ever hold 1 item type; sum all slots into one ---
+                        
                         if (be is BlockEntityCrate)
                         {
                             if (!req.IncludeCrates) continue;
@@ -1393,10 +1393,10 @@ namespace ShowCraftable
                                 else sum[code] = (total, cls);
                             }
 
-                            continue; // crate handled; skip generic path
+                            continue; 
                         }
 
-                        // --- Generic path: sum each slot as-is (works for chests, vessels, shelves, racks, etc.) ---
+                        
                         foreach (var slot in inv)
                         {
                             var st = slot?.Itemstack;
