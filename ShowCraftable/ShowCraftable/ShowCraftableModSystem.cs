@@ -4,6 +4,7 @@ using ProtoBuf;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -35,7 +36,9 @@ namespace ShowCraftable
         // Expose default radius for ImprovedHandbookRecipes.FillGridButton
         public static int DefaultNearbyRadius => NearbyRadius;
 
-        private static TaskCompletionSource<bool> fetchCheckTcs;
+        private static int fetchRequestId;
+        private static readonly ConcurrentDictionary<int, TaskCompletionSource<bool>> fetchCheckTcs =
+            new ConcurrentDictionary<int, TaskCompletionSource<bool>>();
 
         // ---- Cache (page codes, not page objects) ----
         private static readonly object CacheLock = new();
@@ -1214,7 +1217,10 @@ namespace ShowCraftable
 
         private static void OnFetchResult(FetchToGridResult res)
         {
-            fetchCheckTcs?.TrySetResult(res.Success);
+            if (fetchCheckTcs.TryRemove(res.RequestId, out var tcs))
+            {
+                tcs.TrySetResult(res.Success);
+            }
         }
 
         // -------------------- Rebuild with precomputed resource pool --------------------
@@ -1350,7 +1356,7 @@ namespace ShowCraftable
                 if (req.CheckOnly)
                 {
                     sapi.Network.GetChannel(ShowCraftableSystem.ChannelName)
-                        .SendPacket(new FetchToGridResult { Success = success }, player);
+                        .SendPacket(new FetchToGridResult { Success = success, RequestId = req.RequestId }, player);
                     return;
                 }
 
@@ -1395,22 +1401,27 @@ namespace ShowCraftable
         public static async Task<bool> CanFetchToGrid(ICoreClientAPI capi, List<NeedSlotInfo> needs, int radius)
         {
             if (needs == null || needs.Count == 0) return true;
-            fetchCheckTcs = new TaskCompletionSource<bool>();
+            var tcs = new TaskCompletionSource<bool>();
+            int reqId = Interlocked.Increment(ref fetchRequestId);
+            fetchCheckTcs[reqId] = tcs;
+
             try
             {
                 capi.Network.GetChannel(ChannelName)
-                    .SendPacket(new FetchToGridRequest { Radius = radius, Needs = needs, CheckOnly = true });
+                    .SendPacket(new FetchToGridRequest { Radius = radius, Needs = needs, CheckOnly = true, RequestId = reqId });
             }
             catch (Exception e)
             {
                 capi.Logger.Warning($"[Craftable] Fetch check failed: {e}");
-                fetchCheckTcs.TrySetResult(false);
+                tcs.TrySetResult(false);
             }
 
-            var completed = await Task.WhenAny(fetchCheckTcs.Task, Task.Delay(3000));
-            if (completed == fetchCheckTcs.Task)
+            var completed = await Task.WhenAny(tcs.Task, Task.Delay(3000));
+            fetchCheckTcs.TryRemove(reqId, out _);
+
+            if (completed == tcs.Task)
             {
-                return await fetchCheckTcs.Task;
+                return await tcs.Task;
             }
             capi.Logger.Warning("[Craftable] Fetch check timed out");
             return false;
@@ -1419,10 +1430,11 @@ namespace ShowCraftable
         public static void RequestFetchToGrid(ICoreClientAPI capi, List<NeedSlotInfo> needs, int radius)
         {
             if (needs == null || needs.Count == 0) return;
+            int reqId = Interlocked.Increment(ref fetchRequestId);
             try
             {
                 capi.Network.GetChannel(ChannelName)
-                    .SendPacket(new FetchToGridRequest { Radius = radius, Needs = needs, CheckOnly = false });
+                    .SendPacket(new FetchToGridRequest { Radius = radius, Needs = needs, CheckOnly = false, RequestId = reqId });
             }
             catch (Exception e)
             {
@@ -1629,12 +1641,14 @@ namespace ShowCraftable
         [ProtoMember(1)] public int Radius { get; set; } = ShowCraftableSystem.DefaultNearbyRadius;
         [ProtoMember(2)] public List<NeedSlotInfo> Needs { get; set; } = new();
         [ProtoMember(3)] public bool CheckOnly { get; set; } = false;
+        [ProtoMember(4)] public int RequestId { get; set; }
     }
 
     [ProtoContract]
     public class FetchToGridResult
     {
         [ProtoMember(1)] public bool Success { get; set; }
+        [ProtoMember(2)] public int RequestId { get; set; }
     }
 
     [ProtoContract]
