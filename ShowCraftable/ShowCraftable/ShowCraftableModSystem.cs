@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.MathTools;
@@ -33,6 +34,8 @@ namespace ShowCraftable
 
         // Expose default radius for ImprovedHandbookRecipes.FillGridButton
         public static int DefaultNearbyRadius => NearbyRadius;
+
+        private static TaskCompletionSource<bool> fetchCheckTcs;
 
         // ---- Cache (page codes, not page objects) ----
         private static readonly object CacheLock = new();
@@ -204,7 +207,9 @@ namespace ShowCraftable
                 .RegisterMessageType(typeof(CraftScanRequest))
                 .RegisterMessageType(typeof(CraftScanReply))
                 .RegisterMessageType(typeof(FetchToGridRequest))
-                .SetMessageHandler<CraftScanReply>(OnServerScanReply);
+                .RegisterMessageType(typeof(FetchToGridResult))
+                .SetMessageHandler<CraftScanReply>(OnServerScanReply)
+                .SetMessageHandler<FetchToGridResult>(OnFetchResult);
 
             // Patch tabs & list population
             var tSurv = AccessTools.TypeByName("Vintagestory.GameContent.GuiDialogSurvivalHandbook");
@@ -1207,6 +1212,11 @@ namespace ShowCraftable
             }
         }
 
+        private static void OnFetchResult(FetchToGridResult res)
+        {
+            fetchCheckTcs?.TrySetResult(res.Success);
+        }
+
         // -------------------- Rebuild with precomputed resource pool --------------------
         private static int RebuildCacheWithPool(ICoreClientAPI capi, ResourcePool pool,
                                                 out int craftableOutputsCount, out int fetched, out int usable)
@@ -1261,11 +1271,12 @@ namespace ShowCraftable
         {
             sapi = api;
 
-            api.Network
+           api.Network
                .RegisterChannel(ShowCraftableSystem.ChannelName)
                .RegisterMessageType(typeof(CraftScanRequest))
                .RegisterMessageType(typeof(CraftScanReply))
                .RegisterMessageType(typeof(FetchToGridRequest))
+               .RegisterMessageType(typeof(FetchToGridResult))
                .SetMessageHandler<CraftScanRequest>(OnScanRequest)
                .SetMessageHandler<FetchToGridRequest>(OnFetchToGridRequest);
 
@@ -1281,12 +1292,10 @@ namespace ShowCraftable
                 var crafting = mgr.GetOwnInventory("craftinggrid");
                 if (crafting == null) return;
 
-                // Samla källor i närheten (stängda/öppna spelar ingen roll - servern får ta)
                 var pos = player.Entity.Pos.AsBlockPos;
                 var ba = sapi.World.BlockAccessor;
                 int r = Math.Max(0, req.Radius);
 
-                // Bygg lista över potentiella käll-slots i BE inventories
                 var sources = new List<ItemSlot>();
                 for (int dx = -r; dx <= r; dx++)
                     for (int dy = -1; dy <= 2; dy++)
@@ -1304,20 +1313,14 @@ namespace ShowCraftable
                 bool AnyMatch(NeedSlotInfo need, ItemStack st)
                 {
                     if (st == null || st.StackSize <= 0) return false;
-
-                    // Respektera klass (Item/Block) om specificerat
-                    if (need.ItemClass != 0 && (int)st.Class != need.ItemClass) { /* släpp igenom om 0, annars filter */ }
-
+                    if (need.ItemClass != 0 && (int)st.Class != need.ItemClass) { }
                     if (need.IsWild)
                     {
                         if (need.PatternCode == null) return false;
                         var pat = new AssetLocation(need.PatternCode);
                         var code = st.Collectible?.Code;
                         if (code == null) return false;
-
-                        // Variantfilter (samma som client-sidan)
-                        bool match = Vintagestory.API.Util.WildcardUtil.Match(pat, code, need.AllowedVariants);
-                        return match;
+                        return Vintagestory.API.Util.WildcardUtil.Match(pat, code, need.AllowedVariants);
                     }
                     else
                     {
@@ -1328,19 +1331,41 @@ namespace ShowCraftable
                     }
                 }
 
+                bool success = true;
+                var remaining = sources.ToDictionary(s => s, s => s.StackSize);
+                foreach (var need in req.Needs)
+                {
+                    int left = Math.Max(1, need.Quantity);
+                    foreach (var src in sources)
+                    {
+                        if (left <= 0) break;
+                        if (!AnyMatch(need, src.Itemstack)) continue;
+                        int take = Math.Min(remaining[src], left);
+                        remaining[src] -= take;
+                        left -= take;
+                    }
+                    if (left > 0) { success = false; break; }
+                }
+
+                if (req.CheckOnly)
+                {
+                    sapi.Network.GetChannel(ShowCraftableSystem.ChannelName)
+                        .SendPacket(new FetchToGridResult { Success = success }, player);
+                    return;
+                }
+
+                if (!success) return;
+
                 foreach (var need in req.Needs)
                 {
                     int left = Math.Max(1, need.Quantity);
                     if (need.SlotIndex < 0 || need.SlotIndex >= crafting.Count) continue;
-
                     var target = crafting[need.SlotIndex];
 
                     foreach (var src in sources.ToArray())
                     {
                         if (left <= 0) break;
                         if (!AnyMatch(need, src.Itemstack)) continue;
-
-                        // Flytta
                         var op = new ItemStackMoveOperation(sapi.World, EnumMouseButton.Left, 0, EnumMergePriority.AutoMerge, left)
                         {
                             ActingPlayer = player
@@ -1350,17 +1375,13 @@ namespace ShowCraftable
                         if (target.StackSize > before)
                         {
                             left -= (target.StackSize - before);
-
-                            // Sync slot changes to client
                             try
                             {
                                 src.Inventory?.PerformNotifySlot(src.Inventory.GetSlotId(src));
                                 target.Inventory?.PerformNotifySlot(target.Inventory.GetSlotId(target));
                             }
-                            catch { /* best effort */ }
+                            catch { }
                         }
-
-                        // Städa tomma källor
                         if (src.Empty) sources.Remove(src);
                     }
                 }
@@ -1371,13 +1392,30 @@ namespace ShowCraftable
             }
         }
 
+        public static bool CanFetchToGrid(ICoreClientAPI capi, List<NeedSlotInfo> needs, int radius)
+        {
+            if (needs == null || needs.Count == 0) return true;
+            fetchCheckTcs = new TaskCompletionSource<bool>();
+            try
+            {
+                capi.Network.GetChannel(ChannelName)
+                    .SendPacket(new FetchToGridRequest { Radius = radius, Needs = needs, CheckOnly = true });
+            }
+            catch (Exception e)
+            {
+                capi.Logger.Warning($"[Craftable] Fetch check failed: {e}");
+                fetchCheckTcs.TrySetResult(false);
+            }
+            return fetchCheckTcs.Task.Result;
+        }
+
         public static void RequestFetchToGrid(ICoreClientAPI capi, List<NeedSlotInfo> needs, int radius)
         {
             if (needs == null || needs.Count == 0) return;
             try
             {
                 capi.Network.GetChannel(ChannelName)
-                    .SendPacket(new FetchToGridRequest { Radius = radius, Needs = needs });
+                    .SendPacket(new FetchToGridRequest { Radius = radius, Needs = needs, CheckOnly = false });
             }
             catch (Exception e)
             {
@@ -1583,6 +1621,13 @@ namespace ShowCraftable
     {
         [ProtoMember(1)] public int Radius { get; set; } = ShowCraftableSystem.DefaultNearbyRadius;
         [ProtoMember(2)] public List<NeedSlotInfo> Needs { get; set; } = new();
+        [ProtoMember(3)] public bool CheckOnly { get; set; } = false;
+    }
+
+    [ProtoContract]
+    public class FetchToGridResult
+    {
+        [ProtoMember(1)] public bool Success { get; set; }
     }
 
     [ProtoContract]
