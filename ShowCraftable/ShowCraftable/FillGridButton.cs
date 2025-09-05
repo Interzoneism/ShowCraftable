@@ -168,7 +168,15 @@ public class FillGridButton : ButtonRTC
             {
                 if (newSlots[i] == null)
                 {
-                    int idx = Array.FindIndex(slots, (s, k) => !used[k] && stacks[k] == null);
+                    int idx = -1;
+                    for (int k = 0; k < slots.Length; k++)
+                    {
+                        if (!used[k] && stacks[k] == null)
+                        {
+                            idx = k;
+                            break;
+                        }
+                    }
                     if (idx >= 0)
                     {
                         newSlots[i] = slots[idx];
