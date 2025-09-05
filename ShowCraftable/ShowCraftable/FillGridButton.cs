@@ -96,11 +96,16 @@ public class FillGridButton : ButtonRTC
                 .Where(x => x != null)
                 .ToArray();
             bool possible = ingredients
+                .Where(x => !x.IsTool)
                 .GroupBy(x => new IngredientCode(x))
                 .All(y => (y.Key.Wild ? wildcards[y.Key.Key] : available.GetValueOrDefault(y.Key.Code)) >= y.Sum(z => z.Quantity));
-            if (!possible || !ingredients.Any(x => x.IsWildCard || x.IsTool))
+            if (!possible)
             {
-                return possible;
+                return false;
+            }
+            if (!ingredients.Any(x => x.IsWildCard || x.IsTool))
+            {
+                return true;
             }
 
             Dictionary<ItemSlot, int> used = new();
