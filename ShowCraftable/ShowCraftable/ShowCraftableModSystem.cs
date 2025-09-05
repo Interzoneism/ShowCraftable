@@ -1512,10 +1512,18 @@ namespace ShowCraftable
                             ActingPlayer = player
                         };
                         int before = target.StackSize;
-                        var packet = mgr.TryTransferTo(src, target, ref op);
+                        mgr.TryTransferTo(src, target, ref op);
                         if (target.StackSize > before)
                         {
                             left -= (target.StackSize - before);
+
+                            // Sync slot changes to client
+                            try
+                            {
+                                src.Inventory?.PerformNotifySlot(src.Inventory.GetSlotId(src));
+                                target.Inventory?.PerformNotifySlot(target.Inventory.GetSlotId(target));
+                            }
+                            catch { /* best effort */ }
                         }
 
                         // Städa tomma källor
