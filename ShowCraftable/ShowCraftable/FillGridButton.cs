@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Util;
@@ -29,9 +30,9 @@ public class FillGridButton : ButtonRTC
         VerticalAlign = EnumVerticalAlign.FixedOffset;
     }
 
-    protected override void OnClick()
+    protected override async void OnClick()
     {
-        if (TryFillGrid())
+        if (await TryFillGrid())
         {
             api.Gui.PlaySound("menubutton_press");
         }
@@ -41,7 +42,7 @@ public class FillGridButton : ButtonRTC
         }
     }
 
-    private bool TryFillGrid()
+    private async Task<bool> TryFillGrid()
     {
         var player = api.World.Player;
         IPlayerInventoryManager manager = player.InventoryManager;
@@ -82,7 +83,7 @@ public class FillGridButton : ButtonRTC
             bool last;
             do
             {
-                last = AddIngredients(input, recipe, stacks);
+                last = await AddIngredients(input, recipe, stacks);
                 result |= last;
             } while (max && last);
         }
@@ -124,7 +125,7 @@ public class FillGridButton : ButtonRTC
     }
 
     
-    private bool AddIngredients(ItemSlot[] input, GridRecipe recipe, List<ItemSlot> available)
+    private async Task<bool> AddIngredients(ItemSlot[] input, GridRecipe recipe, List<ItemSlot> available)
     {
         List<(ItemSlot from, ItemSlot to, int n)> ops = new();
         Dictionary<ItemSlot, int> remaining = new();
@@ -280,7 +281,7 @@ public class FillGridButton : ButtonRTC
 
         if (needs.Count > 0)
         {
-            if (!ShowCraftableSystem.CanFetchToGrid(api, needs, ShowCraftableSystem.DefaultNearbyRadius)) return false;
+            if (!await ShowCraftableSystem.CanFetchToGrid(api, needs, ShowCraftableSystem.DefaultNearbyRadius)) return false;
         }
 
         var player = api.World.Player;

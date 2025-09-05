@@ -1392,7 +1392,7 @@ namespace ShowCraftable
             }
         }
 
-        public static bool CanFetchToGrid(ICoreClientAPI capi, List<NeedSlotInfo> needs, int radius)
+        public static async Task<bool> CanFetchToGrid(ICoreClientAPI capi, List<NeedSlotInfo> needs, int radius)
         {
             if (needs == null || needs.Count == 0) return true;
             fetchCheckTcs = new TaskCompletionSource<bool>();
@@ -1406,7 +1406,14 @@ namespace ShowCraftable
                 capi.Logger.Warning($"[Craftable] Fetch check failed: {e}");
                 fetchCheckTcs.TrySetResult(false);
             }
-            return fetchCheckTcs.Task.Result;
+
+            var completed = await Task.WhenAny(fetchCheckTcs.Task, Task.Delay(3000));
+            if (completed == fetchCheckTcs.Task)
+            {
+                return await fetchCheckTcs.Task;
+            }
+            capi.Logger.Warning("[Craftable] Fetch check timed out");
+            return false;
         }
 
         public static void RequestFetchToGrid(ICoreClientAPI capi, List<NeedSlotInfo> needs, int radius)
