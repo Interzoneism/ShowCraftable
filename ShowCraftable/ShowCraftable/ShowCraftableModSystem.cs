@@ -35,6 +35,7 @@ namespace ShowCraftable
         // Expose default radius for ImprovedHandbookRecipes.FillGridButton
         public static int DefaultNearbyRadius => NearbyRadius;
 
+        private const int FetchCheckTimeoutMs = 1000;
         private static TaskCompletionSource<bool> fetchCheckTcs;
 
         // ---- Cache (page codes, not page objects) ----
@@ -1406,7 +1407,12 @@ namespace ShowCraftable
                 capi.Logger.Warning($"[Craftable] Fetch check failed: {e}");
                 fetchCheckTcs.TrySetResult(false);
             }
-            return fetchCheckTcs.Task.Result;
+            if (fetchCheckTcs.Task.Wait(FetchCheckTimeoutMs))
+            {
+                return fetchCheckTcs.Task.Result;
+            }
+            capi.Logger.Warning("[Craftable] Fetch check timed out");
+            return false;
         }
 
         public static void RequestFetchToGrid(ICoreClientAPI capi, List<NeedSlotInfo> needs, int radius)
