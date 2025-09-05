@@ -11,7 +11,6 @@ using ShowCraftable;  // För ShowCraftableSystem.* (GetNearbyStorageSlots, Requ
 namespace ImprovedHandbookRecipes;
 public class FillGridButton : ButtonRTC
 {
-    internal static bool inventoryOpen = false;
 
     private readonly bool max;
     private readonly GridRecipe[] recipes;
@@ -300,7 +299,7 @@ public class FillGridButton : ButtonRTC
         && ingredient.SatisfiesAsIngredient(invStack, false)
         && (!ingredient.IsTool || invStack.Collectible.GetRemainingDurability(invStack) >= ingredient.ToolDurabilityCost);
 
-    protected override bool Visible => api.HasCraftingGridOpened();
+    protected override bool Visible => api.Gui.OpenedGuis.OfType<GuiDialogInventory>().Any();
 
     private struct IngredientCode
     {

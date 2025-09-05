@@ -200,20 +200,6 @@ public static class Handbook_Patch {
     }
 
 
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(GuiDialogInventory), nameof(GuiDialogInventory.OnGuiOpened))]
-    public static void OnOpened() { 
-        FillGridButton.inventoryOpen = true;
-
-    }
-
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(GuiDialogInventory), nameof(GuiDialogInventory.OnGuiClosed))]
-    public static void OnClosed() { 
-        FillGridButton.inventoryOpen = false;
-    }
-
-
     private static readonly RichTextComponentBase[] buttons = new RichTextComponentBase[2];
 
     [HarmonyPostfix]
