@@ -28,54 +28,11 @@ namespace ShowCraftable
         public const string HarmonyId = "showcraftable.core";
         public const string CraftableCategoryCode = "craftable";
 
-        private static bool UseServerNearbyScan = true;
         public const string ChannelName = "showcraftablescan";
         private static int NearbyRadius = 12; // standard
 
         // Expose default radius for ImprovedHandbookRecipes.FillGridButton
         public static int DefaultNearbyRadius => NearbyRadius;
-
-        /// <summary>
-        /// Returns candidate source slots from any nearby storage (closed or open), including ground storage, shelves, crates, etc.
-        /// Skips any slots passed in <paramref name="skip"/>.
-        /// </summary>
-        public static IEnumerable<ItemSlot> GetNearbyStorageSlots(ICoreClientAPI capi, int radius, HashSet<ItemSlot> skip = null)
-        {
-            var result = new List<ItemSlot>();
-            try
-            {
-                var world = capi.World;
-                var player = world.Player;
-                var pos = player?.Entity?.ServerPos?.AsBlockPos ?? player?.Entity?.Pos?.AsBlockPos;
-                if (pos == null) return result;
-
-                int r = Math.Max(0, radius);
-                var ba = world.BlockAccessor;
-
-                for (int dx = -r; dx <= r; dx++)
-                    for (int dy = -1; dy <= 2; dy++)
-                        for (int dz = -r; dz <= r; dz++)
-                        {
-                            BlockPos bp = pos.AddCopy(dx, dy, dz);
-                            var be = ba.GetBlockEntity(bp);
-                            if (be == null) continue;
-
-                            var inv = TryGetInventoryFromBE(be);
-                            if (inv == null) continue;
-
-                            foreach (var slot in inv)
-                            {
-                                if (slot?.Itemstack == null) continue;
-                                if (slot.StackSize <= 0) continue;
-                                if (skip != null && skip.Contains(slot)) continue;
-                                result.Add(slot);
-                            }
-                        }
-            }
-            catch { }
-
-            return result;
-        }
 
         // ---- Cache (page codes, not page objects) ----
         private static readonly object CacheLock = new();
@@ -282,45 +239,7 @@ namespace ShowCraftable
                 .WithDescription("Rebuild Craftable cache (player + nearby containers via server)")
                 .HandleWith(args =>
                 {
-                    if (UseServerNearbyScan)
-                    {
-                        RequestServerScan(capi, NearbyRadius, includeCrates: true);
-                        return TextCommandResult.Success();
-                    }
-
-                    ScanInProgress = true;
-                    HandbookPauseGuard.Acquire(capi);
-                    try
-                    {
-                        if (UseServerNearbyScan)
-                        {
-                            capi.Network.GetChannel(ChannelName).SendPacket(new CraftScanRequest
-                            {
-                                Radius = NearbyRadius,
-                                IncludeCrates = true // tills vidare
-                            });
-                            LogEverywhere(capi, $"[Craftable] Requested server-side nearby container scan (r={NearbyRadius})…", toChat: true);
-                            // Rest happens in OnServerScanReply
-                            return TextCommandResult.Success();
-                        }
-
-                        // Fallback: local-only scan (client side)
-                        int pages = RebuildCache(capi, includeNearby: true, radius: NearbyRadius,
-                                                 out int outputs, out int fetched, out int usable);
-                        LogEverywhere(capi, $"[Craftable] Local scan done: outputs={outputs}, pages={pages}, fetched={fetched}, usable={usable}", toChat: true);
-                        TryRefreshOpenDialog(capi);
-                    }
-                    catch (Exception e)
-                    {
-                        LogEverywhere(capi, $"[Craftable] Scan failed: {e}", toChat: true);
-                    }
-                    finally
-                    {
-                        ScanInProgress = false;
-                        // Local path releases; server path releases in OnServerScanReply
-                        if (!UseServerNearbyScan) HandbookPauseGuard.Release(capi);
-                    }
-
+                    RequestServerScan(capi, NearbyRadius, includeCrates: true);
                     return TextCommandResult.Success();
                 });
 
@@ -480,7 +399,7 @@ namespace ShowCraftable
                 AccessTools.Field(__instance.GetType(), "currentSearchText")?.SetValue(__instance, null);
                 AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
 
-                if (capi != null && UseServerNearbyScan)
+                if (capi != null)
                 {
                     // Debounce: capture a token; only the latest token is allowed to run
                     var myScanId = ++_pendingScanId;
@@ -734,15 +653,6 @@ namespace ShowCraftable
             return null;
         }
 
-        private static int RebuildCache(ICoreClientAPI capi, bool includeNearby, int radius,
-                                        out int craftableOutputsCount, out int fetched, out int usable)
-        {
-            craftableOutputsCount = 0; fetched = 0; usable = 0;
-
-            var pool = BuildResourcePool(capi, includeNearby, radius);
-            return RebuildCacheWithPool(capi, pool, out craftableOutputsCount, out fetched, out usable);
-        }
-
         // -------------------- Resource pool --------------------
         private struct Key : IEquatable<Key>
         {
@@ -861,80 +771,6 @@ namespace ShowCraftable
                 }
                 return false;
             }
-        }
-
-        private static void TryAddInventoryFromBE(BlockEntity be, ResourcePool pool)
-        {
-            var inv = TryGetInventoryFromBE(be);
-            if (inv == null) return;
-
-            foreach (var slot in inv)
-            {
-                var st = slot?.Itemstack;
-                if (st?.Collectible != null) pool.Add(st);
-            }
-        }
-
-        private static ResourcePool BuildResourcePool(ICoreClientAPI capi, bool includeNearby, int radius)
-        {
-            var pool = new ResourcePool();
-            var mgr = capi.World?.Player?.InventoryManager;
-
-            if (mgr != null)
-            {
-                void AddInv(IInventory inv)
-                {
-                    if (inv == null) return;
-                    foreach (var slot in inv) if (slot?.Itemstack != null) pool.Add(slot.Itemstack);
-                }
-                AddInv(mgr.GetOwnInventory("craftinggrid"));
-                AddInv(mgr.GetOwnInventory("backpack"));
-                AddInv(mgr.GetHotbarInventory());
-
-                // Opened containers
-                foreach (var inv in mgr.OpenedInventories)
-                {
-                    if (inv is InventoryGeneric gen)
-                        foreach (var slot in gen) if (slot?.Itemstack != null) pool.Add(slot.Itemstack);
-                }
-            }
-
-            if (includeNearby)
-            {
-                var pos = capi.World?.Player?.Entity?.ServerPos.AsBlockPos ?? capi.World?.Player?.Entity?.Pos.AsBlockPos;
-                if (pos != null)
-                {
-                    BlockPos bp = pos;
-                    int r = Math.Max(0, radius);
-                    for (int dx = -r; dx <= r; dx++)
-                        for (int dy = -1; dy <= 2; dy++)
-                            for (int dz = -r; dz <= r; dz++)
-                            {
-                                var be = capi.World.BlockAccessor.GetBlockEntity(bp.AddCopy(dx, dy, dz));
-                                TryAddInventoryFromBE(be, pool);
-                            }
-                }
-            }
-
-            return pool;
-        }
-
-        private static ResourcePool BuildResourcePoolPlayerOnly(ICoreClientAPI capi)
-        {
-            var pool = new ResourcePool();
-            var mgr = capi.World?.Player?.InventoryManager;
-            if (mgr == null) return pool;
-
-            void AddInv(IInventory inv)
-            {
-                if (inv == null) return;
-                foreach (var slot in inv) if (slot?.Itemstack != null) pool.Add(slot.Itemstack);
-            }
-
-            AddInv(mgr.GetOwnInventory("craftinggrid"));
-            AddInv(mgr.GetOwnInventory("backpack"));
-            AddInv(mgr.GetHotbarInventory());
-            return pool;
         }
 
         // -------------------- Recipes (grid) --------------------
@@ -1333,8 +1169,7 @@ namespace ShowCraftable
         {
             try
             {
-                // 1) Player-only pool (avoid counting already opened containers twice)
-                var pool = BuildResourcePoolPlayerOnly(_capi);
+                var pool = new ResourcePool();
 
                 for (int i = 0; i < data.Codes.Count; i++)
                 {
@@ -1357,7 +1192,6 @@ namespace ShowCraftable
                     if (st != null) pool.Add(st);
                 }
 
-                // 3) Compute pages
                 int pages = RebuildCacheWithPool(_capi, pool, out int outputs, out int fetched, out int usable);
                 LogEverywhere(_capi, $"[Craftable] Server nearby scan ok: outputs={outputs}, pages={pages}, fetched={fetched}, usable={usable}", toChat: true);
                 TryRefreshOpenDialog(_capi);
@@ -1644,6 +1478,25 @@ namespace ShowCraftable
             int r = Math.Max(0, req.Radius);
 
             var sum = new Dictionary<string, (int count, EnumItemClass cls)>();
+
+            var mgr = fromPlayer.InventoryManager;
+            void AddInv(IInventory inv)
+            {
+                if (inv == null) return;
+                foreach (var slot in inv)
+                {
+                    var st = slot?.Itemstack;
+                    if (st?.Collectible?.Code == null) continue;
+                    string code = st.Collectible.Code.ToString();
+                    int add = Math.Max(1, st.StackSize);
+                    var cls = st.Class;
+                    if (sum.TryGetValue(code, out var cur)) sum[code] = (cur.count + add, cls);
+                    else sum[code] = (add, cls);
+                }
+            }
+            AddInv(mgr.GetOwnInventory("craftinggrid"));
+            AddInv(mgr.GetOwnInventory("backpack"));
+            AddInv(mgr.GetHotbarInventory());
 
             for (int dx = -r; dx <= r; dx++)
                 for (int dy = -1; dy <= 2; dy++)

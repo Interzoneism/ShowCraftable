@@ -6,7 +6,7 @@ using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Util;
 using Vintagestory.Client.NoObf;
-using ShowCraftable;  // För ShowCraftableSystem.* (GetNearbyStorageSlots, RequestFetchToGrid, MakeNeedForSlot)
+using ShowCraftable;  // För ShowCraftableSystem.* (RequestFetchToGrid, MakeNeedForSlot)
 
 namespace ImprovedHandbookRecipes;
 public class FillGridButton : ButtonRTC
@@ -43,8 +43,6 @@ public class FillGridButton : ButtonRTC
 
     private bool TryFillGrid()
     {
-        bool shift = api.Input.ShiftHeld();
-
         var player = api.World.Player;
         IPlayerInventoryManager manager = player.InventoryManager;
         var crafting = manager.GetOwnInventory("craftinggrid");
@@ -52,19 +50,9 @@ public class FillGridButton : ButtonRTC
         var hotbar = manager.GetHotbarInventory();
         var input = crafting.Take(9).ToArray();
 
-        // === ENDA SKILLNADEN mot Improved Handbook: när Shift INTE hålls, ta källor från din fulla scan ===
-        IEnumerable<ItemSlot> nearby = shift
-            ? Enumerable.Empty<ItemSlot>()
-            : ShowCraftableSystem
-                .GetNearbyStorageSlots(api, ShowCraftableSystem.DefaultNearbyRadius,
-                    skip: new HashSet<ItemSlot>(input))        // undvik att se grid som källa
-                .Where(x => x is not ItemSlotBackpack);
-
         var stacks = backPack
             .Concat(hotbar)
             .Where(x => x is not ItemSlotBackpack)
-            // Improved Handbook tog bara öppna inventories här; vi lägger till dina "nearby" slots
-            .Concat(nearby)
             .ToList();
 
         var available = stacks.Concat(input)
@@ -229,7 +217,7 @@ public class FillGridButton : ButtonRTC
             }
         }
 
-        // utför lokala moves (från spelarens/backpack/hotbar/öppna + dina nearby-klientslots)
+        // utför lokala moves (från spelarens/backpack/hotbar)
         var player = api.World.Player;
         var manager = player.InventoryManager;
         bool change = false;
