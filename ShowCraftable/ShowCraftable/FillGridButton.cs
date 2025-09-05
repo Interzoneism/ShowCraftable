@@ -32,19 +32,23 @@ public class FillGridButton : ButtonRTC
 
     protected override async Task OnClick()
     {
+        Log("FillGrid button pressed", true);
         try
         {
             if (await TryFillGrid())
             {
                 api.Gui.PlaySound("menubutton_press");
+                Log("Grid fill completed", true);
             }
             else
             {
                 api.Gui.PlaySound("menubutton_wood");
+                Log("Grid fill failed or nothing to do", true);
             }
         }
         catch (Exception e)
         {
+            Log($"Error while filling crafting grid: {e}", true);
             api.Logger.Error("Error while filling crafting grid");
             api.Logger.Error(e);
         }
@@ -52,6 +56,7 @@ public class FillGridButton : ButtonRTC
 
     private async Task<bool> TryFillGrid()
     {
+        Log("TryFillGrid started");
         var player = api.World.Player;
         IPlayerInventoryManager manager = player.InventoryManager;
         var crafting = manager.GetOwnInventory("craftinggrid");
@@ -69,6 +74,7 @@ public class FillGridButton : ButtonRTC
             .Select(x => (x.Itemstack.Collectible.Code, x.StackSize))
             .GroupBy(x => x.Code)
             .ToDictionary(x => x.Key, x => x.Sum(y => y.StackSize));
+        Log($"Available items: {string.Join(", ", available.Select(kvp => kvp.Key+"="+kvp.Value))}");
 
         var wildcards = recipes
             .SelectMany(x => x.Ingredients.Values)
@@ -76,25 +82,37 @@ public class FillGridButton : ButtonRTC
             .Select(x => new IngredientCode(x))
             .DistinctBy(x => x.Key)
             .ToDictionary(x => x.Key, x => available.Sum(y => x.Matches(y.Key) ? y.Value : 0));
+        Log($"Wildcard pools: {string.Join(", ", wildcards.Select(kvp => kvp.Key+"="+kvp.Value))}");
 
         var recipe = recipes
             .FirstOrDefault(x => x.Matches(player, input, 3));
+        Log(recipe != null ? "Found direct recipe match" : "No direct recipe match");
         recipe ??= recipes.FirstOrDefault(CanMake);
-        
-        
-        
+        Log(recipe != null ? "Found craftable recipe" : "No craftable recipe, using first recipe if any");
+
         recipe ??= recipes.FirstOrDefault();
 
         bool result = false;
         if (recipe != null)
         {
+            Log($"Selected recipe output: {recipe.Output?.ResolvedItemstack?.Collectible?.Code}");
             bool last;
+            int iteration = 0;
             do
             {
+                iteration++;
+                Log($"AddIngredients iteration {iteration} start");
                 last = await AddIngredients(input, recipe, stacks);
+                Log($"AddIngredients iteration {iteration} result: {last}");
                 result |= last;
             } while (max && last);
         }
+        else
+        {
+            Log("No recipe selected");
+        }
+
+        Log($"TryFillGrid finished with result={result}");
 
         return result;
 
@@ -140,6 +158,7 @@ public class FillGridButton : ButtonRTC
     
     private async Task<bool> AddIngredients(ItemSlot[] input, GridRecipe recipe, List<ItemSlot> available)
     {
+        Log($"AddIngredients called for recipe {recipe.Output?.ResolvedItemstack?.Collectible?.Code}");
         List<(ItemSlot from, ItemSlot to, int n)> ops = new();
         Dictionary<ItemSlot, int> remaining = new();
         var ingredients = recipe.resolvedIngredients;
@@ -254,6 +273,7 @@ public class FillGridButton : ButtonRTC
         }
 
         available = available.NonEmpty().ToList();
+        Log($"Available slots for transfer: {available.Count}");
 
         int complete = ingredients.Select((x, i) => CurrentSets(x, stacks[i])).Where(x => x >= 0).Min();
 
@@ -280,6 +300,7 @@ public class FillGridButton : ButtonRTC
                 if (!remaining.TryGetValue(slot, out int size)) size = remaining[slot] = slot.Itemstack.StackSize;
                 int take = Math.Min(size, n);
                 ops.Add((slot, slots[i], take));
+                Log($"Plan move {take}x {slot.Itemstack?.Collectible?.Code} to grid slot {i}");
                 remaining[slot] = size - take;
                 n -= take;
                 if (n <= 0) break;
@@ -294,7 +315,11 @@ public class FillGridButton : ButtonRTC
 
         if (needs.Count > 0)
         {
-            if (!await ShowCraftableSystem.CanFetchToGrid(api, needs, ShowCraftableSystem.DefaultNearbyRadius)) return false;
+            Log($"Requesting fetch for {needs.Count} missing ingredients");
+            if (!await ShowCraftableSystem.CanFetchToGrid(api, needs, ShowCraftableSystem.DefaultNearbyRadius)) {
+                Log("Fetch request denied");
+                return false;
+            }
         }
 
         var player = api.World.Player;
@@ -303,10 +328,12 @@ public class FillGridButton : ButtonRTC
 
         foreach (var slot in empties)
         {
+            Log($"Emptying slot {slot.Inventory?.GetSlotId(slot)}");
             Empty(slot);
         }
         foreach (var (from, to, n) in ops)
         {
+            Log($"Transferring {n}x {from.Itemstack?.Collectible?.Code} from {from.Inventory?.ClassName}[{from.Inventory?.GetSlotId(from)}] to grid slot {to.Inventory?.GetSlotId(to)}");
             ItemStackMoveOperation op = new(api.World, EnumMouseButton.Left, 0, EnumMergePriority.AutoMerge, n);
             op.ActingPlayer = player;
             int before = to.StackSize;
@@ -319,9 +346,11 @@ public class FillGridButton : ButtonRTC
         }
         if (needs.Count > 0)
         {
+            Log("Missing ingredients fetched from nearby inventories");
             ShowCraftableSystem.RequestFetchToGrid(api, needs, ShowCraftableSystem.DefaultNearbyRadius);
             return true;
         }
+        Log("AddIngredients completed with change=" + change);
         return change;
 
         int CurrentSets(GridRecipeIngredient ingr, ItemStack stack)
@@ -355,6 +384,15 @@ public class FillGridButton : ButtonRTC
         && (!ingredient.IsTool || invStack.Collectible.GetRemainingDurability(invStack) >= ingredient.ToolDurabilityCost);
 
     protected override bool Visible => api.Gui.OpenedGuis.OfType<GuiDialogInventory>().Any();
+
+    private void Log(string message, bool toChat = false)
+    {
+        api.Logger.Notification("[FillGrid] " + message);
+        if (toChat)
+        {
+            try { api.ShowChatMessage("[FillGrid] " + message); } catch { }
+        }
+    }
 
     private struct IngredientCode
     {
