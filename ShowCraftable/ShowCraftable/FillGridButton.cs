@@ -71,16 +71,18 @@ public class FillGridButton : ButtonRTC
         var recipe = recipes
             .FirstOrDefault(x => x.Matches(player, input, 3));
         recipe ??= recipes.FirstOrDefault(CanMake);
+        recipe ??= recipes.FirstOrDefault();
 
         bool result = false;
         if (recipe != null)
         {
             bool last;
+            bool canLoop = max && CanMake(recipe);
             do
             {
                 last = AddIngredients(input, recipe, stacks);
                 result |= last;
-            } while (max && last);
+            } while (canLoop && last);
         }
 
         return result;
