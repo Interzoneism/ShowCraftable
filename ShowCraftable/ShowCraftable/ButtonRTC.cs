@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using System;
 using System.Drawing;
+using System.Threading.Tasks;
 using Vintagestory.API.Client;
 using Vintagestory.API.Config;
 
@@ -39,7 +40,7 @@ public abstract class ButtonRTC : RichTextComponentBase {
         var font     = CairoFont.ButtonText();
         var fontDown = CairoFont.ButtonPressedText();
         font.UnscaledFontsize = fontDown.UnscaledFontsize = GuiElement.scaled(32.0);
-        var button = new GuiElementTextButton(api, label, font, fontDown, Click, bounds, EnumButtonStyle.Small);
+        var button = new GuiElementTextButton(api, label, font, fontDown, () => Click().GetAwaiter().GetResult(), bounds, EnumButtonStyle.Small);
         button.PlaySound = false;
 
         var traverse = Traverse.Create(button);
@@ -59,10 +60,10 @@ public abstract class ButtonRTC : RichTextComponentBase {
     protected void SetExtraTip(string text = null) 
         => hover.SetNewText((text == null) ? tooltip : $"{tooltip}\n{text}");
 
-    protected abstract void OnClick();
+    protected abstract Task OnClick();
 
-    private bool Click() {
-        OnClick();
+    private async Task<bool> Click() {
+        await OnClick();
         return true;
     }
 

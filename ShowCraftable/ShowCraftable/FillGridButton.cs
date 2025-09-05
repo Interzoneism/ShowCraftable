@@ -30,15 +30,23 @@ public class FillGridButton : ButtonRTC
         VerticalAlign = EnumVerticalAlign.FixedOffset;
     }
 
-    protected override async void OnClick()
+    protected override async Task OnClick()
     {
-        if (await TryFillGrid())
+        try
         {
-            api.Gui.PlaySound("menubutton_press");
+            if (await TryFillGrid())
+            {
+                api.Gui.PlaySound("menubutton_press");
+            }
+            else
+            {
+                api.Gui.PlaySound("menubutton_wood");
+            }
         }
-        else
+        catch (Exception e)
         {
-            api.Gui.PlaySound("menubutton_wood");
+            api.Logger.Error("Error while filling crafting grid");
+            api.Logger.Error(e);
         }
     }
 
