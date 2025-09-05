@@ -123,65 +123,124 @@ public class FillGridButton : ButtonRTC
         }
     }
 
+    
     private bool AddIngredients(ItemSlot[] input, GridRecipe recipe, List<ItemSlot> available)
     {
         List<(ItemSlot from, ItemSlot to, int n)> ops = new();
         Dictionary<ItemSlot, int> remaining = new();
         var ingredients = recipe.resolvedIngredients;
 
-        // Samla brister som vi inte kan fylla lokalt; skickas till servern efter lokala moves
         var needs = new List<NeedSlotInfo>();
+        List<ItemSlot> empties = new();
 
-        // Matcha grid-innehåll mot recept och töm icke-matchande
+        ItemSlot[] slots = input;
+        ItemStack[] stacks = input.Select(s => s.Itemstack).ToArray();
+
         if (recipe.Shapeless)
         {
-            input = input.ToArray();
-            var newInput = ingredients
-                .Select(x => PullFirst(input, y => x?.SatisfiesAsIngredient(y?.Itemstack, false) ?? false))
-                .ToArray();
-            input.Where(x => !x?.Empty ?? false).Foreach(Empty);
-            for (int i = 0; i < newInput.Length; i++)
+            bool[] used = new bool[stacks.Length];
+            ItemSlot[] newSlots = new ItemSlot[ingredients.Length];
+            ItemStack[] newStacks = new ItemStack[ingredients.Length];
+            for (int i = 0; i < ingredients.Length; i++)
             {
-                newInput[i] ??= PullFirst(input, y => y?.Empty ?? false);
+                var ingr = ingredients[i];
+                for (int j = 0; j < stacks.Length; j++)
+                {
+                    if (used[j]) continue;
+                    if (ingr?.SatisfiesAsIngredient(stacks[j], false) ?? false)
+                    {
+                        newSlots[i] = slots[j];
+                        newStacks[i] = stacks[j];
+                        used[j] = true;
+                        break;
+                    }
+                }
             }
-            input = newInput;
+            for (int j = 0; j < stacks.Length; j++)
+            {
+                if (!used[j] && stacks[j] != null)
+                {
+                    empties.Add(slots[j]);
+                    stacks[j] = null;
+                }
+            }
+            for (int i = 0; i < newSlots.Length; i++)
+            {
+                if (newSlots[i] == null)
+                {
+                    int idx = Array.FindIndex(slots, (s, k) => !used[k] && stacks[k] == null);
+                    if (idx >= 0)
+                    {
+                        newSlots[i] = slots[idx];
+                        used[idx] = true;
+                    }
+                }
+            }
+            slots = newSlots;
+            stacks = newStacks;
         }
         else if (recipe.Width * recipe.Height < 9)
         {
             Bounds bounds = new(recipe.Width, recipe.Height, 3);
             for (int i = 8; i >= 0; i--)
             {
-                if (!input[i].Empty)
+                if (stacks[i] != null)
                 {
                     for (int j = 0; j < ingredients.Length; j++)
                     {
-                        if (SatisfiesAt(j, i)) { bounds.Align(i, j); break; }
+                        if (Satisfies(ingredients[j], stacks[i])) { bounds.Align(i, j); break; }
                     }
                 }
             }
-
-            input.Where((s, i) => bounds.Contains(i) ? !SatisfiesAt(bounds.ToInner(i), i) : s.Itemstack != null).Foreach(Empty);
-            input = input.Where((_, i) => bounds.Contains(i)).ToArray();
+            for (int i = 0; i < slots.Length; i++)
+            {
+                bool inside = bounds.Contains(i);
+                if (inside)
+                {
+                    int inner = bounds.ToInner(i);
+                    if (!Satisfies(ingredients[inner], stacks[i]) && stacks[i] != null)
+                    {
+                        empties.Add(slots[i]);
+                        stacks[i] = null;
+                    }
+                }
+                else if (stacks[i] != null)
+                {
+                    empties.Add(slots[i]);
+                    stacks[i] = null;
+                }
+            }
+            var fSlots = new List<ItemSlot>();
+            var fStacks = new List<ItemStack>();
+            for (int i = 0; i < slots.Length; i++)
+            {
+                if (bounds.Contains(i)) { fSlots.Add(slots[i]); fStacks.Add(stacks[i]); }
+            }
+            slots = fSlots.ToArray();
+            stacks = fStacks.ToArray();
         }
         else
         {
-            input.Where((_, i) => !SatisfiesAt(i, i)).Foreach(Empty);
+            for (int i = 0; i < slots.Length; i++)
+            {
+                if (!Satisfies(ingredients[i], stacks[i]) && stacks[i] != null)
+                {
+                    empties.Add(slots[i]);
+                    stacks[i] = null;
+                }
+            }
         }
 
-        // filtrera
         available = available.NonEmpty().ToList();
 
-        // hur många kompletta set redan i grid?
-        int complete = ingredients.Select((x, i) => CurrentSets(x, input[i])).Where(x => x >= 0).Min();
+        int complete = ingredients.Select((x, i) => CurrentSets(x, stacks[i])).Where(x => x >= 0).Min();
 
-        // identifiera moves
-        for (int i = 0, len = input.Length; i < len; i++)
+        for (int i = 0, len = slots.Length; i < len; i++)
         {
             var ingredient = ingredients[i];
             if (ingredient == null) continue;
-            var stack = input[i].Itemstack;
+            var stack = stacks[i];
             int n = ingredient.Quantity;
-
             if (stack != null)
             {
                 int size = stack.StackSize;
@@ -193,38 +252,37 @@ public class FillGridButton : ButtonRTC
                 }
                 if (stack.Collectible.MaxStackSize < size + n) return false;
             }
-
             foreach (var slot in available)
             {
-                if (!Satisfies(ingredient, slot?.Itemstack) || !input[i].CanTakeFrom(slot)) continue;
+                if (!Satisfies(ingredient, slot?.Itemstack) || !slots[i].CanTakeFrom(slot)) continue;
                 if (!remaining.TryGetValue(slot, out int size)) size = remaining[slot] = slot.Itemstack.StackSize;
                 int take = Math.Min(size, n);
-                ops.Add((slot, input[i], take));
+                ops.Add((slot, slots[i], take));
                 remaining[slot] = size - take;
                 n -= take;
                 if (n <= 0) break;
             }
-
             if (n > 0)
             {
-                // Improved Handbook skulle ha returnerat false här (inget mer att ta lokalt).
-                // Vi gör EXAKT så när Shift hålls (endast egna/öppna källor).
-                if (api.Input.ShiftHeld())
-                {
-                    return false;
-                }
-
-                // Annars: begär servern hämta den här bristen från valfri närliggande förvaring.
-                var need = ShowCraftableSystem.MakeNeedForSlot(ingredient, input[i], n);
+                if (api.Input.ShiftHeld()) return false;
+                var need = ShowCraftableSystem.MakeNeedForSlot(ingredient, slots[i], n);
                 if (need != null) needs.Add(need);
-                // Fortsätt loopen för att samla fler brister.
             }
         }
 
-        // utför lokala moves (från spelarens/backpack/hotbar)
+        if (needs.Count > 0)
+        {
+            if (!ShowCraftableSystem.CanFetchToGrid(api, needs, ShowCraftableSystem.DefaultNearbyRadius)) return false;
+        }
+
         var player = api.World.Player;
         var manager = player.InventoryManager;
         bool change = false;
+
+        foreach (var slot in empties)
+        {
+            Empty(slot);
+        }
         foreach (var (from, to, n) in ops)
         {
             ItemStackMoveOperation op = new(api.World, EnumMouseButton.Left, 0, EnumMergePriority.AutoMerge, n);
@@ -237,36 +295,19 @@ public class FillGridButton : ButtonRTC
                 change = true;
             }
         }
-
-        // Om det fortfarande saknas ingredienser: be servern hämta dem från stängda förvar direkt in i grid
         if (needs.Count > 0)
         {
             ShowCraftableSystem.RequestFetchToGrid(api, needs, ShowCraftableSystem.DefaultNearbyRadius);
-            // Returnera true för en positiv UX: griden fylls på “strax” av servern.
             return true;
         }
-
         return change;
 
-        static T PullFirst<T>(T[] arr, System.Func<T, bool> test) where T : class
-        {
-            for (int i = 0; i < arr.Length; i++)
-            {
-                if (test(arr[i])) { T res = arr[i]; arr[i] = null; return res; }
-            }
-            return null;
-        }
-
-        int CurrentSets(GridRecipeIngredient ingr, ItemSlot slot)
+        int CurrentSets(GridRecipeIngredient ingr, ItemStack stack)
         {
             if (ingr == null) return -1;
-            if (ingr.IsTool) return (slot.StackSize > 0) ? -1 : 0;
-            return slot.StackSize / ingr.Quantity;
+            if (ingr.IsTool) return (stack?.StackSize > 0) ? -1 : 0;
+            return stack?.StackSize / ingr.Quantity ?? 0;
         }
-
-        bool SatisfiesAt(int iIngredient, int iInput)
-            => Satisfies(ingredients[iIngredient], input[iInput].Itemstack);
-
         void Empty(ItemSlot slot)
         {
             var player = api.World.Player;
@@ -275,7 +316,6 @@ public class FillGridButton : ButtonRTC
             player.InventoryManager.TryTransferAway(slot, ref op, false)?.Foreach(SendPacket);
             if (!slot.Empty) player.InventoryManager.DropItem(slot, true);
         }
-
         void SendPacket(object obj)
         {
             if (obj is Packet_Client packet)
@@ -284,6 +324,7 @@ public class FillGridButton : ButtonRTC
             }
         }
     }
+
 
     private static bool Satisfies(GridRecipeIngredient ingredient, ItemStack invStack)
         => invStack?.StackSize > 0
