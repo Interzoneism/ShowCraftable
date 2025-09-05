@@ -70,13 +70,13 @@ public abstract class ButtonRTC : RichTextComponentBase {
         => true;
 
     public override EnumCalcBoundsResult CalcBounds(TextFlowPath[] flowPath, double currentLineHeight, double offsetX, double lineY, out double nextOffsetX) {
-        double x = offsetX - GuiElement.scaled(3.0);
-        double y = lineY + GuiElement.scaled(126.0 - UnscaledSize - index * (UnscaledSize + Margin));
+        double x = offsetX - GuiElement.scaled(UnscaledSize + 3.0);
+        double y = lineY + GuiElement.scaled(126.0 + Margin + index * (UnscaledSize + Margin));
         double size = GuiElement.scaled(UnscaledSize);
         BoundsPerLine = new LineRectangled[] { new(x, y, size, size) };
 
         bounds.fixedWidth = bounds.fixedHeight = size;
- 
+
         nextOffsetX = offsetX;
         return EnumCalcBoundsResult.Continue;
     }
