@@ -35,22 +35,21 @@ public class FillGridButton : ButtonRTC
         Log("FillGrid button pressed", true);
         try
         {
-            if (await TryFillGrid())
+            bool success = await TryFillGrid();
+            api.Event.EnqueueMainThreadTask(() =>
             {
-                api.Gui.PlaySound("menubutton_press");
-                Log("Grid fill completed", true);
-            }
-            else
-            {
-                api.Gui.PlaySound("menubutton_wood");
-                Log("Grid fill failed or nothing to do", true);
-            }
+                api.Gui.PlaySound(success ? "menubutton_press" : "menubutton_wood");
+                Log(success ? "Grid fill completed" : "Grid fill failed or nothing to do", true);
+            }, "fillgridplaysound");
         }
         catch (Exception e)
         {
-            Log($"Error while filling crafting grid: {e}", true);
-            api.Logger.Error("Error while filling crafting grid");
-            api.Logger.Error(e);
+            api.Event.EnqueueMainThreadTask(() =>
+            {
+                Log($"Error while filling crafting grid: {e}", true);
+                api.Logger.Error("Error while filling crafting grid");
+                api.Logger.Error(e);
+            }, "fillgriderror");
         }
     }
 
