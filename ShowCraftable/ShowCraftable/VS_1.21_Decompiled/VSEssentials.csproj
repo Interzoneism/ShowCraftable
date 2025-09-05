@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>VSEssentials</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <TargetFramework>netcoreapp8.0</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>12.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemGroup />
+  <ItemGroup>
+    <Reference Include="VintagestoryAPI">
+      <HintPath>..\..\VSDLL\VintagestoryAPI.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Drawing.Common">
+      <HintPath>..\..\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\8.0.17\System.Drawing.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenTK.Graphics" />
+    <Reference Include="Newtonsoft.Json" />
+    <Reference Include="Tavis.JsonPatch" />
+    <Reference Include="OpenTK.Mathematics" />
+    <Reference Include="cairo-sharp" />
+    <Reference Include="protobuf-net" />
+    <Reference Include="AnimatedGif" />
+    <Reference Include="SkiaSharp" />
+    <Reference Include="Microsoft.Data.Sqlite" />
+  </ItemGroup>
+</Project>

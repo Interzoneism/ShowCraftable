@@ -1,0 +1,1526 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using Vintagestory.API.Common;
+using Vintagestory.API.Common.Entities;
+using Vintagestory.API.Config;
+using Vintagestory.API.Datastructures;
+using Vintagestory.API.MathTools;
+using Vintagestory.API.Server;
+using Vintagestory.API.Util;
+using Vintagestory.Common;
+using Vintagestory.Common.Database;
+
+namespace Vintagestory.Server;
+
+internal class ServerSystemSupplyChunks : ServerSystem
+{
+	private WorldGenHandler worldgenHandler;
+
+	private ChunkServerThread chunkthread;
+
+	private bool is8Core = Environment.ProcessorCount >= 8;
+
+	private bool requiresChunkBorderSmoothing;
+
+	private bool requiresSetEmptyFlag;
+
+	private volatile int pauseAllWorldgenThreads;
+
+	[ThreadStatic]
+	private static FastMemoryStream saveChunksStream;
+
+	private List<long> entitiesToRemove = new List<long>();
+
+	private int storyEventPrints;
+
+	private string[] storyChunkSpawnEvents;
+
+	private int blockingRequestsRemaining;
+
+	public ServerSystemSupplyChunks(ServerMain server, ChunkServerThread chunkthread)
+		: base(server)
+	{
+		this.chunkthread = chunkthread;
+		chunkthread.loadsavechunks = this;
+		server.RegisterGameTickListener(delegate
+		{
+			server.serverChunkDataPool.SlowDispose();
+		}, 1000);
+	}
+
+	public override int GetUpdateInterval()
+	{
+		if (chunkthread.requestedChunkColumns.Count == 0 || !is8Core)
+		{
+			return MagicNum.ChunkThreadTickTime;
+		}
+		return chunkthread.additionalWorldGenThreadsCount - 1;
+	}
+
+	public override void OnBeginGameReady(SaveGame savegame)
+	{
+		requiresChunkBorderSmoothing = savegame.CreatedWorldGenVersion != 3;
+		requiresSetEmptyFlag = GameVersion.IsLowerVersionThan(server.SaveGameData.LastSavedGameVersion, "1.12-dev.1");
+		if (chunkthread.additionalWorldGenThreadsCount > 0)
+		{
+			int num = 1;
+			for (int i = 0; i < chunkthread.additionalWorldGenThreadsCount; i++)
+			{
+				CreateAdditionalWorldGenThread(num, num + 1, i + 1);
+				num++;
+			}
+		}
+	}
+
+	public override void OnSeparateThreadTick()
+	{
+		if (server.RunPhase != EnumServerRunPhase.RunGame)
+		{
+			return;
+		}
+		deleteChunkColumns();
+		moveRequestsToGeneratingQueue();
+		KeyValuePair<HorRectanglei, ChunkLoadOptions> result;
+		while (!server.fastChunkQueue.IsEmpty && server.fastChunkQueue.TryDequeue(out result))
+		{
+			loadChunkAreaBlocking(result.Key.X1, result.Key.Z1, result.Key.X2, result.Key.Z2, isStartupLoad: false, result.Value.ChunkGenParams);
+			if (result.Value.OnLoaded != null)
+			{
+				server.EnqueueMainThreadTask(result.Value.OnLoaded);
+			}
+		}
+		if (!server.simpleLoadRequests.IsEmpty && server.mapMiddleSpawnPos != null)
+		{
+			ChunkColumnLoadRequest result2;
+			while (server.simpleLoadRequests.TryDequeue(out result2))
+			{
+				simplyLoadChunkColumn(result2);
+			}
+		}
+		if (!server.peekChunkColumnQueue.IsEmpty && server.peekChunkColumnQueue.TryDequeue(out var result3))
+		{
+			if (PauseAllWorldgenThreads(3600))
+			{
+				PeekChunkAreaLocking(result3.Key, result3.Value.UntilPass, result3.Value.OnGenerated, result3.Value.ChunkGenParams);
+			}
+			ResumeAllWorldgenThreads();
+		}
+		while (!server.testChunkExistsQueue.IsEmpty)
+		{
+			if (!server.testChunkExistsQueue.TryDequeue(out var val))
+			{
+				break;
+			}
+			bool exists = false;
+			switch (val.Type)
+			{
+			case EnumChunkType.Chunk:
+				exists = chunkthread.gameDatabase.ChunkExists(val.chunkX, val.chunkY, val.chunkZ);
+				break;
+			case EnumChunkType.MapChunk:
+				exists = chunkthread.gameDatabase.MapChunkExists(val.chunkX, val.chunkZ);
+				break;
+			case EnumChunkType.MapRegion:
+				exists = chunkthread.gameDatabase.MapRegionExists(val.chunkX, val.chunkZ);
+				break;
+			}
+			server.EnqueueMainThreadTask(delegate
+			{
+				val.onTested(exists);
+				ServerMain.FrameProfiler.Mark("MTT-TestExists");
+			});
+		}
+		for (int num = 0; num < MagicNum.ChunkColumnsToGeneratePerThreadTick; num++)
+		{
+			if (!tryLoadOrGenerateChunkColumnsInQueue())
+			{
+				break;
+			}
+			if (server.Suspended)
+			{
+				break;
+			}
+		}
+	}
+
+	private void deleteChunkColumns()
+	{
+		List<ChunkPos> list = new List<ChunkPos>();
+		List<ChunkPos> list2 = new List<ChunkPos>();
+		long result;
+		while (!server.deleteChunkColumns.IsEmpty && server.deleteChunkColumns.TryDequeue(out result))
+		{
+			if (chunkthread.requestedChunkColumns.Remove(result))
+			{
+				server.ChunkColumnRequested.Remove(result);
+			}
+			ChunkPos item = server.WorldMap.ChunkPosFromChunkIndex2D(result);
+			UpdateLoadedNeighboursFlags(server.WorldMap, item.X, item.Z);
+			for (int i = 0; i < server.WorldMap.ChunkMapSizeY; i++)
+			{
+				ServerChunk serverChunk = (ServerChunk)server.WorldMap.GetChunk(item.X, i, item.Z);
+				if (serverChunk != null)
+				{
+					for (int j = 0; j < serverChunk.EntitiesCount; j++)
+					{
+						Entity entity = serverChunk.Entities[j];
+						if (!(entity is EntityPlayer))
+						{
+							server.DespawnEntity(entity, new EntityDespawnData
+							{
+								Reason = EnumDespawnReason.Death
+							});
+						}
+					}
+				}
+				list.Add(new ChunkPos
+				{
+					X = item.X,
+					Y = i,
+					Z = item.Z
+				});
+			}
+			list2.Add(item);
+			server.loadedMapChunks.Remove(result);
+		}
+		if (list.Count > 0)
+		{
+			chunkthread.gameDatabase.DeleteChunks(list);
+		}
+		if (list2.Count > 0)
+		{
+			chunkthread.gameDatabase.DeleteMapChunks(list2);
+		}
+		HashSet<ChunkPos> hashSet = new HashSet<ChunkPos>();
+		long result2;
+		while (!server.deleteMapRegions.IsEmpty && server.deleteMapRegions.TryDequeue(out result2))
+		{
+			ChunkPos item2 = server.WorldMap.MapRegionPosFromIndex2D(result2);
+			hashSet.Add(item2);
+			server.loadedMapRegions.Remove(result2);
+		}
+		if (hashSet.Count > 0)
+		{
+			chunkthread.gameDatabase.DeleteMapRegions(hashSet);
+		}
+	}
+
+	private void moveRequestsToGeneratingQueue()
+	{
+		List<long> list = new List<long>();
+		lock (server.requestedChunkColumnsLock)
+		{
+			while (server.requestedChunkColumns.Count > 0 && chunkthread.requestedChunkColumns.Capacity - chunkthread.requestedChunkColumns.Count >= list.Count + 200)
+			{
+				list.Add(server.requestedChunkColumns.Dequeue());
+			}
+		}
+		for (int i = 0; i < list.Count; i++)
+		{
+			long num = list[i];
+			Vec2i vec2i = server.WorldMap.MapChunkPosFromChunkIndex2D(num);
+			chunkthread.addChunkColumnRequest(num, vec2i.X, vec2i.Y, -1);
+		}
+	}
+
+	private bool simplyLoadChunkColumn(ChunkColumnLoadRequest request)
+	{
+		ServerMapChunk orCreateMapChunk = chunkthread.loadsavechunks.GetOrCreateMapChunk(request);
+		if (orCreateMapChunk == null)
+		{
+			return false;
+		}
+		ServerChunk[] array = chunkthread.loadsavechunks.TryLoadChunkColumn(request);
+		if (array == null)
+		{
+			return false;
+		}
+		foreach (ServerChunk obj in array)
+		{
+			obj.serverMapChunk = orCreateMapChunk;
+			obj.MarkFresh();
+		}
+		request.MapChunk = orCreateMapChunk;
+		request.Chunks = array;
+		server.EnqueueMainThreadTask(delegate
+		{
+			chunkthread.loadsavechunks.mainThreadLoadChunkColumn(request);
+		});
+		return true;
+	}
+
+	private bool tryLoadOrGenerateChunkColumnsInQueue()
+	{
+		if (chunkthread.requestedChunkColumns.Count == 0)
+		{
+			return false;
+		}
+		PauseWorldgenThreadIfRequired(onChunkthread: true);
+		CleanupRequestsQueue();
+		int additionalWorldGenThreadsCount = chunkthread.additionalWorldGenThreadsCount;
+		foreach (ChunkColumnLoadRequest requestedChunkColumn in chunkthread.requestedChunkColumns)
+		{
+			if (requestedChunkColumn == null || requestedChunkColumn.Disposed)
+			{
+				continue;
+			}
+			int currentIncompletePass_AsInt = requestedChunkColumn.CurrentIncompletePass_AsInt;
+			if (currentIncompletePass_AsInt == 0 || currentIncompletePass_AsInt > additionalWorldGenThreadsCount)
+			{
+				if (server.Suspended)
+				{
+					return false;
+				}
+				if (loadOrGenerateChunkColumn_OnChunkThread(requestedChunkColumn, currentIncompletePass_AsInt) && chunkthread.additionalWorldGenThreadsCount == 0)
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	private int CleanupRequestsQueue()
+	{
+		int num = 0;
+		ConcurrentIndexedFifoQueue<ChunkColumnLoadRequest> requestedChunkColumns = chunkthread.requestedChunkColumns;
+		while (requestedChunkColumns.Count > 0)
+		{
+			ChunkColumnLoadRequest chunkColumnLoadRequest = requestedChunkColumns.Peek();
+			if (chunkColumnLoadRequest == null || chunkColumnLoadRequest.disposeOrRequeueFlags == 0)
+			{
+				break;
+			}
+			if (chunkColumnLoadRequest.Disposed)
+			{
+				requestedChunkColumns.DequeueWithoutRemovingFromIndex();
+				num++;
+			}
+			else
+			{
+				chunkColumnLoadRequest.disposeOrRequeueFlags = 0;
+				requestedChunkColumns.Requeue();
+			}
+		}
+		return num;
+	}
+
+	public bool loadOrGenerateChunkColumn_OnChunkThread(ChunkColumnLoadRequest chunkRequest, int stage)
+	{
+		ServerMapChunk orCreateMapChunk = GetOrCreateMapChunk(chunkRequest);
+		bool flag = false;
+		if (orCreateMapChunk.WorldGenVersion != 3 && orCreateMapChunk.WorldGenVersion != 0 && orCreateMapChunk.CurrentIncompletePass < EnumWorldGenPass.Done)
+		{
+			orCreateMapChunk = GetOrCreateMapChunk(chunkRequest, forceCreate: true);
+			flag = true;
+			chunkRequest.Chunks = null;
+		}
+		if (chunkRequest.Chunks == null)
+		{
+			if (!flag)
+			{
+				chunkRequest.Chunks = TryLoadChunkColumn(chunkRequest);
+				if (chunkRequest.Chunks != null)
+				{
+					for (int i = 0; i < chunkRequest.Chunks.Length; i++)
+					{
+						ServerChunk obj = chunkRequest.Chunks[i];
+						obj.serverMapChunk = orCreateMapChunk;
+						obj.MarkFresh();
+					}
+				}
+			}
+			int regionX = chunkRequest.chunkX / (server.api.WorldManager.RegionSize / server.api.WorldManager.ChunkSize);
+			int regionZ = chunkRequest.chunkZ / (server.api.WorldManager.RegionSize / server.api.WorldManager.ChunkSize);
+			long index2d = server.api.WorldManager.MapRegionIndex2D(regionX, regionZ);
+			IMapRegion mapRegion = server.api.WorldManager.GetMapRegion(index2d);
+			if (mapRegion != null)
+			{
+				TryRestoreGeneratedStructures(regionX, regionZ, chunkRequest.chunkGenParams, mapRegion);
+			}
+			if (chunkRequest.Chunks == null)
+			{
+				GenerateNewChunkColumn(orCreateMapChunk, chunkRequest);
+			}
+		}
+		chunkRequest.MapChunk = orCreateMapChunk;
+		if (chunkRequest.CurrentIncompletePass == EnumWorldGenPass.Done)
+		{
+			if (chunkRequest.blockingRequest && --blockingRequestsRemaining == 0)
+			{
+				ServerMain.Logger.VerboseDebug("Completed area loading/generation");
+			}
+			runScheduledBlockUpdatesWithNeighbours(chunkRequest);
+			try
+			{
+				ServerEventAPI eventapi = server.api.eventapi;
+				ServerMapChunk mapChunk = orCreateMapChunk;
+				int chunkX = chunkRequest.chunkX;
+				int chunkZ = chunkRequest.chunkZ;
+				IWorldChunk[] chunks = chunkRequest.Chunks;
+				eventapi.TriggerBeginChunkColumnLoadChunkThread(mapChunk, chunkX, chunkZ, chunks);
+			}
+			catch (Exception ex)
+			{
+				ServerMain.Logger.Error("Exception throwing during chunk Unpack() at chunkpos xz {0}/{1}. Likely corrupted. Exception: {2}", chunkRequest.chunkX, chunkRequest.chunkZ, ex);
+				if (server.Config.RepairMode)
+				{
+					ServerMain.Logger.Error("Repair mode is enabled so will delete the entire chunk column.");
+					GenerateNewChunkColumn(orCreateMapChunk, chunkRequest);
+					return false;
+				}
+			}
+			server.EnqueueMainThreadTask(delegate
+			{
+				mainThreadLoadChunkColumn(chunkRequest);
+				chunkthread.requestedChunkColumns.elementsByIndex.Remove(chunkRequest.Index);
+			});
+			chunkRequest.FlagToDispose();
+			return true;
+		}
+		if (orCreateMapChunk.currentpass != stage && orCreateMapChunk.currentpass <= chunkthread.additionalWorldGenThreadsCount)
+		{
+			return stage == 0;
+		}
+		bool num = CanGenerateChunkColumn(chunkRequest);
+		if (num)
+		{
+			PopulateChunk(chunkRequest);
+		}
+		if (!num || chunkthread.additionalWorldGenThreadsCount == 0)
+		{
+			chunkRequest.FlagToRequeue();
+		}
+		return num;
+	}
+
+	public int GenerateChunkColumns_OnSeparateThread(int stageStart, int stageEnd)
+	{
+		ChunkColumnLoadRequest chunkColumnLoadRequest = null;
+		long num = long.MinValue;
+		foreach (ChunkColumnLoadRequest requestedChunkColumn in chunkthread.requestedChunkColumns)
+		{
+			if (requestedChunkColumn == null || requestedChunkColumn.Disposed)
+			{
+				continue;
+			}
+			int currentIncompletePass_AsInt = requestedChunkColumn.CurrentIncompletePass_AsInt;
+			if (currentIncompletePass_AsInt < stageStart || currentIncompletePass_AsInt >= stageEnd)
+			{
+				continue;
+			}
+			if (currentIncompletePass_AsInt >= requestedChunkColumn.untilPass)
+			{
+				requestedChunkColumn.FlagToRequeue();
+			}
+			else if (requestedChunkColumn.creationTime > num)
+			{
+				if (ensurePrettyNeighbourhood(requestedChunkColumn))
+				{
+					num = requestedChunkColumn.creationTime;
+					chunkColumnLoadRequest = requestedChunkColumn;
+				}
+				else
+				{
+					requestedChunkColumn.FlagToRequeue();
+				}
+			}
+		}
+		if (chunkColumnLoadRequest != null)
+		{
+			PopulateChunk(chunkColumnLoadRequest);
+			return 1;
+		}
+		return 0;
+	}
+
+	public bool CanGenerateChunkColumn(ChunkColumnLoadRequest chunkRequest)
+	{
+		if (chunkRequest.CurrentIncompletePass_AsInt >= chunkRequest.untilPass || !ensurePrettyNeighbourhood(chunkRequest))
+		{
+			return false;
+		}
+		return true;
+	}
+
+	internal void mainThreadLoadChunkColumn(ChunkColumnLoadRequest chunkRequest)
+	{
+		if (server.RunPhase == EnumServerRunPhase.Shutdown)
+		{
+			return;
+		}
+		ServerMain.FrameProfiler.Enter("MTT-ChunkLoaded-Begin");
+		ServerEventAPI eventapi = server.api.eventapi;
+		Vec2i chunkCoord = new Vec2i(chunkRequest.chunkX, chunkRequest.chunkZ);
+		IWorldChunk[] chunks = chunkRequest.Chunks;
+		eventapi.TriggerChunkColumnLoaded(chunkCoord, chunks);
+		ServerMain.FrameProfiler.Mark("MTT-ChunkLoaded-LoadedEvent");
+		for (int i = 0; i < chunkRequest.Chunks.Length; i++)
+		{
+			ServerMain.FrameProfiler.Mark("MTT-ChunkLoaded-LoadedEvent");
+			ServerChunk serverChunk = chunkRequest.Chunks[i];
+			int num = i + chunkRequest.dimension * 1024;
+			long num2 = server.WorldMap.ChunkIndex3D(chunkRequest.chunkX, num, chunkRequest.chunkZ);
+			server.loadedChunksLock.AcquireWriteLock();
+			try
+			{
+				if (server.loadedChunks.ContainsKey(num2))
+				{
+					continue;
+				}
+				server.loadedChunks[num2] = serverChunk;
+				serverChunk.MarkToPack();
+				goto IL_00ff;
+			}
+			finally
+			{
+				server.loadedChunksLock.ReleaseWriteLock();
+			}
+			IL_00ff:
+			if (server.Config.AnalyzeMode)
+			{
+				try
+				{
+					serverChunk.Unpack();
+				}
+				catch (Exception ex)
+				{
+					ServerMain.Logger.Error("Exception throwing during chunk Unpack() at chunkpos {0}/{1}/{2}, dimension {4}. Likely corrupted. Exception: {3}", chunkRequest.chunkX, i, chunkRequest.chunkZ, ex, chunkRequest.dimension);
+					if (server.Config.RepairMode && chunkRequest.dimension == 0)
+					{
+						ServerMain.Logger.Error("Repair mode is enabled so will delete the entire chunk column.");
+						server.api.worldapi.DeleteChunkColumn(chunkRequest.chunkX, chunkRequest.chunkZ);
+						ServerMain.FrameProfiler.Leave();
+						return;
+					}
+				}
+			}
+			entitiesToRemove.Clear();
+			if (serverChunk.Entities != null)
+			{
+				for (int j = 0; j < serverChunk.Entities.Length; j++)
+				{
+					Entity entity = serverChunk.Entities[j];
+					if (entity == null)
+					{
+						if (j >= serverChunk.EntitiesCount)
+						{
+							break;
+						}
+					}
+					else if (!server.LoadEntity(entity, num2))
+					{
+						entitiesToRemove.Add(entity.EntityId);
+					}
+				}
+			}
+			foreach (long item in entitiesToRemove)
+			{
+				serverChunk.RemoveEntity(item);
+			}
+			ServerMain.FrameProfiler.Enter("MTT-ChunkLoaded-LoadBlockEntities");
+			foreach (KeyValuePair<BlockPos, BlockEntity> blockEntity in serverChunk.BlockEntities)
+			{
+				BlockEntity value = blockEntity.Value;
+				if (value == null)
+				{
+					continue;
+				}
+				try
+				{
+					ServerMain.FrameProfiler.Enter(value.Block.Code.Path);
+					value.Initialize(server.api);
+					if (serverChunk.serverMapChunk.NewBlockEntities.Contains(value.Pos))
+					{
+						serverChunk.serverMapChunk.NewBlockEntities.Remove(value.Pos);
+						value.OnBlockPlaced();
+					}
+					ServerMain.FrameProfiler.Leave();
+				}
+				catch (Exception ex2)
+				{
+					ServerMain.Logger.Notification("Exception thrown when trying to initialize a block entity @{0}: {1}", value.Pos, ex2);
+					value.UnregisterAllTickListeners();
+				}
+			}
+			ServerMain.FrameProfiler.Leave();
+			server.api.eventapi.TriggerChunkDirty(new Vec3i(chunkRequest.chunkX, num, chunkRequest.chunkZ), serverChunk, EnumChunkDirtyReason.NewlyLoaded);
+		}
+		ServerMain.FrameProfiler.Mark("MTT-ChunkLoaded-MarkDirtyEvent");
+		updateNeighboursLoadedFlags(chunkRequest.MapChunk, chunkRequest.chunkX, chunkRequest.chunkZ);
+		ServerMain.FrameProfiler.Mark("MTT-ChunkLoaded-UpdateNeighboursFlags");
+		for (int k = 0; k < chunkRequest.Chunks.Length; k++)
+		{
+			chunkRequest.Chunks[k].TryPackAndCommit();
+		}
+		ServerMain.FrameProfiler.Mark("MTT-ChunkLoaded-Pack");
+		ServerMain.FrameProfiler.Leave();
+	}
+
+	private void updateNeighboursLoadedFlags(ServerMapChunk mapChunk, int chunkX, int chunkZ)
+	{
+		mapChunk.NeighboursLoaded = default(SmallBoolArray);
+		mapChunk.SelfLoaded = true;
+		for (int i = 0; i < Cardinal.ALL.Length; i++)
+		{
+			Cardinal cardinal = Cardinal.ALL[i];
+			ServerMapChunk serverMapChunk = (ServerMapChunk)server.WorldMap.GetMapChunk(chunkX + cardinal.Normali.X, chunkZ + cardinal.Normali.Z);
+			if (serverMapChunk != null)
+			{
+				mapChunk.NeighboursLoaded[i] = serverMapChunk.SelfLoaded;
+				serverMapChunk.NeighboursLoaded[cardinal.Opposite.Index] = true;
+			}
+		}
+	}
+
+	public static void UpdateLoadedNeighboursFlags(ServerWorldMap WorldMap, int chunkX, int chunkZ)
+	{
+		ServerMapChunk serverMapChunk = (ServerMapChunk)WorldMap.GetMapChunk(chunkX, chunkZ - 1);
+		ServerMapChunk serverMapChunk2 = (ServerMapChunk)WorldMap.GetMapChunk(chunkX + 1, chunkZ - 1);
+		ServerMapChunk serverMapChunk3 = (ServerMapChunk)WorldMap.GetMapChunk(chunkX + 1, chunkZ);
+		ServerMapChunk serverMapChunk4 = (ServerMapChunk)WorldMap.GetMapChunk(chunkX + 1, chunkZ + 1);
+		ServerMapChunk serverMapChunk5 = (ServerMapChunk)WorldMap.GetMapChunk(chunkX, chunkZ + 1);
+		ServerMapChunk serverMapChunk6 = (ServerMapChunk)WorldMap.GetMapChunk(chunkX - 1, chunkZ + 1);
+		ServerMapChunk serverMapChunk7 = (ServerMapChunk)WorldMap.GetMapChunk(chunkX - 1, chunkZ);
+		ServerMapChunk serverMapChunk8 = (ServerMapChunk)WorldMap.GetMapChunk(chunkX - 1, chunkZ - 1);
+		if (serverMapChunk != null)
+		{
+			serverMapChunk.NeighboursLoaded[4] = false;
+		}
+		if (serverMapChunk2 != null)
+		{
+			serverMapChunk2.NeighboursLoaded[5] = false;
+		}
+		if (serverMapChunk3 != null)
+		{
+			serverMapChunk3.NeighboursLoaded[6] = false;
+		}
+		if (serverMapChunk4 != null)
+		{
+			serverMapChunk4.NeighboursLoaded[7] = false;
+		}
+		if (serverMapChunk5 != null)
+		{
+			serverMapChunk5.NeighboursLoaded[0] = false;
+		}
+		if (serverMapChunk6 != null)
+		{
+			serverMapChunk6.NeighboursLoaded[1] = false;
+		}
+		if (serverMapChunk7 != null)
+		{
+			serverMapChunk7.NeighboursLoaded[2] = false;
+		}
+		if (serverMapChunk8 != null)
+		{
+			serverMapChunk8.NeighboursLoaded[3] = false;
+		}
+	}
+
+	private void runScheduledBlockUpdatesWithNeighbours(ChunkColumnLoadRequest chunkRequest)
+	{
+		for (int i = -1; i <= 1; i++)
+		{
+			for (int j = -1; j <= 1; j++)
+			{
+				bool flag = false;
+				if (server.loadedMapChunks.TryGetValue(server.WorldMap.MapChunkIndex2D(chunkRequest.chunkX + j, chunkRequest.chunkZ + i), out var value) && value.CurrentIncompletePass == EnumWorldGenPass.Done && value.ScheduledBlockUpdates.Count > 0 && areAllChunkNeighboursLoaded(value, chunkRequest.chunkX + j, chunkRequest.chunkZ + i))
+				{
+					flag = true;
+				}
+				if (!flag)
+				{
+					continue;
+				}
+				foreach (BlockPos scheduledBlockUpdate in value.ScheduledBlockUpdates)
+				{
+					server.WorldMap.MarkBlockModified(scheduledBlockUpdate);
+				}
+				value.ScheduledBlockUpdates.Clear();
+			}
+		}
+	}
+
+	private bool areAllChunkNeighboursLoaded(ServerMapChunk mpc, int chunkX, int chunkZ)
+	{
+		int num = 0;
+		for (int i = -1; i <= 1; i++)
+		{
+			for (int j = -1; j <= 1; j++)
+			{
+				if ((j != 0 || i != 0) && server.loadedMapChunks.TryGetValue(server.WorldMap.MapChunkIndex2D(chunkX + j, chunkZ + i), out var value) && value.CurrentIncompletePass == EnumWorldGenPass.Done)
+				{
+					num++;
+				}
+			}
+		}
+		return num == 8;
+	}
+
+	private ServerMapRegion GetOrCreateMapRegionEnsureNeighbours(int chunkX, int chunkZ, ITreeAttribute chunkGenParams)
+	{
+		ServerMapRegion orCreateMapRegion = GetOrCreateMapRegion(chunkX, chunkZ, chunkGenParams);
+		if (!orCreateMapRegion.NeighbourRegionsChecked)
+		{
+			int num = chunkX / MagicNum.ChunkRegionSizeInChunks;
+			int num2 = chunkZ / MagicNum.ChunkRegionSizeInChunks;
+			for (int i = -1; i <= 1; i++)
+			{
+				for (int j = -1; j <= 1; j++)
+				{
+					if (num + i >= 0 && num2 + j >= 0)
+					{
+						GetOrCreateMapRegion((num + i) * MagicNum.ChunkRegionSizeInChunks, (num2 + j) * MagicNum.ChunkRegionSizeInChunks, chunkGenParams);
+					}
+				}
+			}
+			orCreateMapRegion.NeighbourRegionsChecked = true;
+		}
+		return orCreateMapRegion;
+	}
+
+	private ServerMapRegion GetOrCreateMapRegion(int chunkX, int chunkZ, ITreeAttribute chunkGenParams)
+	{
+		int regionX = chunkX / MagicNum.ChunkRegionSizeInChunks;
+		int regionZ = chunkZ / MagicNum.ChunkRegionSizeInChunks;
+		long key = server.WorldMap.MapRegionIndex2D(regionX, regionZ);
+		server.loadedMapRegions.TryGetValue(key, out var mapRegion);
+		if (mapRegion != null)
+		{
+			return mapRegion;
+		}
+		mapRegion = TryLoadMapRegion(regionX, regionZ);
+		List<GeneratedStructure> list = null;
+		Dictionary<string, byte[]> dictionary = null;
+		if (mapRegion != null)
+		{
+			if (mapRegion.worldgenVersion == 3 || !GameVersion.IsLowerVersionThan(server.SaveGameData.CreatedGameVersion, "1.21.0"))
+			{
+				mapRegion.loadedTotalMs = server.ElapsedMilliseconds;
+				server.loadedMapRegions[key] = mapRegion;
+				server.EnqueueMainThreadTask(delegate
+				{
+					server.api.eventapi.TriggerMapRegionLoaded(new Vec2i(regionX, regionZ), mapRegion);
+					ServerMain.FrameProfiler.Mark("trigger-mapregionloaded");
+				});
+				return mapRegion;
+			}
+			list = mapRegion.GeneratedStructures;
+			dictionary = mapRegion.ModData;
+		}
+		mapRegion = CreateMapRegion(regionX, regionZ, chunkGenParams);
+		mapRegion.loadedTotalMs = server.ElapsedMilliseconds;
+		if (list != null)
+		{
+			mapRegion.GeneratedStructures = list;
+		}
+		if (dictionary != null)
+		{
+			mapRegion.ModData = dictionary;
+		}
+		server.loadedMapRegions[key] = mapRegion;
+		server.EnqueueMainThreadTask(delegate
+		{
+			server.api.eventapi.TriggerMapRegionLoaded(new Vec2i(regionX, regionZ), mapRegion);
+			ServerMain.FrameProfiler.Mark("trigger-mapregionloaded");
+		});
+		return mapRegion;
+	}
+
+	private ServerMapRegion CreateMapRegion(int regionX, int regionZ, ITreeAttribute chunkGenParams)
+	{
+		ServerMapRegion serverMapRegion = ServerMapRegion.CreateNew();
+		for (int i = 0; i < worldgenHandler.OnMapRegionGen.Count; i++)
+		{
+			worldgenHandler.OnMapRegionGen[i](serverMapRegion, regionX, regionZ, chunkGenParams);
+		}
+		return serverMapRegion;
+	}
+
+	private void TryRestoreGeneratedStructures(int regionX, int regionZ, ITreeAttribute chunkGenParams, IMapRegion mapRegion)
+	{
+		byte[] array = chunkGenParams?.GetBytes("GeneratedStructures");
+		if (array == null)
+		{
+			return;
+		}
+		Dictionary<long, List<GeneratedStructure>> dictionary = SerializerUtil.Deserialize<Dictionary<long, List<GeneratedStructure>>>(array);
+		long key = server.api.WorldManager.MapRegionIndex2D(regionX, regionZ);
+		if (!dictionary.TryGetValue(key, out var value) || value == null)
+		{
+			return;
+		}
+		mapRegion.GeneratedStructures.AddRange(value.Where((GeneratedStructure structure) => !mapRegion.GeneratedStructures.Any((GeneratedStructure s) => s.Location.Start.Equals(structure.Location.Start))));
+	}
+
+	internal ServerMapChunk GetOrCreateMapChunk(ChunkColumnLoadRequest chunkRequest, bool forceCreate = false)
+	{
+		int chunkX = chunkRequest.chunkX;
+		int chunkZ = chunkRequest.chunkZ;
+		ServerMapRegion orCreateMapRegionEnsureNeighbours = GetOrCreateMapRegionEnsureNeighbours(chunkX, chunkZ, chunkRequest.chunkGenParams);
+		long key = server.WorldMap.MapChunkIndex2D(chunkX, chunkZ);
+		ServerMapChunk value;
+		if (!forceCreate)
+		{
+			server.loadedMapChunks.TryGetValue(key, out value);
+			if (value != null)
+			{
+				return value;
+			}
+			value = TryLoadMapChunk(chunkX, chunkZ, orCreateMapRegionEnsureNeighbours);
+			if (value != null)
+			{
+				value.MapRegion = orCreateMapRegionEnsureNeighbours;
+				server.loadedMapChunks[key] = value;
+				return value;
+			}
+		}
+		value = CreateMapChunk(chunkX, chunkZ, orCreateMapRegionEnsureNeighbours);
+		server.loadedMapChunks[key] = value;
+		return value;
+	}
+
+	private ServerMapChunk PeekMapChunk(int chunkX, int chunkZ)
+	{
+		long key = server.WorldMap.MapChunkIndex2D(chunkX, chunkZ);
+		server.loadedMapChunks.TryGetValue(key, out var value);
+		if (value != null)
+		{
+			return value;
+		}
+		return TryLoadMapChunk(chunkX, chunkZ, null);
+	}
+
+	private ServerMapChunk CreateMapChunk(int chunkX, int chunkZ, ServerMapRegion mapRegion)
+	{
+		ServerMapChunk serverMapChunk = ServerMapChunk.CreateNew(mapRegion);
+		for (int i = 0; i < worldgenHandler.OnMapChunkGen.Count; i++)
+		{
+			worldgenHandler.OnMapChunkGen[i](serverMapChunk, chunkX, chunkZ);
+		}
+		return serverMapChunk;
+	}
+
+	private void GenerateNewChunkColumn(ServerMapChunk mapChunk, ChunkColumnLoadRequest chunkRequest)
+	{
+		int chunkMapSizeY = server.WorldMap.ChunkMapSizeY;
+		chunkRequest.Chunks = new ServerChunk[chunkMapSizeY];
+		for (int i = 0; i < chunkMapSizeY; i++)
+		{
+			ServerChunk serverChunk = ServerChunk.CreateNew(server.serverChunkDataPool);
+			serverChunk.serverMapChunk = mapChunk;
+			chunkRequest.Chunks[i] = serverChunk;
+		}
+		chunkRequest.MapChunk = mapChunk;
+		if (requiresChunkBorderSmoothing)
+		{
+			for (int j = 0; j < Cardinal.ALL.Length; j++)
+			{
+				Cardinal cardinal = Cardinal.ALL[j];
+				ServerMapChunk serverMapChunk = PeekMapChunk(chunkRequest.chunkX + cardinal.Normali.X, chunkRequest.chunkZ + cardinal.Normali.Z);
+				if (serverMapChunk != null && serverMapChunk.CurrentIncompletePass >= EnumWorldGenPass.Done && serverMapChunk.WorldGenVersion != 3)
+				{
+					if (chunkRequest.NeighbourTerrainHeight == null)
+					{
+						chunkRequest.NeighbourTerrainHeight = new ushort[8][];
+					}
+					chunkRequest.NeighbourTerrainHeight[j] = serverMapChunk.WorldGenTerrainHeightMap;
+				}
+			}
+			chunkRequest.RequiresChunkBorderSmoothing = chunkRequest.NeighbourTerrainHeight != null;
+			if (mapChunk.CurrentIncompletePass < EnumWorldGenPass.NeighbourSunLightFlood && mapChunk.WorldGenVersion != 3)
+			{
+				mapChunk.WorldGenVersion = 3;
+			}
+		}
+		chunkRequest.CurrentIncompletePass = EnumWorldGenPass.Terrain;
+	}
+
+	internal ServerChunk[] TryLoadChunkColumn(ChunkColumnLoadRequest chunkRequest)
+	{
+		int chunkMapSizeY = server.WorldMap.ChunkMapSizeY;
+		ServerChunk[] array = new ServerChunk[chunkMapSizeY];
+		int num = 0;
+		for (int i = 0; i < chunkMapSizeY; i++)
+		{
+			byte[] chunk = chunkthread.gameDatabase.GetChunk(chunkRequest.chunkX, i, chunkRequest.chunkZ, chunkRequest.dimension);
+			if (chunk == null)
+			{
+				continue;
+			}
+			try
+			{
+				num++;
+				array[i] = ServerChunk.FromBytes(chunk, server.serverChunkDataPool, server);
+			}
+			catch (Exception ex)
+			{
+				if (server.Config.RegenerateCorruptChunks || server.Config.RepairMode)
+				{
+					array[i] = ServerChunk.CreateNew(server.serverChunkDataPool);
+					ServerMain.Logger.Error("Failed deserializing a chunk, we are in repair mode, so will initilize empty one. Exception: {0}", ex);
+					continue;
+				}
+				ServerMain.Logger.Error("Failed deserializing a chunk. Not in repair mode, will exit.");
+				throw;
+			}
+		}
+		if (requiresSetEmptyFlag)
+		{
+			foreach (ServerChunk serverChunk in array)
+			{
+				if (serverChunk != null)
+				{
+					serverChunk.Unpack();
+					serverChunk.MarkModified();
+					serverChunk.TryPackAndCommit();
+				}
+			}
+		}
+		if (num != 0 && num != chunkMapSizeY)
+		{
+			ServerMain.Logger.Error("Loaded some but not all chunks of a column? Discarding whole column.");
+			return null;
+		}
+		if (num != chunkMapSizeY)
+		{
+			return null;
+		}
+		return array;
+	}
+
+	private ServerMapChunk TryLoadMapChunk(int chunkX, int chunkZ, ServerMapRegion forRegion)
+	{
+		byte[] mapChunk = chunkthread.gameDatabase.GetMapChunk(chunkX, chunkZ);
+		if (mapChunk != null)
+		{
+			try
+			{
+				ServerMapChunk serverMapChunk = ServerMapChunk.FromBytes(mapChunk);
+				if (GameVersion.IsLowerVersionThan(server.SaveGameData.CreatedGameVersion, "1.7"))
+				{
+					serverMapChunk.YMax = (ushort)(server.SaveGameData.MapSizeY - 1);
+				}
+				return serverMapChunk;
+			}
+			catch (Exception ex)
+			{
+				if (chunkX == 0 && chunkZ == 0)
+				{
+					return null;
+				}
+				if (!server.Config.RegenerateCorruptChunks && !server.Config.RepairMode)
+				{
+					ServerMain.Logger.Error("Failed deserializing a map chunk. Not in repair mode, will exit.");
+					throw;
+				}
+				ServerMain.Logger.Error("Failed deserializing a map chunk, we are in repair mode, so will initialize empty one. Exception: {0}", ex);
+				return null;
+			}
+		}
+		return null;
+	}
+
+	private ServerMapRegion TryLoadMapRegion(int regionX, int regionZ)
+	{
+		byte[] mapRegion = chunkthread.gameDatabase.GetMapRegion(regionX, regionZ);
+		try
+		{
+			if (mapRegion != null)
+			{
+				return ServerMapRegion.FromBytes(mapRegion);
+			}
+		}
+		catch (Exception e)
+		{
+			if (server.Config.RepairMode)
+			{
+				ServerMain.Logger.Error("Failed deserializing a map region, we are in repair mode, so will initialize empty one.");
+				ServerMain.Logger.Error(e);
+				return null;
+			}
+			ServerMain.Logger.Error("Failed deserializing a map region. Not in repair mode, will exit.");
+			throw;
+		}
+		return null;
+	}
+
+	public void InitWorldgenAndSpawnChunks()
+	{
+		worldgenHandler = (WorldGenHandler)server.api.Event.TriggerInitWorldGen();
+		ServerMain.Logger.Event("Loading {0}x{1}x{2} spawn chunks...", MagicNum.SpawnChunksWidth, MagicNum.SpawnChunksWidth, server.WorldMap.ChunkMapSizeY);
+		if (storyChunkSpawnEvents == null)
+		{
+			storyChunkSpawnEvents = new string[15]
+			{
+				Lang.Get("...the carved mountains"),
+				Lang.Get("...the rolling hills"),
+				Lang.Get("...the vertical cliffs"),
+				Lang.Get("...the endless plains"),
+				Lang.Get("...the winter lands"),
+				Lang.Get("...and scorching deserts"),
+				Lang.Get("...spring waters"),
+				Lang.Get("...tunnels deep below"),
+				Lang.Get("...the luscious trees"),
+				Lang.Get("...the fragrant flowers"),
+				Lang.Get("...the roaming creatures"),
+				Lang.Get("with their offspring..."),
+				Lang.Get("...a misty sunrise"),
+				Lang.Get("...dew drops on a blade of grass"),
+				Lang.Get("...a soft breeze")
+			};
+		}
+		BlockPos blockPos = new BlockPos(server.WorldMap.MapSizeX / 2, 0, server.WorldMap.MapSizeZ / 2, 0);
+		if (GameVersion.IsLowerVersionThan(server.SaveGameData.CreatedGameVersion, "1.20.0-pre.14"))
+		{
+			int num = 0;
+			int num2 = 0;
+			bool flag = false;
+			Random random = new Random(server.Seed);
+			int num3 = 5;
+			int num4 = 20;
+			for (int i = 0; i < num3; i++)
+			{
+				if (i > 0)
+				{
+					double num5 = (double)GameMath.Sqrt((double)i * (1.0 / (double)num3)) * (double)num4;
+					double num6 = (1.0 - Math.Abs(random.NextDouble() - random.NextDouble())) * num5;
+					double value = random.NextDouble() * 6.2831854820251465;
+					double num7 = num6 * GameMath.Sin(value);
+					double num8 = num6 * GameMath.Cos(value);
+					num = (int)num7;
+					num2 = (int)num8;
+					blockPos = new BlockPos(num * 32 + server.WorldMap.MapSizeX / 2, 0, num2 * 32 + server.WorldMap.MapSizeZ / 2, 0);
+				}
+				loadChunkAreaBlocking(num + server.WorldMap.ChunkMapSizeX / 2 - MagicNum.SpawnChunksWidth / 2, num2 + server.WorldMap.ChunkMapSizeZ / 2 - MagicNum.SpawnChunksWidth / 2, num + server.WorldMap.ChunkMapSizeX / 2 + MagicNum.SpawnChunksWidth / 2, num2 + server.WorldMap.ChunkMapSizeZ / 2 + MagicNum.SpawnChunksWidth / 2, isStartupLoad: true);
+				server.ProcessMainThreadTasks();
+				if (AdjustForSaveSpawnSpot(server, blockPos, null, random))
+				{
+					flag = true;
+					break;
+				}
+				if (i + 1 < num3)
+				{
+					server.api.Logger.Notification("Trying another spawn location ({0}/{1})...", i + 2, num3);
+				}
+			}
+			if (!flag)
+			{
+				blockPos = new BlockPos(server.WorldMap.MapSizeX / 2, 0, server.WorldMap.MapSizeZ / 2, 0);
+				blockPos.Y = server.blockAccessor.GetRainMapHeightAt(blockPos);
+				if (!server.blockAccessor.GetBlock(blockPos).SideSolid[BlockFacing.UP.Index])
+				{
+					server.blockAccessor.SetBlock(server.blockAccessor.GetBlock(new AssetLocation("planks-oak-we")).Id, blockPos);
+				}
+				blockPos.Y++;
+			}
+		}
+		else
+		{
+			loadChunkAreaBlocking(server.WorldMap.ChunkMapSizeX / 2 - MagicNum.SpawnChunksWidth / 2, server.WorldMap.ChunkMapSizeZ / 2 - MagicNum.SpawnChunksWidth / 2, server.WorldMap.ChunkMapSizeX / 2 + MagicNum.SpawnChunksWidth / 2, server.WorldMap.ChunkMapSizeZ / 2 + MagicNum.SpawnChunksWidth / 2, isStartupLoad: true);
+			server.ProcessMainThreadTasks();
+		}
+		server.mapMiddleSpawnPos = new PlayerSpawnPos
+		{
+			x = blockPos.X,
+			y = blockPos.Y,
+			z = blockPos.Z
+		};
+		if (blockPos.Y < 0)
+		{
+			server.mapMiddleSpawnPos.y = null;
+		}
+		server.api.Logger.VerboseDebug("Done spawn chunk");
+	}
+
+	public static bool AdjustForSaveSpawnSpot(ServerMain server, BlockPos pos, IServerPlayer forPlayer, Random rand)
+	{
+		int num = 60;
+		int num2 = 0;
+		int num3 = 0;
+		int num4 = 0;
+		int num5 = 0;
+		int num6 = 0;
+		while (num-- > 0)
+		{
+			num4 = GameMath.Clamp(num2 + pos.X, 0, server.WorldMap.MapSizeX - 1);
+			num6 = GameMath.Clamp(num3 + pos.Z, 0, server.WorldMap.MapSizeZ - 1);
+			num5 = server.WorldMap.GetTerrainGenSurfacePosY(num4, num6);
+			pos.Set(num4, num5, num6);
+			num2 = rand.Next(64) - 32;
+			num3 = rand.Next(64) - 32;
+			if (num5 != 0 && !((double)num5 > 0.75 * (double)server.WorldMap.MapSizeY))
+			{
+				if (server.WorldMap.GetBlockingLandClaimant(forPlayer, pos, EnumBlockAccessFlags.Use) != null)
+				{
+					server.api.Logger.Notification("Spawn pos blocked at " + pos);
+				}
+				else if (!server.BlockAccessor.GetBlockRaw(num4, num5 + 1, num6, 2).IsLiquid() && !server.BlockAccessor.GetBlockRaw(num4, num5, num6, 2).IsLiquid() && !server.BlockAccessor.IsSideSolid(num4, num5 + 1, num6, BlockFacing.UP))
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	private void PeekChunkAreaLocking(Vec2i coords, EnumWorldGenPass untilPass, OnChunkPeekedDelegate onGenerated, ITreeAttribute chunkGenParams)
+	{
+		chunkthread.peekMode = true;
+		int x = coords.X;
+		int y = coords.Y;
+		Dictionary<Vec2i, ServerMapRegion> dictionary = new Dictionary<Vec2i, ServerMapRegion>();
+		int i = 1;
+		int num = Math.Min((int)untilPass, 5);
+		int num2 = num - i;
+		ChunkColumnLoadRequest[,] array = new ChunkColumnLoadRequest[num2 * 2 + 1, num2 * 2 + 1];
+		for (int j = -num2; j <= num2; j++)
+		{
+			for (int k = -num2; k <= num2; k++)
+			{
+				long index2d = server.WorldMap.MapChunkIndex2D(x + j, y + k);
+				int num3 = (x + j) / MagicNum.ChunkRegionSizeInChunks;
+				int num4 = (y + k) / MagicNum.ChunkRegionSizeInChunks;
+				Vec2i key = new Vec2i(num3, num4);
+				bool flag = false;
+				List<GeneratedStructure> list = null;
+				Dictionary<string, byte[]> dictionary2 = null;
+				if (!dictionary.TryGetValue(key, out var value))
+				{
+					flag = true;
+				}
+				else if (value.worldgenVersion != 3 && GameVersion.IsLowerVersionThan(server.SaveGameData.CreatedGameVersion, "1.21.0"))
+				{
+					flag = true;
+					list = value.GeneratedStructures;
+					dictionary2 = value.ModData;
+				}
+				if (flag)
+				{
+					value = (dictionary[key] = CreateMapRegion(num3, num4, chunkGenParams));
+					if (list != null)
+					{
+						value.GeneratedStructures = list;
+					}
+					if (dictionary2 != null)
+					{
+						value.ModData = dictionary2;
+					}
+				}
+				ServerMapChunk mapChunk = CreateMapChunk(x, y, value);
+				ChunkColumnLoadRequest chunkColumnLoadRequest = new ChunkColumnLoadRequest(index2d, x + j, y + k, 0, (int)untilPass, server)
+				{
+					chunkGenParams = ((j == 0 && k == 0) ? chunkGenParams : null)
+				};
+				chunkColumnLoadRequest.MapChunk = mapChunk;
+				GenerateNewChunkColumn(mapChunk, chunkColumnLoadRequest);
+				chunkColumnLoadRequest.Unpack();
+				array[j + num2, k + num2] = chunkColumnLoadRequest;
+				lock (chunkthread.peekingChunkColumns)
+				{
+					chunkthread.peekingChunkColumns.Enqueue(chunkColumnLoadRequest);
+				}
+			}
+		}
+		int num5 = num - i;
+		for (; i <= num; i++)
+		{
+			num5 = num - i;
+			for (int l = -num5; l <= num5; l++)
+			{
+				for (int m = -num5; m <= num5; m++)
+				{
+					ChunkColumnLoadRequest chunkRequest = array[l + num2, m + num2];
+					runGenerators(chunkRequest, i);
+				}
+			}
+		}
+		Dictionary<Vec2i, IServerChunk[]> columnsByChunkCoordinate = new Dictionary<Vec2i, IServerChunk[]>();
+		lock (chunkthread.peekingChunkColumns)
+		{
+			for (int n = -num2; n <= num2; n++)
+			{
+				for (int num6 = -num2; num6 <= num2; num6++)
+				{
+					long index = server.WorldMap.MapChunkIndex2D(x + n, y + num6);
+					chunkthread.peekingChunkColumns.Remove(index);
+					ChunkColumnLoadRequest chunkColumnLoadRequest2 = array[n + num2, num6 + num2];
+					Dictionary<Vec2i, IServerChunk[]> dictionary3 = columnsByChunkCoordinate;
+					Vec2i key2 = new Vec2i(x + n, y + num6);
+					IServerChunk[] chunks = chunkColumnLoadRequest2.Chunks;
+					dictionary3[key2] = chunks;
+				}
+			}
+		}
+		chunkthread.peekMode = false;
+		server.EnqueueMainThreadTask(delegate
+		{
+			onGenerated(columnsByChunkCoordinate);
+			ServerMain.FrameProfiler.Mark("MTT-PeekChunk");
+		});
+	}
+
+	private void loadChunkAreaBlocking(int chunkX1, int chunkZ1, int chunkX2, int chunkZ2, bool isStartupLoad = false, ITreeAttribute chunkGenParams = null)
+	{
+		ResumeAllWorldgenThreads();
+		int num = server.loadedChunks.Count / server.WorldMap.ChunkMapSizeY;
+		int num2 = (chunkX2 - chunkX1 + 1) * (chunkZ2 - chunkZ1 + 1);
+		CleanupRequestsQueue();
+		moveRequestsToGeneratingQueue();
+		blockingRequestsRemaining = 0;
+		foreach (ChunkColumnLoadRequest requestedChunkColumn in chunkthread.requestedChunkColumns)
+		{
+			requestedChunkColumn.blockingRequest = false;
+		}
+		for (int i = chunkX1; i <= chunkX2; i++)
+		{
+			for (int j = chunkZ1; j <= chunkZ2; j++)
+			{
+				if (server.WorldMap.IsValidChunkPos(i, 0, j) && !server.IsChunkColumnFullyLoaded(i, j))
+				{
+					ChunkColumnLoadRequest chunkColumnLoadRequest = new ChunkColumnLoadRequest(server.WorldMap.MapChunkIndex2D(i, j), i, j, server.serverConsoleId, 6, server)
+					{
+						chunkGenParams = chunkGenParams
+					};
+					chunkColumnLoadRequest.blockingRequest = true;
+					if (chunkthread.addChunkColumnRequest(chunkColumnLoadRequest))
+					{
+						blockingRequestsRemaining++;
+					}
+				}
+			}
+		}
+		long num3 = Environment.TickCount + 12000;
+		ServerMain.Logger.VerboseDebug("Starting area loading/generation: columns " + blockingRequestsRemaining + ", total queue length " + chunkthread.requestedChunkColumns.Count);
+		while (!server.stopped && !server.exit.exit)
+		{
+			CleanupRequestsQueue();
+			if (blockingRequestsRemaining <= 0 || chunkthread.requestedChunkColumns.Count == 0)
+			{
+				break;
+			}
+			if (isStartupLoad && server.totalUnpausedTime.ElapsedMilliseconds - millisecondsSinceStart > 1500)
+			{
+				millisecondsSinceStart = server.totalUnpausedTime.ElapsedMilliseconds;
+				float num4 = 100f * ((float)server.loadedChunks.Count / (float)server.WorldMap.ChunkMapSizeY - (float)num) / (float)num2;
+				ServerMain.Logger.Event(num4.ToString("0.#") + "% ({0} in queue)", chunkthread.requestedChunkColumns.Count);
+				if (storyEventPrints < storyChunkSpawnEvents.Length)
+				{
+					ServerMain.Logger.StoryEvent(storyChunkSpawnEvents[storyEventPrints]);
+				}
+				else
+				{
+					ServerMain.Logger.StoryEvent("...");
+				}
+				storyEventPrints++;
+			}
+			bool flag = false;
+			foreach (ChunkColumnLoadRequest requestedChunkColumn2 in chunkthread.requestedChunkColumns)
+			{
+				if (requestedChunkColumn2 == null || requestedChunkColumn2.Disposed)
+				{
+					continue;
+				}
+				int currentIncompletePass_AsInt = requestedChunkColumn2.CurrentIncompletePass_AsInt;
+				if (currentIncompletePass_AsInt == 0 || currentIncompletePass_AsInt > chunkthread.additionalWorldGenThreadsCount)
+				{
+					if (server.exit.exit || server.stopped)
+					{
+						return;
+					}
+					flag |= loadOrGenerateChunkColumn_OnChunkThread(requestedChunkColumn2, currentIncompletePass_AsInt);
+				}
+			}
+			if (flag)
+			{
+				num3 = Environment.TickCount + 12000;
+			}
+			else
+			{
+				if (Environment.TickCount <= num3)
+				{
+					continue;
+				}
+				ServerMain.Logger.Error("Attempting to force generate chunk columns from " + chunkX1 + "," + chunkZ1 + " to " + chunkX2 + "," + chunkZ2);
+				ServerMain.Logger.Error(chunkthread.additionalWorldGenThreadsCount + " additional worldgen threads active, number of 'undone' chunks is " + blockingRequestsRemaining);
+				foreach (ChunkColumnLoadRequest requestedChunkColumn3 in chunkthread.requestedChunkColumns)
+				{
+					if (requestedChunkColumn3 != null)
+					{
+						string text = ((requestedChunkColumn3.chunkX >= chunkX1 && requestedChunkColumn3.chunkX <= chunkX2 && requestedChunkColumn3.chunkZ >= chunkZ1 && requestedChunkColumn3.chunkZ <= chunkZ2) ? " (in original req)" : "");
+						ServerMain.Logger.Error("Column " + requestedChunkColumn3.ChunkX + "," + requestedChunkColumn3.ChunkZ + " has reached pass " + requestedChunkColumn3.CurrentIncompletePass_AsInt + text);
+					}
+				}
+				throw new Exception("Somehow worldgen has become stuck in an endless loop, please report this as a bug!  Additional data in the server-main log");
+			}
+		}
+	}
+
+	private void PopulateChunk(ChunkColumnLoadRequest chunkRequest)
+	{
+		chunkRequest.Unpack();
+		chunkRequest.generatingLock.AcquireWriteLock();
+		try
+		{
+			if (server.Config.SkipEveryChunkRow > 0 && chunkRequest.chunkX % (server.Config.SkipEveryChunkRow + server.Config.SkipEveryChunkRowWidth) < server.Config.SkipEveryChunkRowWidth)
+			{
+				if (chunkRequest.CurrentIncompletePass == EnumWorldGenPass.Terrain)
+				{
+					ushort sunLight = (ushort)server.sunBrightness;
+					for (int i = 0; i < chunkRequest.Chunks.Length; i++)
+					{
+						chunkRequest.Chunks[i].Lighting.ClearWithSunlight(sunLight);
+					}
+				}
+			}
+			else
+			{
+				runGenerators(chunkRequest, chunkRequest.MapChunk.currentpass);
+			}
+			if (chunkRequest.CurrentIncompletePass == EnumWorldGenPass.Terrain)
+			{
+				chunkRequest.MapChunk.WorldGenVersion = 3;
+			}
+			for (int j = 0; j < chunkRequest.Chunks.Length; j++)
+			{
+				chunkRequest.Chunks[j].MarkModified();
+			}
+			chunkRequest.MapChunk.currentpass++;
+			chunkRequest.MapChunk.DirtyForSaving = true;
+		}
+		finally
+		{
+			chunkRequest.generatingLock.ReleaseWriteLock();
+		}
+	}
+
+	private void runGenerators(ChunkColumnLoadRequest chunkRequest, int forPass)
+	{
+		List<ChunkColumnGenerationDelegate> list = worldgenHandler.OnChunkColumnGen[forPass];
+		if (list == null)
+		{
+			return;
+		}
+		for (int i = 0; i < list.Count; i++)
+		{
+			try
+			{
+				list[i](chunkRequest);
+			}
+			catch (Exception ex)
+			{
+				ServerMain.Logger.Worldgen("An error was thrown in pass {5} when generating chunk column X={0},Z={1} in world '{3}' with seed {4}\nException {2}\n\n", chunkRequest.chunkX, chunkRequest.chunkZ, ex, server.SaveGameData.WorldName, server.SaveGameData.Seed, chunkRequest.CurrentIncompletePass.ToString());
+				if (chunkRequest.CurrentIncompletePass <= EnumWorldGenPass.Terrain)
+				{
+					break;
+				}
+			}
+		}
+	}
+
+	private bool ensurePrettyNeighbourhood(ChunkColumnLoadRequest chunkRequest)
+	{
+		if (chunkRequest.CurrentIncompletePass <= EnumWorldGenPass.Terrain)
+		{
+			return true;
+		}
+		bool result = true;
+		int currentIncompletePass_AsInt = chunkRequest.CurrentIncompletePass_AsInt;
+		int num = Math.Max(chunkRequest.chunkX - 1, 0);
+		int num2 = Math.Min(chunkRequest.chunkX + 1, server.WorldMap.ChunkMapSizeX - 1);
+		int num3 = Math.Max(chunkRequest.chunkZ - 1, 0);
+		int num4 = Math.Min(chunkRequest.chunkZ + 1, server.WorldMap.ChunkMapSizeZ - 1);
+		if (!chunkRequest.prettified && !EnsureQueueSpace(chunkRequest))
+		{
+			return false;
+		}
+		for (int i = num; i <= num2; i++)
+		{
+			for (int j = num3; j <= num4; j++)
+			{
+				if (i == chunkRequest.chunkX && j == chunkRequest.chunkZ)
+				{
+					continue;
+				}
+				long index2d = server.WorldMap.MapChunkIndex2D(i, j);
+				if (!chunkthread.EnsureMinimumWorldgenPassAt(index2d, i, j, currentIncompletePass_AsInt, chunkRequest.creationTime))
+				{
+					if (chunkRequest.prettified)
+					{
+						return false;
+					}
+					result = false;
+				}
+			}
+		}
+		chunkRequest.prettified = true;
+		return result;
+	}
+
+	private EnumWorldGenPass getLoadedOrQueuedChunkPass(long index2d)
+	{
+		server.loadedMapChunks.TryGetValue(index2d, out var value);
+		if (value == null || value.CurrentIncompletePass != EnumWorldGenPass.Done)
+		{
+			return chunkthread.requestedChunkColumns.GetByIndex(index2d)?.CurrentIncompletePass ?? EnumWorldGenPass.None;
+		}
+		return EnumWorldGenPass.Done;
+	}
+
+	private bool EnsureQueueSpace(ChunkColumnLoadRequest curRequest)
+	{
+		int num = chunkthread.requestedChunkColumns.Count + 30 - chunkthread.requestedChunkColumns.Capacity;
+		if (num <= 0)
+		{
+			return true;
+		}
+		if (!PauseAllWorldgenThreads(5000))
+		{
+			return false;
+		}
+		try
+		{
+			ServerMain.Logger.Warning("Requested chunks buffer is too small! Taking measures to attempt to free enough space. Try increasing servermagicnumbers RequestChunkColumnsQueueSize?");
+			((ServerSystemUnloadChunks)chunkthread.serversystems[2]).UnloadGeneratingChunkColumns(MagicNum.UncompressedChunkTTL / 10);
+			foreach (ChunkColumnLoadRequest item in chunkthread.requestedChunkColumns.Snapshot())
+			{
+				item.FlagToRequeue();
+			}
+			num -= CleanupRequestsQueue();
+			if (num <= 0)
+			{
+				return true;
+			}
+			ServerMain.Logger.Error("Requested chunks buffer is too small! Can't free enough space to completely generate chunks, clearing whole buffer. This may cause issues. Try increasing servermagicnumbers RequestChunkColumnsQueueSize and/or reducing UncompressedChunkTTL.");
+			FullyClearGeneratingQueue();
+			chunkthread.requestedChunkColumns.Enqueue(curRequest);
+			return true;
+		}
+		finally
+		{
+			ResumeAllWorldgenThreads();
+			if (chunkthread.additionalWorldGenThreadsCount > 0)
+			{
+				ServerMain.Logger.VerboseDebug("Un-pausing all worldgen threads.");
+			}
+		}
+	}
+
+	internal void FullyClearGeneratingQueue()
+	{
+		chunkthread.loadsavegame.SaveAllDirtyGeneratingChunks(saveChunksStream ?? (saveChunksStream = new FastMemoryStream()));
+		foreach (ChunkColumnLoadRequest requestedChunkColumn in chunkthread.requestedChunkColumns)
+		{
+			if (requestedChunkColumn != null && !requestedChunkColumn.Disposed)
+			{
+				server.loadedMapChunks.Remove(requestedChunkColumn.mapIndex2d);
+				server.ChunkColumnRequested.Remove(requestedChunkColumn.mapIndex2d);
+			}
+		}
+		chunkthread.requestedChunkColumns.Clear();
+		ServerMain.Logger.VerboseDebug("Incomplete chunks stored and wiped.");
+	}
+
+	private Thread CreateAdditionalWorldGenThread(int stageStart, int stageEnd, int threadnum)
+	{
+		Thread thread = TyronThreadPool.CreateDedicatedThread(delegate
+		{
+			GeneratorThreadLoop(stageStart, stageEnd);
+		}, "worldgen" + threadnum);
+		thread.Start();
+		return thread;
+	}
+
+	public void GeneratorThreadLoop(int stageStart, int stageEnd)
+	{
+		Thread.Sleep(5);
+		int num = Math.Min(3, MagicNum.ChunkColumnsToGeneratePerThreadTick / chunkthread.additionalWorldGenThreadsCount);
+		int num2 = 0;
+		while (!server.stopped)
+		{
+			if (chunkthread.requestedChunkColumns.Count > 0 && (!server.Suspended || server.RunPhase == EnumServerRunPhase.WorldReady))
+			{
+				try
+				{
+					for (int i = 0; i < num; i++)
+					{
+						int num3 = GenerateChunkColumns_OnSeparateThread(stageStart, stageEnd);
+						num2 += num3;
+						if (num3 == 0)
+						{
+							break;
+						}
+					}
+				}
+				catch (Exception e)
+				{
+					ServerMain.Logger.Error(e);
+				}
+			}
+			PauseWorldgenThreadIfRequired(onChunkthread: false);
+			Thread.Sleep(1);
+		}
+		BlockAccessorWorldGen.ThreadDispose();
+	}
+
+	public override void OnSeperateThreadShutDown()
+	{
+		BlockAccessorWorldGen.ThreadDispose();
+	}
+
+	public override void Dispose()
+	{
+		BlockAccessorWorldGen.ThreadDispose();
+	}
+
+	public bool PauseAllWorldgenThreads(int timeoutms)
+	{
+		if (Interlocked.CompareExchange(ref pauseAllWorldgenThreads, 1, 0) != 0)
+		{
+			return false;
+		}
+		if (chunkthread.additionalWorldGenThreadsCount > 0)
+		{
+			ServerMain.Logger.VerboseDebug("Pausing all worldgen threads.");
+		}
+		long num = Environment.TickCount + timeoutms;
+		while (pauseAllWorldgenThreads < chunkthread.additionalWorldGenThreadsCount + 1 && !server.stopped)
+		{
+			if (Environment.TickCount > num)
+			{
+				ServerMain.Logger.VerboseDebug("Pausing all worldgen threads - exceeded timeout!");
+				return false;
+			}
+			Thread.Sleep(1);
+		}
+		return true;
+	}
+
+	public void ResumeAllWorldgenThreads()
+	{
+		pauseAllWorldgenThreads = 0;
+	}
+
+	public void PauseWorldgenThreadIfRequired(bool onChunkthread)
+	{
+		if (pauseAllWorldgenThreads <= 0)
+		{
+			return;
+		}
+		Interlocked.Increment(ref pauseAllWorldgenThreads);
+		while (pauseAllWorldgenThreads != 0 && !server.stopped)
+		{
+			if (onChunkthread)
+			{
+				chunkthread.paused = true;
+			}
+			Thread.Sleep(15);
+		}
+		if (onChunkthread)
+		{
+			chunkthread.paused = server.Suspended || chunkthread.ShouldPause;
+		}
+	}
+}

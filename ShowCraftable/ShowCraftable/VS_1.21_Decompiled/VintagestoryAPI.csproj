@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>VintagestoryAPI</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <TargetFramework>netcoreapp8.0</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>12.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemGroup />
+  <ItemGroup>
+    <Reference Include="SkiaSharp" />
+    <Reference Include="Newtonsoft.Json" />
+    <Reference Include="protobuf-net" />
+    <Reference Include="cairo-sharp" />
+    <Reference Include="OpenTK.Windowing.GraphicsLibraryFramework" />
+    <Reference Include="Microsoft.Data.Sqlite" />
+    <Reference Include="OpenTK.Windowing.Desktop" />
+  </ItemGroup>
+</Project>

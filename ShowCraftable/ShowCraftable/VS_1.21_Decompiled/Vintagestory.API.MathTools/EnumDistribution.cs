@@ -1,0 +1,17 @@
+namespace Vintagestory.API.MathTools;
+
+[DocumentAsJson]
+public enum EnumDistribution
+{
+	UNIFORM = 0,
+	TRIANGLE = 1,
+	GAUSSIAN = 2,
+	NARROWGAUSSIAN = 3,
+	VERYNARROWGAUSSIAN = 10,
+	INVERSEGAUSSIAN = 4,
+	NARROWINVERSEGAUSSIAN = 5,
+	INVEXP = 6,
+	STRONGINVEXP = 7,
+	STRONGERINVEXP = 8,
+	DIRAC = 9
+}

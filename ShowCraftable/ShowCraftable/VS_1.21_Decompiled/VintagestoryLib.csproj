@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>VintagestoryLib</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <TargetFramework>netcoreapp8.0</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>12.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemGroup />
+  <ItemGroup>
+    <Reference Include="VintagestoryAPI">
+      <HintPath>..\..\VSDLL\VintagestoryAPI.dll</HintPath>
+    </Reference>
+    <Reference Include="cairo-sharp" />
+    <Reference Include="protobuf-net" />
+    <Reference Include="Newtonsoft.Json" />
+    <Reference Include="CommandLine" />
+    <Reference Include="SkiaSharp" />
+    <Reference Include="Open.Nat" />
+    <Reference Include="Mono.Nat" />
+    <Reference Include="Mono.Cecil" />
+    <Reference Include="Microsoft.CodeAnalysis" />
+    <Reference Include="Microsoft.CodeAnalysis.CSharp" />
+    <Reference Include="ICSharpCode.SharpZipLib" />
+    <Reference Include="Microsoft.Data.Sqlite" />
+    <Reference Include="0Harmony" />
+    <Reference Include="OpenTK.Windowing.Desktop" />
+    <Reference Include="OpenTK.Audio.OpenAL" />
+    <Reference Include="OpenTK.Mathematics" />
+    <Reference Include="OpenTK.Windowing.Common" />
+    <Reference Include="OpenTK.Windowing.GraphicsLibraryFramework" />
+    <Reference Include="DnsClient" />
+    <Reference Include="OpenTK.Graphics" />
+    <Reference Include="csvorbis" />
+    <Reference Include="csogg" />
+    <Reference Include="xplatforminterface" />
+  </ItemGroup>
+</Project>
