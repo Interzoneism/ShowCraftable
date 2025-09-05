@@ -674,6 +674,7 @@ namespace ShowCraftable
         {
             public readonly Dictionary<Key, int> Counts = new();
             public readonly Dictionary<Key, EnumItemClass> Classes = new();
+            public readonly Dictionary<Key, List<int>> Durabilities = new();
 
             public void Add(ItemStack stack)
             {
@@ -704,6 +705,13 @@ namespace ShowCraftable
 
                 Counts[k] = Counts.TryGetValue(k, out var cur) ? cur + q : q;
                 if (!Classes.ContainsKey(k)) Classes[k] = stack.Class;
+
+                int dur = coll.GetRemainingDurability(stack);
+                if (dur > 0)
+                {
+                    if (!Durabilities.TryGetValue(k, out var list)) Durabilities[k] = list = new();
+                    list.Add(dur);
+                }
             }
 
             public void Add(ItemStack stack, int explicitCount)
@@ -718,6 +726,26 @@ namespace ShowCraftable
 
                 Counts[k] = Counts.TryGetValue(k, out var cur) ? cur + q : q;
                 if (!Classes.ContainsKey(k)) Classes[k] = stack.Class;
+
+                int dur = coll.GetRemainingDurability(stack);
+                if (dur > 0)
+                {
+                    if (!Durabilities.TryGetValue(k, out var list)) Durabilities[k] = list = new();
+                    list.Add(dur);
+                }
+            }
+
+            public void Add(string code, int count, EnumItemClass cls, List<int> durs)
+            {
+                if (string.IsNullOrEmpty(code)) return;
+                var k = new Key { Code = code };
+                Counts[k] = Counts.TryGetValue(k, out var cur) ? cur + count : count;
+                if (!Classes.ContainsKey(k)) Classes[k] = cls;
+                if (durs != null && durs.Count > 0)
+                {
+                    if (!Durabilities.TryGetValue(k, out var list)) Durabilities[k] = list = new();
+                    list.AddRange(durs);
+                }
             }
 
             public bool TryConsumeAny(IEnumerable<ItemStack> options, int quantity, bool consume)
@@ -794,6 +822,7 @@ namespace ShowCraftable
             public bool IsTool;
             public bool IsWild;
             public int QuantityRequired;
+            public int ToolDurabilityCost;
             public List<ItemStack> Options = new();
             public AssetLocation PatternCode;
             public Dictionary<string, string[]> Allowed;
@@ -805,9 +834,24 @@ namespace ShowCraftable
             ResourcePool pool,
             EnumItemClass type,
             AssetLocation patternCode,
-            Dictionary<string, string[]> allowed)
+            Dictionary<string, string[]> allowed,
+            int requiredDur,
+            int quantity)
         {
             if (patternCode == null) return false;
+
+            if (requiredDur > 0)
+            {
+                foreach (var kv in pool.Durabilities)
+                {
+                    if (!pool.Classes.TryGetValue(kv.Key, out var cls) || cls != type) continue;
+                    var al = new AssetLocation(kv.Key.Code);
+                    if (!WildcardMatch(patternCode, al, allowed)) continue;
+                    int cnt = kv.Value.Count(d => d >= requiredDur);
+                    if (cnt >= quantity) return true;
+                }
+                return false;
+            }
 
             foreach (var kv in pool.Counts)
             {
@@ -815,14 +859,14 @@ namespace ShowCraftable
                 if (!pool.Classes.TryGetValue(kv.Key, out var cls) || cls != type) continue;
 
                 var al = new AssetLocation(kv.Key.Code);
-                if (WildcardMatch(patternCode, al, allowed))
+                if (WildcardMatch(patternCode, al, allowed) && kv.Value >= quantity)
                     return true;
             }
             return false;
         }
 
-        
-        private static bool HasAnyOption(ResourcePool pool, IList<ItemStack> options)
+
+        private static bool HasAnyOption(ResourcePool pool, IList<ItemStack> options, int requiredDur, int quantity)
         {
             if (options == null || options.Count == 0) return false;
 
@@ -834,8 +878,18 @@ namespace ShowCraftable
                 if (string.IsNullOrEmpty(code)) continue;
 
                 var key = new Key { Code = code };
-                if (pool.Counts.TryGetValue(key, out int have) && have > 0)
+                if (requiredDur > 0)
+                {
+                    if (pool.Durabilities.TryGetValue(key, out var list))
+                    {
+                        int cnt = list.Count(d => d >= requiredDur);
+                        if (cnt >= quantity) return true;
+                    }
+                }
+                else if (pool.Counts.TryGetValue(key, out int have) && have >= quantity)
+                {
                     return true;
+                }
             }
             return false;
         }
@@ -905,19 +959,21 @@ namespace ShowCraftable
             
             var tmpCounts = new Dictionary<Key, int>(pool.Counts);
 
-            
+
             foreach (var ing in r.Ingredients)
             {
                 if (!ing.IsTool) continue;
 
+                int dur = Math.Max(1, ing.ToolDurabilityCost);
+                int qty = Math.Max(1, ing.QuantityRequired);
                 if (ing.IsWild)
                 {
-                    if (!HasWildcard(pool, ing.Type, ing.PatternCode, ing.Allowed))
+                    if (!HasWildcard(pool, ing.Type, ing.PatternCode, ing.Allowed, dur, qty))
                         return false;
                 }
                 else
                 {
-                    if (!HasAnyOption(pool, ing.Options))
+                    if (!HasAnyOption(pool, ing.Options, dur, qty))
                         return false;
                 }
             }
@@ -1110,6 +1166,7 @@ namespace ShowCraftable
                     gi.PatternCode = TryGetMember(it, ingRaw, "Code") as AssetLocation;
                     gi.Allowed = TryGetMember(it, ingRaw, "AllowedVariants") as Dictionary<string, string[]>;
                     gi.Type = (EnumItemClass)(TryGetMember(it, ingRaw, "Type") as EnumItemClass? ?? EnumItemClass.Item);
+                    gi.ToolDurabilityCost = TryGetMember(it, ingRaw, "ToolDurabilityCost") as int? ?? 0;
 
                     var resolvedStack = TryGetMember(it, ingRaw, "ResolvedItemstack") as ItemStack;
                     var resolvedList = TryGetMember(it, ingRaw, "ResolvedItemstacks") as System.Collections.IEnumerable;
@@ -1184,20 +1241,12 @@ namespace ShowCraftable
                     string code = data.Codes[i];
                     int cnt = data.Counts[i];
                     var cls = data.Classes[i];
-
-                    var loc = new AssetLocation(code);
-                    ItemStack st = null;
-                    if (cls == EnumItemClass.Item)
+                    List<int> durs = null;
+                    if (data.Durabilities != null && i < data.Durabilities.Count)
                     {
-                        var it = _capi.World.GetItem(loc);
-                        if (it != null) st = new ItemStack(it, cnt);
+                        durs = data.Durabilities[i]?.Values;
                     }
-                    else
-                    {
-                        var bl = _capi.World.GetBlock(loc);
-                        if (bl != null) st = new ItemStack(bl, cnt);
-                    }
-                    if (st != null) pool.Add(st);
+                    pool.Add(code, cnt, cls, durs);
                 }
 
                 int pages = RebuildCacheWithPool(_capi, pool, out int outputs, out int fetched, out int usable);
@@ -1534,22 +1583,33 @@ namespace ShowCraftable
             var ba = sapi.World.BlockAccessor;
             int r = Math.Max(0, req.Radius);
 
-            var sum = new Dictionary<string, (int count, EnumItemClass cls)>();
+            var sum = new Dictionary<string, (int count, EnumItemClass cls, List<int> durs)>();
+
+            void AddStack(ItemStack st)
+            {
+                if (st?.Collectible?.Code == null) return;
+                string code = st.Collectible.Code.ToString();
+                int add = Math.Max(1, st.StackSize);
+                var cls = st.Class;
+                int dur = st.Collectible.GetRemainingDurability(st);
+                if (sum.TryGetValue(code, out var cur))
+                {
+                    cur.count += add;
+                    if (dur > 0) cur.durs.Add(dur);
+                    sum[code] = cur;
+                }
+                else
+                {
+                    var list = dur > 0 ? new List<int> { dur } : new List<int>();
+                    sum[code] = (add, cls, list);
+                }
+            }
 
             var mgr = fromPlayer.InventoryManager;
             void AddInv(IInventory inv)
             {
                 if (inv == null) return;
-                foreach (var slot in inv)
-                {
-                    var st = slot?.Itemstack;
-                    if (st?.Collectible?.Code == null) continue;
-                    string code = st.Collectible.Code.ToString();
-                    int add = Math.Max(1, st.StackSize);
-                    var cls = st.Class;
-                    if (sum.TryGetValue(code, out var cur)) sum[code] = (cur.count + add, cls);
-                    else sum[code] = (add, cls);
-                }
+                foreach (var slot in inv) AddStack(slot?.Itemstack);
             }
             AddInv(mgr.GetOwnInventory("craftinggrid"));
             AddInv(mgr.GetOwnInventory("backpack"));
@@ -1562,57 +1622,20 @@ namespace ShowCraftable
                         var be = ba.GetBlockEntity(pos.AddCopy(dx, dy, dz));
                         if (be == null) continue;
 
+                        if (be is BlockEntityCrate && !req.IncludeCrates) continue;
+
                         var inv = ShowCraftableSystem.TryGetInventoryFromBE(be);
                         if (inv == null) continue;
 
-                        
-                        if (be is BlockEntityCrate)
-                        {
-                            if (!req.IncludeCrates) continue;
-
-                            ItemStack sample = null;
-                            int total = 0;
-
-                            foreach (var slot in inv)
-                            {
-                                var st = slot?.Itemstack;
-                                if (st?.Collectible?.Code == null) continue;
-
-                                if (sample == null) sample = st;
-                                total += Math.Max(1, st.StackSize);
-                            }
-
-                            if (sample != null)
-                            {
-                                var code = sample.Collectible.Code?.ToString();
-                                var cls = sample.Class;
-                                if (sum.TryGetValue(code, out var cur)) sum[code] = (cur.count + total, cls);
-                                else sum[code] = (total, cls);
-                            }
-
-                            continue; 
-                        }
-
-                        
-                        foreach (var slot in inv)
-                        {
-                            var st = slot?.Itemstack;
-                            if (st?.Collectible?.Code == null) continue;
-
-                            string code = st.Collectible.Code.ToString();
-                            int add = Math.Max(1, st.StackSize);
-                            var cls = st.Class;
-
-                            if (sum.TryGetValue(code, out var cur)) sum[code] = (cur.count + add, cls);
-                            else sum[code] = (add, cls);
-                        }
+                        foreach (var slot in inv) AddStack(slot?.Itemstack);
                     }
 
             var reply = new CraftScanReply
             {
                 Codes = sum.Keys.ToList(),
                 Counts = sum.Values.Select(v => v.count).ToList(),
-                Classes = sum.Values.Select(v => v.cls).ToList()
+                Classes = sum.Values.Select(v => v.cls).ToList(),
+                Durabilities = sum.Values.Select(v => new DurabilityList { Values = v.durs }).ToList()
             };
 
             sapi.Network.GetChannel(ShowCraftableSystem.ChannelName).SendPacket(reply, fromPlayer);
@@ -1633,6 +1656,13 @@ namespace ShowCraftable
         [ProtoMember(1)] public List<string> Codes { get; set; } = new();
         [ProtoMember(2)] public List<int> Counts { get; set; } = new();
         [ProtoMember(3)] public List<EnumItemClass> Classes { get; set; } = new();
+        [ProtoMember(4)] public List<DurabilityList> Durabilities { get; set; } = new();
+    }
+
+    [ProtoContract]
+    public class DurabilityList
+    {
+        [ProtoMember(1)] public List<int> Values { get; set; } = new();
     }
 
     [ProtoContract]

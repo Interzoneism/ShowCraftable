@@ -51,9 +51,17 @@ public class FillGridButton : ButtonRTC
         var hotbar = manager.GetHotbarInventory();
         var input = crafting.Take(9).ToArray();
 
+        bool shift = api.Input.ShiftHeld();
+        var chests = shift
+            ? Enumerable.Empty<ItemSlot>()
+            : manager.OpenedInventories
+                .OfType<InventoryGeneric>()
+                .SelectMany(x => x);
+
         var stacks = backPack
             .Concat(hotbar)
             .Where(x => x is not ItemSlotBackpack)
+            .Concat(chests)
             .ToList();
 
         var available = stacks.Concat(input)
