@@ -262,7 +262,10 @@ public class FillGridButton : ButtonRTC
 
         available.RemoveAll(slot => slot.Empty);
 
-        int complete = ingredients.Select((x, i) => CurrentSets(x, stacks[i])).Where(x => x >= 0).Min();
+        var counts = ingredients
+            .Select((x, i) => i < stacks.Length ? CurrentSets(x, stacks[i]) : -1)
+            .Where(x => x >= 0);
+        int complete = counts.Any() ? counts.Min() : 0;
 
         for (int i = 0, len = slots.Length; i < len; i++)
         {
