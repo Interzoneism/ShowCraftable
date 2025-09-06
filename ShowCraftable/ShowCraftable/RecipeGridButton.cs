@@ -1,11 +1,13 @@
 using Vintagestory.API.Client;
-using Vintagestory.API.Common;
 
 namespace ShowCraftable;
 
 public class RecipeGridButton : ButtonRTC
 {
-    public RecipeGridButton(ICoreClientAPI api) : base(api, 0, "*", "Fetch all the ingredients", -1.0, -1.0)
+    // "#": samma stil som IH, men med liten vertikal finjustering för god optik
+    // Justera offsetY ±1 om din UI-scale gör den en pixel off.
+    public RecipeGridButton(ICoreClientAPI api)
+        : base(api, index: 0, label: "#", tooltipText: "Fetch ingredients", offsetX: -1.0, offsetY: -9.5)
     {
         Float = EnumFloat.Inline;
         VerticalAlign = EnumVerticalAlign.FixedOffset;
@@ -13,7 +15,7 @@ public class RecipeGridButton : ButtonRTC
 
     protected override void OnClick()
     {
-        api.Logger.Notification("RecipeGridButton clicked");
+        // endast spel-ljudet (gör inget mer)
         api.Gui.PlaySound("menubutton_press");
     }
 }
