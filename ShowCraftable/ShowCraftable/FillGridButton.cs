@@ -4,8 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
+using Vintagestory.API.Util;
 using Vintagestory.Client.NoObf;
-using ShowCraftable;  
+using ShowCraftable;
 
 namespace ImprovedHandbookRecipes;
 public class FillGridButton : ButtonRTC
