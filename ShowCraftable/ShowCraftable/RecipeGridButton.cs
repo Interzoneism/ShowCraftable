@@ -1,4 +1,5 @@
 using Vintagestory.API.Client;
+using Vintagestory.API.Common;
 
 namespace ShowCraftable;
 
@@ -12,6 +13,7 @@ public class RecipeGridButton : ButtonRTC
 
     protected override void OnClick()
     {
+        api.Logger.Notification("RecipeGridButton clicked");
         api.Gui.PlaySound("menubutton_press");
     }
 }
