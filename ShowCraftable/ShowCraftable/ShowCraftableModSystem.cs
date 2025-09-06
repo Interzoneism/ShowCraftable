@@ -470,7 +470,7 @@ namespace ShowCraftable
             {
                 if (components[i] is SlideshowGridRecipeTextComponent)
                 {
-                    components.Add(new RecipeGridButton(_staticCapi));
+                    components.Insert(i + 1, new RecipeGridButton(_staticCapi));
                     i++;
                 }
             }
