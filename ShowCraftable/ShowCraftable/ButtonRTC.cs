@@ -73,13 +73,11 @@ public abstract class ButtonRTC : RichTextComponentBase
 
     protected virtual bool Visible => true;
 
-    //Renders the button after the recipe grid, on the right down side.
-    //TODO: change this so the button appears under the recipe grid, it cannot be past the crafting grids horizontal boundary
     public override EnumCalcBoundsResult CalcBounds(TextFlowPath[] flowPath, double currentLineHeight, double offsetX, double lineY, out double nextOffsetX)
     {
-        double x = offsetX - GuiElement.scaled(3.0);
-        double y = lineY + GuiElement.scaled(126.0 - UnscaledSize - index * (UnscaledSize + Margin));
         double size = GuiElement.scaled(UnscaledSize);
+        double x = offsetX - GuiElement.scaled(3.0) - size;
+        double y = lineY + GuiElement.scaled(126.0 + Margin + index * (UnscaledSize + Margin));
         BoundsPerLine = new LineRectangled[] { new(x, y, size, size) };
 
         bounds.fixedWidth = bounds.fixedHeight = size;
@@ -118,7 +116,6 @@ public abstract class ButtonRTC : RichTextComponentBase
         return timeInside > time;
     }
 
-    //
     private void SetBounds(double xOffset = 0.0, double yOffset = 0.0)
     {
         var r = BoundsPerLine[0];
@@ -155,7 +152,6 @@ public abstract class ButtonRTC : RichTextComponentBase
             button.PlaySound = false;
         }
     }
-    //
 
     public override void Dispose()
     {
