@@ -83,8 +83,8 @@ public class FillGridButton : ButtonRTC
             .ToDictionary(x => x.Key, x => x.Sum(y => y.StackSize));
 
         var wildcards = recipes
-            .SelectMany(x => x.Ingredients.Values)
-            .Where(x => x.IsWildCard)
+            .SelectMany(x => x.resolvedIngredients ?? Array.Empty<GridRecipeIngredient>())
+            .Where(x => x?.IsWildCard ?? false)
             .Select(x => new IngredientCode(x))
             .DistinctBy(x => x.Key)
             .ToDictionary(x => x.Key, x => available.Sum(y => x.Matches(y.Key) ? y.Value : 0));
