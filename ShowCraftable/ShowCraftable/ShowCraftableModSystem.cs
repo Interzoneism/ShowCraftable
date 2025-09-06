@@ -1368,7 +1368,7 @@ namespace ShowCraftable
                 bool AnyMatch(NeedSlotInfo need, ItemStack st)
                 {
                     if (st == null || st.StackSize <= 0) return false;
-                    if (need.ItemClass != 0 && (int)st.Class != need.ItemClass) { }
+                    if (need.ItemClass != 0 && (int)st.Class != need.ItemClass) return false;
                     if (need.IsWild)
                     {
                         if (need.PatternCode == null) return false;

@@ -81,23 +81,26 @@ public class FillGridButton : ButtonRTC
             .GroupBy(x => x.Code)
             .ToDictionary(x => x.Key, x => x.Sum(y => y.StackSize));
 
-        var recipe = recipes
-            .FirstOrDefault(x => x.Matches(player, input, 3));
-        recipe ??= recipes.FirstOrDefault(CanMake);
-        recipe ??= recipes.FirstOrDefault();
+        var ordered = recipes
+            .Select(r => new { Recipe = r, Score = r.Matches(player, input, 3) ? 2 : CanMake(r) ? 1 : 0 })
+            .OrderByDescending(x => x.Score)
+            .Select(x => x.Recipe);
 
-        bool result = false;
-        if (recipe != null)
+        foreach (var recipe in ordered)
         {
+            var inSlots = crafting.Take(9).ToArray();
+            var avail = stacks.ToList();
+            bool applied = false;
             bool last;
             do
             {
-                last = await AddIngredients(input, recipe, stacks, shift);
-                result |= last;
+                last = await AddIngredients(inSlots, recipe, avail, shift);
+                applied |= last;
             } while (max && last);
+            if (applied) return true;
         }
 
-        return result;
+        return false;
 
         bool CanMake(GridRecipe recipe)
         {
