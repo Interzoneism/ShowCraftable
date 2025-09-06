@@ -20,6 +20,7 @@ namespace ShowCraftable
     {
         private Harmony _harmony;
         private ICoreClientAPI _capi;
+        private static ICoreClientAPI _staticCapi;
 
         private static volatile bool CraftableTabActive;
 
@@ -192,6 +193,7 @@ namespace ShowCraftable
         public override void StartClientSide(ICoreClientAPI capi)
         {
             _capi = capi;
+            _staticCapi = capi;
             _harmony = new Harmony(HarmonyId);
 
 
@@ -215,6 +217,10 @@ namespace ShowCraftable
 
             var miLoadAsync = AccessTools.Method(tBase, "LoadPages_Async");
             _harmony.Patch(miLoadAsync, postfix: new HarmonyMethod(typeof(ShowCraftableSystem), nameof(AfterPagesLoaded_Postfix)));
+
+            var tBeh = AccessTools.TypeByName("Vintagestory.GameContent.CollectibleBehaviorHandbookTextAndExtraInfo");
+            var miAddInfo = AccessTools.Method(tBeh, "addCreatedByInfo");
+            _harmony.Patch(miAddInfo, postfix: new HarmonyMethod(typeof(ShowCraftableSystem), nameof(AddRecipeButton_Postfix)));
 
 
 
@@ -463,6 +469,19 @@ namespace ShowCraftable
                 }
             }
             catch { }
+        }
+
+        private static void AddRecipeButton_Postfix(List<RichTextComponentBase> components)
+        {
+            if (_staticCapi == null || components == null) return;
+            for (int i = 0; i < components.Count; i++)
+            {
+                if (components[i] is SlideshowGridRecipeTextComponent)
+                {
+                    components.Insert(i + 1, new RecipeGridButton(_staticCapi));
+                    i++;
+                }
+            }
         }
 
 
