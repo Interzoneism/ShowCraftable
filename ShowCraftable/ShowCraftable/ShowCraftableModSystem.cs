@@ -181,6 +181,44 @@ namespace ShowCraftable
             }
         }
 
+        internal static void RequestFetchForRecipe(ICoreClientAPI capi, SlideshowGridRecipeTextComponent grid)
+        {
+            if (capi == null || grid == null) return;
+
+            var cur = grid.CurrentVisibleRecipe;
+            if (cur?.Recipe == null) return;
+
+            var req = new CraftFetchRequest { Radius = NearbyRadius };
+
+            var rec = cur.Recipe;
+            var unIn = cur.unnamedIngredients;
+            for (int idx = 0; idx < rec.resolvedIngredients.Length; idx++)
+            {
+                var ing = rec.resolvedIngredients[idx];
+                if (ing == null) continue;
+                ItemStack st = null;
+                if (unIn != null && unIn.TryGetValue(idx, out var opts) && opts.Length > 0) st = opts[0];
+                else st = ing.ResolvedItemstack;
+                if (st?.Collectible?.Code == null) continue;
+
+                req.Codes.Add(st.Collectible.Code.ToString());
+                req.Counts.Add(Math.Max(1, ing.Quantity));
+            }
+
+            if (req.Codes.Count > 0)
+            {
+                try
+                {
+                    capi.Network.GetChannel(ChannelName).SendPacket(req);
+                    LogEverywhere(capi, "[Craftable] Fetch request sent");
+                }
+                catch (Exception e)
+                {
+                    LogEverywhere(capi, $"[Craftable] fetch send failed: {e}", toChat: true);
+                }
+            }
+        }
+
 
         public override void StartClientSide(ICoreClientAPI capi)
         {
@@ -193,6 +231,7 @@ namespace ShowCraftable
                 .RegisterChannel(ChannelName)
                 .RegisterMessageType(typeof(CraftScanRequest))
                 .RegisterMessageType(typeof(CraftScanReply))
+                .RegisterMessageType(typeof(CraftFetchRequest))
                 .SetMessageHandler<CraftScanReply>(OnServerScanReply);
 
 
@@ -468,9 +507,9 @@ namespace ShowCraftable
             if (_staticCapi == null || components == null) return;
             for (int i = 0; i < components.Count; i++)
             {
-                if (components[i] is SlideshowGridRecipeTextComponent)
+                if (components[i] is SlideshowGridRecipeTextComponent sgrid)
                 {
-                    components.Insert(i + 1, new RecipeGridButton(_staticCapi));
+                    components.Insert(i + 1, new RecipeGridButton(_staticCapi, sgrid));
                     i++;
                 }
             }
@@ -1344,6 +1383,14 @@ namespace ShowCraftable
         [ProtoMember(3)] public List<EnumItemClass> Classes { get; set; } = new();
     }
 
+    [ProtoContract]
+    public class CraftFetchRequest
+    {
+        [ProtoMember(1)] public List<string> Codes { get; set; } = new();
+        [ProtoMember(2)] public List<int> Counts { get; set; } = new();
+        [ProtoMember(3)] public int Radius { get; set; }
+    }
+
 
 
 
@@ -1359,7 +1406,9 @@ namespace ShowCraftable
                .RegisterChannel(ShowCraftableSystem.ChannelName)
                .RegisterMessageType(typeof(CraftScanRequest))
                .RegisterMessageType(typeof(CraftScanReply))
-               .SetMessageHandler<CraftScanRequest>(OnScanRequest);
+               .RegisterMessageType(typeof(CraftFetchRequest))
+               .SetMessageHandler<CraftScanRequest>(OnScanRequest)
+               .SetMessageHandler<CraftFetchRequest>(OnFetchRequest);
         }
 
         private void OnScanRequest(IServerPlayer fromPlayer, CraftScanRequest req)
@@ -1430,6 +1479,80 @@ namespace ShowCraftable
             };
 
             sapi.Network.GetChannel(ShowCraftableSystem.ChannelName).SendPacket(reply, fromPlayer);
+        }
+
+        private void OnFetchRequest(IServerPlayer fromPlayer, CraftFetchRequest req)
+        {
+            if (fromPlayer == null || req == null) return;
+
+            var needed = new Dictionary<string, int>();
+            for (int i = 0; i < req.Codes.Count && i < req.Counts.Count; i++)
+            {
+                string code = req.Codes[i];
+                int count = req.Counts[i];
+                if (string.IsNullOrEmpty(code) || count <= 0) continue;
+                needed[code] = count;
+            }
+
+            var mgr = fromPlayer.InventoryManager;
+
+            void Subtract(IInventory inv)
+            {
+                if (inv == null) return;
+                foreach (var slot in inv)
+                {
+                    var st = slot?.Itemstack;
+                    var code = st?.Collectible?.Code?.ToString();
+                    if (code == null) continue;
+                    if (needed.TryGetValue(code, out int left))
+                    {
+                        left -= Math.Max(1, st.StackSize);
+                        if (left <= 0) needed.Remove(code);
+                        else needed[code] = left;
+                    }
+                }
+            }
+
+            Subtract(mgr.GetOwnInventory("craftinggrid"));
+            Subtract(mgr.GetOwnInventory("backpack"));
+            Subtract(mgr.GetHotbarInventory());
+
+            if (needed.Count == 0) return;
+
+            var ba = sapi.World.BlockAccessor;
+            var pos = fromPlayer.Entity.Pos.AsBlockPos;
+            int r = Math.Max(0, req.Radius);
+
+            for (int dx = -r; dx <= r && needed.Count > 0; dx++)
+                for (int dy = -1; dy <= 2 && needed.Count > 0; dy++)
+                    for (int dz = -r; dz <= r && needed.Count > 0; dz++)
+                    {
+                        var be = ba.GetBlockEntity(pos.AddCopy(dx, dy, dz));
+                        if (be == null) continue;
+                        var inv = ShowCraftableSystem.TryGetInventoryFromBE(be);
+                        if (inv == null) continue;
+
+                        for (int si = 0; si < inv.Count && needed.Count > 0; si++)
+                        {
+                            var slot = inv[si];
+                            var st = slot?.Itemstack;
+                            var code = st?.Collectible?.Code?.ToString();
+                            if (code == null || !needed.TryGetValue(code, out int left) || left <= 0) continue;
+
+                            int take = Math.Min(left, st.StackSize);
+                            var taken = slot.TakeOut(take);
+                            if (taken != null)
+                            {
+                                if (!mgr.TryGiveItemstack(taken, true))
+                                {
+                                    sapi.World.SpawnItemEntity(taken, fromPlayer.Entity.Pos.XYZ);
+                                }
+                                left -= take;
+                                if (left <= 0) needed.Remove(code);
+                                else needed[code] = left;
+                            }
+                        }
+                    }
         }
 
     }
