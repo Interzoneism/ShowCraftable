@@ -23,7 +23,10 @@ public static class Handbook_Patch {
     private static bool mouseMoveLast = false;
 
     public static void SetAPI(ICoreClientAPI api)
-        => Handbook_Patch.api = api;
+    {
+        Handbook_Patch.api = api;
+        api.Logger.Debug("[CraftableDebug] Handbook_Patch API set");
+    }
 
 
     [HarmonyTranspiler]
@@ -205,11 +208,17 @@ public static class Handbook_Patch {
     [HarmonyPostfix]
     [HarmonyPatch(typeof(CollectibleBehaviorHandbookTextAndExtraInfo), "addCreatedByInfo")]
     public static void CreatedByInfo(List<RichTextComponentBase> components) {
-        if (components == null) return;
+        if (components == null)
+        {
+            api.Logger.Debug("[CraftableDebug] CreatedByInfo components null");
+            return;
+        }
+        api.Logger.Debug($"[CraftableDebug] CreatedByInfo start count={components.Count}");
         for (int i = 0; i < components.Count; i++) {
             var component = components[i];
             if (component is SlideshowGridRecipeTextComponent prev) {
                 var recipes = prev.GridRecipesAndUnIn;
+                api.Logger.Debug($"[CraftableDebug] Inserting buttons at index={i} recipeCount={recipes.Length}");
                 buttons[0] = new FillGridButton(api, false, recipes);
                 buttons[1] = new FillGridButton(api, true,  recipes);
                 components.InsertRange(i + 1, buttons);

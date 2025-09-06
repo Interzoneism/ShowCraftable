@@ -28,18 +28,24 @@ public class FillGridButton : ButtonRTC
 
         Float = EnumFloat.Inline;
         VerticalAlign = EnumVerticalAlign.FixedOffset;
+
+        api.Logger.Debug($"[CraftableDebug] FillGridButton init max={max} recipes={this.recipes.Length}");
     }
 
     protected override void OnClick()
     {
+        api.Logger.Debug($"[CraftableDebug] FillGridButton OnClick max={max}");
         _ = HandleClickAsync();
     }
 
     private async Task HandleClickAsync()
     {
+        api.Logger.Debug("[CraftableDebug] HandleClickAsync start");
         try
         {
-            if (await TryFillGrid())
+            bool success = await TryFillGrid();
+            api.Logger.Debug($"[CraftableDebug] HandleClickAsync success={success}");
+            if (success)
             {
                 api.Gui.PlaySound("menubutton_press");
             }
@@ -56,6 +62,7 @@ public class FillGridButton : ButtonRTC
 
     private async Task<bool> TryFillGrid()
     {
+        api.Logger.Debug("[CraftableDebug] TryFillGrid start");
         var player = api.World.Player;
         IPlayerInventoryManager manager = player.InventoryManager;
         var crafting = manager.GetOwnInventory("craftinggrid");
@@ -93,7 +100,11 @@ public class FillGridButton : ButtonRTC
             .FirstOrDefault(x => x.Matches(player, input, 3));
         recipe ??= recipes
             .FirstOrDefault(CanMake);
-        if (recipe == null) return false;
+        if (recipe == null)
+        {
+            api.Logger.Debug("[CraftableDebug] TryFillGrid no matching recipe");
+            return false;
+        }
 
         bool result = false;
         bool last;
@@ -104,6 +115,7 @@ public class FillGridButton : ButtonRTC
             result |= last;
         } while (max && last);
 
+        api.Logger.Debug($"[CraftableDebug] TryFillGrid result={result}");
         return result;
 
         bool CanMake(GridRecipe recipe)
@@ -144,6 +156,7 @@ public class FillGridButton : ButtonRTC
 
     private async Task<bool> AddIngredients(ItemSlot[] input, GridRecipe recipe, List<ItemSlot> available, bool shift)
     {
+        api.Logger.Debug($"[CraftableDebug] AddIngredients start shift={shift} input={input.Length} available={available.Count}");
         List<(ItemSlot from, ItemSlot to, int n)> ops = new();
         Dictionary<ItemSlot, int> remaining = new();
         var ingredients = recipe.resolvedIngredients;
@@ -330,6 +343,7 @@ public class FillGridButton : ButtonRTC
         {
             ShowCraftableSystem.RequestFetchToGrid(api, needs, ShowCraftableSystem.DefaultNearbyRadius);
         }
+        api.Logger.Debug($"[CraftableDebug] AddIngredients ops={ops.Count} needs={needs.Count} change={change}");
         return change;
 
         int CurrentSets(GridRecipeIngredient ingr, ItemStack stack)
