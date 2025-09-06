@@ -1,8 +1,0 @@
-{
-	code: "superflatworldgen",
-	blockCodes: [
-		"rock-claystone",
-		"soil-medium-none",
-		"soil-medium-normal"
-	]
-}

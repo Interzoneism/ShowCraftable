@@ -1,7 +1,0 @@
-{
-	code: "stone",
-	title: "lore-stone-title",
-	category: "archives",
-	pieces: ["lore-stone-piece1", "lore-stone-piece2", "lore-stone-piece3", "lore-stone-piece4", "lore-stone-piece5", 
-					 "lore-stone-piece6", "lore-stone-piece7", "lore-stone-piece8", "lore-stone-piece9"]
-}
