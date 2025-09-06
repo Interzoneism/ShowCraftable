@@ -15,6 +15,7 @@ public abstract class ButtonRTC : RichTextComponentBase
     private readonly string tooltip;
     private readonly double offsetX;
     private readonly double offsetY;
+    private readonly int index;
     private double timeInside = 0.0;
 
     private readonly GuiElementTextButton button;
@@ -25,6 +26,7 @@ public abstract class ButtonRTC : RichTextComponentBase
     {
         Float = EnumFloat.Inline;
         VerticalAlign = EnumVerticalAlign.FixedOffset;
+        this.index = index;
         this.label = label;
         this.offsetX = offsetX;
         this.offsetY = offsetY;
@@ -74,8 +76,8 @@ public abstract class ButtonRTC : RichTextComponentBase
     public override EnumCalcBoundsResult CalcBounds(TextFlowPath[] flowPath, double currentLineHeight, double offsetX, double lineY, out double nextOffsetX)
     {
         double size = GuiElement.scaled(UnscaledSize);
-        double x = offsetX - size - GuiElement.scaled(Margin);
-        double y = lineY + GuiElement.scaled(126.0 + Margin);
+        double x = offsetX - GuiElement.scaled(3.0);
+        double y = lineY + GuiElement.scaled(126.0 - UnscaledSize - index * (UnscaledSize + Margin));
         BoundsPerLine = new LineRectangled[] { new(x, y, size, size) };
 
         bounds.fixedWidth = bounds.fixedHeight = size;
@@ -127,7 +129,6 @@ public abstract class ButtonRTC : RichTextComponentBase
     {
         if (Visible)
         {
-            SetBounds();
             button.OnMouseDown(api, args);
         }
     }
@@ -136,7 +137,6 @@ public abstract class ButtonRTC : RichTextComponentBase
     {
         if (Visible)
         {
-            SetBounds();
             button.OnMouseUp(api, args);
         }
     }
