@@ -1491,7 +1491,8 @@ namespace ShowCraftable
                 string code = req.Codes[i];
                 int count = req.Counts[i];
                 if (string.IsNullOrEmpty(code) || count <= 0) continue;
-                needed[code] = count;
+                if (needed.ContainsKey(code)) needed[code] += count;
+                else needed[code] = count;
             }
 
             var mgr = fromPlayer.InventoryManager;
