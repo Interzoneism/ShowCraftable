@@ -4,7 +4,7 @@ namespace ShowCraftable;
 
 public class RecipeGridButton : ButtonRTC
 {
-    public RecipeGridButton(ICoreClientAPI api) : base(api, 0, "F", "fbutton", -1.0, -1.0)
+    public RecipeGridButton(ICoreClientAPI api) : base(api, 0, "*", "Fetch all the ingredients", -1.0, -1.0)
     {
     }
 

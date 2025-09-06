@@ -31,18 +31,10 @@ namespace ShowCraftable
         public const string ChannelName = "showcraftablescan";
         private static int NearbyRadius = 12;
 
-
         private static readonly object CacheLock = new();
         private static List<string> CachedPageCodes = new();
 
         private static bool ScanInProgress = false;
-
-
-
-
-
-
-
 
         private static class HandbookPauseGuard
         {

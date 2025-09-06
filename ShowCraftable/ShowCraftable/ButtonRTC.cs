@@ -30,7 +30,7 @@ public abstract class ButtonRTC : RichTextComponentBase
         this.label = label;
         this.offsetX = offsetX;
         this.offsetY = offsetY;
-        tooltip = key != null ? Lang.Get("showcraftable:" + key) : label;
+        tooltip = key != null ? Lang.Get(key) : label;
 
         double size = Math.Ceiling(GuiElement.scaled(UnscaledSize));
         bounds = new GlobalBounds(0.0, 0.0, size, size);
@@ -73,11 +73,13 @@ public abstract class ButtonRTC : RichTextComponentBase
 
     protected virtual bool Visible => true;
 
+    //Renders the button after the recipe grid, on the right down side.
+    //TODO: change this so the button appears under the recipe grid, it cannot be past the crafting grids horizontal boundary
     public override EnumCalcBoundsResult CalcBounds(TextFlowPath[] flowPath, double currentLineHeight, double offsetX, double lineY, out double nextOffsetX)
     {
-        double size = GuiElement.scaled(UnscaledSize);
         double x = offsetX - GuiElement.scaled(3.0);
         double y = lineY + GuiElement.scaled(126.0 - UnscaledSize - index * (UnscaledSize + Margin));
+        double size = GuiElement.scaled(UnscaledSize);
         BoundsPerLine = new LineRectangled[] { new(x, y, size, size) };
 
         bounds.fixedWidth = bounds.fixedHeight = size;
@@ -116,6 +118,7 @@ public abstract class ButtonRTC : RichTextComponentBase
         return timeInside > time;
     }
 
+    //
     private void SetBounds(double xOffset = 0.0, double yOffset = 0.0)
     {
         var r = BoundsPerLine[0];
@@ -129,6 +132,7 @@ public abstract class ButtonRTC : RichTextComponentBase
     {
         if (Visible)
         {
+            SetBounds();
             button.OnMouseDown(api, args);
         }
     }
@@ -137,6 +141,7 @@ public abstract class ButtonRTC : RichTextComponentBase
     {
         if (Visible)
         {
+            SetBounds();
             button.OnMouseUp(api, args);
         }
     }
@@ -150,6 +155,7 @@ public abstract class ButtonRTC : RichTextComponentBase
             button.PlaySound = false;
         }
     }
+    //
 
     public override void Dispose()
     {
