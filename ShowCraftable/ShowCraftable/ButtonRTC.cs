@@ -41,7 +41,7 @@ public abstract class ButtonRTC : RichTextComponentBase
     {
         var font = CairoFont.ButtonText();
         var fontDown = CairoFont.ButtonPressedText();
-        font.UnscaledFontsize = fontDown.UnscaledFontsize = GuiElement.scaled(32.0);
+        font.UnscaledFontsize = fontDown.UnscaledFontsize = GuiElement.scaled(22.0);
         var button = new GuiElementTextButton(api, label, font, fontDown, Click, bounds, EnumButtonStyle.Small);
         button.PlaySound = false;
 
@@ -77,7 +77,7 @@ public abstract class ButtonRTC : RichTextComponentBase
     public override EnumCalcBoundsResult CalcBounds(TextFlowPath[] flowPath, double currentLineHeight, double offsetX, double lineY, out double nextOffsetX)
     {
         double x = offsetX - GuiElement.scaled(3.0);
-        double y = lineY + GuiElement.scaled(126.0 - UnscaledSize - index * (UnscaledSize + Margin));
+        double y = lineY + GuiElement.scaled(24.0 - UnscaledSize - index * (UnscaledSize + Margin));
         double size = GuiElement.scaled(UnscaledSize);
         BoundsPerLine = new LineRectangled[] { new(x, y, size, size) };
 

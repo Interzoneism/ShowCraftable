@@ -4,10 +4,10 @@ namespace ShowCraftable;
 
 public class RecipeGridButton : ButtonRTC
 {
-    private const double YManualOffset = -10.0;
+    private const double YManualOffset = 0;
 
     public RecipeGridButton(ICoreClientAPI api)
-        : base(api, 0, "#", "Fetch all the ingredients", -1.0, -10.5)
+        : base(api, 0, "#", "Fetch all the ingredients", -1.0, -5.0)
     {
         Float = EnumFloat.Inline;
         VerticalAlign = EnumVerticalAlign.FixedOffset;
