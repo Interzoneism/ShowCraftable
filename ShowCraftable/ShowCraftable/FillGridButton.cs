@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
-using Vintagestory.API.Util;
 using Vintagestory.Client.NoObf;
 using ShowCraftable;  
 
@@ -30,15 +28,27 @@ public class FillGridButton : ButtonRTC
         VerticalAlign = EnumVerticalAlign.FixedOffset;
     }
 
-    protected override async void OnClick()
+    protected override void OnClick()
     {
-        if (await TryFillGrid())
+        _ = HandleClickAsync();
+    }
+
+    private async Task HandleClickAsync()
+    {
+        try
         {
-            api.Gui.PlaySound("menubutton_press");
+            if (await TryFillGrid())
+            {
+                api.Gui.PlaySound("menubutton_press");
+            }
+            else
+            {
+                api.Gui.PlaySound("menubutton_wood");
+            }
         }
-        else
+        catch (Exception e)
         {
-            api.Gui.PlaySound("menubutton_wood");
+            api.Logger.Error("FillGridButton error: {0}", e);
         }
     }
 
@@ -70,19 +80,9 @@ public class FillGridButton : ButtonRTC
             .GroupBy(x => x.Code)
             .ToDictionary(x => x.Key, x => x.Sum(y => y.StackSize));
 
-        var wildcards = recipes
-            .SelectMany(x => x.Ingredients.Values)
-            .Where(x => x.IsWildCard)
-            .Select(x => new IngredientCode(x))
-            .DistinctBy(x => x.Key)
-            .ToDictionary(x => x.Key, x => available.Sum(y => x.Matches(y.Key) ? y.Value : 0));
-
         var recipe = recipes
             .FirstOrDefault(x => x.Matches(player, input, 3));
         recipe ??= recipes.FirstOrDefault(CanMake);
-        
-        
-        
         recipe ??= recipes.FirstOrDefault();
 
         bool result = false;
@@ -91,7 +91,7 @@ public class FillGridButton : ButtonRTC
             bool last;
             do
             {
-                last = await AddIngredients(input, recipe, stacks);
+                last = await AddIngredients(input, recipe, stacks, shift);
                 result |= last;
             } while (max && last);
         }
@@ -103,32 +103,38 @@ public class FillGridButton : ButtonRTC
             var ingredients = recipe.resolvedIngredients
                 .Where(x => x != null)
                 .ToArray();
-            bool possible = ingredients
-                .Where(x => !x.IsTool)
-                .GroupBy(x => new IngredientCode(x))
-                .All(y => (y.Key.Wild ? wildcards[y.Key.Key] : available.GetValueOrDefault(y.Key.Code)) >= y.Sum(z => z.Quantity));
-            if (!possible)
+
+            var grouped = ingredients
+                .Where(x => !x.IsWildCard && !x.IsTool)
+                .GroupBy(x => x.Code);
+            foreach (var g in grouped)
             {
-                return false;
+                if (available.GetValueOrDefault(g.Key) < g.Sum(z => z.Quantity))
+                {
+                    return false;
+                }
             }
+
             if (!ingredients.Any(x => x.IsWildCard || x.IsTool))
             {
                 return true;
             }
 
             Dictionary<ItemSlot, int> used = new();
-            var ingredientsWildLast = ingredients.Where(x => !x.IsWildCard)
+            var ordered = ingredients
+                .Where(x => !x.IsWildCard)
                 .Concat(ingredients.Where(x => x.IsWildCard));
-            foreach (var ingredient in ingredientsWildLast)
+            foreach (var ingredient in ordered)
             {
                 int need = ingredient.Quantity;
                 foreach (var slot in input.Concat(stacks))
                 {
                     if (!Satisfies(ingredient, slot.Itemstack)) continue;
-                    if (!used.ContainsKey(slot)) used[slot] = 0;
-                    int use = Math.Min(need, slot.StackSize - used[slot]);
-                    used[slot] += use;
-                    need -= use;
+                    if (!used.TryGetValue(slot, out int size)) size = 0;
+                    int take = Math.Min(need, slot.StackSize - size);
+                    if (take <= 0) continue;
+                    used[slot] = size + take;
+                    need -= take;
                     if (need == 0) break;
                 }
                 if (need > 0) return false;
@@ -137,8 +143,8 @@ public class FillGridButton : ButtonRTC
         }
     }
 
-    
-    private async Task<bool> AddIngredients(ItemSlot[] input, GridRecipe recipe, List<ItemSlot> available)
+
+    private async Task<bool> AddIngredients(ItemSlot[] input, GridRecipe recipe, List<ItemSlot> available, bool shift)
     {
         List<(ItemSlot from, ItemSlot to, int n)> ops = new();
         Dictionary<ItemSlot, int> remaining = new();
@@ -253,7 +259,7 @@ public class FillGridButton : ButtonRTC
             }
         }
 
-        available = available.NonEmpty().ToList();
+        available.RemoveAll(slot => slot.Empty);
 
         int complete = ingredients.Select((x, i) => CurrentSets(x, stacks[i])).Where(x => x >= 0).Min();
 
@@ -272,7 +278,9 @@ public class FillGridButton : ButtonRTC
                     n = (complete + 1) * n - size;
                     if (n <= 0) continue;
                 }
-                if (stack.Collectible.MaxStackSize < size + n) return false;
+                int capacity = stack.Collectible.MaxStackSize - size;
+                if (capacity <= 0) continue;
+                if (n > capacity) n = capacity;
             }
             foreach (var slot in available)
             {
@@ -286,7 +294,7 @@ public class FillGridButton : ButtonRTC
             }
             if (n > 0)
             {
-                if (api.Input.ShiftHeld()) return false;
+                if (shift) return false;
                 var need = ShowCraftableSystem.MakeNeedForSlot(ingredient, slots[i], n);
                 if (need != null) needs.Add(need);
             }
@@ -320,7 +328,6 @@ public class FillGridButton : ButtonRTC
         if (needs.Count > 0)
         {
             ShowCraftableSystem.RequestFetchToGrid(api, needs, ShowCraftableSystem.DefaultNearbyRadius);
-            return true;
         }
         return change;
 
@@ -356,54 +363,6 @@ public class FillGridButton : ButtonRTC
 
     protected override bool Visible => api.Gui.OpenedGuis.OfType<GuiDialogInventory>().Any();
 
-    private struct IngredientCode
-    {
-        private readonly string[] include;
-        private readonly string[] exclude;
-        private string key;
-        public readonly AssetLocation Code;
-        public readonly bool Wild;
-
-        public IngredientCode(CraftingRecipeIngredient ingredient)
-        {
-            Code = ingredient.Code;
-            Wild = ingredient.IsWildCard;
-            if (Wild)
-            {
-                include = ingredient.AllowedVariants;
-                exclude = ingredient.SkipVariants;
-            }
-        }
-
-        public readonly bool Matches(AssetLocation item)
-            => Wild
-                ? (WildcardUtil.Match(Code, item, include) && !(exclude != null && WildcardUtil.MatchesVariants(Code, item, exclude)))
-                : Code == item;
-
-        public string Key => key ??= MakeKey();
-
-        private readonly string MakeKey()
-        {
-            var buf = new StringBuilder();
-            buf.Append(Code.ToString());
-            AddArray(buf, include, '[');
-            AddArray(buf, exclude, ']');
-            return buf.ToString();
-        }
-
-        private static void AddArray(StringBuilder buf, string[] arr, char prefix)
-        {
-            if (arr?.Length > 0)
-            {
-                buf.Append(prefix);
-                buf.Append(arr[0]);
-                for (int i = 1; i < arr.Length; i++) { buf.Append(','); buf.Append(arr[i]); }
-            }
-        }
-
-        public override bool Equals(object obj) => obj is IngredientCode other && Key.Equals(other.Key);
-        public override int GetHashCode() => Key.GetHashCode();
-    }
 
     private struct Bounds
     {
