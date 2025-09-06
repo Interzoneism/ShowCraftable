@@ -29,6 +29,8 @@ public abstract class ButtonRTC : RichTextComponentBase {
         this.offsetY = offsetY;
         tooltip = Lang.Get("improvedhandbookrecipes:" + key);
 
+        api.Logger.Debug($"[CraftableDebug] ButtonRTC init label={label} key={key} index={index} offset=({offsetX},{offsetY})");
+
         double size = Math.Ceiling(GuiElement.scaled(UnscaledSize));
         bounds = new GlobalBounds(0.0, 0.0, size, size);
         button = CreateButton(bounds);
@@ -46,6 +48,8 @@ public abstract class ButtonRTC : RichTextComponentBase {
         AdjustOffsets(traverse.Field<GuiElementStaticText>("normalText").Value);
         AdjustOffsets(traverse.Field<GuiElementStaticText>("pressedText").Value);
         button.ComposeElements(null, null);
+
+        api.Logger.Debug($"[CraftableDebug] ButtonRTC CreateButton label={label} bounds=({bounds.fixedWidth},{bounds.fixedHeight})");
 
         return button;
     }
@@ -89,6 +93,7 @@ public abstract class ButtonRTC : RichTextComponentBase {
     public override void RenderInteractiveElements(float deltaTime, double renderX, double renderY, double renderZ) {
         if (Visible) {
             SetBounds(renderX, renderY);
+            api.Logger.Debug($"[CraftableDebug] Render {label} at ({bounds.absFixedX},{bounds.absFixedY}) size=({bounds.absInnerWidth},{bounds.absInnerHeight}) mouse=({api.Input.MouseX},{api.Input.MouseY})");
             button.RenderInteractiveElements(deltaTime);
             hover.SetVisible(MouseOverFor(1.0, deltaTime));
             hover.RenderInteractiveElements(deltaTime);
@@ -115,6 +120,7 @@ public abstract class ButtonRTC : RichTextComponentBase {
     public override void OnMouseDown(MouseEvent args) {
         if (Visible) {
             SetBounds();
+            api.Logger.Debug($"[CraftableDebug] OnMouseDown {label} at ({args.X},{args.Y}) bounds=({bounds.absFixedX},{bounds.absFixedY},{bounds.absInnerWidth},{bounds.absInnerHeight})");
             button.OnMouseDown(api, args);
         }
     }
@@ -122,6 +128,7 @@ public abstract class ButtonRTC : RichTextComponentBase {
     public override void OnMouseUp(MouseEvent args) {
         if (Visible) {
             SetBounds();
+            api.Logger.Debug($"[CraftableDebug] OnMouseUp {label} at ({args.X},{args.Y}) bounds=({bounds.absFixedX},{bounds.absFixedY},{bounds.absInnerWidth},{bounds.absInnerHeight})");
             button.OnMouseUp(api, args);
         }
     }
@@ -129,6 +136,7 @@ public abstract class ButtonRTC : RichTextComponentBase {
     public override void OnMouseMove(MouseEvent args) {
         if (Visible) {
             button.PlaySound = true;
+            api.Logger.Debug($"[CraftableDebug] OnMouseMove {label} at ({args.X},{args.Y})");
             button.OnMouseMove(api, args);
             button.PlaySound = false;
         }
