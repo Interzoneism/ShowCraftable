@@ -1,0 +1,107 @@
+{
+	"editor": {
+		"backDropShape": "F:/Games/VSDEV/assets/game/shapes/entity/humanoid/seraph-hairless",
+		"allAngles": true,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+		"steel": "block/metal/tarnished/steel"
+	},
+	"elements": [
+		{
+			"name": "hair-uncovered",
+			"stepParentName": "Head",
+			"from": [ 1.0, 3.5, 2.5 ],
+			"to": [ 1.0, 3.5, 2.5 ],
+			"rotationOrigin": [ 1.0, 3.5, 2.5 ],
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "rod",
+					"from": [ -3.0, -0.3, -0.3 ],
+					"to": [ 9.0, 0.3, 0.3 ],
+					"rotationOrigin": [ 0.0, 0.0, 0.0 ],
+					"rotationX": -47.0,
+					"rotationY": -30.0,
+					"rotationZ": -14.0,
+					"faces": {
+						"north": { "texture": "#steel", "uv": [ 2.0, 1.0, 14.0, 1.5 ] },
+						"east": { "texture": "#steel", "uv": [ 6.0, 14.0, 6.5, 14.5 ] },
+						"south": { "texture": "#steel", "uv": [ 3.5, 9.0, 15.5, 9.5 ] },
+						"west": { "texture": "#steel", "uv": [ 14.5, 6.0, 15.0, 6.5 ] },
+						"up": { "texture": "#steel", "uv": [ 3.5, 5.0, 15.5, 5.5 ] },
+						"down": { "texture": "#steel", "uv": [ 2.0, 12.0, 14.0, 12.5 ] }
+					},
+					"children": [
+						{
+							"name": "chunk1",
+							"from": [ -1.0, 0.0, 0.0 ],
+							"to": [ 0.0, 0.3, 0.3 ],
+							"faces": {
+								"north": { "texture": "#steel", "uv": [ 3.0, 7.0, 4.0, 7.5 ] },
+								"south": { "texture": "#steel", "uv": [ 3.0, 10.0, 4.0, 10.5 ] },
+								"west": { "texture": "#steel", "uv": [ 7.0, 9.0, 7.5, 9.5 ] },
+								"up": { "texture": "#steel", "uv": [ 0.0, 12.5, 1.0, 13.0 ] },
+								"down": { "texture": "#steel", "uv": [ 11.5, 2.0, 12.5, 2.5 ] }
+							}
+						},
+						{
+							"name": "chunk2",
+							"from": [ -0.6, 0.3, 0.3 ],
+							"to": [ 0.0, 0.6, 0.6 ],
+							"rotationOrigin": [ 0.4, 0.3, 0.3 ],
+							"faces": {
+								"north": { "texture": "#steel", "uv": [ 1.0, 6.0, 1.5, 6.5 ] },
+								"south": { "texture": "#steel", "uv": [ 0.5, 2.5, 1.0, 3.0 ] },
+								"west": { "texture": "#steel", "uv": [ 9.5, 3.0, 10.0, 3.5 ] },
+								"up": { "texture": "#steel", "uv": [ 3.0, 15.0, 3.5, 15.5 ] },
+								"down": { "texture": "#steel", "uv": [ 8.0, 0.5, 8.5, 1.0 ] }
+							}
+						},
+						{
+							"name": "chunk3",
+							"from": [ 12.0, 0.3, 0.0 ],
+							"to": [ 14.0, 0.6, 0.3 ],
+							"rotationOrigin": [ 13.0, 0.3, 0.0 ],
+							"faces": {
+								"north": { "texture": "#steel", "uv": [ 0.5, 12.5, 2.5, 13.0 ] },
+								"east": { "texture": "#steel", "uv": [ 15.0, 9.0, 15.5, 9.5 ], "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] },
+								"south": { "texture": "#steel", "uv": [ 8.0, 13.0, 10.0, 13.5 ] },
+								"up": { "texture": "#steel", "uv": [ 5.5, 10.0, 7.5, 10.5 ] },
+								"down": { "texture": "#steel", "uv": [ 13.5, 8.0, 15.5, 8.5 ] }
+							}
+						},
+						{
+							"name": "chunk4",
+							"from": [ 12.0, 0.0, 0.3 ],
+							"to": [ 12.6, 0.3, 0.6 ],
+							"rotationOrigin": [ 13.0, 0.0, 0.3 ],
+							"faces": {
+								"east": { "texture": "#steel", "uv": [ 13.5, 2.5, 14.0, 3.0 ], "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] },
+								"south": { "texture": "#steel", "uv": [ 11.5, 5.5, 12.0, 6.0 ] },
+								"up": { "texture": "#steel", "uv": [ 1.0, 12.5, 1.5, 13.0 ] },
+								"down": { "texture": "#steel", "uv": [ 12.0, 2.0, 12.5, 2.5 ] }
+							}
+						},
+						{
+							"name": "chunk5",
+							"from": [ 12.0, 0.0, 0.0 ],
+							"to": [ 13.3, 0.3, 0.3 ],
+							"rotationOrigin": [ 13.0, 0.0, 0.0 ],
+							"faces": {
+								"north": { "texture": "#steel", "uv": [ 9.0, 0.0, 10.0, 0.5 ] },
+								"east": { "texture": "#steel", "uv": [ 8.5, 3.5, 9.0, 4.0 ], "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] },
+								"south": { "texture": "#steel", "uv": [ 13.0, 8.0, 14.0, 8.5 ] },
+								"down": { "texture": "#steel", "uv": [ 9.0, 5.0, 10.0, 5.5 ] }
+							}
+						}
+					]
+				}
+			]
+		}
+	]}

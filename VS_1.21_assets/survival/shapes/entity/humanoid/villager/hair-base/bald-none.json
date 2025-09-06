@@ -1,0 +1,41 @@
+{
+	"editor": {
+		"backDropShape": "entity/humanoid/villager-narrow-eyes",
+		"collapsedPaths": "Root/torso,Root/LowerTorso/UpperTorso/hideme",
+		"allAngles": true,
+		"entityTextureMode": true
+	},
+	"textureWidth": 48,
+	"textureHeight": 48,
+	"textureSizes": {
+		"hair": [48,48]
+	},
+	"textures": {
+	},
+	"elements": [
+		{
+			"name": "Hair",
+			"stepParentName": "Head",
+			"from": [ -0.17, -3.1, -0.3 ],
+			"to": [ 6.33, 5.4, 5.2 ],
+			"autoUnwrap": false,
+			"uv": [ 2.0, 2.5 ],
+			"rotationOrigin": [ 3.75, 2.066, 1.8 ],
+			"rotationZ": 2.0,
+			"faces": {
+			}
+		}
+	],
+	"animations": [
+		{
+			"name": "Jump",
+			"code": "jump",
+			"quantityframes": 20,
+			"onActivityStopped": "Rewind",
+			"onAnimationEnd": "Repeat",
+			"keyframes": [
+
+			]
+		}
+	]
+}

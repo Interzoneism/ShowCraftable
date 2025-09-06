@@ -1,0 +1,57 @@
+[
+{
+	ingredientPattern: "___	GGG	GGG",
+	ingredients: {
+		"G": { type: "block", code: "packeddirt", quantity: 1  }
+	},
+	width: 3,
+	height: 3,
+	output: { type: "block", code: "rammed-light-plain", quantity: 6  }
+},
+{
+	ingredientPattern: "G",
+	ingredients: {
+		"G": { type: "block", code: "rammed-light-plain", quantity: 1  }
+	},
+	width: 1,
+	height: 1,
+	output: { type: "block", code: "rammed-light-thinlight", quantity: 1  }
+},
+{
+	ingredientPattern: "G",
+	ingredients: {
+		"G": { type: "block", code: "rammed-light-thinlight", quantity: 1  }
+	},
+	width: 1,
+	height: 1,
+	output: { type: "block", code: "rammed-light-thicklight", quantity: 1  }
+},
+{
+	ingredientPattern: "G",
+	ingredients: {
+		"G": { type: "block", code: "rammed-light-thicklight", quantity: 1  }
+	},
+	width: 1,
+	height: 1,
+	output: { type: "block", code: "rammed-light-thinheavy", quantity: 1  }
+},
+{
+	ingredientPattern: "G",
+	ingredients: {
+		"G": { type: "block", code: "rammed-light-thinheavy", quantity: 1  }
+	},
+	width: 1,
+	height: 1,
+	output: { type: "block", code: "rammed-light-thickheavy", quantity: 1  }
+},
+{
+	ingredientPattern: "G",
+	ingredients: {
+		"G": { type: "block", code: "rammed-light-thickheavy", quantity: 1  }
+	},
+	recipegroup: 1,
+	width: 1,
+	height: 1,
+	output: { type: "block", code: "rammed-light-plain", quantity: 1  }
+}
+]

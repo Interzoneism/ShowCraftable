@@ -1,0 +1,43 @@
+{
+	code: "decorlore",
+	behaviors: [ 
+		{ name: "Decor", properties: {
+				sides: ["north", "east", "south", "west", "up", "down"], 
+				notFullFace:true, 
+				thicknessByType: {
+ 					"*": 0
+				}
+			}
+		} 
+	],
+	attributes: {
+		handbook: {
+			exclude: true
+		},
+		ignoreSounds: true
+	},
+	variantgroups: [
+		{ code: "type", states: ["schematic1x1", "tobias-board" ] },
+	],
+	drawtype: "json",
+	shapeByType: { 
+		"*": { base: "block/devastation/decor/{type}" }
+	},
+	sidesolid: { all: false },
+	sideopaque: { all: false },
+	blockmaterial: "Metal",
+	creativeinventory: { "general": ["*"] },
+	replaceable: 5500,
+	resistance: 0,
+	materialDensity: 400,
+	lightAbsorption: 0,
+	drops: [],
+	guitransformByType: {
+		"*": {
+			rotate: false,
+			rotation: { x: -113, y: -180, z: 28 },
+			origin: { x: 0.5, y: 0.1, z: 0.55 },
+			scale: 1.4
+		}
+	}
+}

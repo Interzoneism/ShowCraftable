@@ -1,0 +1,46 @@
+{
+	"editor": {
+		"collapsedPaths": "",
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+		"cupronickel1": "block/metal/tarnished/cupronickel-sheet1"
+	},
+	"elements": [
+		{
+			"name": "Cube2",
+			"from": [ 4.0, 5.0, 5.0 ],
+			"to": [ 12.0, 6.0, 11.0 ],
+			"rotationOrigin": [ 8.0, 5.0, 8.0 ],
+			"rotationX": -21.0,
+			"rotationZ": 30.0,
+			"faces": {
+				"north": { "texture": "#cupronickel1", "uv": [ 0.0, 0.0, 8.0, 1.0 ] },
+				"south": { "texture": "#cupronickel1", "uv": [ 0.0, 0.0, 8.0, 1.0 ], "windMode": [-1,-1,-1,-1] },
+				"west": { "texture": "#cupronickel1", "uv": [ 0.0, 0.0, 6.0, 1.0 ] },
+				"up": { "texture": "#cupronickel1", "uv": [ 0.0, 0.0, 8.0, 6.0 ] },
+				"down": { "texture": "#cupronickel1", "uv": [ 0.0, 0.0, 8.0, 6.0 ] }
+			},
+			"children": [
+				{
+					"name": "Cube3",
+					"from": [ 8.0, 0.0, 0.001 ],
+					"to": [ 13.0, 1.0, 6.001 ],
+					"rotationOrigin": [ 8.0, 0.0, 3.0 ],
+					"rotationZ": 36.0,
+					"faces": {
+						"north": { "texture": "#cupronickel1", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+						"east": { "texture": "#cupronickel1", "uv": [ 0.0, 0.0, 6.0, 1.0 ] },
+						"south": { "texture": "#cupronickel1", "uv": [ 0.0, 0.0, 5.0, 1.0 ], "windMode": [-1,-1,-1,-1] },
+						"up": { "texture": "#cupronickel1", "uv": [ 0.0, 0.0, 5.0, 6.0 ] },
+						"down": { "texture": "#cupronickel1", "uv": [ 0.0, 0.0, 5.0, 6.0 ] }
+					}
+				}
+			]
+		}
+	]}

@@ -1,0 +1,47 @@
+{
+	code: "polishedrockold",
+	replaceable: 120,
+	variantgroups: [
+		{ code: "type", states: ["full", "cobbled"] },
+		{ code: "rock", states: ["redmarble", "whitemarble", "greenmarble", "mixed"], loadFromProperties: "block/rock" },
+	],
+	skipVariants: [
+		"polishedrockold-full-mixed"
+	],
+	attributes: {
+		handbook: {
+			groupBy: ["rockpolishedold-*"]	
+		},
+	},
+	creativeinventory: { "general": ["*"], "construction": ["*"] },
+	shape: { 
+		base: "block/basic/cube",
+		alternates: [
+			{ base: "block/basic/cube", rotateY: 90 },
+			{ base: "block/basic/cube", rotateY: 180 },
+			{ base: "block/basic/cube", rotateY: 270 }
+		]
+	},
+	drawtype: "json",
+	heldTpIdleAnimation: "holdbothhandslarge", heldRightReadyAnimation: "heldblockready", heldTpUseAnimation: "twohandplaceblock",
+	textures: {
+		all: { base: "block/stone/polishedrock-old/{type}/{rock}*" },
+		"inside-north": { base: "block/stone/polishedrock-old/inside/{rock}" },
+		"inside-east": { base: "block/stone/polishedrock-old/inside/{rock}" },
+		"inside-south": { base: "block/stone/polishedrock-old/inside/{rock}" },
+		"inside-west": { base: "block/stone/polishedrock-old/inside/{rock}" },
+		"inside-up": { base: "block/stone/polishedrock-old/inside/{rock}" },
+		"inside-down": { base: "block/stone/polishedrock-old/inside/{rock}" }
+	},
+	sounds: {
+		"walk": "walk/stone",
+		byTool: {
+			"Pickaxe": { hit: "block/rock-hit-pickaxe", break: "block/rock-break-pickaxe" }
+		}
+	},
+	tpHandTransform: {
+		translation: { x: -1.23, y: -0.91, z: -0.8 },
+		rotation: { x: -2, y: 25, z: -78 },
+		scale: 0.4
+	}
+}

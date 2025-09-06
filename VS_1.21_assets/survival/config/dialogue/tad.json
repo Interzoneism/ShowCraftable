@@ -1,0 +1,210 @@
+{
+	components: [
+		{
+			code: "testhasmet",
+			owner: "tad",
+			type: "condition",
+			variable: "player.hasmettad",
+			isNotValue: "true",
+			thenJumpTo: "firstmeet",
+			elseJumpTo: "welcomeback"
+		},
+		{
+			code: "firstmeet",
+			owner: "tad",
+			type: "talk",
+			setVariables: { "player.hasmettad": "true" },
+			text: [
+				{ value: "dialogue-tad-uncurable" }
+			],
+		},
+		{
+			code: "main",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-name", jumpTo: "name" },
+				{ value: "dialogue-profession", jumpTo: "profession" },
+				{ value: "dialogue-location", jumpTo: "location" },
+				{ value: "dialogue-trade", jumpTo: "trade" },
+				{ value: "dialogue-tad-haircut", jumpTo: "haircut" },
+				{ value: "dialogue-tad-heal", jumpTo: "testfirstheal" },
+				{ value: "dialogue-tad-letter", jumpTo: "letter", condition: { variable: "player.inventory", isValue: "{type: 'item', code: 'letter-faded', stacksize: 1}" } }
+			],
+		},
+		{
+			code: "welcomeback",
+			owner: "tad",
+			type: "talk",
+			text: [
+				{ value: "dialogue-tad-welcome" }
+			],
+			jumpTo: "main"
+		},
+		{
+			code: "name",
+			owner: "tad",
+			type: "talk",
+			trigger: "revealname",
+			text: [
+				{ value: "dialogue-tad-tad"	}
+			],
+		},
+		{
+			code: "whichname",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-tad-tadtad", jumpTo: "tad"	},
+				{ value: "dialogue-tad-barbersurgeon", jumpTo: "barbersurgeon"	},
+				{ value: "dialogue-tad-barbara", jumpTo: "barbara"	},
+			],
+		},
+		{
+			code: "tad",
+			owner: "tad",
+			type: "talk",
+			text: [
+				{ value: "dialogue-tad-friendscallme"	}
+			],
+			jumpTo: "main"
+		},
+		{
+			code: "barbersurgeon",
+			owner: "tad",
+			type: "talk",
+			text: [
+				{ value: "dialogue-tad-faceless"	}
+			],
+			jumpTo: "main"
+		},
+		{
+			code: "barbara",
+			owner: "tad",
+			type: "talk",
+			text: [
+				{ value: "dialogue-tad-notabadname"	}
+			],
+			jumpTo: "main"
+		},
+		{
+			code: "profession",
+			owner: "tad",
+			type: "talk",
+			text: [
+				{ value: "dialogue-tad-imabarber"	}
+			],
+			jumpTo: "main"
+		},
+		{
+			code: "location",
+			owner: "tad",
+			type: "talk",
+			text: [
+				{ value: "dialogue-tad-nadiya"	}
+			],
+			jumpTo: "main"
+		},
+		{
+			code: "haircut",
+			owner: "tad",
+			trigger: "openhairstyling",
+			jumpTo: "main"
+		},
+		{
+			code: "testfirstheal",
+			owner: "tad",
+			type: "condition",
+			variable: "player.firstheal",
+			isNotValue: "true",
+			thenJumpTo: "firsthealask",
+			elseJumpTo: "heal"
+		},
+		
+		{
+			code: "firsthealask",
+			owner: "tad",
+			type: "talk",
+			text: [
+				{ value: "dialogue-tad-firsttreatment"	}
+			],
+			jumpTo: "firsthealcontinue"
+		},
+		{
+			code: "firsthealcontinue",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-tad-pleaseheal", jumpTo: "healprepare"	},
+				{ value: "dialogue-tad-nevermind", jumpTo: "main"	},
+			],
+		},
+		{
+			code: "heal",
+			owner: "tad",
+			type: "talk",
+			text: [
+				{ value: "dialogue-tad-happyto"	}
+			],
+			jumpTo: "healpayment"
+		},
+		{
+			code: "healpayment",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-tad-gearheal", jumpTo: "healprepare", conditions: [ { variable: "player.inventory", isValue: "{type: 'item', code: 'gear-rusty', stacksize: 1}" } ]	},
+				{ value: "dialogue-tad-nevermind", jumpTo: "main"	},
+			],
+		},
+		{
+			code: "healprepare",
+			owner: "tad",
+			type: "talk",
+			text: [
+				{ value: "dialogue-tad-onlyamoment"	}
+			],
+			jumpTo: "healcontinue"
+		},
+		{
+			code: "healcontinue",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-continue", jumpTo: "healapply"	},
+			],
+		},
+		{
+			code: "healapply",
+			owner: "tad",
+			trigger: "attack",
+			triggerData: { "type": "Heal", "damage": 20 },
+			setVariables: { "player.firstheal": "true" }, 
+			jumpTo: "mostlyfine"
+		},
+		{
+			code: "mostlyfine",
+			owner: "tad",
+			type: "talk",
+			text: [
+				{ value: "dialogue-tad-mostlyfine"	}
+			],
+			jumpTo: "main"
+		},
+		{
+			code: "trade",
+			owner: "tad",
+			trigger: "opentrade",
+			jumpTo: "main"
+		},
+		{
+			code: "letter",
+			owner: "tad",
+			type: "talk",
+			text: [
+				{ value: "dialogue-tad-certainlymysterious", jumpTo: "main"	}
+			],
+			jumpTo: "main"
+		}
+	]
+}

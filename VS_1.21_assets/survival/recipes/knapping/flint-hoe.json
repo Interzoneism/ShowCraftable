@@ -1,0 +1,13 @@
+{
+	ingredient: { type: "item", code: "flint" },
+	pattern: [[
+		"____##____",
+		"____##____",
+		"____##____",
+		"____##____",
+		"____##____",
+		"____##____"
+	]],
+	name: "Hoe",
+	output: { type: "item", code: "hoehead-flint"  }
+}

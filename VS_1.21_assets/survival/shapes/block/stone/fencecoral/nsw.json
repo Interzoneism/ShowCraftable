@@ -1,0 +1,54 @@
+{
+	"editor": {
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+		
+	},
+	"textures": {
+		"wall": "block/stone/fencecoral/coral1",
+		"side": "block/stone/fencecoral/side"
+	},
+	"elements": [
+		{
+			"name": "origin",
+			"from": [ 8.0, 0.0, 8.0 ],
+			"to": [ 8.0, 0.0, 8.0 ],
+			"rotationOrigin": [ 8.0, 0.0, 8.0 ],
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "wall",
+					"from": [ -8.0, 0.0, -2.0 ],
+					"to": [ -2.0, 16.0, 2.0 ],
+					"faces": {
+						"north": { "texture": "#wall", "uv": [ 16.0, 0.0, 0.0, 16.0 ], "autoUv": false },
+						"east": { "texture": "#side", "uv": [ 0.0, 0.0, 4.0, 16.0 ] },
+						"south": { "texture": "#wall", "uv": [ 0.0, 0.0, 6.0, 16.0 ] },
+						"west": { "texture": "#side", "uv": [ 0.0, 0.0, 4.0, 16.0 ] },
+						"up": { "texture": "#side", "uv": [ 10.0, 0.0, 14.0, 6.0 ], "rotation": 270 },
+						"down": { "texture": "#side", "uv": [ 5.0, 0.0, 9.0, 6.0 ], "rotation": 270 }
+					}
+				},
+				{
+					"name": "wall3",
+					"from": [ -8.0, 0.01, -2.0 ],
+					"to": [ 8.0, 16.01, 2.0 ],
+					"rotationOrigin": [ 0.0, 0.0, 0.0 ],
+					"rotationY": -90.0,
+					"faces": {
+						"north": { "texture": "#wall", "uv": [ 16.0, 0.0, 0.0, 16.0 ], "autoUv": false },
+						"east": { "texture": "#side", "uv": [ 0.0, 0.0, 4.0, 16.0 ] },
+						"south": { "texture": "#wall", "uv": [ 0.0, 0.0, 16.0, 16.0 ], "autoUv": false },
+						"west": { "texture": "#side", "uv": [ 0.0, 0.0, 4.0, 16.0 ] },
+						"up": { "texture": "#side", "uv": [ 5.0, 0.0, 9.0, 16.0 ], "rotation": 270, "autoUv": false },
+						"down": { "texture": "#wall", "uv": [ 0.0, 0.0, 16.0, 4.0 ] }
+					}
+				}
+			]
+		}
+	]}

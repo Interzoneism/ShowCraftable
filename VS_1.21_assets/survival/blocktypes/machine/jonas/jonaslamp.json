@@ -1,0 +1,71 @@
+{
+	code: "jonas",
+	class: "BlockClutter",
+	entityClass: "Generic",
+	entityBehaviors: [ 
+		{ name: "ControlPointLampNode" }
+	],
+	behaviors: [
+		{ name: "WrenchOrientable", properties: { "hideInteractionHelpInSurvival": true } },
+		{ name: "Reparable" }
+	],	
+	variantgroups: [
+		{ code: "type", states: ["lamp"] },
+	],
+	attributes: {
+		shapeBasePath: "block/clutter",
+		canChisel: false,
+		overrideTextureGroups: {
+			metal: {
+				rusty: { base: "block/metal/corroded/rusty1" },
+				iron: { base: "block/metal/tarnished/iron" },
+				corroded: { base: "block/metal/corroded/normal2" },
+				tarnishedcopper: { base: "block/metal/tarnished/copper1" },
+				bronze: { base: "block/metal/tarnished/tarnished-bronze" },
+				brass: { base: "block/metal/tarnished/brass" },
+			}
+		},
+		reparability: 4,
+		types: [
+			{ code: "lightsource/off/lumi-floor1", randomize: false, colSelBoxes: [{ x1: 0.375, y1: 0, z1: 0.3692, x2: 0.625, y2: 0.6502, z2: 0.625 }], guiTf: { rotation: { x: -22, y: -45 }, origin: { x: 0.5, y: 0.4, z: 0.5 }, scale: 1.75 }, tpTf: { translation: { x: -2.1, y: -1.6, z: -1.6 }, rotation: { z: -25 }, scale: 0.3 }},
+			{ code: "lightsource/off/lumi-floor2", randomize: false, colSelBoxes: [{ x1: 0.375, y1: 0, z1: 0.375, x2: 0.625, y2: 0.656, z2: 0.625 }], guiTf: { rotation: { x: -22, y: -45 }, origin: { x: 0.5, y: 0.4, z: 0.5 }, scale: 1.75 }, tpTf: { translation: { x: -2.1, y: -1.6, z: -1.6 }, rotation: { z: -25 }, scale: 0.3 }},
+			{ code: "lightsource/off/lumi-floor3", randomize: false, colSelBoxes: [{ x1: 0.375, y1: 0, z1: 0.375, x2: 0.625, y2: 0.5746, z2: 0.625 }], guiTf: { rotation: { x: -22, y: -45 }, origin: { x: 0.5, y: 0.4, z: 0.5 }, scale: 1.75 }, tpTf: { translation: { x: -2.1, y: -1.6, z: -1.6 }, rotation: { z: -25 }, scale: 0.3 }},
+			{ code: "lightsource/off/lumi-floor8", randomize: false, colSelBoxes: [{ x1: 0.3687, y1: 0, z1: 0.3687, x2: 0.6313, y2: 0.75, z2: 0.6313 }], guiTf: { rotation: { x: -22, y: -45 }, origin: { x: 0.5, y: 0.4, z: 0.5 }, scale: 1.75 }, tpTf: { translation: { x: -2.1, y: -1.6, z: -1.6 }, rotation: { z: -25 }, scale: 0.3 }},
+			{ code: "lightsource/off/lumi-floor9", randomize: false, colSelBoxes: [{ x1: 0.3687, y1: 0, z1: 0.3687, x2: 0.6313, y2: 1, z2: 0.6313 }], guiTf: { rotation: { x: -22, y: -45 }, origin: { x: 0.5, y: 0.4, z: 0.5 }, scale: 1.75 }, tpTf: { translation: { x: -2.1, y: -1.6, z: -1.6 }, rotation: { z: -25 }, scale: 0.3 }},
+			{ code: "lightsource/off/lumi-floor10", randomize: false, colSelBoxes: [{ x1: 0.3687, y1: 0, z1: 0.3687, x2: 0.6313, y2: 0.6749, z2: 0.6313 }], guiTf: { rotation: { x: -22, y: -45 }, origin: { x: 0.5, y: 0.4, z: 0.5 }, scale: 1.75 }, tpTf: { translation: { x: -2.1, y: -1.6, z: -1.6 }, rotation: { z: -25 }, scale: 0.3 }},
+			{ code: "lightsource/off/lumi-pipe-h-lamp", randomize: false, guiTf: { rotation: { x: -22.6, y: -45, z: 0 }, scale: 1.3 }, colSelBoxes: [{ x1: 0, y1: 0.375, z1: 0.3125, x2: 1, y2: 0.6875, z2: 0.6875 }] },
+			{ code: "lightsource/off/lumi-pipe-v-lamp", randomize: false, guiTf: { rotation: { x: -22.6, y: -45, z: 0 }, scale: 1.3 }, colSelBoxes: [{ x1: 0.3125, y1: 0, z1: 0.3125, x2: 0.6875, y2: 1, z2: 0.6875 }] },
+			{ code: "lightsource/off/gas-ceiling1", randomize: false, guiTf: { scale: 1.5, origin: { x: 0.5, y: 0.32, z: 0.5 } }, colSelBoxes: [{ x1: 0.25, y1: 0, z1: 0.25, x2: 0.75, y2: 0.75, z2: 0.75 }] },
+			{ code: "lightsource/off/gas-floor1", randomize: false, guiTf: { scale: 1.5, origin: { x: 0.5, y: 0.32, z: 0.5 } }, colSelBoxes: [{ x1: 0.25, y1: 0, z1: 0.25, x2: 0.75, y2: 0.75, z2: 0.75 }] },
+			{ code: "lightsource/off/gas-floor2", randomize: false, guiTf: { scale: 1.5, origin: { x: 0.5, y: 0.32, z: 0.5 } }, colSelBoxes: [{ x1: 0.25, y1: 0, z1: 0.25, x2: 0.75, y2: 0.75, z2: 0.75 }] },
+			{ code: "lightsource/off/gas-floor3", randomize: false, guiTf: { scale: 1.5, origin: { x: 0.5, y: 0.32, z: 0.5 } }, colSelBoxes: [{ x1: 0.25, y1: 0, z1: 0.25, x2: 0.75, y2: 0.75, z2: 0.75 }] },
+			{ code: "lightsource/off/gas-wall1", randomize: false, guiTf: { scale: 1.5, origin: { x: 0.5, y: 0.32, z: 0.5 } }, colSelBoxes: [{ x1: 0.25, y1: 0, z1: 0.25, x2: 0.75, y2: 0.75, z2: 0.75 }] },
+			{ code: "lightsource/off/gas-wall2", randomize: false, guiTf: { scale: 1.5, origin: { x: 0.5, y: 0.32, z: 0.5 } }, colSelBoxes: [{ x1: 0.25, y1: 0, z1: 0.25, x2: 0.75, y2: 0.75, z2: 0.75 }] },
+			
+			{ code: "lightsource/on/lumi-floor1", randomize: false, lightHsv: [28, 4, 20], colSelBoxes: [{ x1: 0.375, y1: 0, z1: 0.3692, x2: 0.625, y2: 0.6502, z2: 0.625 }], guiTf: { rotation: { x: -22, y: -45 }, origin: { x: 0.5, y: 0.4, z: 0.5 }, scale: 1.75 }, tpTf: { translation: { x: -2.1, y: -1.6, z: -1.6 }, rotation: { z: -25 }, scale: 0.3 }},
+			{ code: "lightsource/on/lumi-floor2", randomize: false, lightHsv: [28, 4, 16], colSelBoxes: [{ x1: 0.375, y1: 0, z1: 0.375, x2: 0.625, y2: 0.656, z2: 0.625 }], guiTf: { rotation: { x: -22, y: -45 }, origin: { x: 0.5, y: 0.4, z: 0.5 }, scale: 1.75 }, tpTf: { translation: { x: -2.1, y: -1.6, z: -1.6 }, rotation: { z: -25 }, scale: 0.3 }},
+			{ code: "lightsource/on/lumi-floor3", randomize: false, lightHsv: [28, 4, 12], colSelBoxes: [{ x1: 0.375, y1: 0, z1: 0.375, x2: 0.625, y2: 0.5746, z2: 0.625 }], guiTf: { rotation: { x: -22, y: -45 }, origin: { x: 0.5, y: 0.4, z: 0.5 }, scale: 1.75 }, tpTf: { translation: { x: -2.1, y: -1.6, z: -1.6 }, rotation: { z: -25 }, scale: 0.3 }},
+			{ code: "lightsource/on/lumi-floor8", randomize: false, lightHsv: [28, 4, 20], colSelBoxes: [{ x1: 0.3687, y1: 0, z1: 0.3687, x2: 0.6313, y2: 0.75, z2: 0.6313 }], guiTf: { rotation: { x: -22, y: -45 }, origin: { x: 0.5, y: 0.4, z: 0.5 }, scale: 1.75 }, tpTf: { translation: { x: -2.1, y: -1.6, z: -1.6 }, rotation: { z: -25 }, scale: 0.3 }},
+			{ code: "lightsource/on/lumi-floor9", randomize: false, lightHsv: [28, 4, 20], colSelBoxes: [{ x1: 0.3687, y1: 0, z1: 0.3687, x2: 0.6313, y2: 1, z2: 0.6313 }], guiTf: { rotation: { x: -22, y: -45 }, origin: { x: 0.5, y: 0.4, z: 0.5 }, scale: 1.75 }, tpTf: { translation: { x: -2.1, y: -1.6, z: -1.6 }, rotation: { z: -25 }, scale: 0.3 }},
+			{ code: "lightsource/on/lumi-floor10", randomize: false, lightHsv: [28, 4, 20], colSelBoxes: [{ x1: 0.3687, y1: 0, z1: 0.3687, x2: 0.6313, y2: 0.6749, z2: 0.6313 }], guiTf: { rotation: { x: -22, y: -45 }, origin: { x: 0.5, y: 0.4, z: 0.5 }, scale: 1.75 }, tpTf: { translation: { x: -2.1, y: -1.6, z: -1.6 }, rotation: { z: -25 }, scale: 0.3 }},
+			{ code: "lightsource/on/lumi-pipe-h-lamp", randomize: false, lightHsv: [28, 4, 20], guiTf: { rotation: { x: -22.6, y: -45, z: 0 }, scale: 1.3 }, colSelBoxes: [{ x1: 0, y1: 0.375, z1: 0.3125, x2: 1, y2: 0.6875, z2: 0.6875 }] },
+			{ code: "lightsource/on/lumi-pipe-v-lamp", randomize: false, lightHsv: [28, 4, 20], guiTf: { rotation: { x: -22.6, y: -45, z: 0 }, scale: 1.3 }, colSelBoxes: [{ x1: 0.3125, y1: 0, z1: 0.3125, x2: 0.6875, y2: 1, z2: 0.6875 }] },
+			{ code: "lightsource/on/gas-ceiling1", randomize: false, lightHsv: [8, 4, 22], guiTf: { scale: 1.5, origin: { x: 0.5, y: 0.32, z: 0.5 } }, colSelBoxes: [{ x1: 0.25, y1: 0, z1: 0.25, x2: 0.75, y2: 0.75, z2: 0.75 }] },
+			{ code: "lightsource/on/gas-floor1", randomize: false, lightHsv: [8, 4, 22], guiTf: { scale: 1.5, origin: { x: 0.5, y: 0.32, z: 0.5 } }, colSelBoxes: [{ x1: 0.25, y1: 0, z1: 0.25, x2: 0.75, y2: 0.75, z2: 0.75 }] },
+			{ code: "lightsource/on/gas-floor2", randomize: false, lightHsv: [8, 4, 22], guiTf: { scale: 1.5, origin: { x: 0.5, y: 0.32, z: 0.5 } }, colSelBoxes: [{ x1: 0.25, y1: 0, z1: 0.25, x2: 0.75, y2: 0.75, z2: 0.75 }] },
+			{ code: "lightsource/on/gas-floor3", randomize: false, lightHsv: [8, 4, 22], guiTf: { scale: 1.5, origin: { x: 0.5, y: 0.32, z: 0.5 } }, colSelBoxes: [{ x1: 0.25, y1: 0, z1: 0.25, x2: 0.75, y2: 0.75, z2: 0.75 }] },
+			{ code: "lightsource/on/gas-wall1", randomize: false, lightHsv: [8, 4, 22], guiTf: { scale: 1.5, origin: { x: 0.5, y: 0.32, z: 0.5 } }, colSelBoxes: [{ x1: 0.25, y1: 0, z1: 0.25, x2: 0.75, y2: 0.75, z2: 0.75 }] },
+			{ code: "lightsource/on/gas-wall2", randomize: false, lightHsv: [8, 4, 22], guiTf: { scale: 1.5, origin: { x: 0.5, y: 0.32, z: 0.5 } }, colSelBoxes: [{ x1: 0.25, y1: 0, z1: 0.25, x2: 0.75, y2: 0.75, z2: 0.75 }] },			
+		],
+	},
+	faceCullMode: "NeverCull",
+	creativeinventory: { "general": [""] },
+	shape: { base: "game:block/basic/cube" },
+	replaceable: 90,
+	drops: [],
+	sidesolid: { all: false },
+	sideopaque: { all: false },
+	sideao: { all: false },
+	emitsideao: { all: false },
+	lightAbsorption: 1
+}

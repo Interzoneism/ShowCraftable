@@ -1,0 +1,35 @@
+{
+	code: "bowtornprojectile",
+	class: "EntityProjectile",
+	tags: ["inanimate", "projectile"],
+	hitboxSize: { x: 0.1, y: 0.1 },
+	attributes: {
+		isProjectile: true
+	},
+	client: {
+		renderer: "Shape",
+		shape: {  base: "entity/nonliving/projectile/bowtorn-projectile" },
+		behaviors: [
+			{ 
+				code: "passivephysics", 
+				groundDragFactor: 1,
+				airDragFactor: 0.25,
+				gravityFactor: 0.75
+			}, 
+			{ code: "interpolateposition" }
+		],
+	},
+	server: {
+		behaviors: [
+			{ 
+				code: "passivephysics", 
+				groundDragFactor: 1,
+				airDragFactor: 0.25,
+				gravityFactor: 0.75
+			}, 
+			{ code: "despawn", minSeconds: 120 },
+			{ code: "entitystatetags" }
+		]
+	},
+	sounds: { }
+}

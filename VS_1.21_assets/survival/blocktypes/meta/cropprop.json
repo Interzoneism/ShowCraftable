@@ -1,0 +1,83 @@
+{
+	code: "cropprop",
+	class: "BlockCropProp",
+	entityBehaviors: [ { name: "CropProp" } ],
+	attributes: {
+		handbook: {
+			exclude: true
+		},
+		shapeBasePath: "block/clutter",
+		canChisel: false,
+		// {stage} and {type} are replaced in code in the Crop EntityBehavior
+		types: {
+			"carrot": { monthStart: 5, monthEnd: 10, stages: 7 },
+			"flax": { 
+				monthStart: 5, monthEnd: 10, stages: 9,
+				shape: { base: "block/plant/crop/default*" },
+				textures: {
+					crop: { base: "block/plant/crop/{type}/normal{stage}" },
+				}
+			},
+			"onion": { monthStart: 5, monthEnd: 10, stages: 7 },
+			"parsnip": { monthStart: 5, monthEnd: 10, stages: 8 },
+			"rye": { monthStart: 5, monthEnd: 10, stages: 9,
+				shape: { base: "block/plant/crop/default*" },
+				textures: {
+					crop: { base: "block/plant/crop/{type}/normal{stage}" },
+				}				
+			},
+			"rice": { monthStart: 5, monthEnd: 10, stages: 9,
+				shape: { base: "block/plant/crop/default*" },
+				textures: {
+					crop: { base: "block/plant/crop/{type}/normal{stage}" },
+				}				
+			},
+			"sunflower": { monthStart: 5, monthEnd: 10, stages: 12 },
+			"turnip": { monthStart: 5, monthEnd: 10, stages: 5 },
+			"cabbage": { monthStart: 5, monthEnd: 10, stages: 12 },
+			"spelt": { 
+				shape: { base: "block/plant/crop/default*" },
+				monthStart: 5, monthEnd: 10, stages: 9,
+				textures: {
+					crop: { base: "block/plant/crop/{type}/normal{stage}" },
+				}				
+			},
+			"dead": {
+				shape: { base: "block/basic/cross" },
+				randomizeRotations: true,
+				textures: {
+					"north": { base: "block/plant/crop/dead-generic-e" },
+					"south": { base: "block/plant/crop/dead-generic-w" },
+				}				
+			}
+		}
+	},
+	faceCullMode: "NeverCull",
+	renderpass: "OpaqueNoCull",
+	blockmaterial: "Plant",
+	creativeinventory: { "general": [""] },
+	creativeinventoryStacks: [{
+		tabs: [ "general", "meta" ],
+		stacks: [
+			{ type: "block", code: "game:cropprop", attributes: { type: "carrot" } },
+			{ type: "block", code: "game:cropprop", attributes: { type: "flax" } },
+			{ type: "block", code: "game:cropprop", attributes: { type: "onion" } },
+			{ type: "block", code: "game:cropprop", attributes: { type: "parsnip" } },
+			{ type: "block", code: "game:cropprop", attributes: { type: "rye" } },
+			{ type: "block", code: "game:cropprop", attributes: { type: "sunflower" } },
+			{ type: "block", code: "game:cropprop", attributes: { type: "turnip" } },
+			{ type: "block", code: "game:cropprop", attributes: { type: "cabbage" } },
+			{ type: "block", code: "game:cropprop", attributes: { type: "spelt" } },
+		]
+	}],
+	shape: { base: "game:block/meta/cropprop" },
+	replaceable: 90,
+	sidesolid: { all: false },
+	sideopaque: { all: false },
+	sideao: { all: true },
+	emitsideao: { all: false },
+	collisionbox: null,
+	selectionbox: { x1: 0.0625, y1: 0, z1: 0.0625, x2: 0.9375, y2: 0.25, z2: 0.9375 },
+	lightAbsorption: 1,
+	drops: []
+}

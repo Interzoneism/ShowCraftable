@@ -1,0 +1,126 @@
+{
+	components: [
+		{
+			code: "testhasmet",
+			owner: "kat",
+			type: "condition",
+			variable: "player.hasmetkat",
+			isNotValue: "true",
+			thenJumpTo: "firstmeet",
+			elseJumpTo: "welcomeback"
+		},
+		{
+			code: "firstmeet",
+			owner: "kat",
+			type: "talk",
+			setVariables: { "player.hasmetkat": "true" },
+			text: [
+				{ value: "dialogue-kat-wellmet", conditions: [{ variable: "player.characterclass", isNotValue: "blackguard" }, { variable: "player.characterclass", isNotValue: "malefactor" }] },
+				{ value: "dialogue-kat-traveler" , condition: { variable: "player.characterclass", isValue: "blackguard" } },
+				{ value: "dialogue-kat-friendlyadvice" , condition: { variable: "player.characterclass", isValue: "malefactor" } }
+			],
+		},
+		{
+			code: "whyhere",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-kat-justpassingthrough", jumpTo: "passing" },
+				{ value: "dialogue-kat-lookingtostay", jumpTo: "staying" }
+			],
+		},
+		{
+			code: "main",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-name", jumpTo: "name" },
+				{ value: "dialogue-profession", jumpTo: "profession" },
+				{ value: "dialogue-location", jumpTo: "location" },
+				{ value: "dialogue-kat-ineedsupplies", jumpTo: "selling" },
+				{ value: "dialogue-kat-letter", jumpTo: "letter", condition: { variable: "player.inventory", isValue: "{type: 'item', code: 'letter-faded', stacksize: 1}" } }
+			],
+		},
+		{
+			code: "welcomeback",
+			owner: "kat",
+			type: "talk",
+			text: [
+				{ value: "dialogue-kat-ourvillage" }
+			],
+			jumpTo: "main"
+		},
+		{
+			code: "passing",
+			owner: "kat",
+			type: "talk",
+			text: [
+				{ value: "dialogue-kat-fineenough"	}
+			],
+			jumpTo: "main"
+		},
+		{
+			code: "staying",
+			owner: "kat",
+			type: "talk",
+			text: [
+				{ value: "dialogue-kat-findaroom"	}
+			],
+			jumpTo: "main"
+		},
+		{
+			code: "name",
+			owner: "kat",
+			type: "talk",
+			trigger: "revealname",
+			text: [
+				{ value: "dialogue-kat-kat"	}
+			],
+			jumpTo: "main"
+		},
+		{
+			code: "profession",
+			owner: "kat",
+			type: "talk",
+			setVariables: { "player.gaveprofessionkat": "true" },
+			text: [
+				{ value: "dialogue-kat-guard"	}
+			],
+			jumpTo: "main"
+		},
+		{
+			code: "location",
+			owner: "kat",
+			type: "talk",
+			text: [
+				{ value: "dialogue-kat-peaceful"	}
+			],
+			jumpTo: "main"
+		},
+		{
+			code: "letter",
+			owner: "kat",
+			type: "talk",
+			text: [
+				{ value: "dialogue-kat-meansnothingtome"	}
+			],
+			jumpTo: "main"
+		},
+		{
+			code: "selling",
+			owner: "kat",
+			type: "talk",
+			text: [
+				{ value: "dialogue-kat-agnieszka"	}
+			],
+		},
+		{
+			code: "mostpeople",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-kat-advice", jumpTo: "main"	},
+			],
+		},
+	]
+}

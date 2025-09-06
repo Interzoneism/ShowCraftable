@@ -1,0 +1,57 @@
+{
+	code: "acid-full",
+	class: "ItemLiquidPortion",
+	matterState: "liquid",
+	variantgroups: [
+		{ code:"type", states: ["sulfuric", "nitric", "hydrochloric"] }
+	],
+	allowedVariants: [
+		"acid-full-sulfuric"
+	],
+	attributes: {
+		handbook: {
+			ignoreCreativeInvStacks: true,
+			groupBy: ["acid-full-*"]
+		},
+		waterTightContainerProps: {
+			containable: true,
+			isopaque: true,
+			itemsPerLitre: 100,
+			textureByType: { 
+				"*-sulfuric": { base: "block/liquid/dye/yellow", alpha: 170 },
+				"*-nitric": { base: "block/liquid/dye/white", alpha: 120 },
+				"*-hydrochloric": { base: "block/liquid/dye/green", alpha: 120 }
+			},
+			isOpaqueByType: {
+				"*": false
+			},			
+			allowSpill: true,
+			whenSpilled: { 
+				action: "DropContents",
+				stack: { type: "item", code: "acid-full-{type}" } 
+			}
+		}
+	},
+	shape: { base: "item/liquid" },
+	textureByType: { 
+		"*-sulfuric": { base: "block/liquid/dye/yellow", alpha: 170 },
+		"*-nitric": { base: "block/liquid/dye/white", alpha: 120 },
+		"*-hydrochloric": { base: "block/liquid/dye/green", alpha: 120 }
+	},	
+	creativeinventoryStacks: [ { tabs: ["general", "liquids"], stacks: [ { type: "block", code: "woodbucket", attributes: { ucontents: [ { type:"item", code: "acid-full-{type}", makefull: true } ] } } ] } ],
+	maxstacksize: 5000,
+	materialDensity: 200,
+	guiTransform: {
+		translation: { x: 0, y: 1, z: 0 },
+		rotation: { x: 123, y: -33, z: -13 },
+		origin: { x: 0.5, y: 0, z: 0.5 },
+		scale: 1.4
+	},
+	fpHandTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: 25, y: 157, z: -5 }
+	},
+	tpHandTransform: {
+		translation: { x: -1.5, y: -1, z: -1.4 }
+	}
+}

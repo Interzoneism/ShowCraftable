@@ -1,0 +1,842 @@
+{
+    "money": {
+        "avg": 25,
+        "var": 5
+    },
+    "selling": {
+        "maxItems": 14,
+        "list": [
+            {
+                "code": "painting-bogfort-north",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 1,
+                    "var": 0.25
+                },
+                "price": {
+                    "avg": 8,
+                    "var": 2
+                }
+            },
+            {
+                "code": "painting-castleruin-north",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 1,
+                    "var": 0.25
+                },
+                "price": {
+                    "avg": 8,
+                    "var": 2
+                }
+            },
+            {
+                "code": "painting-cow-north",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 1,
+                    "var": 0.25
+                },
+                "price": {
+                    "avg": 9,
+                    "var": 2.25
+                }
+            },
+            {
+                "code": "painting-hunterintheforest-north",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 1,
+                    "var": 0.25
+                },
+                "price": {
+                    "avg": 9,
+                    "var": 2.25
+                }
+            },
+            {
+                "code": "painting-seraph-north",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 1,
+                    "var": 0.25
+                },
+                "price": {
+                    "avg": 10,
+                    "var": 2.5
+                }
+            },
+            {
+                "code": "painting-sunkenruin-north",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 1,
+                    "var": 0.25
+                },
+                "price": {
+                    "avg": 9,
+                    "var": 2.25
+                }
+            },
+            {
+                "code": "painting-traveler-north",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 1,
+                    "var": 0.25
+                },
+                "price": {
+                    "avg": 10,
+                    "var": 2.5
+                }
+            },
+            {
+                "code": "ironfence-base-ew",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 32,
+                    "var": 8
+                },
+                "price": {
+                    "avg": 2,
+                    "var": 0.5
+                }
+            },
+            {
+                "code": "ironfence-top-ew",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 32,
+                    "var": 8
+                },
+                "price": {
+                    "avg": 2,
+                    "var": 0.5
+                }
+            },
+            {
+                "code": "lantern-up",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 4,
+                    "var": 1
+                },
+                "price": {
+                    "avg": 6,
+                    "var": 1.5
+                },
+                "attributes": {
+                    "material": "copper",
+                    "lining": "plain"
+                }
+            },
+            {
+                "code": "lantern-up",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 4,
+                    "var": 1
+                },
+                "price": {
+                    "avg": 8,
+                    "var": 2
+                },
+                "attributes": {
+                    "material": "brass",
+                    "lining": "plain"
+                }
+            },
+            {
+                "code": "lantern-up",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 4,
+                    "var": 1
+                },
+                "price": {
+                    "avg": 9,
+                    "var": 2.25
+                },
+                "attributes": {
+                    "material": "tinbronze",
+                    "lining": "plain"
+                }
+            },
+            {
+                "code": "lantern-up",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 4,
+                    "var": 1
+                },
+                "price": {
+                    "avg": 9,
+                    "var": 2.25
+                },
+                "attributes": {
+                    "material": "bismuthbronze",
+                    "lining": "plain"
+                }
+            },
+            {
+                "code": "lantern-up",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 4,
+                    "var": 1
+                },
+                "price": {
+                    "avg": 9,
+                    "var": 2.25
+                },
+                "attributes": {
+                    "material": "blackbronze",
+                    "lining": "plain"
+                }
+            },
+            {
+                "code": "bookshelf",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 8,
+                    "var": 2
+                },
+                "price": {
+                    "avg": 8,
+                    "var": 2
+                },
+                "attributes": {
+                    "type": "2row1col",
+                    "material": "larch"
+                }
+            },
+            {
+                "code": "bed-wood-head-north",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 1,
+                    "var": 0.25
+                },
+                "price": {
+                    "avg": 8,
+                    "var": 2
+                }
+            },
+            {
+                "code": "chair-plain",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 4,
+                    "var": 1
+                },
+                "price": {
+                    "avg": 2,
+                    "var": 0.5
+                }
+            },
+            {
+                "code": "table-normal",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 2,
+                    "var": 0.5
+                },
+                "price": {
+                    "avg": 2,
+                    "var": 0.5
+                }
+            },
+            {
+                "code": "ladder-wood-north",
+                "type": "block",
+                "stacksize": 16,
+                "stock": {
+                    "avg": 4,
+                    "var": 1
+                },
+                "price": {
+                    "avg": 2,
+                    "var": 0.5
+                }
+            },
+            {
+                "code": "shelf-normal-east",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 6,
+                    "var": 1.5
+                },
+                "price": {
+                    "avg": 2,
+                    "var": 0.5
+                }
+            },
+            {
+                "code": "chest-east",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 16,
+                    "var": 4
+                },
+                "price": {
+                    "avg": 2,
+                    "var": 0.5
+                },
+                "attributes": {
+                    "type": "normal-generic"
+                }
+            },
+            {
+                "code": "barrel",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 8,
+                    "var": 2
+                },
+                "price": {
+                    "avg": 2,
+                    "var": 0.5
+                }
+            },
+            {
+                "code": "crate",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 8,
+                    "var": 2
+                },
+                "price": {
+                    "avg": 2,
+                    "var": 0.5
+                },
+                "attributes": {
+                    "type": "wood-aged"
+                }
+            },
+            {
+                "code": "torchholder-brass-empty-north",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 2,
+                    "var": 0.5
+                },
+                "price": {
+                    "avg": 12,
+                    "var": 3
+                }
+            },
+            {
+                "code": "irondoor-north-down-closed-left",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 1,
+                    "var": 0.25
+                },
+                "price": {
+                    "avg": 20,
+                    "var": 5
+                }
+            },
+            {
+                "code": "door-sleek-windowed-birch",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 2,
+                    "var": 0.5
+                },
+                "price": {
+                    "avg": 8,
+                    "var": 2
+                }
+            },
+            {
+                "code": "door-sleek-windowed-oak",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 2,
+                    "var": 0.5
+                },
+                "price": {
+                    "avg": 8,
+                    "var": 2
+                }
+            },
+            {
+                "code": "door-sleek-windowed-maple",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 2,
+                    "var": 0.5
+                },
+                "price": {
+                    "avg": 8,
+                    "var": 2
+                }
+            },
+            {
+                "code": "door-sleek-windowed-pine",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 2,
+                    "var": 0.5
+                },
+                "price": {
+                    "avg": 8,
+                    "var": 2
+                }
+            },
+            {
+                "code": "door-sleek-windowed-acacia",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 2,
+                    "var": 0.5
+                },
+                "price": {
+                    "avg": 9,
+                    "var": 2.25
+                }
+            },
+            {
+                "code": "door-sleek-windowed-kapok",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 2,
+                    "var": 0.5
+                },
+                "price": {
+                    "avg": 9,
+                    "var": 2.25
+                }
+            },
+            {
+                "code": "door-sleek-windowed-baldcypress",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 2,
+                    "var": 0.5
+                },
+                "price": {
+                    "avg": 9,
+                    "var": 2.25
+                }
+            },
+            {
+                "code": "door-sleek-windowed-larch",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 2,
+                    "var": 0.5
+                },
+                "price": {
+                    "avg": 9,
+                    "var": 2.25
+                }
+            },
+            {
+                "code": "door-sleek-windowed-redwood",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 2,
+                    "var": 0.5
+                },
+                "price": {
+                    "avg": 10,
+                    "var": 2.5
+                }
+            },
+            {
+                "code": "door-sleek-windowed-ebony",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 2,
+                    "var": 0.5
+                },
+                "price": {
+                    "avg": 11,
+                    "var": 2.75
+                }
+            },
+            {
+                "code": "door-sleek-windowed-walnut",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 2,
+                    "var": 0.5
+                },
+                "price": {
+                    "avg": 9,
+                    "var": 2.25
+                }
+            },
+            {
+                "code": "door-sleek-windowed-purpleheart",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 2,
+                    "var": 0.5
+                },
+                "price": {
+                    "avg": 11,
+                    "var": 2.75
+                }
+            },
+            {
+                "code": "clay-fire",
+                "type": "item",
+                "stacksize": 16,
+                "stock": {
+                    "avg": 5,
+                    "var": 1.25
+                },
+                "price": {
+                    "avg": 2,
+                    "var": 0.5
+                }
+            }
+        ]
+    },
+    "buying": {
+        "maxItems": 14,
+        "list": [
+            {
+                "code": "glass-green",
+                "type": "block",
+                "stacksize": 4,
+                "stock": {
+                    "avg": 5,
+                    "var": 1.25
+                },
+                "price": {
+                    "avg": 1,
+                    "var": 0.25
+                }
+            },
+            {
+                "code": "glass-blue",
+                "type": "block",
+                "stacksize": 3,
+                "stock": {
+                    "avg": 5,
+                    "var": 1.25
+                },
+                "price": {
+                    "avg": 1,
+                    "var": 0.25
+                }
+            },
+            {
+                "code": "glass-violet",
+                "type": "block",
+                "stacksize": 3,
+                "stock": {
+                    "avg": 5,
+                    "var": 1.25
+                },
+                "price": {
+                    "avg": 1,
+                    "var": 0.25
+                }
+            },
+            {
+                "code": "glass-red",
+                "type": "block",
+                "stacksize": 3,
+                "stock": {
+                    "avg": 5,
+                    "var": 1.25
+                },
+                "price": {
+                    "avg": 1,
+                    "var": 0.25
+                }
+            },
+            {
+                "code": "glass-yellow",
+                "type": "block",
+                "stacksize": 3,
+                "stock": {
+                    "avg": 5,
+                    "var": 1.25
+                },
+                "price": {
+                    "avg": 1,
+                    "var": 0.25
+                }
+            },
+            {
+                "code": "glass-brown",
+                "type": "block",
+                "stacksize": 3,
+                "stock": {
+                    "avg": 5,
+                    "var": 1.25
+                },
+                "price": {
+                    "avg": 1,
+                    "var": 0.25
+                }
+            },
+            {
+                "code": "glass-plain",
+                "type": "block",
+                "stacksize": 8,
+                "stock": {
+                    "avg": 5,
+                    "var": 1.25
+                },
+                "price": {
+                    "avg": 1,
+                    "var": 0.25
+                }
+            },
+            {
+                "code": "chandelier-candle0",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 1,
+                    "var": 0.25
+                },
+                "price": {
+                    "avg": 10,
+                    "var": 2.5
+                }
+            },
+            {
+                "code": "smallcarpet-blue",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 1,
+                    "var": 0.25
+                },
+                "price": {
+                    "avg": 10,
+                    "var": 2.5
+                }
+            },
+            {
+                "code": "smallcarpet-brown",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 1,
+                    "var": 0.25
+                },
+                "price": {
+                    "avg": 8,
+                    "var": 2
+                }
+            },
+            {
+                "code": "smallcarpet-red",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 1,
+                    "var": 0.25
+                },
+                "price": {
+                    "avg": 10,
+                    "var": 2.5
+                }
+            },
+            {
+                "code": "smallcarpet-turqoise",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 1,
+                    "var": 0.25
+                },
+                "price": {
+                    "avg": 8,
+                    "var": 2
+                }
+            },
+            {
+                "code": "chest-east",
+                "type": "block",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 1,
+                    "var": 0.25
+                },
+                "price": {
+                    "avg": 10,
+                    "var": 2.5
+                },
+                "attributes": {
+                    "type": "golden"
+                }
+            },
+            {
+                "code": "clothes-shoulder-artisans-scarf",
+                "type": "item",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 1,
+                    "var": 0.25
+                },
+                "price": {
+                    "avg": 1,
+                    "var": 0.25
+                }
+            },
+            {
+                "code": "clothes-lowerbody-workmans-gown",
+                "type": "item",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 1,
+                    "var": 0.25
+                },
+                "price": {
+                    "avg": 1,
+                    "var": 0.25
+                }
+            },
+            {
+                "code": "clothes-waist-heavy-tool-belt",
+                "type": "item",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 1,
+                    "var": 0.25
+                },
+                "price": {
+                    "avg": 4,
+                    "var": 1
+                }
+            },
+            {
+                "code": "linen-normal-down",
+                "type": "block",
+                "stacksize": 2,
+                "stock": {
+                    "avg": 5,
+                    "var": 1.25
+                },
+                "price": {
+                    "avg": 1,
+                    "var": 0.25
+                }
+            },
+            {
+                "code": "clothes-shoulder-embroidered-tartarean-scarf",
+                "type": "item",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 1,
+                    "var": 0.25
+                },
+                "price": {
+                    "avg": 12,
+                    "var": 3
+                }
+            },
+            {
+                "code": "clothes-shoulder-mooncloth-robe",
+                "type": "item",
+                "stacksize": 1,
+                "stock": {
+                    "avg": 1,
+                    "var": 0.25
+                },
+                "price": {
+                    "avg": 11,
+                    "var": 2.75
+                }
+            },
+            {
+                "code": "metalnailsandstrips-copper",
+                "type": "item",
+                "stacksize": 2,
+                "stock": {
+                    "avg": 2,
+                    "var": 0.5
+                },
+                "price": {
+                    "avg": 1,
+                    "var": 0.25
+                }
+            },
+            {
+                "code": "metalnailsandstrips-tinbronze",
+                "type": "item",
+                "stacksize": 2,
+                "stock": {
+                    "avg": 2,
+                    "var": 0.5
+                },
+                "price": {
+                    "avg": 2,
+                    "var": 0.5
+                }
+            },
+            {
+                "code": "metalnailsandstrips-bismuthbronze",
+                "type": "item",
+                "stacksize": 2,
+                "stock": {
+                    "avg": 2,
+                    "var": 0.5
+                },
+                "price": {
+                    "avg": 2,
+                    "var": 0.5
+                }
+            },
+            {
+                "code": "metalnailsandstrips-blackbronze",
+                "type": "item",
+                "stacksize": 2,
+                "stock": {
+                    "avg": 2,
+                    "var": 0.5
+                },
+                "price": {
+                    "avg": 2,
+                    "var": 0.5
+                }
+            }
+        ]
+    }
+}

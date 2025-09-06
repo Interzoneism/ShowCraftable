@@ -1,0 +1,115 @@
+{
+	"editor": {
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+		"metal": "block/metal/tarnished/blackbronze"
+	},
+	"elements": [
+		{
+			"name": "origin",
+			"from": [ 8.0, 0.0, 8.0 ],
+			"to": [ 8.0, 0.0, 8.0 ],
+			"rotationOrigin": [ 8.0, 0.0, 8.0 ],
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "shaft",
+					"from": [ 2.0, -0.5, 4.0 ],
+					"to": [ 4.0, 15.5, 6.0 ],
+					"rotationOrigin": [ 3.0, -0.5, 5.0 ],
+					"rotationX": -45.0,
+					"rotationZ": 22.5,
+					"faces": {
+						"north": { "texture": "#metal", "uv": [ 12.0, 0.0, 14.0, 16.0 ] },
+						"east": { "texture": "#metal", "uv": [ 2.5, 0.0, 4.5, 16.0 ] },
+						"south": { "texture": "#metal", "uv": [ 6.5, 0.0, 8.5, 16.0 ] },
+						"west": { "texture": "#metal", "uv": [ 1.0, 0.0, 3.0, 16.0 ] },
+						"up": { "texture": "#metal", "uv": [ 11.0, 11.0, 13.0, 13.0 ] },
+						"down": { "texture": "#metal", "uv": [ 13.5, 6.0, 15.5, 8.0 ] }
+					},
+					"children": [
+						{
+							"name": "shaftE",
+							"from": [ 1.0, 0.0, 0.5 ],
+							"to": [ 9.0, 1.0, 1.5 ],
+							"rotationOrigin": [ 1.0, 0.5, 1.0 ],
+							"rotationZ": 22.5,
+							"faces": {
+								"north": { "texture": "#metal", "uv": [ 3.0, 1.0, 11.0, 2.0 ] },
+								"south": { "texture": "#metal", "uv": [ 4.0, 11.5, 12.0, 12.5 ] },
+								"up": { "texture": "#metal", "uv": [ 3.5, 5.0, 11.5, 6.0 ] },
+								"down": { "texture": "#metal", "uv": [ 6.0, 8.5, 14.0, 9.5 ] }
+							},
+							"children": [
+								{
+									"name": "paddleE",
+									"from": [ 8.0, 0.0, -1.0 ],
+									"to": [ 12.0, 1.0, 2.0 ],
+									"rotationOrigin": [ 8.0, 0.0, 0.5 ],
+									"rotationZ": 22.5,
+									"faces": {
+										"north": { "texture": "#metal", "uv": [ 9.5, 5.5, 13.5, 6.5 ] },
+										"east": { "texture": "#metal", "uv": [ 6.0, 1.5, 9.0, 2.5 ] },
+										"south": { "texture": "#metal", "uv": [ 10.5, 8.0, 14.5, 9.0 ] },
+										"west": { "texture": "#metal", "uv": [ 3.0, 3.5, 6.0, 4.5 ] },
+										"up": { "texture": "#metal", "uv": [ 11.5, 12.0, 15.5, 15.0 ] },
+										"down": { "texture": "#metal", "uv": [ 3.5, 4.0, 7.5, 7.0 ] }
+									}
+								}
+							]
+						},
+						{
+							"name": "shaftW",
+							"from": [ -7.0, 0.0, 0.5 ],
+							"to": [ 1.0, 1.0, 1.5 ],
+							"rotationOrigin": [ 1.0, 0.5, 1.0 ],
+							"rotationZ": -22.5,
+							"faces": {
+								"north": { "texture": "#metal", "uv": [ 4.5, 12.0, 12.5, 13.0 ] },
+								"south": { "texture": "#metal", "uv": [ 0.5, 12.0, 8.5, 13.0 ] },
+								"up": { "texture": "#metal", "uv": [ 6.0, 12.5, 14.0, 13.5 ] },
+								"down": { "texture": "#metal", "uv": [ 0.0, 12.0, 8.0, 13.0 ] }
+							},
+							"children": [
+								{
+									"name": "paddleW",
+									"from": [ -4.0, 0.0, -1.0 ],
+									"to": [ 0.0, 1.0, 2.0 ],
+									"rotationOrigin": [ 0.0, 0.0, 0.5 ],
+									"rotationZ": -22.5,
+									"faces": {
+										"north": { "texture": "#metal", "uv": [ 8.5, 5.0, 12.5, 6.0 ] },
+										"east": { "texture": "#metal", "uv": [ 11.5, 1.0, 14.5, 2.0 ] },
+										"south": { "texture": "#metal", "uv": [ 2.5, 8.0, 6.5, 9.0 ] },
+										"west": { "texture": "#metal", "uv": [ 8.0, 2.0, 11.0, 3.0 ] },
+										"up": { "texture": "#metal", "uv": [ 6.5, 5.0, 10.5, 8.0 ] },
+										"down": { "texture": "#metal", "uv": [ 10.5, 9.0, 14.5, 12.0 ] }
+									}
+								}
+							]
+						},
+						{
+							"name": "shaft2",
+							"from": [ 0.5, 16.0, 0.5 ],
+							"to": [ 1.5, 24.0, 1.5 ],
+							"rotationOrigin": [ 1.0, 16.0, 1.0 ],
+							"faces": {
+								"north": { "texture": "#metal", "uv": [ 0.0, 7.0, 1.0, 15.0 ] },
+								"east": { "texture": "#metal", "uv": [ 0.0, 7.5, 1.0, 15.5 ] },
+								"south": { "texture": "#metal", "uv": [ 12.5, 4.0, 13.5, 12.0 ] },
+								"west": { "texture": "#metal", "uv": [ 4.5, 3.5, 5.5, 11.5 ] },
+								"up": { "texture": "#metal", "uv": [ 4.5, 0.0, 5.5, 1.0 ] }
+							}
+						}
+					]
+				}
+			]
+		}
+	]}

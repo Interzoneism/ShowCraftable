@@ -1,0 +1,12 @@
+{
+	ingredient: { type: "item", code: "ingot-*", name: "metal", allowedVariants: ["copper", "tinbronze", "bismuthbronze", "blackbronze", "gold", "silver", "iron", "meteoriciron", "steel", "cupronickel", "electrum"] },
+	pattern: [[
+		"##########",
+		"##########",
+	],[
+		"##########",
+		"##########",
+	]],
+	name: "rod",
+	output: { type: "item", code: "rod-{metal}"   }
+}

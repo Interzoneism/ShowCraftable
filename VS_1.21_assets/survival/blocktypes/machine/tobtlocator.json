@@ -1,0 +1,57 @@
+{
+	code: "tobtlocator",
+	class: "BlockTobiasTeleporter",
+	entityClass:  "TobiasTeleporter",
+	behaviors: [{name: "HorizontalOrientable"}],
+	entityBehaviors:  [{ name: "Animatable" }],
+	variantgroups: [
+		{ code:"side", loadFromProperties: "abstract/horizontalorientation" }
+	],
+	creativeinventory: { "general": ["*-north"], "decorative": ["*-north"] },
+	shapebytype: {
+		"*-north": { base: "block/machine/statictranslocator/tlocator2", rotateY: 0 },
+		"*-east": { base: "block/machine/statictranslocator/tlocator2", rotateY: 270 },
+		"*-south": { base: "block/machine/statictranslocator/tlocator2", rotateY: 180 },
+		"*-west": { base: "block/machine/statictranslocator/tlocator2", rotateY: 90 }
+	},
+	blockmaterial: "Metal",
+	replaceable: 800,
+	resistance: 4,
+	lightAbsorption: 0,
+	sidesolid: {
+		all: false
+	},
+	sideopaque: {
+		all: false
+	},
+	collisionbox: {
+		x1: 0, y1: 0, z1: 0, x2: 1, y2: 1, z2: 1
+	},
+	selectionbox: {
+		x1: 0, y1: 0, z1: 0, x2: 1, y2: 1, z2: 1
+	},
+	heldTpIdleAnimation: "holdbothhandslarge", heldRightReadyAnimation: "heldblockready", heldTpUseAnimation: "twohandplaceblock",
+	sounds: {
+		"place": "block/chute",
+		"hit": "block/chute",
+		"break": "block/chute",
+		"walk": "walk/glass1"
+	},
+	materialDensity: 600,
+	guiTransform: {
+		rotation: { x: -22.6, y: -95, z: 0 },
+		origin: { x: 0.5, y: 1.5, z: 0.5 },
+		scale: 0.5
+	},
+	tpHandTransform: {
+		translation: { x: -0.5, y: -1.2, z: -0.6 },
+		rotation: { x: 57, y: -31, z: -96 },
+		scale: 0.43
+	},
+	groundTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: 0, y: -45, z: 0 },
+		origin: { x: 0.5, y: 0, z: 0.5 },
+		scale: 3.97
+	}
+}

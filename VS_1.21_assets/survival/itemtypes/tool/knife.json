@@ -1,0 +1,384 @@
+{
+	code: "knife",
+	// ItemKnife contains code for harvesting animal carcasses
+	class: "ItemKnife",
+	tags: ["weapon", "weapon-melee"],
+	damagedby: ["blockbreaking", "attacking"],
+	tool: "knife",
+	attributes: {
+		heldItemPitchFollow: 1,
+		knifeHitBlockAnimation: "knifecut",
+		knifeHitEntityAnimation: "knifestab",
+		handbook: {
+			groupBy: ["knife-*"]
+		},
+		toolrackTransformByType: {
+			"knife-dagger-ruined": {
+				translation: { x: 0, y: 0.6, z: -0.1 },
+				rotation: { x: 122, y: 180, z: 3 },
+				origin: { x: 0.5, y: 0, z: 0.5 },
+				scale: 1.44
+			},
+			"knife-stiletto-ruined": {
+				translation: { x: 0.17, y: 0.6, z: -0.1 },
+				rotation: { x: 0, y: 180, z: 0 },
+				origin: { x: 0.5, y: 0, z: 0.5 },
+				scale: 1.8
+			},
+			"knife-khanjar-ruined": {
+				translation: { x: 0.1, y: 0.6, z: -0.1 },
+				rotation: { x: 97, y: 180, z: 3 },
+				origin: { x: 0.5, y: 0, z: 0.5 },
+				scale: 1.8
+			},
+			"knife-baselard-ruined": {
+				translation: { x: 0.1, y: 0.6, z: -0.1 },
+				rotation: { x: 69, y: 180, z: 0 },
+				origin: { x: 0.5, y: 0, z: 0.5 },
+				scale: 1.72
+			},
+			"*": {
+				translation: { x: -0.3, y: 0.6, z: -0.1 },
+				rotation: { x: 97, y: 180, z: 3 },
+				origin: { x: 0.5, y: 0, z: 0.5 },
+				scale: 1.8
+			}
+		},
+		groundStorageTransformByType: {
+			"@knife-generic-(copper|tinbronze|bismuthbronze|blackbronze|gold|silver|iron|meteoriciron|steel)": {
+				translation: { x: 0, y: 0.01, z: -0.074 },
+				rotation: { x: 26, y: 88, z: -87 },
+				scale: 1
+			},
+			"knife-khanjar-ruined": {
+				translation: { x: 0, y: 0.065, z: -0.145 },
+				rotation: { x: 26, y: 88, z: -97 },
+				scale: 1
+			},
+			"knife-baselard-ruined": {
+				translation: { x: 0, y: 0.3, z: -0.09 },
+				rotation: { x: 26, y: 90, z: -87 },
+				scale: 1
+			},
+			"knife-stiletto-ruined": {
+				translation: { x: 0, y: 0.17, z: -0.11 },
+				rotation: { x: 26, y: 88, z: -87 },
+				scale: 1
+			},
+			"knife-dagger-ruined": {
+				translation: { x: 0, y: 0.18, z: -0.147 },
+				rotation: { x: 26, y: 88, z: -101 },
+				scale: 1
+			},
+			"*": {
+				translation: { x: 0, y: 0.04, z: -0.104 },
+				rotation: { x: 26, y: 88, z: -87 },
+				scale: 1
+			}
+		}
+	},
+	behaviors: [{ 
+		name: "GroundStorable",
+		properties: {
+			layout: 'WallHalves',
+			wallOffY: 1,
+			ctrlKey: true,
+			selectionBox: { x1: 0, y1: 0, z1: 0, x2: 1, y2: 0.1, z2: 1 },
+			collisionBox: { x1: 0, y1: 0, z1: 0, x2: 0, y2: 0, z2: 0 },
+		},
+	}, { name: "AnimationAuthoritative" }],
+	variantgroups: [
+		{ code: "type", states: ["generic", "dagger", "stiletto", "khanjar", "baselard"] },
+		{ code: "material", states: ["chert", "granite", "andesite", "basalt", "obsidian", "peridotite", "flint", "copper", 
+																 "tinbronze", "bismuthbronze", "blackbronze", "gold", "silver", "iron", "meteoriciron", 
+																 "steel", "bonechert", "bonegranite", "boneandesite", "bonebasalt", "boneobsidian", 
+																 "boneperidotite", "boneflint", "ruined"
+		  ] },
+	],
+	skipVariants: [
+		"knife-generic-ruined"
+	],
+	allowedVariants: [
+		"knife-generic-*",
+		"knife-dagger-ruined",
+		"knife-stiletto-ruined",
+		"knife-khanjar-ruined",
+		"knife-baselard-ruined"
+	],
+	shapeByType: {
+		"knife-generic-chert": { base: "item/tool/knife/stone" },
+		"knife-generic-granite": { base: "item/tool/knife/stone" },
+		"knife-generic-andesite": { base: "item/tool/knife/stone" },
+		"knife-generic-basalt": { base: "item/tool/knife/stone" },
+		"knife-generic-obsidian": { base: "item/tool/knife/stone" },
+		"knife-generic-flint": { base: "item/tool/knife/stone" },
+		"knife-generic-peridotite": { base: "item/tool/knife/stone" },
+		"knife-generic-bone*": { base: "item/tool/knife/stone" },
+		"*-ruined": { base: "item/tool/knife/ruined/{type}" },
+		"*": { base: "item/tool/knife/copper" }
+	},
+	heldTpHitAnimation: "knifestab",
+	texturesByType: {
+		"knife-generic-chert": {
+			"material": { base: "block/stone/rock/{material}1" },
+		},
+		"knife-generic-granite": {
+			"material": { base: "block/stone/rock/{material}1" },
+		},
+		"knife-generic-andesite": {
+			"material": { base: "block/stone/rock/{material}1" },
+		},
+		"knife-generic-basalt": {
+			"material": { base: "block/stone/rock/{material}1" },
+		},
+		"knife-generic-obsidian": {
+			"material": { base: "block/stone/rock/{material}1" },
+		},
+		"knife-generic-peridotite": {
+			"material": { base: "block/stone/rock/{material}1" },
+		},
+		"knife-generic-flint": {
+			"material": { base: "block/stone/{material}" },
+		},
+		"knife-generic-bonechert": {
+			"material": { base: "block/stone/rock/chert1" },
+			"handle": { base: "block/creature/bone-yellow" }
+		},
+		"knife-generic-bonegranite": {
+			"material": { base: "block/stone/rock/granite1" },
+			"handle": { base: "block/creature/bone-yellow" }
+		},
+		"knife-generic-boneandesite": {
+			"material": { base: "block/stone/rock/andesite1" },
+			"handle": { base: "block/creature/bone-yellow" }
+		},
+		"knife-generic-bonebasalt": {
+			"material": { base: "block/stone/rock/basalt1" },
+			"handle": { base: "block/creature/bone-yellow" }
+		},
+		"knife-generic-boneobsidian": {
+			"material": { base: "block/stone/rock/obsidian1" },
+			"handle": { base: "block/creature/bone-yellow" }
+		},
+		"knife-generic-boneperidotite": {
+			"material": { base: "block/stone/rock/peridotite1" },
+			"handle": { base: "block/creature/bone-yellow" }
+		},
+		"knife-generic-boneflint": {
+			"material": { base: "block/stone/flint" },
+			"handle": { base: "block/creature/bone-yellow" }
+		},
+		"knife-generic-*": {
+			"material": { base: "block/metal/ingot/{material}" }
+		},
+	},
+	durabilitybytype: {
+		"*-ruined": 15,
+		"knife-generic-chert": 90,
+		"knife-generic-granite": 90,
+		"knife-generic-andesite": 90,
+		"knife-generic-basalt": 90,
+		"knife-generic-peridotite": 90,
+		"knife-generic-flint": 130,
+		"knife-generic-obsidian": 160,
+		
+		"knife-generic-gold": 150,
+		"knife-generic-silver": 175,
+		"knife-generic-copper": 300,
+		"knife-generic-tinbronze": 450,
+		"knife-generic-bismuthbronze": 500,
+		"knife-generic-blackbronze": 550,
+		"knife-generic-iron": 900,
+		"knife-generic-meteoriciron": 1200,
+		"knife-generic-steel": 2250,
+
+		"knife-generic-bonechert": 110,
+		"knife-generic-bonegranite": 110,
+		"knife-generic-boneandesite": 110,
+		"knife-generic-bonebasalt": 110,
+		"knife-generic-boneperidotite": 110,
+		"knife-generic-boneflint": 150,
+		"knife-generic-boneobsidian": 180
+	},
+	miningspeedbytype: {
+		"*-ruined": {
+			"plant": 2,
+		},
+		"knife-generic-chert": {
+			"plant": 1,
+		},
+		"knife-generic-granite": {
+			"plant": 1,
+		},
+		"knife-generic-peridotite": {
+			"plant": 1,
+		},
+		"knife-generic-andesite": {
+			"plant": 1,
+		},
+		"knife-generic-basalt": {
+			"plant": 1.1,
+		},
+		"knife-generic-obsidian": {
+			"plant": 1.4,
+		},
+		"knife-generic-flint": {
+			"plant": 1.2,
+		},
+		"knife-generic-copper": {
+			"plant": 1.5,
+		},
+		"knife-generic-silver": {
+			"plant": 1.6,
+		},
+		"knife-generic-gold": {
+			"plant": 1.6,
+		},
+		"knife-generic-bismuthbronze": {
+			"plant": 1.7,
+		},
+		"knife-generic-tinbronze": {
+			"plant": 1.8,
+		},
+		"knife-generic-blackbronze": {
+			"plant": 1.9,
+		},
+		"knife-generic-iron": {
+			"plant": 2
+		},
+		"knife-generic-meteoriciron": {
+			"plant": 2.2
+		},
+		"knife-generic-steel": {
+			"plant": 2.4,
+		},
+		"knife-generic-bonechert": {
+			"plant": 1,
+		},
+		"knife-generic-bonegranite": {
+			"plant": 1,
+		},
+		"knife-generic-boneperidotite": {
+			"plant": 1,
+		},
+		"knife-generic-boneandesite": {
+			"plant": 1,
+		},
+		"knife-generic-bonebasalt": {
+			"plant": 1.1,
+		},
+		"knife-generic-boneobsidian": {
+			"plant": 1.5,
+		},
+		"knife-generic-boneflint": {
+			"plant": 1.3,
+		}
+	},
+	attackpowerbytype: {
+		"*-ruined": 3.5,
+		"knife-generic-chert": 0.75,
+		"knife-generic-granite": 0.75,
+		"knife-generic-peridotite": 0.75,
+		"knife-generic-andesite": 0.75,
+		"knife-generic-basalt": 0.75,
+		"knife-generic-obsidian": 1.5,
+		
+		"knife-generic-flint": 1,
+		"knife-generic-copper": 1.5,
+		"knife-generic-bismuthbronze": 2,
+		"knife-generic-tinbronze": 2.5,
+		"knife-generic-gold": 2.5,
+		"knife-generic-silver": 2.5,
+		"knife-generic-blackbronze": 3,
+		"knife-generic-iron": 3.5,
+		"knife-generic-meteoriciron": 3.75,
+		"knife-generic-steel": 4,
+
+		"knife-generic-bonechert": 0.75,
+		"knife-generic-bonegranite": 0.75,
+		"knife-generic-boneperidotite": 0.75,
+		"knife-generic-boneandesite": 0.75,
+		"knife-generic-bonebasalt": 0.75,
+		"knife-generic-boneobsidian": 1.5,
+		"knife-generic-boneflint": 1
+	},
+	creativeinventory: { "general": ["*"], "items": ["*"], "tools": ["*"] },
+	fpHandTransformByType: {
+		"*-ruined": {
+			translation: { x: 0.2, y: 0, z: 0.5 },
+			rotation: { x: 140, y: 93, z: -75 },
+			scale: 2.5
+		},
+		"*": {
+			translation: { x: 0.2, y: 0.1, z: 0.5 },
+			rotation: { x: 140, y: 93, z: -75 },
+			scale: 2.5
+		}
+	},
+	guiTransformByType: {
+		"knife-dagger-ruined": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: -168, y: 0, z: 43 },
+			origin: { x: 0.48, y: 0.1, z: 0.5 },
+			scale: 1.84
+		},
+		"knife-stiletto-ruined": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: -161, y: 11, z: 56 },
+			origin: { x: 0.58, y: 0.1, z: 0.5 },
+			scale: 2.25
+		},
+		"knife-khanjar-ruined": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: -158, y: 0, z: 40 },
+			origin: { x: 0.75, y: 0.4, z: 1.24 },
+			scale: 1.8
+		},
+		"knife-baselard-ruined": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: -158, y: 0, z: 48 },
+			origin: { x: 0.78, y: 0.2, z: 0.9 },
+			scale: 2.09
+		},
+		"*": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: -158, y: 0, z: 48 },
+			origin: { x: 0.48, y: 0.1, z: 0.5 },
+			scale: 2.41
+		},
+	},
+	groundTransform: {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: -90, y: 0, z: 0 },
+			origin: { x: 0.5, y: 0.5, z: 0.45 },
+			scale: 3.6
+	},
+	tpHandTransformByType: {
+		"knife-dagger-ruined": {
+			translation: { x: -0.82, y: -0.04, z: -0.55 },
+			rotation: { x: 0, y: 0, z: -3 },
+			scale: 0.9
+		},
+		"knife-stiletto-ruined": {
+			translation: { x: -0.63, y: 0.01, z: -0.65 },
+			rotation: { x: -18, y: 0, z: -3 },
+			scale: 1
+		},
+		"knife-baselard-ruined": {
+			translation: { x: -0.66, y: -0.01, z: -0.66 },
+			rotation: { x: -19, y: 0, z: 0 },
+			scale: 1
+		},
+		"*-ruined": {
+			translation: { x: -0.7, y: 0.01, z: -0.49 },
+			rotation: { x: 0, y: 0, z: -3 },
+			scale: 1
+		},
+		"*": {
+			translation: { x: -0.84, y: -0.11, z: -0.48 },
+			rotation: { x: 0, y: 0, z: -15 },
+			scale: 1
+		}
+	}
+}

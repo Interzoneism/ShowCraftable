@@ -1,0 +1,227 @@
+{
+	code: "bellmini",
+	class: "EntityBell",
+	tags: ["mechanical", "habitat-land"],
+	variantgroups: [
+		{ code: "type", states: ["normal"]},
+	],
+	weight: 4,
+	canClimb: false,
+	hitboxSize: { x: 0.35, y: 0.35 },
+	selectionBoxSize: { x: 0.35, y: 0.35 },
+	deadCollision: { x: 0.35, y: 0.35 },
+	eyeHeight: 0.35,
+	attributes: {
+		onDeathStabilityRecovery: 0.15,
+		isMechanical: true
+	},
+	drops: [],
+	client: {
+		renderer: "Shape",
+		shape: { base: "entity/lore/bell/bellmini" },
+		size: 1.0,
+		behaviors: [
+			{ code: "repulseagents" }, 
+			{ code: "controlledphysics", stepHeight: 1.125 },
+			{ code: "floatupwhenstuck", onlyWhenDead: true },
+			{ code: "interpolateposition" }
+		],
+		animations: [
+			{
+				code: "hurt",
+				animation: "hurt", 
+				animationSpeed: 1.2,
+				weight: 10,
+				blendMode: "AddAverage" 
+			},
+			{
+				code: "die",
+				animation: "die", 
+				animationSpeed: 0.7,
+				weight: 10,
+				blendMode: "Average",
+				triggeredBy: { onControls: ["dead"] }
+			},
+			{
+				animation: "listen",
+				blendMode: "Average"
+			},
+			{
+				animation: "happy",
+				blendMode: "Average"
+			},
+			{
+				animation: "sleep",
+				blendMode: "Average"
+			},
+			{
+				animation: "run",
+				blendMode: "Average"
+			},
+			{
+				animation: "hide",
+				blendMode: "Average"
+			},
+			{
+				animation: "walk",
+				blendMode: "Average"
+			},			
+			{
+				code: "idle", 
+				animation: "idle",
+				blendMode: "Average", 
+				triggeredBy: { defaultAnim: true },
+			}
+		]
+	},
+	server: {
+		behaviors: [
+			{ code: "repulseagents" }, 
+			{ code: "controlledphysics", stepHeight: 1.1251 },
+			{ code: "reviveondeath", minHours: 24, maxHours: 72 },
+			{ code: "health", currenthealth: 10, maxhealth: 10 },
+			{ code: "floatupwhenstuck", onlyWhenDead: true },
+			{ code: "deaddecay", hoursToDecay: 24 },
+			{ code: "emotionstates",
+				states: [
+					{ code: "fleeondamage", duration: 10, chance: 1, slot: 0, priority: 1, accumType: "max" }
+				],
+			},
+			{
+				code: "taskai",
+				aitasks: [
+					{
+						code: "fleeentity",
+						entityCodes: ["player", "locust-bronze-hacked", "locust-corrupt-hacked"],
+						whenInEmotionState: "fleeondamage",
+						priority: 2,
+						movespeed: 0.03,
+						seekingRange: 15,
+						animation: "Flee",
+						animationSpeed: 2
+					},
+					{
+						code: "stayclosetoentity",
+						whenNotInEmotionState: "fleeondamage",
+						priority: 1.6,
+						entityCode: "villager-nadiya-male-inventor-tobias",
+						movespeed: 0.02,
+						animationSpeed: 3,
+						maxDistance: 7,
+						searchRange: 25,
+						animation: "Run"
+					},
+					{
+						code: "idle",
+						animation: "Sleep",
+						priority: 1.38,
+						minduration: 200000,
+						maxduration: 800000,
+						mincooldown: 10000,
+						maxcooldown: 30000,
+						priorityForCancel: 1.5,
+						whenNotInEmotionState: "fleeondamage",
+						duringDayTimeFrames: [ { fromHour: 20, toHour: 8 } ],
+						stopOnNearbyEntityCodes: ["player", "locust-bronze-hacked", "locust-corrupt-hacked"],
+						stopRange: 8,
+						stopOnHurt: true
+					},
+					{
+						code: "idle",
+						animation: "listen",
+						whenNotInEmotionState: "fleeondamage",
+						id: "listen",
+						priority: 1.4,
+						priorityForCancel: 1.35,
+						minduration: 4000,
+						maxduration: 6000,
+						chance: 0.5,
+						initialMinCoolDown: 2000,
+						initialMaxCoolDown: 10000,
+						mincooldown: 2000,
+						maxcooldown: 10000,
+						sound: "creature/bell/listen",
+						animationSpeed: 1
+					},
+					{
+						code: "idle",
+						animation: "idle",
+						whenNotInEmotionState: "fleeondamage",
+						id: "listen",
+						priority: 1.4,
+						priorityForCancel: 1.35,
+						minduration: 4000,
+						maxduration: 6000,
+						chance: 0.5,
+						initialMinCoolDown: 2000,
+						initialMaxCoolDown: 10000,
+						mincooldown: 2000,
+						maxcooldown: 10000,
+						sound: "creature/bell/listen",
+						animationSpeed: 1
+					},
+					{
+						code: "idle",
+						animation: "happy",
+						whenNotInEmotionState: "fleeondamage",
+						id: "happy",
+						priority: 1.4,
+						priorityForCancel: 1.35,
+						minduration: 4000,
+						maxduration: 6000,
+						chance: 0.5,
+						initialMinCoolDown: 2000,
+						initialMaxCoolDown: 10000,
+						mincooldown: 2000,
+						maxcooldown: 10000,
+						sound: "creature/bell/listen",
+						animationSpeed: 1
+					},
+					{
+						code: "getoutofwater",
+						animation: "walk",
+						priority: 1.4,
+						movespeed: 0.01,
+						animationSpeed: 1.6
+					},
+					{
+						code: "idle",
+						animation: "hide",
+						priority: 1.2,
+						priorityForCancel: 2,
+						chance: 0.01,
+						initialMinCoolDown: 2000,
+						initialMaxCoolDown: 15000,
+						minduration: 200000,
+						maxduration: 800000,
+						mincooldown: 5000,
+						maxcooldown: 20000,
+						animationSpeed: 0.75,
+						stopRange: 10,
+						stopOnHurt: true
+					},
+					{
+						code: "wander", 
+						animation: "walk",
+						whenNotInEmotionState: "fleeondamage",
+						priority: 1.0, 
+						movespeed: 0.0065,
+						animationSpeed: 1,
+						sound: "creature/bell/walk",
+						soundRepeatMs: 1333,
+						preferredLightLevel: 15
+					},
+					{ 
+						code: "lookaround", 
+						priority: 0.5
+					}
+				]
+			},
+			{ code: "entitystatetags" }
+		]
+	},
+	sounds: {
+		hurt: "creature/bell/hurt",
+		death: "creature/bell/death"
+	}
+}

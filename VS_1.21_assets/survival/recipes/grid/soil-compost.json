@@ -1,0 +1,27 @@
+[
+	{
+		ingredientPattern: "CBC	BSB	CBC",
+		ingredients: {
+			"C": { type: "item", code: "compost", quantity: 4 },
+			"S": { type: "item", code: "powder-charcoal", quantity: 8  },
+			"B": { type: "item", code: "bonemeal", quantity: 2  }
+		},
+		recipeGroup: 1,
+		width: 3,
+		height: 3,
+		output: { type: "block", code: "soil-high-none", quantity: 1  }
+	},
+	{
+		ingredientPattern: "CBC	KSK	CBC",
+		ingredients: {
+			"C": { type: "item", code: "compost", quantity: 4 },
+			"S": { type: "block", code: "soil-compost-none", quantity: 1  },
+			"K": { type: "item", code: "powder-charcoal", quantity: 4  },
+			"B": { type: "item", code: "bonemeal", quantity: 4  }
+		},
+		recipeGroup: 2,
+		width: 3,
+		height: 3,
+		output: { type: "block", code: "soil-high-none", quantity: 2  }
+	}
+]

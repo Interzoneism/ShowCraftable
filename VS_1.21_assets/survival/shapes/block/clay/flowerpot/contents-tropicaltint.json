@@ -1,0 +1,41 @@
+{
+	"editor": {
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+	},
+	"elements": [
+		{
+			"name": "FlowerNorth",
+			"from": [ 0.0, 0.0, 8.0 ],
+			"to": [ 16.0, 16.0, 8.0 ],
+			"shade": false,
+			"climateColorMap": "climatePlantTint",
+			"seasonColorMap": "tropicalKapok",
+			"renderPass": 2,
+			"rotationOrigin": [ 8.0, 2.0, 8.0 ],
+			"rotationY": -45.0,
+			"faces": {
+				"north": { "texture": "#north", "uv": [ 0.0, 0.0, 16.0, 16.0 ], "windMode": [0,1,1,0], "windData": [0,1,1,0] }
+			}
+		},
+		{
+			"name": "FlowerSouth",
+			"from": [ 0.0, 0.0, 8.0 ],
+			"to": [ 16.0, 16.0, 8.0 ],
+			"shade": false,
+			"climateColorMap": "climatePlantTint",
+			"seasonColorMap": "tropicalKapok",
+			"renderPass": 2,
+			"rotationOrigin": [ 8.0, 2.0, 8.0 ],
+			"rotationY": 45.0,
+			"faces": {
+				"north": { "texture": "#north", "uv": [ 0.0, 0.0, 16.0, 16.0 ], "windMode": [0,1,1,0], "windData": [0,1,1,0] }
+			}
+		}
+	]}

@@ -1,0 +1,66 @@
+{
+	code: "omokpiece",
+	maxstacksize: 128,
+	dimensions: { width: 0.0625, height: 0.0625, length: 0.0625 },
+	attributes: {
+		omokpiece: true,
+		displaycaseable: true,
+		shelvable: true,
+		handbook: {
+			groupBy: ["omokpiece-*"]
+		}
+	},
+	variantgroups: [
+		{ code: "material", states: ["lead", "gold", "copper"] },
+	],
+	textures: {
+		material: { base: "block/metal/plate/{material}" }
+	},
+	shape: { base: "item/omokpiece" },
+	creativeinventory: { "general": ["*"], "items": ["*"] },
+	combustiblePropsByType: {
+		"*-gold": {
+			meltingPoint: 1063,
+			meltingDuration: 30,
+			smeltedRatio: 20,
+			smeltedStack: { type: "item", code: "ingot-gold", }
+		},
+		"*-lead": {
+			meltingPoint: 327,
+			meltingDuration: 30,
+			smeltedRatio: 20,
+			smeltedStack: { type: "item", code: "ingot-lead" }
+		},
+		"*-copper": {
+			meltingPoint: 1084,
+			meltingDuration: 30,
+			smeltedRatio: 20,
+			smeltedStack: { type: "item", code: "ingot-copper" }
+		}
+	},
+	storageFlags: 5,
+	guiTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: -6, y: 46, z: 167 },
+		origin: { x: 0.04, y: 0.11, z: 0.05 },
+		scale: 6
+	},
+	fpHandTransform: {
+		translation: { x: 0, y: 0.2, z: 0 },
+		rotation: { x: 0, y: 24, z: 20 },
+		origin: { x: 0.5, y: 0.1, z: 0.5 },
+		scale: 2.68
+	},
+	groundTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: 0, y: 0, z: 0 },
+		origin: { x: 0.5, y: 0, z: 0.5 },
+		scale: 5
+	},
+	tpHandTransform: {
+		translation: { x: -0.8, y: -0.1, z: -0.7 },
+		rotation: { x: 5, y: 82, z: 16 },
+		origin: { x: 0.5, y: 0.1, z: 0.5 },
+		scale: 0.7
+	}
+}

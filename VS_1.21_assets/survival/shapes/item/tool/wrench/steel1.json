@@ -1,0 +1,132 @@
+{
+	"editor": {
+		"collapsedPaths": "Root/ORIGINARM/BeamBaseN2,Root/MASTERTEMPGEARMOVER/TEMPORALMOVERpin4/TGTOOTHMOVER1094,Root/BaseFlange3section/BaseHousing45d/BaseHousing4,Root/MASTERTEMPGEARMOVER/TEMPORALMOVERpin4/TempGearCenter1062,Root/BASEMOVER2/Base1501/STEP1MOVER1507/NcolumbBase1508,Root/ORIGINSPINE3/TopFin6,Root/ORIGINARM/ArmBottomOuter/ArmMidOuter/SpineMid,Root/BaseFlange3section/BaseHousing45d/Rusty1,Root/BaseFlange/BaseHousing45d,Root/FootPlate2/CubeDown2,Root/MEAUSREROD3,Root/MEAUSREROD5,Root/ORIGINtuningFork/PipeCenter/PipePostEBottom,Root/BaseFlange3section/BasePedestal,Root/ORIGINDishArray/IronArmLower,Root/FootPlate2,Root/BASEMOVER2/Base1501/STEP1MOVER1507,Root/ORIGINDishArray,Root/BaseFlange,Root/MASTERTEMPGEARMOVER/TEMPORALMOVERpin4/TGTOOTHMOVER1082,Root/FootPlate2/PipeCenter/PipePostEBottom,Root/BaseFlange3section/BaseHousing45d/BossRimS2,Root/ORIGINtuningFork/PipeCenter/PipePostEBottom2,Root/MEAUSREROD,Root/BaseFlange3section/BaseHousing45d/Socketplate,Root/ORIGINDishArray/DishSmall5,Root/ORIGINSPINE2/BackArcMid1/FinW2,Root/ArmBase/EarB1,Root/ORIGINtuningFork/GearShaft,Root/ORIGINSIDEARM/BottomUnit,Root/ORIGINSPINE2/IronBar5/IronBar6,Root/FootPlate2/PipeCenter,Root/FootPlate2/FloorPlate2,Root/BASEMOVER2/Base1501/STEP3MOVER1524,Root/BASEMOVER2/Base1501/STEP2MOVER1517,Root/BaseFlange3section/BaseHousing45d/BossRimS,Root/BaseFlange3section,Root/ORIGINtuningFork/CubeDown2,Root/MASTERTEMPGEARMOVER/TEMPORALMOVERpin4/TGRIMMOVER1066,Root/ORIGINtuningFork/FloorPlate3,Root/ORIGINSPINE,Root/ORIGINARM/BeamBaseN,Root/tierstee,Root/ORIGINtuningFork/FloorPlate2,Root/ORIGINARM/BeamBaseS,Root/ShaftUD24,Root/BASEMOVER2/Base1501/STEP1MOVER1507/NcolumbBase1513,Root/ORIGINARM/ArmBottomOuter/ArmMidOuter/ArmTopOuter/SpineMid2,Root/FootPlate,Root/ORIGINDishArray/DishLarge,Root/ORIGINWHEEL/WoodHubBeam/HubPlate/Hub/MAINSHAFT/WheelHubORIGIN/MainSpoke2/MainSpoke5/Cube6,Root/ORIGINWHEEL/WoodHubBeam/HubPlate/Hub/MAINSHAFT/WheelHubORIGIN/MainSpoke2/MainSpoke5/Cube4,Root/ORIGINWHEEL/WoodHubBeam/HubPlate/Hub/MAINSHAFT/WheelHubORIGIN/MainSpoke2/MainSpoke5/Cube5,Root/ORIGINWHEEL/WoodHubBeam/HubPlate/Hub/MAINSHAFT/WheelHubORIGIN/MainSpoke2/MainSpoke5/Cube2,Root/ORIGINWHEEL/WoodHubBeam/HubPlate/Hub/MAINSHAFT/WheelHubORIGIN/MainSpoke2/MainSpoke5/Cube3,Root/ORIGINARM/ArmBottomOuter/SpineBottom,Root/ORIGINBASE,Root/ArmBase",
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+		"steel": "block/metal/ingot/steel",
+		"oak-dark": "block/wood/oak-dark"
+	},
+	"elements": [
+		{
+			"name": "tiersteel",
+			"from": [ 3.0, 0.0, 7.5 ],
+			"to": [ 14.0, 1.1, 8.5 ],
+			"rotationOrigin": [ 6.0, 0.0, 7.5 ],
+			"faces": {
+				"north": { "texture": "#steel", "uv": [ 2.0, 2.0, 13.0, 3.0 ] },
+				"east": { "texture": "#steel", "uv": [ 13.0, 9.0, 14.0, 10.0 ] },
+				"south": { "texture": "#steel", "uv": [ 3.0, 3.5, 14.0, 4.5 ] },
+				"west": { "texture": "#steel", "uv": [ 4.0, 4.5, 5.0, 5.5 ] },
+				"up": { "texture": "#steel", "uv": [ 2.0, 3.0, 13.0, 4.0 ] },
+				"down": { "texture": "#steel", "uv": [ 7.5, 7.0, 18.5, 8.0 ] }
+			},
+			"children": [
+				{
+					"name": "Handle34",
+					"from": [ 0.2, -0.2, -0.25 ],
+					"to": [ 5.2, 1.3, 1.25 ],
+					"rotationOrigin": [ 0.2, -0.2, -0.25 ],
+					"faces": {
+						"north": { "texture": "#oak-dark", "uv": [ 12.0, 1.5, 13.5, 6.5 ], "rotation": 90 },
+						"east": { "texture": "#oak-dark", "uv": [ 10.0, 1.5, 11.5, 3.0 ] },
+						"south": { "texture": "#oak-dark", "uv": [ 14.0, 0.0, 15.5, 5.0 ], "rotation": 90 },
+						"west": { "texture": "#oak-dark", "uv": [ 9.0, 7.0, 10.5, 8.5 ] },
+						"up": { "texture": "#oak-dark", "uv": [ 14.0, 11.0, 15.5, 16.0 ], "rotation": 90 },
+						"down": { "texture": "#oak-dark", "uv": [ 7.0, 1.5, 8.5, 6.5 ], "rotation": 90 }
+					}
+				},
+				{
+					"name": "Cube7",
+					"from": [ 5.5, -0.15, -0.2 ],
+					"to": [ 6.5, 1.25, 1.8 ],
+					"rotationOrigin": [ 5.5, -0.3, -0.2 ],
+					"faces": {
+						"north": { "texture": "#steel", "uv": [ 10.5, 12.5, 11.5, 13.5 ] },
+						"east": { "texture": "#steel", "uv": [ 7.0, 11.5, 9.0, 12.5 ] },
+						"south": { "texture": "#steel", "uv": [ 12.0, 2.5, 13.0, 3.5 ] },
+						"west": { "texture": "#steel", "uv": [ 10.5, 12.5, 12.5, 13.5 ] },
+						"up": { "texture": "#steel", "uv": [ 12.5, 4.5, 13.5, 6.5 ] },
+						"down": { "texture": "#steel", "uv": [ 14.5, 10.0, 15.5, 12.0 ] }
+					},
+					"children": [
+						{
+							"name": "rod2",
+							"from": [ 1.0, 0.5, 1.4 ],
+							"to": [ 2.5, 0.9, 1.8 ],
+							"rotationOrigin": [ 1.0, 0.35, 1.4 ],
+							"faces": {
+								"north": { "texture": "#steel", "uv": [ 0.0, 0.0, 1.5, 0.5 ], "windMode": [-1,-1,-1,-1] },
+								"south": { "texture": "#steel", "uv": [ 9.5, 0.0, 11.0, 0.5 ] },
+								"up": { "texture": "#steel", "uv": [ 6.0, 10.0, 7.5, 10.5 ] },
+								"down": { "texture": "#steel", "uv": [ 11.0, 1.5, 12.5, 2.0 ] }
+							}
+						}
+					]
+				},
+				{
+					"name": "Cube22",
+					"from": [ 7.5, -0.2, -0.7 ],
+					"to": [ 8.5, 1.3, 1.8 ],
+					"rotationOrigin": [ 7.5, -0.3, -0.7 ],
+					"faces": {
+						"north": { "texture": "#steel", "uv": [ 10.5, 11.0, 11.5, 12.5 ] },
+						"south": { "texture": "#steel", "uv": [ 9.0, 10.5, 10.0, 12.0 ] },
+						"west": { "texture": "#steel", "uv": [ 10.0, 4.5, 12.5, 6.0 ] },
+						"up": { "texture": "#steel", "uv": [ 13.0, 10.5, 14.0, 13.0 ] },
+						"down": { "texture": "#steel", "uv": [ 3.5, 4.5, 4.5, 7.0 ] }
+					},
+					"children": [
+						{
+							"name": "Cube23",
+							"from": [ 1.0, 0.0, -1.0 ],
+							"to": [ 2.0, 1.5, 3.5 ],
+							"rotationOrigin": [ 1.0, -0.1, -1.0 ],
+							"faces": {
+								"north": { "texture": "#steel", "uv": [ 4.0, 12.0, 5.0, 13.5 ] },
+								"east": { "texture": "#steel", "uv": [ 7.5, 13.0, 12.0, 14.5 ] },
+								"south": { "texture": "#steel", "uv": [ 13.0, 1.5, 14.0, 3.0 ] },
+								"west": { "texture": "#steel", "uv": [ 4.0, 6.0, 8.5, 7.5 ] },
+								"up": { "texture": "#steel", "uv": [ 3.5, 4.5, 4.5, 9.0 ] },
+								"down": { "texture": "#steel", "uv": [ 4.0, 7.0, 5.0, 11.5 ] }
+							}
+						}
+					]
+				},
+				{
+					"name": "Cube24",
+					"from": [ 10.5, -0.2, -1.7 ],
+					"to": [ 11.5, 1.3, 2.8 ],
+					"rotationOrigin": [ 10.5, -0.3, -1.7 ],
+					"faces": {
+						"north": { "texture": "#steel", "uv": [ 5.0, 7.5, 6.0, 9.0 ] },
+						"east": { "texture": "#steel", "uv": [ 2.0, 8.0, 6.5, 9.5 ] },
+						"south": { "texture": "#steel", "uv": [ 7.0, 0.0, 8.0, 1.5 ] },
+						"west": { "texture": "#steel", "uv": [ 5.0, 1.0, 9.5, 2.5 ] },
+						"up": { "texture": "#steel", "uv": [ 11.0, 0.0, 12.0, 4.5 ] },
+						"down": { "texture": "#steel", "uv": [ 4.5, 4.0, 5.5, 8.5 ] }
+					},
+					"children": [
+						{
+							"name": "Cube25",
+							"from": [ 1.0, 0.0, 1.0 ],
+							"to": [ 1.5, 1.5, 3.5 ],
+							"rotationOrigin": [ 1.0, -0.1, 1.0 ],
+							"faces": {
+								"north": { "texture": "#steel", "uv": [ 7.5, 4.0, 8.0, 5.5 ] },
+								"east": { "texture": "#steel", "uv": [ 7.5, 0.0, 10.0, 1.5 ] },
+								"south": { "texture": "#steel", "uv": [ 9.5, 10.5, 10.0, 12.0 ] },
+								"up": { "texture": "#steel", "uv": [ 3.0, 4.0, 3.5, 6.5 ] },
+								"down": { "texture": "#steel", "uv": [ 1.0, 11.5, 1.5, 14.0 ] }
+							}
+						}
+					]
+				}
+			]
+		}
+	]}

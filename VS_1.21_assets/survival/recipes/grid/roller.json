@@ -1,0 +1,10 @@
+{
+	ingredientPattern: "FFF",
+	ingredients: {
+		"F": { type: "item", code: "firewood" }
+	},
+	name: "anchor",
+	width: 3,
+	height: 1,
+	output: { type: "item", code: "roller"  }
+}

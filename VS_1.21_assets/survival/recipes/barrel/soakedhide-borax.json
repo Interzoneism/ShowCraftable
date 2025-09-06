@@ -1,0 +1,113 @@
+[
+	{
+		code: "soakedhideborax",
+		sealHours: 18,
+		ingredients: [
+			{ type: "item", code: "dilutedboraxportion", litres: 2, consumeLitres: 2 },
+			{ type: "item", code: "hide-raw-small", quantity: 1 }
+		],
+		output: { type: "item", code: "hide-soaked-small", stackSize: 1 }
+	},
+	{
+		code: "soakedhideborax",
+		sealHours: 18,
+		ingredients: [
+			{ type: "item", code: "dilutedboraxportion", litres: 4, consumeLitres: 4 },
+			{ type: "item", code: "hide-raw-medium", quantity: 1 }
+		],
+		output: { type: "item", code: "hide-soaked-medium", stackSize: 1 }
+	},
+	{
+		code: "soakedhideborax",
+		sealHours: 18,
+		ingredients: [
+			{ type: "item", code: "dilutedboraxportion", litres: 6, consumeLitres: 6 },
+			{ type: "item", code: "hide-raw-large", quantity: 1 }
+		],
+		output: { type: "item", code: "hide-soaked-large", stackSize: 1 }
+	},
+	{
+		code: "soakedhideborax",
+		sealHours: 18,
+		ingredients: [
+			{ type: "item", code: "dilutedboraxportion", litres: 10, consumeLitres: 10 },
+			{ type: "item", code: "hide-raw-huge", quantity: 1 }
+		],
+		output: { type: "item", code: "hide-soaked-huge", stackSize: 1}
+	},
+	
+	{
+		code: "soakedhideborax",
+		sealHours: 18,
+		ingredients: [
+			{ type: "item", code: "dilutedboraxportion", litres: 2, consumeLitres: 2 },
+			{ type: "item", code: "hide-salted-small", quantity: 1 }
+		],
+		output: { type: "item", code: "hide-soaked-small", stackSize: 1 }
+	},
+	{
+		code: "soakedhideborax",
+		sealHours: 18,
+		ingredients: [
+			{ type: "item", code: "dilutedboraxportion", litres: 4, consumeLitres: 4 },
+			{ type: "item", code: "hide-salted-medium", quantity: 1 }
+		],
+		output: { type: "item", code: "hide-soaked-medium", stackSize: 1 }
+	},
+	{
+		code: "soakedhideborax",
+		sealHours: 18,
+		ingredients: [
+			{ type: "item", code: "dilutedboraxportion", litres: 6, consumeLitres: 6 },
+			{ type: "item", code: "hide-salted-large", quantity: 1 }
+		],
+		output: { type: "item", code: "hide-soaked-large", stackSize: 1 }
+	},
+	{
+		code: "soakedhideborax",
+		sealHours: 18,
+		ingredients: [
+			{ type: "item", code: "dilutedboraxportion", litres: 10, consumeLitres: 10 },
+			{ type: "item", code: "hide-salted-huge", quantity: 1 }
+		],
+		output: { type: "item", code: "hide-soaked-huge", stackSize: 1}
+	},
+
+
+	{
+		code: "soakedhidebears",
+		sealHours: 18,
+		ingredients: [
+			{ type: "item", code: "dilutedboraxportion", litres: 6, consumeLitres: 6 },
+			{ type: "item", code: "hide-raw-bear-*-complete", name: "species", quantity: 1, allowedVariants: ["panda", "sun"] }
+		],
+		output: { type: "item", code: "hide-soaked-bear-{species}-complete", stackSize: 1}
+	},
+	{
+		code: "soakedhidebears",
+		sealHours: 18,
+		ingredients: [
+			{ type: "item", code: "dilutedboraxportion", litres: 10, consumeLitres: 10 },
+			{ type: "item", code: "hide-raw-bear-*-complete", name: "species", quantity: 1, allowedVariants: ["black", "brown", "polar"] }
+		],
+		output: { type: "item", code: "hide-soaked-bear-{species}-complete", stackSize: 1}
+	},
+	{
+		code: "soakedhidebears",
+		sealHours: 18,
+		ingredients: [
+			{ type: "item", code: "dilutedboraxportion", litres: 6, consumeLitres: 6 },
+			{ type: "item", code: "hide-salted-bear-*-complete", name: "species", quantity: 1, allowedVariants: ["panda", "sun"] }
+		],
+		output: { type: "item", code: "hide-soaked-bear-{species}-complete", stackSize: 1}
+	},
+	{
+		code: "soakedhidebears",
+		sealHours: 18,
+		ingredients: [
+			{ type: "item", code: "dilutedboraxportion", litres: 10, consumeLitres: 10 },
+			{ type: "item", code: "hide-salted-bear-*-complete", name: "species", quantity: 1, allowedVariants: ["black", "brown", "polar"] }
+		],
+		output: { type: "item", code: "hide-soaked-bear-{species}-complete", stackSize: 1}
+	}
+]

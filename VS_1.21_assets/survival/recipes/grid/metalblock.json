@@ -1,0 +1,9 @@
+{
+	ingredientPattern: "GGG,GGG",
+	ingredients: {
+		"G": { type: "item", code: "metalplate-*", name: "metal", skipVariants: ["bismuth", "brass", "chromium", "meteoriciron", "molybdochalkos", "platinum", "nickel", "stainlesssteel", "tin", "titanium", "uranium", "zinc", "electrum"] }
+	},
+	width: 3,
+	height: 2,
+	output: { type: "block", code: "metalblock-new-riveted-{metal}", quantity: 1  }
+}

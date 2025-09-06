@@ -1,0 +1,15 @@
+{
+	soundsets: {
+		"walk/default": ["walk/default1", "walk/default2", "walk/default3", "walk/default4"],
+		"player/collect": ["player/collect1", "player/collect2", "player/collect3"],
+		"player/drink": ["player/drink1", "player/drink2", "player/drink3"],
+		"player/death": ["player/death1", "player/death2"],
+		"player/hurt": ["player/hurt1", "player/hurt2", "player/hurt3", "player/hurt4"],
+	},
+	defaultBlockSounds: {
+		walk: "walk/default",
+		break: "player/destruct",
+		hit: "player/destruct",
+		place: "player/build"
+	}
+}

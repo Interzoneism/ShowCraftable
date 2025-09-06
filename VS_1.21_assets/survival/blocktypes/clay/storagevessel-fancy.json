@@ -1,0 +1,116 @@
+{
+	code: "storagevessel",
+	class: "BlockGenericTypedContainer",
+	entityclass: "GenericTypedContainer",
+	behaviors: [
+		{ name: "BoatableGenericTypedContainer" },
+		{ name: "Lockable" }, 
+		{ name: "Container"}, 
+		{ name: "UnstableFalling"}
+	],
+	entityBehaviors: [
+		{ name: "Animatable" }
+	],
+	variantgroups: [
+		{ code: "variant", states: ["ashforest", "chthonic", "copper", "earthen", "rain", "cowrie", "rime", "oxblood", "loam", "undergrowth", 
+									"beehive", "harvest", "honeydew", "rutile", "seasalt", "springflowers", "volcanic", "cloisonne", "cornflower", "talik",
+									"caveaurora", "collonade", "rattlesnake", "waves", "wintersea"
+			] 
+		},
+	],
+	shape: { base: "block/clay/storagevessel" },
+	texturesByType: {
+		"*": {
+			"ceramic": { base: "block/clay/ceramic" },
+			"top": { base: "block/clay/vessel/top/{variant}" },
+			"sides": { base: "block/clay/vessel/sides/{variant}" },
+			"inside": { base: "block/clay/vessel/inside/{variant}" },
+			
+			"normal-ceramic": { base: "block/clay/ceramic" },
+			"normal-top": { base: "block/clay/vessel/top/{variant}" },
+			"normal-sides": { base: "block/clay/vessel/sides/{variant}" },
+			"normal-inside": { base: "block/clay/vessel/inside/{variant}" }
+		},
+	},
+	attributes: {
+		reinforcable: true,
+		humanoidTraversalCost: 100,
+		tempGlowMode: 1,
+		partialAttachable: true,
+		inventoryClassName: "chest",
+		defaultType: "normal",
+		types: ["normal"],
+		drop: {
+			"normal": true
+		},
+		quantitySlots: {
+			"normal": 12
+		},
+		dialogTitleLangCode: {
+			"normal": "vesselcontents"
+		},
+		storageType: {
+			"normal": 32
+		},
+		retrieveOnly: {
+			"normal": false
+		},
+		spoilSpeedMulByFoodCat: {
+			"normal": {
+				"vegetable": 0.75,
+				"grain": 0.5
+			}
+		},
+		shape: {
+			"normal": "block/clay/storagevessel"
+		},
+		variantByGroup: "variant",
+		variantByGroupInventory: "variant",
+		openSound: "sounds/block/vesselopen",
+		closeSound: "sounds/block/vesselclose",
+		onTongTransform: {
+			translation: { x: -1.3, y: -1.06, z: -0.4 },
+			rotation: { x: -88, y: -16, z: -2 },
+			scale: 0.7
+		}
+	},
+	blockmaterial: "Ceramic",
+	creativeinventory: {  },
+	creativeinventoryStacksByType: {
+		"*": [
+			{
+				tabs: [ "general", "decorative" ],
+				stacks: [
+					{ type: "block", code: "storagevessel-{variant}", attributes: { type: "normal" } },
+				]
+			}
+		]
+	},
+	replaceable: 1000,
+	resistance: 0.8,
+	maxStackSize: 4,
+	sideAo: { all: false },
+	lightAbsorption: 0,
+	sounds: {
+		walk: "walk/stone",
+		break: "block/ceramicplace",
+		hit: "block/ceramichit",
+		place: "block/ceramicplace"
+	},
+	sideopaque: {
+		all: false
+	},
+	sidesolid: {
+		all: false
+	},
+	collisionSelectionBox: { x1: 0.125, y1: 0, z1: 0.125, x2: 0.875, y2: 1, z2: 0.875 },
+	heldTpIdleAnimation: "holdunderarm",
+	guiTransform: {
+		scale: 1.25
+	},
+	tpHandTransform: {
+		translation: { x: -1, y: -0.5, z: -0.5 },
+		rotation: { x: 25, y: -20, z: -99 },
+		scale: 0.56
+	}
+}

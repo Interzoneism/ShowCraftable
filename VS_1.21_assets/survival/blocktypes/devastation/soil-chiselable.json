@@ -1,0 +1,41 @@
+{
+	code: "devastatedsoil-chiselable",
+	creativeinventory: { "general": ["*"], "flora": ["*"], "terrain": ["*"] },
+	drawtype: "Json",
+	attributes: {
+		canChisel: true,
+		mapColorCode: "devastation"
+	},
+	shape: {
+		base: "block/basic/cube",
+		alternates: [
+			{ base: "block/basic/cube", rotateY: 90 },
+			{ base: "block/basic/cube", rotateY: 180 },
+			{ base: "block/basic/cube", rotateY: 270 }
+		]
+	},
+	renderpass: "Opaque",
+	blockmaterial: "Other",
+	variantgroups: [
+		{ code: "coverage", states: ["0"] },
+	],
+	textures: {	all: { base: "block/devastation/soil/normal*" }	},
+	requiredMiningTier: 99,
+	replaceable: 400,
+	resistance: 1.8,
+	sounds: {
+		place: "block/dirt",
+		break: "block/dirt",
+		hit: "block/dirt",
+		walk: "walk/grass"
+	},
+	heldTpIdleAnimation: "holdbothhandslarge",
+	heldRightReadyAnimation: "heldblockready",
+	heldTpUseAnimation: "twohandplaceblock",
+	drops: [],
+	tpHandTransform: {
+		translation: { x: -1.23, y: -0.91, z: -0.8 },
+		rotation: { x: -2, y: 25, z: -78 },
+		scale: 0.4
+	}
+}

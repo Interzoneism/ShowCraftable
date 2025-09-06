@@ -1,0 +1,75 @@
+{
+	"editor": {
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 24,
+	"textureHeight": 24,
+	"textures": {
+		"hotsprings": "block/creature/hotspringbacteria/smoothtransition/55deg1"
+	},
+	"elements": [
+		{
+			"name": "origin",
+			"from": [ 8.0, 0.0, 8.0 ], 
+			"to": [ 8.0, 0.0, 8.0 ], 
+			"rotationOrigin": [ 8.0, 0.0, 8.0 ],
+			"faces": {
+				"north": { "texture": "#hotsprings", "uv": [ 0.0, 0.0, 0.5, 0.5 ] },
+				"east": { "texture": "#hotsprings", "uv": [ 0.0, 0.0, 0.5, 0.5 ] },
+				"south": { "texture": "#hotsprings", "uv": [ 0.0, 0.0, 0.5, 0.5 ] },
+				"west": { "texture": "#hotsprings", "uv": [ 0.0, 0.0, 0.5, 0.5 ] },
+				"up": { "texture": "#hotsprings", "uv": [ 0.0, 0.0, 0.5, 0.5 ] },
+				"down": { "texture": "#hotsprings", "uv": [ 0.0, 0.0, 0.5, 0.5 ] }
+			},
+			"children": [
+				{
+					"name": "W",
+					"from": [ -12.0, 0.0, -12.0 ], 
+					"to": [ -8.0, 0.0, 12.0 ], 
+					"renderPass": 3,
+					"rotationOrigin": [ -8.0, 0.0, 0.0 ],
+					"rotationZ": 90.0,
+					"faces": {
+						"north": { "texture": "#hotsprings", "uv": [ 0.0, 15.0, 24.0, 15.33 ], "enabled": false, "autoUv": false },
+						"east": { "texture": "#hotsprings", "uv": [ 0.0, 15.0, 24.0, 15.5 ], "enabled": false },
+						"south": { "texture": "#hotsprings", "uv": [ 0.0, 15.0, 4.0, 15.5 ], "enabled": false },
+						"west": { "texture": "#hotsprings", "uv": [ 0.0, 15.0, 24.0, 15.5 ], "enabled": false },
+						"up": { "texture": "#hotsprings", "uv": [ 0.0, 0.0, 4.0, 24.0 ] },
+						"down": { "texture": "#hotsprings", "uv": [ 0.0, 0.0, 4.0, 24.0 ], "enabled": false }
+					}
+				},
+				{
+					"name": "flat",
+					"from": [ -8.0, 0.0, -12.0 ], 
+					"to": [ 8.0, 0.0, 12.0 ], 
+					"renderPass": 3,
+					"faces": {
+						"north": { "texture": "#hotsprings", "uv": [ 0.0, 15.0, 24.0, 15.33 ], "enabled": false, "autoUv": false },
+						"east": { "texture": "#hotsprings", "uv": [ 0.0, 15.0, 24.0, 15.5 ], "enabled": false },
+						"south": { "texture": "#hotsprings", "uv": [ 0.0, 15.0, 16.0, 15.5 ], "enabled": false },
+						"west": { "texture": "#hotsprings", "uv": [ 0.0, 15.0, 24.0, 15.5 ], "enabled": false },
+						"up": { "texture": "#hotsprings", "uv": [ 4.0, 0.0, 20.0, 24.0 ] },
+						"down": { "texture": "#hotsprings", "uv": [ 0.0, 0.0, 16.0, 24.0 ], "enabled": false }
+					}
+				},
+				{
+					"name": "E",
+					"from": [ 4.0, 0.0, -12.0 ], 
+					"to": [ 8.0, 0.0, 12.0 ], 
+					"renderPass": 3,
+					"rotationOrigin": [ 8.0, 0.0, 0.0 ],
+					"rotationY": -180.0,
+					"rotationZ": 90.0,
+					"faces": {
+						"north": { "texture": "#hotsprings", "uv": [ 0.0, 15.0, 24.0, 15.33 ], "enabled": false, "autoUv": false },
+						"east": { "texture": "#hotsprings", "uv": [ 0.0, 15.0, 24.0, 15.5 ], "enabled": false },
+						"south": { "texture": "#hotsprings", "uv": [ 0.0, 15.0, 4.0, 15.5 ], "enabled": false },
+						"west": { "texture": "#hotsprings", "uv": [ 0.0, 15.0, 24.0, 15.5 ], "enabled": false },
+						"up": { "texture": "#hotsprings", "uv": [ 20.0, 0.0, 24.0, 24.0 ], "rotation": 180 },
+						"down": { "texture": "#hotsprings", "uv": [ 0.0, 0.0, 4.0, 24.0 ], "enabled": false }
+					}
+				}
+			]
+		}
+	]}

@@ -1,0 +1,13 @@
+[
+	{
+		code: "storm",
+		name: "Storm",
+		weight: 0.4,
+		durationHours: { avg: 4, var: 6, dist: "invexp" },
+		strength: { avg: 1, var: 0.1 },
+		strengthNoise: {
+			amplitudes: [0.15, 0.1, 0.5],
+			frequencies: [20, 40, 150]
+		}
+	}
+]

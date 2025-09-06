@@ -1,0 +1,94 @@
+{
+	code: "spear",
+	class: "EntityProjectile",
+	tags: ["inanimate", "projectile"],
+	hitboxSize: { x: 0.125, y: 0.125 },
+	variantgroups: [
+		{ code: "type", states: ["generic", "scrap", "boar", "voulge", "fork", "ranseur"] },
+		{ code: "material", states: ["granite", "andesite", "basalt", "obsidian", "peridotite", "chert", "flint", "scrap", "copper", "tinbronze",  "bismuthbronze", "blackbronze", "ornategold", "ornatesilver", "hacking", "ruined"] }
+	],
+	skipVariants: [
+		"spear-generic-ruined",
+		"spear-generic-scrap"
+	],
+	allowedVariants: [
+		"spear-generic-*",
+		"spear-scrap-scrap",
+		"spear-boar-ruined",
+		"spear-voulge-ruined",
+		"spear-fork-ruined",
+		"spear-ranseur-ruined"
+	],
+	attributes: {
+		isProjectile: true
+	},
+	client: {
+		renderer: "Shape",
+		shapeByType: {
+			"spear-scrap-scrap": { base: "item/tool/spear/scrap", offsetX: -0.8125 },
+			"spear-generic-copper": { base: "item/tool/spear/copper", offsetX: -0.8125 },
+			"spear-generic-tinbronze": { base: "item/tool/spear/copper", offsetX: -0.8125 },
+			"spear-generic-bismuthbronze": { base: "item/tool/spear/copper", offsetX: -0.8125 },
+			"spear-generic-blackbronze": { base: "item/tool/spear/copper", offsetX: -0.8125 },
+			"spear-generic-ornategold": { base: "item/tool/spear/ornategold", offsetX: -0.8125 },
+			"spear-generic-ornatesilver": { base: "item/tool/spear/ornatesilver", offsetX: -0.8125 },
+			"spear-generic-hacking": { base: "item/tool/spear/hacking", offsetX: -0.8125 },
+			"*-ruined": { base: "item/tool/spear/ruined/{type}" },
+			"*": { base: "item/tool/spear/stone", offsetX: -0.8125 }
+		},
+		texturesByType: {
+			"spear-generic-granite": {
+				"material": { base: "block/stone/rock/{material}1" },
+			},
+			"spear-generic-chert": {
+				"material": { base: "block/stone/rock/{material}1" },
+			},
+			"spear-generic-andesite": {
+				"material": { base: "block/stone/rock/{material}1" },
+			},
+			"spear-generic-basalt": {
+				"material": { base: "block/stone/rock/{material}1" },
+			},
+			"spear-generic-obsidian": {
+				"material": { base: "block/stone/rock/{material}1" },
+			},
+			"spear-generic-peridotite": {
+				"material": { base: "block/stone/rock/{material}1" },
+			},
+			"spear-generic-flint": {
+				"material": { base: "block/stone/{material}" },
+			},
+			"spear-generic-ornate*": { },
+			"spear-scrap-scrap": {
+				"rusty-iron": { base: "block/metal/tarnished/rusty-iron" }
+			},
+			"spear-generic-hacking": { },
+			"*-ruined": { },
+			"*": {
+				"material": { base: "item/tool/material/{material}" },
+			}
+		},
+		behaviors: [
+			{ 
+				code: "passivephysics", 
+				groundDragFactor: 1,
+				airDragFactor: 0.25,
+				gravityFactor: 0.75
+			}, 
+			{ code: "interpolateposition" }
+		],
+	},
+	server: {
+		behaviors: [
+			{ 
+				code: "passivephysics", 
+				groundDragFactor: 1,
+				airDragFactor: 0.25,
+				gravityFactor: 0.75
+			}, 
+			{ code: "despawn", minSeconds: 600 },
+			{ code: "entitystatetags" }
+		]
+	},
+	sounds: { }
+}

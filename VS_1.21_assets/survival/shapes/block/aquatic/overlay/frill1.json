@@ -1,0 +1,365 @@
+{
+	"editor": {
+		"collapsedPaths": "Root/ROWMiddle3,Root/ROWMiddle2,Root/ROWMiddle5,Root/ROWMiddle4",
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+		"blue01": "block/creature/aquatic/coral/generic/blue01"
+	},
+	"elements": [
+		{
+			"name": "ORIGIN",
+			"from": [ 8.0, 0.0, 8.0 ],
+			"to": [ 9.0, 1.0, 9.0 ],
+			"rotationOrigin": [ 8.0, 0.0, 8.0 ],
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "ROWMiddle",
+					"from": [ -1.0, 0.0, -7.0 ],
+					"to": [ 0.0, 1.0, 4.0 ],
+					"rotationOrigin": [ -1.0, 0.0, -7.0 ],
+					"faces": {
+					},
+					"children": [
+						{
+							"name": "Frill1",
+							"from": [ 0.0, 0.0, 0.0 ],
+							"to": [ 0.0, 1.0, 3.0 ],
+							"rotationOrigin": [ 0.0, 0.0, 0.0 ],
+							"rotationY": 20.0,
+							"faces": {
+								"west": { "texture": "#blue01", "uv": [ 5.0, 10.5, 8.0, 11.5 ], "windMode": [-1,-1,6,6], "windMode": [-1,-1,-1,-1], "windData": [0,0,1,1] }
+							},
+							"children": [
+								{
+									"name": "Frill2",
+									"from": [ 0.0, 0.0, 3.0 ],
+									"to": [ 0.0, 1.5, 6.0 ],
+									"rotationOrigin": [ 0.0, 0.0, 3.0 ],
+									"rotationY": -40.0,
+									"faces": {
+										"west": { "texture": "#blue01", "uv": [ 8.0, 1.5, 11.0, 3.0 ], "windMode": [-1,-1,6,6], "windMode": [-1,-1,-1,-1], "windData": [0,0,1,1] }
+									},
+									"children": [
+										{
+											"name": "Frill3",
+											"from": [ 0.0, 0.0, 3.0 ],
+											"to": [ 0.0, 1.5, 6.0 ],
+											"rotationOrigin": [ 0.0, 0.0, 3.0 ],
+											"rotationY": 40.0,
+											"faces": {
+												"west": { "texture": "#blue01", "uv": [ 5.0, 9.5, 8.0, 11.0 ], "windMode": [-1,-1,6,6], "windMode": [-1,-1,-1,-1], "windData": [0,0,1,1] }
+											},
+											"children": [
+												{
+													"name": "Frill4",
+													"from": [ 0.0, 0.0, 3.0 ],
+													"to": [ 0.0, 1.5, 6.0 ],
+													"rotationOrigin": [ 0.0, 0.0, 3.0 ],
+													"rotationY": -40.0,
+													"faces": {
+														"west": { "texture": "#blue01", "uv": [ 6.5, 4.0, 9.5, 5.5 ], "windMode": [-1,-1,6,6], "windMode": [-1,-1,-1,-1], "windData": [0,0,1,1] }
+													},
+													"children": [
+														{
+															"name": "Frill5",
+															"from": [ 0.0, 0.0, 3.0 ],
+															"to": [ 0.0, 1.0, 6.0 ],
+															"rotationOrigin": [ 0.0, 0.0, 3.0 ],
+															"rotationY": 40.0,
+															"faces": {
+																"west": { "texture": "#blue01", "uv": [ 11.5, 14.5, 14.5, 15.5 ], "windMode": [-1,-1,6,6], "windMode": [-1,-1,-1,-1], "windData": [0,0,1,1] }
+															}
+														}
+													]
+												}
+											]
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "ROWW1",
+					"from": [ -3.0, 0.0, -7.0 ],
+					"to": [ -2.0, 1.0, 4.0 ],
+					"rotationOrigin": [ -3.0, 0.0, -7.0 ],
+					"faces": {
+					},
+					"children": [
+						{
+							"name": "Frill6",
+							"from": [ 0.0, 0.0, 1.0 ],
+							"to": [ 0.0, 1.0, 3.0 ],
+							"rotationOrigin": [ 0.0, 0.0, 1.0 ],
+							"rotationY": 20.0,
+							"faces": {
+								"west": { "texture": "#blue01", "uv": [ 5.0, 1.0, 7.0, 2.0 ], "windMode": [-1,-1,6,6], "windMode": [-1,-1,-1,-1], "windData": [0,0,1,1] }
+							},
+							"children": [
+								{
+									"name": "Frill7",
+									"from": [ 0.0, 0.0, 2.0 ],
+									"to": [ 0.0, 1.0, 5.0 ],
+									"rotationOrigin": [ 0.0, 0.0, 2.0 ],
+									"rotationY": -40.0,
+									"faces": {
+										"west": { "texture": "#blue01", "uv": [ 2.5, 5.5, 5.5, 6.5 ], "windMode": [-1,-1,6,6], "windMode": [-1,-1,-1,-1], "windData": [0,0,1,1] }
+									},
+									"children": [
+										{
+											"name": "Frill8",
+											"from": [ 0.0, 0.0, 3.0 ],
+											"to": [ 0.0, 1.5, 6.0 ],
+											"rotationOrigin": [ 0.0, 0.0, 3.0 ],
+											"rotationY": 40.0,
+											"faces": {
+												"west": { "texture": "#blue01", "uv": [ 12.0, 2.5, 15.0, 4.0 ], "windMode": [-1,-1,6,6], "windMode": [-1,-1,-1,-1], "windData": [0,0,1,1] }
+											},
+											"children": [
+												{
+													"name": "Frill9",
+													"from": [ 0.0, 0.0, 3.0 ],
+													"to": [ 0.0, 1.0, 6.0 ],
+													"rotationOrigin": [ 0.0, 0.0, 3.0 ],
+													"rotationY": -40.0,
+													"faces": {
+														"west": { "texture": "#blue01", "uv": [ 1.5, 10.0, 4.5, 11.0 ], "windMode": [-1,-1,6,6], "windMode": [-1,-1,-1,-1], "windData": [0,0,1,1] }
+													},
+													"children": [
+														{
+															"name": "Frill10",
+															"from": [ 0.0, 0.0, 3.0 ],
+															"to": [ 0.0, 1.0, 5.0 ],
+															"rotationOrigin": [ 0.0, 0.0, 3.0 ],
+															"rotationY": 40.0,
+															"faces": {
+																"west": { "texture": "#blue01", "uv": [ 5.0, 1.5, 7.0, 2.5 ], "windMode": [-1,-1,6,6], "windMode": [-1,-1,-1,-1], "windData": [0,0,1,1] }
+															}
+														}
+													]
+												}
+											]
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "ROWW2",
+					"from": [ -5.0, 0.0, -7.0 ],
+					"to": [ -4.0, 1.0, 4.0 ],
+					"rotationOrigin": [ -5.0, 0.0, -7.0 ],
+					"faces": {
+					},
+					"children": [
+						{
+							"name": "Frill11",
+							"from": [ 0.0, 0.0, 1.0 ],
+							"to": [ 0.0, 1.0, 3.0 ],
+							"rotationOrigin": [ 0.0, 0.0, 1.0 ],
+							"rotationY": 20.0,
+							"faces": {
+								"west": { "texture": "#blue01", "uv": [ 2.5, 0.5, 4.5, 1.5 ], "windMode": [-1,-1,6,6], "windMode": [-1,-1,-1,-1], "windData": [0,0,1,1] }
+							},
+							"children": [
+								{
+									"name": "Frill12",
+									"from": [ 0.0, 0.0, 2.0 ],
+									"to": [ 0.0, 1.0, 5.0 ],
+									"rotationOrigin": [ 0.0, 0.0, 2.0 ],
+									"rotationY": -40.0,
+									"faces": {
+										"west": { "texture": "#blue01", "uv": [ 9.0, 1.5, 12.0, 2.5 ], "windMode": [-1,-1,6,6], "windMode": [-1,-1,-1,-1], "windData": [0,0,1,1] }
+									},
+									"children": [
+										{
+											"name": "Frill13",
+											"from": [ 0.0, 0.0, 3.0 ],
+											"to": [ 0.0, 1.0, 6.0 ],
+											"rotationOrigin": [ 0.0, 0.0, 3.0 ],
+											"rotationY": 40.0,
+											"faces": {
+												"west": { "texture": "#blue01", "uv": [ 9.0, 9.0, 12.0, 10.0 ], "windMode": [-1,-1,6,6], "windMode": [-1,-1,-1,-1], "windData": [0,0,1,1] }
+											},
+											"children": [
+												{
+													"name": "Frill14",
+													"from": [ 0.0, 0.0, 3.0 ],
+													"to": [ 0.0, 1.0, 6.0 ],
+													"rotationOrigin": [ 0.0, 0.0, 3.0 ],
+													"rotationY": -40.0,
+													"faces": {
+														"west": { "texture": "#blue01", "uv": [ 11.5, 2.5, 14.5, 3.5 ], "windMode": [-1,-1,6,6], "windMode": [-1,-1,-1,-1], "windData": [0,0,1,1] }
+													},
+													"children": [
+														{
+															"name": "Frill15",
+															"from": [ 0.0, 0.0, 3.0 ],
+															"to": [ 0.0, 1.0, 5.0 ],
+															"rotationOrigin": [ 0.0, 0.0, 3.0 ],
+															"rotationY": 40.0,
+															"faces": {
+																"west": { "texture": "#blue01", "uv": [ 10.0, 1.0, 12.0, 2.0 ], "windMode": [-1,-1,6,6], "windMode": [-1,-1,-1,-1], "windData": [0,0,1,1] }
+															}
+														}
+													]
+												}
+											]
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "ROWE1",
+					"from": [ 1.0, 0.0, -7.0 ],
+					"to": [ 2.0, 1.0, 4.0 ],
+					"rotationOrigin": [ 1.0, 0.0, -7.0 ],
+					"faces": {
+					},
+					"children": [
+						{
+							"name": "Frill16",
+							"from": [ 0.0, 0.0, 0.0 ],
+							"to": [ 0.0, 1.0, 3.0 ],
+							"rotationOrigin": [ 0.0, 0.0, 0.0 ],
+							"rotationY": 20.0,
+							"faces": {
+								"west": { "texture": "#blue01", "uv": [ 8.0, 2.0, 11.0, 3.0 ], "windMode": [-1,-1,6,6], "windMode": [-1,-1,-1,-1], "windData": [0,0,1,1] }
+							},
+							"children": [
+								{
+									"name": "Frill17",
+									"from": [ 0.0, 0.0, 3.0 ],
+									"to": [ 0.0, 1.5, 6.0 ],
+									"rotationOrigin": [ 0.0, 0.0, 3.0 ],
+									"rotationY": -40.0,
+									"faces": {
+										"west": { "texture": "#blue01", "uv": [ 0.0, 0.5, 3.0, 2.0 ], "windMode": [-1,-1,6,6], "windMode": [-1,-1,-1,-1], "windData": [0,0,1,1] }
+									},
+									"children": [
+										{
+											"name": "Frill18",
+											"from": [ 0.0, 0.0, 3.0 ],
+											"to": [ 0.0, 1.5, 6.0 ],
+											"rotationOrigin": [ 0.0, 0.0, 3.0 ],
+											"rotationY": 40.0,
+											"faces": {
+												"west": { "texture": "#blue01", "uv": [ 1.5, 7.0, 4.5, 8.5 ], "windMode": [-1,-1,6,6], "windMode": [-1,-1,-1,-1], "windData": [0,0,1,1] }
+											},
+											"children": [
+												{
+													"name": "Frill19",
+													"from": [ 0.0, 0.0, 3.0 ],
+													"to": [ 0.0, 1.0, 6.0 ],
+													"rotationOrigin": [ 0.0, 0.0, 3.0 ],
+													"rotationY": -40.0,
+													"faces": {
+														"west": { "texture": "#blue01", "uv": [ 1.0, 7.5, 4.0, 8.5 ], "windMode": [-1,-1,6,6], "windMode": [-1,-1,-1,-1], "windData": [0,0,1,1] }
+													},
+													"children": [
+														{
+															"name": "Frill20",
+															"from": [ 0.0, 0.0, 3.0 ],
+															"to": [ 0.0, 1.0, 5.0 ],
+															"rotationOrigin": [ 0.0, 0.0, 3.0 ],
+															"rotationY": 40.0,
+															"faces": {
+																"west": { "texture": "#blue01", "uv": [ 6.0, 3.0, 8.0, 4.0 ], "windMode": [-1,-1,6,6], "windMode": [-1,-1,-1,-1], "windData": [0,0,1,1] }
+															}
+														}
+													]
+												}
+											]
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "ROWE2",
+					"from": [ 3.0, 0.0, -7.0 ],
+					"to": [ 4.0, 1.0, 4.0 ],
+					"rotationOrigin": [ 3.0, 0.0, -7.0 ],
+					"faces": {
+					},
+					"children": [
+						{
+							"name": "Frill21",
+							"from": [ 0.0, 0.0, 0.0 ],
+							"to": [ 0.0, 1.0, 3.0 ],
+							"rotationOrigin": [ 0.0, 0.0, 0.0 ],
+							"rotationY": 20.0,
+							"faces": {
+								"west": { "texture": "#blue01", "uv": [ 10.5, 1.5, 13.5, 2.5 ], "windMode": [-1,-1,6,6], "windMode": [-1,-1,-1,-1], "windData": [0,0,1,1] }
+							},
+							"children": [
+								{
+									"name": "Frill22",
+									"from": [ 0.0, 0.0, 3.0 ],
+									"to": [ 0.0, 1.0, 6.0 ],
+									"rotationOrigin": [ 0.0, 0.0, 3.0 ],
+									"rotationY": -40.0,
+									"faces": {
+										"west": { "texture": "#blue01", "uv": [ 11.0, 14.0, 14.0, 15.0 ], "windMode": [-1,-1,6,6], "windMode": [-1,-1,-1,-1], "windData": [0,0,1,1] }
+									},
+									"children": [
+										{
+											"name": "Frill23",
+											"from": [ 0.0, 0.0, 3.0 ],
+											"to": [ 0.0, 1.0, 6.0 ],
+											"rotationOrigin": [ 0.0, 0.0, 3.0 ],
+											"rotationY": 40.0,
+											"faces": {
+												"west": { "texture": "#blue01", "uv": [ 7.5, 5.5, 10.5, 6.5 ], "windMode": [-1,-1,6,6], "windMode": [-1,-1,-1,-1], "windData": [0,0,1,1] }
+											},
+											"children": [
+												{
+													"name": "Frill24",
+													"from": [ 0.0, 0.0, 3.0 ],
+													"to": [ 0.0, 1.0, 6.0 ],
+													"rotationOrigin": [ 0.0, 0.0, 3.0 ],
+													"rotationY": -40.0,
+													"faces": {
+														"west": { "texture": "#blue01", "uv": [ 10.0, 8.5, 13.0, 9.5 ], "windMode": [-1,-1,6,6], "windMode": [-1,-1,-1,-1], "windData": [0,0,1,1] }
+													},
+													"children": [
+														{
+															"name": "Frill25",
+															"from": [ 0.0, 0.0, 3.0 ],
+															"to": [ 0.0, 1.0, 5.0 ],
+															"rotationOrigin": [ 0.0, 0.0, 3.0 ],
+															"rotationY": 40.0,
+															"faces": {
+																"west": { "texture": "#blue01", "uv": [ 4.5, 14.0, 6.5, 15.0 ], "windMode": [-1,-1,6,6], "windMode": [-1,-1,-1,-1], "windData": [0,0,1,1] }
+															}
+														}
+													]
+												}
+											]
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	]}

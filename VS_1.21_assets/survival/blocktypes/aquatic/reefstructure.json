@@ -1,0 +1,221 @@
+{
+    code: "reefstructure",
+    class: "BlockCoral",
+    variantgroups: [
+        {
+            code: "type",
+            states: [ "blue", "brown", "green", "red", "tan", "yellow" ]
+        }
+    ],
+    shape: { "base": "block/aquatic/coral/structure*" },
+    texturesByType: {
+        "reefstructure-blue": {
+            "block1": {
+                "base": "block/creature/aquatic/coral/block/base7",
+                "overlays": [ "block/creature/aquatic/coral/overlay/brown1" ]
+            },
+            "block2": {
+                "base": "block/creature/aquatic/coral/block/base22",
+                "overlays": [ "block/creature/aquatic/coral/overlay/blue1" ]
+            },
+            "block3": {
+                "base": "block/creature/aquatic/coral/block/base20",
+                "overlays": [ "block/creature/aquatic/coral/overlay/green1" ]
+            },
+            "block4": {
+                "base": "block/creature/aquatic/coral/block/base14",
+                "overlays": [ "block/creature/aquatic/coral/overlay/blue1" ]
+            },
+            "brain1": { "base": "block/creature/aquatic/coral/brain/*" },
+            "brain2": { "base": "block/creature/aquatic/coral/brain/*" },
+            "brain3": { "base": "block/creature/aquatic/coral/brain/*" },
+            "branches1": { "base": "block/creature/aquatic/coral/branched/blue*" },
+            "sponge1": { "base": "block/creature/aquatic/coral/sponge/*" },
+            "sponge2": { "base": "block/creature/aquatic/coral/sponge/*" },
+            "sponge3": { "base": "block/creature/aquatic/coral/sponge/*" }
+        },
+        "reefstructure-brown": {
+            "block1": {
+                "base": "block/creature/aquatic/coral/block/base24",
+                "overlays": [ "block/creature/aquatic/coral/overlay/brown1" ]
+            },
+            "block2": {
+                "base": "block/creature/aquatic/coral/block/base27",
+                "overlays": [ "block/creature/aquatic/coral/overlay/tan1" ]
+            },
+            "block3": {
+                "base": "block/creature/aquatic/coral/block/base30",
+                "overlays": [ "block/creature/aquatic/coral/overlay/brown1" ]
+            },
+            "block4": {
+                "base": "block/creature/aquatic/coral/block/base21",
+                "overlays": [ "block/creature/aquatic/coral/overlay/tan1" ]
+            },
+            "brain1": { "base": "block/creature/aquatic/coral/brain/*" },
+            "brain2": { "base": "block/creature/aquatic/coral/brain/*" },
+            "brain3": { "base": "block/creature/aquatic/coral/brain/*" },
+            "branches1": { "base": "block/creature/aquatic/coral/branched/brown*" },
+            "sponge1": { "base": "block/creature/aquatic/coral/sponge/*" },
+            "sponge2": { "base": "block/creature/aquatic/coral/sponge/*" },
+            "sponge3": { "base": "block/creature/aquatic/coral/sponge/*" }
+        },
+        "reefstructure-green": {
+            "block1": {
+                "base": "block/creature/aquatic/coral/block/base11",
+                "overlays": [ "block/creature/aquatic/coral/overlay/green1" ]
+            },
+            "block2": {
+                "base": "block/creature/aquatic/coral/block/base21",
+                "overlays": [ "block/creature/aquatic/coral/overlay/tan1" ]
+            },
+            "block3": {
+                "base": "block/creature/aquatic/coral/block/base16",
+                "overlays": [ "block/creature/aquatic/coral/overlay/green1" ]
+            },
+            "block4": {
+                "base": "block/creature/aquatic/coral/block/base26",
+                "overlays": [ "block/creature/aquatic/coral/overlay/tan1" ]
+            },
+            "brain1": { "base": "block/creature/aquatic/coral/brain/*" },
+            "brain2": { "base": "block/creature/aquatic/coral/brain/*" },
+            "brain3": { "base": "block/creature/aquatic/coral/brain/*" },
+            "branches1": { "base": "block/creature/aquatic/coral/branched/yellow*" },
+            "sponge1": { "base": "block/creature/aquatic/coral/sponge/*" },
+            "sponge2": { "base": "block/creature/aquatic/coral/sponge/*" },
+            "sponge3": { "base": "block/creature/aquatic/coral/sponge/*" }
+        },
+        "reefstructure-red": {
+            "block1": {
+                "base": "block/creature/aquatic/coral/block/base5",
+                "overlays": [ "block/creature/aquatic/coral/overlay/red1" ]
+            },
+            "block2": {
+                "base": "block/creature/aquatic/coral/block/base9",
+                "overlays": [ "block/creature/aquatic/coral/overlay/yellow1" ]
+            },
+            "block3": {
+                "base": "block/creature/aquatic/coral/block/base13",
+                "overlays": [ "block/creature/aquatic/coral/overlay/red1" ]
+            },
+            "block4": {
+                "base": "block/creature/aquatic/coral/block/base17",
+                "overlays": [ "block/creature/aquatic/coral/overlay/yellow1" ]
+            },
+            "brain1": { "base": "block/creature/aquatic/coral/brain/*" },
+            "brain2": { "base": "block/creature/aquatic/coral/brain/red*" },
+            "brain3": { "base": "block/creature/aquatic/coral/brain/*" },
+            "branches1": { "base": "block/creature/aquatic/coral/branched/red*" },
+            "sponge1": { "base": "block/creature/aquatic/coral/sponge/*" },
+            "sponge2": { "base": "block/creature/aquatic/coral/sponge/*" },
+            "sponge3": { "base": "block/creature/aquatic/coral/sponge/*" }
+        },
+        "reefstructure-tan": {
+            "block1": {
+                "base": "block/creature/aquatic/coral/block/base16",
+                "overlays": [ "block/creature/aquatic/coral/overlay/green1" ]
+            },
+            "block2": {
+                "base": "block/creature/aquatic/coral/block/base12",
+                "overlays": [ "block/creature/aquatic/coral/overlay/tan1" ]
+            },
+            "block3": {
+                "base": "block/creature/aquatic/coral/block/base8",
+                "overlays": [ "block/creature/aquatic/coral/overlay/yellow1" ]
+            },
+            "block4": {
+
+                "base": "block/creature/aquatic/coral/block/base4",
+                "overlays": [ "block/creature/aquatic/coral/overlay/tan1" ]
+            },
+            "brain1": { "base": "block/creature/aquatic/coral/brain/*" },
+            "brain2": { "base": "block/creature/aquatic/coral/brain/*" },
+            "brain3": { "base": "block/creature/aquatic/coral/brain/*" },
+            "branches1": { "base": "block/creature/aquatic/coral/branched/yellow*" },
+            "sponge1": { "base": "block/creature/aquatic/coral/sponge/*" },
+            "sponge2": { "base": "block/creature/aquatic/coral/sponge/*" },
+            "sponge3": { "base": "block/creature/aquatic/coral/sponge/*" }
+        },
+        "reefstructure-yellow": {
+            "block1": {
+                "base": "block/creature/aquatic/coral/block/base3",
+                "overlays": [ "block/creature/aquatic/coral/overlay/tan1" ]
+            },
+            "block2": {
+                "base": "block/creature/aquatic/coral/block/base25",
+                "overlays": [ "block/creature/aquatic/coral/overlay/yellow1" ]
+            },
+            "block3": {
+                "base": "block/creature/aquatic/coral/block/base18",
+                "overlays": [ "block/creature/aquatic/coral/overlay/tan1" ]
+            },
+            "block4": {
+
+                "base": "block/creature/aquatic/coral/block/base9",
+                "overlays": [ "block/creature/aquatic/coral/overlay/yellow1" ]
+            },
+            "brain1": { "base": "block/creature/aquatic/coral/brain/*" },
+            "brain2": { "base": "block/creature/aquatic/coral/brain/*" },
+            "brain3": { "base": "block/creature/aquatic/coral/brain/*" },
+            "branches1": { "base": "block/creature/aquatic/coral/branched/yellow*" },
+            "sponge1": { "base": "block/creature/aquatic/coral/sponge/*" },
+            "sponge2": { "base": "block/creature/aquatic/coral/sponge/*" },
+            "sponge3": { "base": "block/creature/aquatic/coral/sponge/*" }
+        }
+    },
+    creativeinventory: {
+        general: [ "*" ],
+        aquatic: [ "*" ]
+    },
+    renderpass: "OpaqueNoCull",
+    doNotRenderAtLod2: false,
+    randomizeRotations: true,
+    randomDrawOffset: true,
+    sideopaque: { "all": false },
+    sidesolid: {
+        "all": false,
+        "up": true
+    },
+    replaceable: 3000,
+    lightAbsorption: 0,
+    requiredMiningTier: 2,
+    resistance: 4,
+	sounds: {
+		walk: "walk/stone",
+		byTool: {
+			"Pickaxe": { hit: "block/rock-hit-pickaxe", break: "block/rock-break-pickaxe" }
+		}
+	},
+	blockmaterial: "Stone",
+    materialDensity: 1100,
+	drops: [
+		{
+			type: "item", 
+			code: "coralchunk-{type}", 
+			quantity: { avg: 1.5, var: 0.5 } 
+		}
+	],
+    selectionboxByType: {
+        "*": { x1: 0, y1: 0, z1: 0, x2: 1, y2: 1, z2: 1 }
+    },
+    guiTransform: {
+		rotate: false,
+        rotation: { x: -20, y: -45, z: 0 }
+    },
+    tpHandTransformByType: {
+        "*": {
+            translation: { x: -1, y: -0.1, z: -1 },
+            rotation: { x: 71, y: 0, z: -84 },
+            origin: { x: 0.5, y: 0.1, z: 0.5 },
+            scale: 0.48
+        }
+    },
+    groundTransformByType: {
+        "*": { scale: 2.64 }
+    },
+    fpHandTransformByType: {
+        "*": {
+            translation: { x: 0, y: 0.35, z: 0.5 },
+            scale: 1.62
+        }
+    }
+}

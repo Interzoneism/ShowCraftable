@@ -1,0 +1,208 @@
+{
+	"editor": {
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+		"ceramic": "block/clay/ceramic",
+		"wattle": "block/wattle",
+		"wood-generic": "block/wood-generic"
+	},
+	"elements": [
+		{
+			"name": "origin",
+			"from": [ 8.0, 0.0, 8.0 ],
+			"to": [ 8.0, 0.0, 8.0 ],
+			"rotationOrigin": [ 8.0, 0.0, 8.0 ],
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "wicker1",
+					"from": [ -5.0, 0.5, -5.0 ],
+					"to": [ -1.0, 6.5, -1.0 ],
+					"rotationOrigin": [ -3.0, 0.0, -3.0 ],
+					"rotationY": -22.5,
+					"faces": {
+						"north": { "texture": "#wattle", "uv": [ 0.0, 0.0, 4.0, 6.0 ] },
+						"east": { "texture": "#wattle", "uv": [ 0.0, 0.0, 4.0, 6.0 ] },
+						"south": { "texture": "#wattle", "uv": [ 0.0, 0.0, 4.0, 6.0 ] },
+						"west": { "texture": "#wattle", "uv": [ 0.0, 0.0, 4.0, 6.0 ] },
+						"up": { "texture": "#wattle", "uv": [ 0.0, 0.0, 4.0, 4.0 ] },
+						"down": { "texture": "#wattle", "uv": [ 0.0, 0.0, 4.0, 4.0 ] }
+					},
+					"children": [
+						{
+							"name": "jar1",
+							"from": [ 0.5, -0.5, 0.5 ],
+							"to": [ 3.5, 6.5, 3.5 ],
+							"rotationOrigin": [ 2.0, 0.0, 2.0 ],
+							"faces": {
+								"north": { "texture": "#ceramic", "uv": [ 0.0, 0.0, 3.0, 7.0 ] },
+								"east": { "texture": "#ceramic", "uv": [ 0.0, 0.0, 3.0, 7.0 ] },
+								"south": { "texture": "#ceramic", "uv": [ 0.0, 0.0, 3.0, 7.0 ] },
+								"west": { "texture": "#ceramic", "uv": [ 0.0, 0.0, 3.0, 7.0 ] },
+								"up": { "texture": "#ceramic", "uv": [ 0.0, 0.0, 3.0, 3.0 ] },
+								"down": { "texture": "#ceramic", "uv": [ 0.0, 0.0, 3.0, 3.0 ] }
+							},
+							"children": [
+								{
+									"name": "neck1",
+									"from": [ 0.5, 7.0, 0.5 ],
+									"to": [ 2.5, 10.0, 2.5 ],
+									"rotationOrigin": [ 1.5, 7.0, 1.5 ],
+									"faces": {
+										"north": { "texture": "#ceramic", "uv": [ 0.0, 0.0, 2.0, 3.0 ] },
+										"east": { "texture": "#ceramic", "uv": [ 0.0, 0.0, 2.0, 3.0 ] },
+										"south": { "texture": "#ceramic", "uv": [ 0.0, 0.0, 2.0, 3.0 ] },
+										"west": { "texture": "#ceramic", "uv": [ 0.0, 0.0, 2.0, 3.0 ] },
+										"up": { "texture": "#ceramic", "uv": [ 0.0, 0.0, 2.0, 2.0 ] }
+									},
+									"children": [
+										{
+											"name": "cap1",
+											"from": [ 0.5, 3.0, 0.5 ],
+											"to": [ 1.5, 4.0, 1.5 ],
+											"rotationOrigin": [ 0.5, 3.0, 0.5 ],
+											"faces": {
+												"north": { "texture": "#wood-generic", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"east": { "texture": "#wood-generic", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"south": { "texture": "#wood-generic", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"west": { "texture": "#wood-generic", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"up": { "texture": "#wood-generic", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+											}
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "wicker2",
+					"from": [ 0.0, 0.5, -3.0 ],
+					"to": [ 7.0, 6.5, 4.0 ],
+					"rotationOrigin": [ 3.5, 0.0, 0.0 ],
+					"rotationY": 10.0,
+					"faces": {
+						"north": { "texture": "#wattle", "uv": [ 1.0, 6.0, 8.0, 12.0 ] },
+						"east": { "texture": "#wattle", "uv": [ 2.0, 3.5, 9.0, 9.5 ] },
+						"south": { "texture": "#wattle", "uv": [ 6.5, 1.0, 13.5, 7.0 ] },
+						"west": { "texture": "#wattle", "uv": [ 7.5, 7.0, 14.5, 13.0 ] },
+						"up": { "texture": "#wattle", "uv": [ 2.0, 6.0, 9.0, 13.0 ] },
+						"down": { "texture": "#wattle", "uv": [ 8.0, 0.0, 15.0, 7.0 ] }
+					},
+					"children": [
+						{
+							"name": "jar2",
+							"from": [ 0.5, -0.5, 0.5 ],
+							"to": [ 6.5, 7.5, 6.5 ],
+							"rotationOrigin": [ 2.0, 0.0, 2.0 ],
+							"faces": {
+								"north": { "texture": "#ceramic", "uv": [ 9.0, 4.5, 15.0, 12.5 ] },
+								"east": { "texture": "#ceramic", "uv": [ 6.0, 1.5, 12.0, 9.5 ] },
+								"south": { "texture": "#ceramic", "uv": [ 0.5, 1.5, 6.5, 9.5 ] },
+								"west": { "texture": "#ceramic", "uv": [ 3.0, 1.0, 9.0, 9.0 ] },
+								"up": { "texture": "#ceramic", "uv": [ 1.5, 9.5, 7.5, 15.5 ] },
+								"down": { "texture": "#ceramic", "uv": [ 1.0, 1.0, 7.0, 7.0 ] }
+							},
+							"children": [
+								{
+									"name": "neck2",
+									"from": [ 2.0, 8.0, 2.0 ],
+									"to": [ 4.0, 12.0, 4.0 ],
+									"rotationOrigin": [ 3.0, 8.0, 3.0 ],
+									"faces": {
+										"north": { "texture": "#ceramic", "uv": [ 10.5, 4.5, 12.5, 8.5 ] },
+										"east": { "texture": "#ceramic", "uv": [ 0.0, 1.0, 2.0, 5.0 ] },
+										"south": { "texture": "#ceramic", "uv": [ 6.0, 9.0, 8.0, 13.0 ] },
+										"west": { "texture": "#ceramic", "uv": [ 10.5, 3.0, 12.5, 7.0 ] },
+										"up": { "texture": "#ceramic", "uv": [ 11.5, 2.0, 13.5, 4.0 ] }
+									},
+									"children": [
+										{
+											"name": "cap2",
+											"from": [ 0.5, 4.0, 0.5 ],
+											"to": [ 1.5, 5.0, 1.5 ],
+											"rotationOrigin": [ 0.5, 4.0, 0.5 ],
+											"faces": {
+												"north": { "texture": "#wood-generic", "uv": [ 2.0, 10.5, 3.0, 11.5 ] },
+												"east": { "texture": "#wood-generic", "uv": [ 3.5, 3.0, 4.5, 4.0 ] },
+												"south": { "texture": "#wood-generic", "uv": [ 5.0, 4.0, 6.0, 5.0 ] },
+												"west": { "texture": "#wood-generic", "uv": [ 3.0, 13.0, 4.0, 14.0 ] },
+												"up": { "texture": "#wood-generic", "uv": [ 13.5, 0.0, 14.5, 1.0 ] }
+											}
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "wicker3",
+					"from": [ -7.0, 0.5, 0.0 ],
+					"to": [ -1.0, 4.5, 6.0 ],
+					"rotationOrigin": [ -4.0, 0.0, 3.0 ],
+					"faces": {
+						"north": { "texture": "#wattle", "uv": [ 8.5, 4.0, 14.5, 8.0 ] },
+						"east": { "texture": "#wattle", "uv": [ 9.5, 2.0, 15.5, 6.0 ] },
+						"south": { "texture": "#wattle", "uv": [ 7.0, 6.0, 13.0, 10.0 ] },
+						"west": { "texture": "#wattle", "uv": [ 6.5, 9.0, 12.5, 13.0 ] },
+						"up": { "texture": "#wattle", "uv": [ 9.0, 3.0, 15.0, 9.0 ] },
+						"down": { "texture": "#wattle", "uv": [ 4.0, 9.0, 10.0, 15.0 ] }
+					},
+					"children": [
+						{
+							"name": "jar3",
+							"from": [ 0.5, -0.5, 0.5 ],
+							"to": [ 5.5, 4.5, 5.5 ],
+							"rotationOrigin": [ 2.0, 0.0, 2.0 ],
+							"faces": {
+								"north": { "texture": "#ceramic", "uv": [ 9.5, 4.0, 14.5, 9.0 ] },
+								"east": { "texture": "#ceramic", "uv": [ 9.0, 9.5, 14.0, 14.5 ] },
+								"south": { "texture": "#ceramic", "uv": [ 8.5, 10.5, 13.5, 15.5 ] },
+								"west": { "texture": "#ceramic", "uv": [ 4.0, 9.5, 9.0, 14.5 ] },
+								"up": { "texture": "#ceramic", "uv": [ 9.5, 1.5, 14.5, 6.5 ] },
+								"down": { "texture": "#ceramic", "uv": [ 1.5, 2.5, 6.5, 7.5 ] }
+							},
+							"children": [
+								{
+									"name": "neck3",
+									"from": [ 1.5, 5.0, 1.5 ],
+									"to": [ 3.5, 9.0, 3.5 ],
+									"rotationOrigin": [ 2.5, 5.0, 2.5 ],
+									"faces": {
+										"north": { "texture": "#ceramic", "uv": [ 9.5, 3.0, 11.5, 7.0 ] },
+										"east": { "texture": "#ceramic", "uv": [ 6.0, 0.0, 8.0, 4.0 ] },
+										"south": { "texture": "#ceramic", "uv": [ 6.5, 9.5, 8.5, 13.5 ] },
+										"west": { "texture": "#ceramic", "uv": [ 11.0, 2.0, 13.0, 6.0 ] },
+										"up": { "texture": "#ceramic", "uv": [ 4.0, 1.0, 6.0, 3.0 ] }
+									},
+									"children": [
+										{
+											"name": "cap3",
+											"from": [ 0.5, 4.0, 0.5 ],
+											"to": [ 1.5, 5.0, 1.5 ],
+											"rotationOrigin": [ 0.5, 4.0, 0.5 ],
+											"faces": {
+												"north": { "texture": "#wood-generic", "uv": [ 8.5, 2.0, 9.5, 3.0 ] },
+												"east": { "texture": "#wood-generic", "uv": [ 4.5, 9.5, 5.5, 10.5 ] },
+												"south": { "texture": "#wood-generic", "uv": [ 5.5, 3.0, 6.5, 4.0 ] },
+												"west": { "texture": "#wood-generic", "uv": [ 11.0, 12.5, 12.0, 13.5 ] },
+												"up": { "texture": "#wood-generic", "uv": [ 9.5, 1.5, 10.5, 2.5 ] }
+											}
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	]}

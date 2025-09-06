@@ -1,0 +1,20 @@
+{
+	"preset1": {
+		"voxelColorGreen": "0x9C64C864",
+		"voxelColorOrange": "0x9CE2AB5C",
+		"anvilColorGreen": "0xAA64C864",
+		"anvilColorRed": "0xDC4B002F"
+	},
+	"preset2": {
+		"voxelColorGreen": "0xDC5AFFBF",
+		"voxelColorOrange": "0x9CDF9F7F",
+		"anvilColorGreen": "0xAAC1FF26",
+		"anvilColorRed": "0xDC802D6D"
+	},
+	"preset3": {
+		"voxelColorGreen": "0xDC3AFFF8",
+		"voxelColorOrange": "0xECFFDF13",
+		"anvilColorGreen": "0xAADFFFDF",
+		"anvilColorRed": "0xDC3B1F1F"
+	}
+}

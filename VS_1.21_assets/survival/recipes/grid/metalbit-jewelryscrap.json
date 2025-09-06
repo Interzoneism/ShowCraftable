@@ -1,0 +1,167 @@
+[
+	{
+		ingredientPattern: "C	I",
+		recipeGroup: 1,
+		ingredients: {
+			"C": { type: "item", code: "chisel-*", isTool: true, toolDurabilityCost: 4 },
+			"I": { type: "item", code: "clutter-art/gear3" }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "metalbit-gold", quantity: 80 }
+	},
+	{
+		ingredientPattern: "C	I",
+		recipeGroup: 1,
+		ingredients: {
+			"C": { type: "item", code: "chisel-*", isTool: true, toolDurabilityCost: 2 },
+			"I": { type: "item", code: "clutter-art/gear1" }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "metalbit-gold", quantity: 40 }
+	},
+	{
+		ingredientPattern: "C	I",
+		recipeGroup: 1,
+		ingredients: {
+			"C": { type: "item", code: "chisel-*", isTool: true, toolDurabilityCost: 1 },
+			"I": { type: "item", code: "clothes-waist-gold-waist-chain" }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "metalbit-gold", quantity: 30 }
+	},
+	{
+		ingredientPattern: "C	I",
+		recipeGroup: 1,
+		ingredients: {
+			"C": { type: "item", code: "chisel-*", isTool: true, toolDurabilityCost: 1 },
+			"I": { type: "item", code: "*",  name: "metal", allowedVariants: ["clothes-head-crown", "clothes-head-crown-byzantine", "clothes-neck-fancy-royal-collar", "clutter-art/statuette-monkey"]  }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "metalbit-gold", quantity: 20 }
+	},
+	{
+		ingredientPattern: "C	I",
+		recipeGroup: 1,
+		ingredients: {
+			"C": { type: "item", code: "chisel-*", isTool: true, toolDurabilityCost: 1 },
+			"I": { type: "item", code: "*",  name: "metal", allowedVariants: ["clothes-neck-noble-necklace", "clothes-neck-golden-necklace", "clothes-neck-gorget", "clothes-head-gold-coronet", "clutter-art/statuette-horus" ] }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "metalbit-gold", quantity: 10 }
+	},
+	{
+		ingredientPattern: "C	I",
+		recipeGroup: 1,
+		ingredients: {
+			"C": { type: "item", code: "chisel-*", isTool: true, toolDurabilityCost: 2 },
+			"I": { type: "item", code: "clutter-art/gear2" }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "metalbit-silver", quantity: 40 }
+	},
+	{
+		ingredientPattern: "C	I",
+		recipeGroup: 1,
+		ingredients: {
+			"C": { type: "item", code: "chisel-*", isTool: true, toolDurabilityCost: 1 },
+			"I": { type: "item", code: "clothes-*",  name: "metal", allowedVariants: ["head-silver-diadem", "arm-large-silver-bracelets"]  }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "metalbit-silver", quantity: 6 }
+	},
+	{
+		ingredientPattern: "C	I",
+		recipeGroup: 1,
+		ingredients: {
+			"C": { type: "item", code: "chisel-*", isTool: true, toolDurabilityCost: 1 },
+			"I": { type: "item", code: "clothes-*",  name: "metal", allowedVariants: ["arm-silver-chain", "arm-silver-bracelet"]  }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "metalbit-silver", quantity: 2 }
+	},
+	{
+		ingredientPattern: "C	I",
+		recipeGroup: 1,
+		ingredients: {
+			"C": { type: "item", code: "chisel-*", isTool: true, toolDurabilityCost: 1 },
+			"I": { type: "item", code: "clothes-neck-*",  name: "metal", allowedVariants: ["copper-torc"]  }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "metalbit-copper", quantity: 10 }
+	},
+	{
+		ingredientPattern: "C	I",
+		recipeGroup: 1,
+		ingredients: {
+			"C": { type: "item", code: "chisel-*", isTool: true, toolDurabilityCost: 1 },
+			"I": { type: "item", code: "clothes-nadiya-*",  name: "metal", allowedVariants: ["neck-copper-lapis-necklace", "arm-copper-armlet", "arm-copper-lapis-bracelet"] }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "metalbit-copper", quantity: 6 }
+	},
+	{
+		ingredientPattern: "C	I",
+		recipeGroup: 1,
+		ingredients: {
+			"C": { type: "item", code: "chisel-*", isTool: true, toolDurabilityCost: 1 },
+			"I": { type: "item", code: "clothes-*",  name: "metal", allowedVariants: ["arm-copper-bracelet", "nadiya-arm-copper-armlet"]  }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "metalbit-copper", quantity: 2 }
+	},
+	{
+		ingredientPattern: "C	I",
+		recipeGroup: 1,
+		ingredients: {
+			"C": { type: "item", code: "chisel-*", isTool: true, toolDurabilityCost: 1 },
+			"I": { type: "item", code: "clutter-art/bronze-tablet" }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "metalbit-tinbronze", quantity: 20 }
+	},
+	{
+		ingredientPattern: "C	I",
+		recipeGroup: 1,
+		ingredients: {
+			"C": { type: "item", code: "chisel-*", isTool: true, toolDurabilityCost: 1 },
+			"I": { type: "item", code: "clothes-*",  name: "metal", allowedVariants: ["neck-bronze-gem-necklace"]  }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "metalbit-tinbronze", quantity: 10 }
+	},
+	{
+		ingredientPattern: "C	I",
+		recipeGroup: 1,
+		ingredients: {
+			"C": { type: "item", code: "chisel-*", isTool: true, toolDurabilityCost: 1 },
+			"I": { type: "item", code: "clothes-*",  name: "metal", allowedVariants: ["nadiya-arm-bronze-lapis-bracelet", "arm-bronze-armlet", "arm-bronze-bracelet"]  }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "metalbit-tinbronze", quantity: 2 }
+	},
+	{
+		ingredientPattern: "C	I",
+		recipeGroup: 1,
+		ingredients: {
+			"C": { type: "item", code: "chisel-*", isTool: true, toolDurabilityCost: 1 },
+			"I": { type: "item", code: "clutter-*",  name: "type", allowedVariants: ["art/statuette-boddhisatva", "art/statuette-ife-head"] }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "metalbit-brass", quantity: 20 }
+	},
+]

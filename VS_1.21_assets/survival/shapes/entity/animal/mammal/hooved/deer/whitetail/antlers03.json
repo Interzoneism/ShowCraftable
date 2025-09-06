@@ -1,0 +1,311 @@
+{
+	"editor": {
+		"backDropShape": "entity/animal/mammal/hooved/deer/whitetail/adult",
+		"collapsedPaths": "Root/Body/abdomen,Root/Body/Left Shoulder,Root/Body/Right Shoulder",
+		"allAngles": true,
+		"entityTextureMode": true
+	},
+	"textureWidth": 60,
+	"textureHeight": 76,
+	"textureSizes": {
+	},
+	"textures": {
+		"whitetail-antlers": "entity/animal/mammal/hooved/deer/whitetail-adult"
+	},
+	"elements": [
+		{
+			"name": "Horn attachment",
+			"stepParentName": "head",
+			"from": [ 0.0, 3.3, 1.8 ],
+			"to": [ 1.0, 4.3, 2.8 ],
+			"uv": [ 999.0, 999.0 ],
+			"rotationOrigin": [ 0.0, 3.3, 1.8 ],
+			"rotationZ": -2.0,
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "R antler base",
+					"from": [ 0.5, 0.7, -1.3 ],
+					"to": [ 1.5, 2.0, -0.3 ],
+					"unwrapMode": 4,
+					"uv": [ 43.0, 73.0 ],
+					"rotationOrigin": [ 0.5, 0.7, -0.3 ],
+					"rotationX": -30.0,
+					"rotationZ": -25.0,
+					"faces": {
+						"north": { "texture": "#whitetail-antlers", "uv": [ 43.0, 74.0, 44.0, 75.0 ] },
+						"east": { "texture": "#whitetail-antlers", "uv": [ 46.0, 74.0, 47.0, 75.0 ] },
+						"south": { "texture": "#whitetail-antlers", "uv": [ 45.0, 74.0, 46.0, 75.0 ] },
+						"west": { "texture": "#whitetail-antlers", "uv": [ 44.0, 74.0, 45.0, 75.0 ], "windMode": [-1,-1,-1,-1], "windData": [0,1,1,1] },
+						"up": { "texture": "#whitetail-antlers", "uv": [ 44.0, 73.0, 45.0, 74.0 ], "rotation": 90 },
+						"down": { "texture": "#whitetail-antlers", "uv": [ 44.0, 75.0, 45.0, 76.0 ], "rotation": 90 }
+					},
+					"children": [
+						{
+							"name": "R antler base 2",
+							"from": [ 0.1, 1.2, 0.1 ],
+							"to": [ 0.9, 3.7, 0.9 ],
+							"unwrapMode": 4,
+							"uv": [ 44.0, 71.0 ],
+							"rotationOrigin": [ 0.1, 1.2, 1.1 ],
+							"rotationX": -11.0,
+							"faces": {
+								"north": { "texture": "#whitetail-antlers", "uv": [ 44.0, 71.5, 44.5, 74.0 ] },
+								"east": { "texture": "#whitetail-antlers", "uv": [ 45.5, 71.5, 46.0, 74.0 ] },
+								"south": { "texture": "#whitetail-antlers", "uv": [ 45.0, 71.5, 45.5, 74.0 ] },
+								"west": { "texture": "#whitetail-antlers", "uv": [ 44.5, 71.5, 45.0, 74.0 ] },
+								"up": { "texture": "#whitetail-antlers", "uv": [ 44.5, 71.0, 45.0, 71.5 ], "rotation": 90 },
+								"down": { "texture": "#whitetail-antlers", "uv": [ 44.5, 74.0, 45.0, 74.5 ], "rotation": 90, "windMode": [-1,-1,-1,-1] }
+							},
+							"children": [
+								{
+									"name": "R antler base 3",
+									"from": [ 0.1, 2.4, 0.1 ],
+									"to": [ 0.8, 4.4, 0.8 ],
+									"unwrapMode": 2,
+									"uv": [ 44.0, 69.0 ],
+									"rotationOrigin": [ 0.8, 2.4, 0.8 ],
+									"rotationX": -5.0,
+									"rotationZ": 38.0,
+									"faces": {
+										"north": { "texture": "#whitetail-antlers", "uv": [ 45.0, 69.5, 45.5, 71.5 ] },
+										"east": { "texture": "#whitetail-antlers", "uv": [ 44.5, 69.5, 45.0, 71.5 ] },
+										"south": { "texture": "#whitetail-antlers", "uv": [ 44.0, 69.5, 44.5, 71.5 ] },
+										"west": { "texture": "#whitetail-antlers", "uv": [ 45.5, 69.5, 46.0, 71.5 ] },
+										"up": { "texture": "#whitetail-antlers", "uv": [ 44.5, 69.0, 45.0, 69.5 ], "rotation": 270 },
+										"down": { "texture": "#whitetail-antlers", "uv": [ 44.5, 71.5, 45.0, 72.0 ], "rotation": 270 }
+									},
+									"children": [
+										{
+											"name": "R antler base 4",
+											"from": [ 0.2, 2.0, 0.1 ],
+											"to": [ 0.7, 4.0, 0.6 ],
+											"unwrapMode": 3,
+											"uv": [ 44.0, 67.0 ],
+											"rotationOrigin": [ 0.7, 2.0, 0.6 ],
+											"rotationX": -10.0,
+											"rotationY": 10.0,
+											"rotationZ": 35.0,
+											"faces": {
+												"north": { "texture": "#whitetail-antlers", "uv": [ 45.5, 67.5, 46.0, 69.5 ] },
+												"east": { "texture": "#whitetail-antlers", "uv": [ 45.0, 67.5, 45.5, 69.5 ] },
+												"south": { "texture": "#whitetail-antlers", "uv": [ 44.5, 67.5, 45.0, 69.5 ] },
+												"west": { "texture": "#whitetail-antlers", "uv": [ 44.0, 67.5, 44.5, 69.5 ] },
+												"up": { "texture": "#whitetail-antlers", "uv": [ 44.5, 67.0, 45.0, 67.5 ] },
+												"down": { "texture": "#whitetail-antlers", "uv": [ 44.5, 69.5, 45.0, 70.0 ], "rotation": 180 }
+											},
+											"children": [
+												{
+													"name": "R antler base 5",
+													"from": [ 0.1, 1.9, 0.1 ],
+													"to": [ 0.5, 3.9, 0.5 ],
+													"unwrapMode": 3,
+													"uv": [ 44.0, 65.0 ],
+													"rotationOrigin": [ 0.6, 1.9, 0.6 ],
+													"rotationY": 1.0,
+													"rotationZ": 45.0,
+													"faces": {
+														"north": { "texture": "#whitetail-antlers", "uv": [ 45.5, 65.5, 46.0, 67.5 ] },
+														"east": { "texture": "#whitetail-antlers", "uv": [ 45.0, 65.5, 45.5, 67.5 ] },
+														"south": { "texture": "#whitetail-antlers", "uv": [ 44.5, 65.5, 45.0, 67.5 ] },
+														"west": { "texture": "#whitetail-antlers", "uv": [ 44.0, 65.5, 44.5, 67.5 ] },
+														"up": { "texture": "#whitetail-antlers", "uv": [ 44.5, 65.0, 45.0, 65.5 ] },
+														"down": { "texture": "#whitetail-antlers", "uv": [ 44.5, 67.5, 45.0, 68.0 ], "rotation": 180 }
+													}
+												}
+											]
+										},
+										{
+											"name": "R antler point 1",
+											"from": [ 0.1, 0.4, 0.4 ],
+											"to": [ 0.6, 1.9, 0.9 ],
+											"unwrapMode": 1,
+											"uv": [ 44.0, 61.5 ],
+											"rotationOrigin": [ 0.1, 0.4, 0.4 ],
+											"rotationX": 68.0,
+											"rotationY": 1.0,
+											"faces": {
+												"north": { "texture": "#whitetail-antlers", "uv": [ 44.5, 62.0, 45.0, 63.5 ] },
+												"east": { "texture": "#whitetail-antlers", "uv": [ 44.0, 62.0, 44.5, 63.5 ] },
+												"south": { "texture": "#whitetail-antlers", "uv": [ 45.5, 62.0, 46.0, 63.5 ] },
+												"west": { "texture": "#whitetail-antlers", "uv": [ 45.0, 62.0, 45.5, 63.5 ] },
+												"up": { "texture": "#whitetail-antlers", "uv": [ 44.5, 61.5, 45.0, 62.0 ], "rotation": 180 },
+												"down": { "texture": "#whitetail-antlers", "uv": [ 44.5, 63.5, 45.0, 64.0 ] }
+											}
+										},
+										{
+											"name": "R antler point 2",
+											"from": [ -0.1011, 1.687, 0.3911 ],
+											"to": [ 0.3989, 3.687, 0.8911 ],
+											"unwrapMode": 2,
+											"uv": [ 44.0, 57.5 ],
+											"rotationOrigin": [ -0.1011, 1.687, 0.3911 ],
+											"rotationX": 56.532,
+											"rotationY": 32.615,
+											"rotationZ": 23.957,
+											"faces": {
+												"north": { "texture": "#whitetail-antlers", "uv": [ 45.0, 58.0, 45.5, 60.0 ] },
+												"east": { "texture": "#whitetail-antlers", "uv": [ 44.5, 58.0, 45.0, 60.0 ] },
+												"south": { "texture": "#whitetail-antlers", "uv": [ 44.0, 58.0, 44.5, 60.0 ] },
+												"west": { "texture": "#whitetail-antlers", "uv": [ 45.5, 58.0, 46.0, 60.0 ] },
+												"up": { "texture": "#whitetail-antlers", "uv": [ 44.5, 57.5, 45.0, 58.0 ], "rotation": 270 },
+												"down": { "texture": "#whitetail-antlers", "uv": [ 44.5, 60.0, 45.0, 60.5 ], "rotation": 270 }
+											}
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "L antler base",
+					"from": [ 0.5, 0.7, 0.1 ],
+					"to": [ 1.5, 2.0, 1.1 ],
+					"unwrapMode": 4,
+					"uv": [ 39.0, 73.0 ],
+					"rotationOrigin": [ 0.5, 0.7, 0.1 ],
+					"rotationX": 30.0,
+					"rotationZ": -25.0,
+					"faces": {
+						"north": { "texture": "#whitetail-antlers", "uv": [ 39.0, 74.0, 40.0, 75.0 ] },
+						"east": { "texture": "#whitetail-antlers", "uv": [ 42.0, 74.0, 43.0, 75.0 ] },
+						"south": { "texture": "#whitetail-antlers", "uv": [ 41.0, 74.0, 42.0, 75.0 ] },
+						"west": { "texture": "#whitetail-antlers", "uv": [ 40.0, 74.0, 41.0, 75.0 ], "windMode": [-1,-1,-1,-1], "windData": [0,0,1,1] },
+						"up": { "texture": "#whitetail-antlers", "uv": [ 40.0, 73.0, 41.0, 74.0 ], "rotation": 90 },
+						"down": { "texture": "#whitetail-antlers", "uv": [ 40.0, 75.0, 41.0, 76.0 ], "rotation": 90 }
+					},
+					"children": [
+						{
+							"name": "L antler base 2",
+							"from": [ 0.1, 1.2, 0.1 ],
+							"to": [ 0.9, 3.7, 0.9 ],
+							"unwrapMode": 4,
+							"uv": [ 40.0, 71.0 ],
+							"rotationOrigin": [ 0.1, 1.2, 0.1 ],
+							"rotationX": 11.0,
+							"faces": {
+								"north": { "texture": "#whitetail-antlers", "uv": [ 40.0, 71.5, 40.5, 74.0 ] },
+								"east": { "texture": "#whitetail-antlers", "uv": [ 41.5, 71.5, 42.0, 74.0 ] },
+								"south": { "texture": "#whitetail-antlers", "uv": [ 41.0, 71.5, 41.5, 74.0 ] },
+								"west": { "texture": "#whitetail-antlers", "uv": [ 40.5, 71.5, 41.0, 74.0 ] },
+								"up": { "texture": "#whitetail-antlers", "uv": [ 40.5, 71.0, 41.0, 71.5 ], "rotation": 90 },
+								"down": { "texture": "#whitetail-antlers", "uv": [ 40.5, 74.0, 41.0, 74.5 ], "rotation": 90 }
+							},
+							"children": [
+								{
+									"name": "L antler base 3",
+									"from": [ 0.1, 2.4, 0.1 ],
+									"to": [ 0.8, 4.4, 0.8 ],
+									"unwrapMode": 1,
+									"uv": [ 40.5, 69.0 ],
+									"rotationOrigin": [ 0.8, 2.4, 0.1 ],
+									"rotationX": 5.0,
+									"rotationZ": 38.0,
+									"faces": {
+										"north": { "texture": "#whitetail-antlers", "uv": [ 41.0, 69.5, 41.5, 71.5 ] },
+										"east": { "texture": "#whitetail-antlers", "uv": [ 40.5, 69.5, 41.0, 71.5 ] },
+										"south": { "texture": "#whitetail-antlers", "uv": [ 42.0, 69.5, 42.5, 71.5 ] },
+										"west": { "texture": "#whitetail-antlers", "uv": [ 41.5, 69.5, 42.0, 71.5 ] },
+										"up": { "texture": "#whitetail-antlers", "uv": [ 41.0, 69.0, 41.5, 69.5 ], "rotation": 180 },
+										"down": { "texture": "#whitetail-antlers", "uv": [ 41.0, 71.5, 41.5, 72.0 ] }
+									},
+									"children": [
+										{
+											"name": "L antler base 4",
+											"from": [ 0.2, 2.0, 0.2 ],
+											"to": [ 0.7, 4.0, 0.7 ],
+											"unwrapMode": 1,
+											"uv": [ 41.0, 67.0 ],
+											"rotationOrigin": [ 0.7, 2.0, 0.2 ],
+											"rotationX": 10.0,
+											"rotationY": -10.0,
+											"rotationZ": 35.0,
+											"faces": {
+												"north": { "texture": "#whitetail-antlers", "uv": [ 41.5, 67.5, 42.0, 69.5 ] },
+												"east": { "texture": "#whitetail-antlers", "uv": [ 41.0, 67.5, 41.5, 69.5 ] },
+												"south": { "texture": "#whitetail-antlers", "uv": [ 42.5, 67.5, 43.0, 69.5 ] },
+												"west": { "texture": "#whitetail-antlers", "uv": [ 42.0, 67.5, 42.5, 69.5 ] },
+												"up": { "texture": "#whitetail-antlers", "uv": [ 41.5, 67.0, 42.0, 67.5 ], "rotation": 180 },
+												"down": { "texture": "#whitetail-antlers", "uv": [ 41.5, 69.5, 42.0, 70.0 ] }
+											},
+											"children": [
+												{
+													"name": "L antler base 5",
+													"from": [ 0.1, 2.0, 0.0 ],
+													"to": [ 0.5, 4.0, 0.4 ],
+													"unwrapMode": 1,
+													"uv": [ 41.0, 65.0 ],
+													"rotationOrigin": [ 0.6, 2.0, 0.0 ],
+													"rotationY": -1.0,
+													"rotationZ": 45.0,
+													"faces": {
+														"north": { "texture": "#whitetail-antlers", "uv": [ 41.5, 65.5, 42.0, 67.5 ] },
+														"east": { "texture": "#whitetail-antlers", "uv": [ 41.0, 65.5, 41.5, 67.5 ] },
+														"south": { "texture": "#whitetail-antlers", "uv": [ 42.5, 65.5, 43.0, 67.5 ] },
+														"west": { "texture": "#whitetail-antlers", "uv": [ 42.0, 65.5, 42.5, 67.5 ] },
+														"up": { "texture": "#whitetail-antlers", "uv": [ 41.5, 65.0, 42.0, 65.5 ], "rotation": 180 },
+														"down": { "texture": "#whitetail-antlers", "uv": [ 41.5, 67.5, 42.0, 68.0 ] }
+													}
+												}
+											]
+										},
+										{
+											"name": "L antler point 1",
+											"from": [ -0.4, -0.8, 0.2 ],
+											"to": [ 0.1, 0.7, 0.7 ],
+											"unwrapMode": 3,
+											"uv": [ 41.0, 61.5 ],
+											"rotationOrigin": [ -0.4, -0.8, 0.2 ],
+											"rotationX": -68.0,
+											"faces": {
+												"north": { "texture": "#whitetail-antlers", "uv": [ 42.5, 62.0, 43.0, 63.5 ] },
+												"east": { "texture": "#whitetail-antlers", "uv": [ 42.0, 62.0, 42.5, 63.5 ] },
+												"south": { "texture": "#whitetail-antlers", "uv": [ 41.5, 62.0, 42.0, 63.5 ] },
+												"west": { "texture": "#whitetail-antlers", "uv": [ 41.0, 62.0, 41.5, 63.5 ] },
+												"up": { "texture": "#whitetail-antlers", "uv": [ 41.5, 61.5, 42.0, 62.0 ] },
+												"down": { "texture": "#whitetail-antlers", "uv": [ 41.5, 63.5, 42.0, 64.0 ], "rotation": 180 }
+											}
+										},
+										{
+											"name": "L antler point 2",
+											"from": [ 0.1684, 1.3357, 0.1766 ],
+											"to": [ 0.6684, 3.3357, 0.6766 ],
+											"unwrapMode": 2,
+											"uv": [ 41.0, 57.5 ],
+											"rotationOrigin": [ 0.1684, 1.3357, 0.1766 ],
+											"rotationX": -56.532,
+											"rotationY": -32.615,
+											"rotationZ": 23.957,
+											"faces": {
+												"north": { "texture": "#whitetail-antlers", "uv": [ 42.0, 58.0, 42.5, 60.0 ] },
+												"east": { "texture": "#whitetail-antlers", "uv": [ 41.5, 58.0, 42.0, 60.0 ] },
+												"south": { "texture": "#whitetail-antlers", "uv": [ 41.0, 58.0, 41.5, 60.0 ] },
+												"west": { "texture": "#whitetail-antlers", "uv": [ 42.5, 58.0, 43.0, 60.0 ] },
+												"up": { "texture": "#whitetail-antlers", "uv": [ 41.5, 57.5, 42.0, 58.0 ], "rotation": 270 },
+												"down": { "texture": "#whitetail-antlers", "uv": [ 41.5, 60.0, 42.0, 60.5 ], "rotation": 270 }
+											}
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"animations": [
+		{
+			"name": "Walk",
+			"code": "walk",
+			"quantityframes": 30,
+			"onActivityStopped": "Rewind",
+			"onAnimationEnd": "Repeat",
+			"keyframes": [
+
+			]
+		}
+	]
+}

@@ -1,0 +1,62 @@
+{
+	"editor": {
+		"collapsedPaths": "",
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+		"cupronickel1": "block/metal/tarnished/cupronickel-sheet1"
+	},
+	"elements": [
+		{
+			"name": "Cube2",
+			"from": [ 1.5, 4.0, 3.0 ],
+			"to": [ 17.5, 5.0, 11.0 ],
+			"rotationOrigin": [ 5.5, 4.0, 9.0 ],
+			"rotationX": -29.0,
+			"rotationZ": 28.5,
+			"faces": {
+				"north": { "texture": "#cupronickel1", "uv": [ 0.0, 0.0, 16.0, 1.0 ] },
+				"east": { "texture": "#cupronickel1", "uv": [ 0.0, 0.0, 8.0, 1.0 ] },
+				"west": { "texture": "#cupronickel1", "uv": [ 0.0, 0.0, 8.0, 1.0 ] },
+				"up": { "texture": "#cupronickel1", "uv": [ 0.0, 0.0, 16.0, 8.0 ] },
+				"down": { "texture": "#cupronickel1", "uv": [ 0.0, 0.0, 16.0, 8.0 ] }
+			},
+			"children": [
+				{
+					"name": "Cube3",
+					"from": [ 0.0, 0.0, 8.0 ],
+					"to": [ 16.0, 1.0, 14.0 ],
+					"rotationOrigin": [ 0.0, 0.0, 8.0 ],
+					"rotationX": -32.0,
+					"faces": {
+						"east": { "texture": "#cupronickel1", "uv": [ 7.5, 0.0, 13.5, 1.0 ] },
+						"west": { "texture": "#cupronickel1", "uv": [ 7.5, 0.0, 13.5, 1.0 ] },
+						"up": { "texture": "#cupronickel1", "uv": [ 0.0, 8.0, 16.0, 14.0 ] },
+						"down": { "texture": "#cupronickel1", "uv": [ 0.0, 8.0, 16.0, 14.0 ] }
+					},
+					"children": [
+						{
+							"name": "Cube4",
+							"from": [ 0.0, 0.0, 6.0 ],
+							"to": [ 16.0, 1.0, 8.0 ],
+							"rotationOrigin": [ 0.0, 0.0, 6.0 ],
+							"rotationX": -24.0,
+							"rotationY": 0.0,
+							"faces": {
+								"east": { "texture": "#cupronickel1", "uv": [ 14.0, 0.0, 16.0, 1.0 ] },
+								"south": { "texture": "#cupronickel1", "uv": [ 0.0, 0.0, 16.0, 1.0 ] },
+								"west": { "texture": "#cupronickel1", "uv": [ 14.0, 0.0, 16.0, 1.0 ] },
+								"up": { "texture": "#cupronickel1", "uv": [ 0.0, 14.0, 16.0, 16.0 ] },
+								"down": { "texture": "#cupronickel1", "uv": [ 0.0, 14.0, 16.0, 16.0 ] }
+							}
+						}
+					]
+				}
+			]
+		}
+	]}

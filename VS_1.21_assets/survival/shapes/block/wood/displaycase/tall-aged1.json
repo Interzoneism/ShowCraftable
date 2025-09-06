@@ -1,0 +1,72 @@
+{
+	"editor": {
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+		"clear": "block/wood/displaycase/aged/clear",
+		"side": "block/wood/displaycase/aged/side",
+		"top": "block/wood/displaycase/aged/top",
+		"wood": "block/wood/displaycase/aged/wood"
+	},
+	"elements": [
+		{
+			"name": "origin",
+			"from": [ 8.0, 0.0, 8.0 ],
+			"to": [ 8.0, 0.0, 8.0 ],
+			"rotationOrigin": [ 8.0, 0.0, 8.0 ],
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "wood",
+					"from": [ -8.0, 0.0, -8.0 ],
+					"to": [ 8.0, 1.0, 8.0 ],
+					"faces": {
+						"north": { "texture": "#wood", "uv": [ 0.0, 0.0, 16.0, 1.0 ], "rotation": 180 },
+						"east": { "texture": "#wood", "uv": [ 15.0, 0.0, 16.0, 16.0 ], "rotation": 90 },
+						"south": { "texture": "#wood", "uv": [ 0.0, 15.0, 16.0, 16.0 ] },
+						"west": { "texture": "#wood", "uv": [ 0.0, 0.0, 1.0, 16.0 ], "rotation": 270 },
+						"up": { "texture": "#wood", "uv": [ 0.0, 0.0, 16.0, 16.0 ] },
+						"down": { "texture": "#wood", "uv": [ 0.0, 0.0, 16.0, 16.0 ] }
+					},
+					"children": [
+						{
+							"name": "glass",
+							"from": [ 1.0, 0.99, 1.0 ],
+							"to": [ 15.0, 15.99, 15.0 ],
+							"renderPass": 3,
+							"rotationOrigin": [ 8.0, 1.0, 8.0 ],
+							"faces": {
+								"north": { "texture": "#clear", "uv": [ 0.0, 0.0, 14.0, 15.0 ], "windData": [1,1,1,1] },
+								"east": { "texture": "#clear", "uv": [ 0.0, 0.0, 14.0, 15.0 ], "windData": [1,1,1,1] },
+								"south": { "texture": "#clear", "uv": [ 0.0, 0.0, 14.0, 15.0 ], "windData": [1,1,1,1] },
+								"west": { "texture": "#clear", "uv": [ 0.0, 0.0, 14.0, 15.0 ], "windData": [1,1,1,1] },
+								"up": { "texture": "#clear", "uv": [ 1.5, 1.0, 15.5, 15.0 ], "windData": [1,1,1,1] }
+							},
+							"children": [
+								{
+									"name": "N1",
+									"from": [ -0.02, 0.02, -0.02 ],
+									"to": [ 14.02, 15.02, 14.02 ],
+									"renderPass": 1,
+									"rotationOrigin": [ 0.0, 0.01, 0.0 ],
+									"faces": {
+										"north": { "texture": "#side", "uv": [ 1.0, 1.0, 15.0, 16.0 ] },
+										"east": { "texture": "#side", "uv": [ 1.0, 1.0, 15.0, 16.0 ] },
+										"south": { "texture": "#side", "uv": [ 1.0, 1.0, 15.0, 16.0 ] },
+										"west": { "texture": "#side", "uv": [ 1.0, 1.0, 15.0, 16.0 ] },
+										"up": { "texture": "#top", "uv": [ 1.0, 2.0, 15.0, 16.0 ] }
+									}
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	]}

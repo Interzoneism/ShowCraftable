@@ -1,0 +1,195 @@
+{
+	code: "toolmold",
+	class: "BlockToolMold",
+	entityClass: "ToolMold",
+	behaviors: [
+		{name: "Lockable"},
+		{name: "UnstableFalling"}
+	],
+	entityBehaviors: [{ name: "TemperatureSensitive" }],
+	variantgroups: [
+		{ code: "color", states: ["blue", "fire", "black", "brown", "cream", "gray", "orange", "red", "tan", ] },
+		{ code:"materialtype", states: ["fired"] },
+		{ code:"tooltype", states: ["axe", "pickaxe", "shovel", "blade-falx", "hammer", "anvil", "helvehammer", "hoe", "prospectingpick", "lamellae", /*"bullets"*/] }
+	],
+	shapebytype: {
+		"*-axe": { base: "block/clay/mold/axe", rotateY: 0 },
+		"*-pickaxe": { base: "block/clay/mold/pickaxe", rotateY: 180 },
+		"*-anvil": { base: "block/clay/mold/anvil", rotateY: 270 },
+		"*": { base: "block/clay/mold/{tooltype}", rotateY: 90 },
+	},
+	textures: {  floor: { base: "block/clay/hardened/{color}" }, other: { base: "block/clay/hardened/{color}" } },
+	attributes: {
+		reinforcable: true,
+		shatteredShape: { base: "block/clay/mold/shattered-ingot" },
+		onTongTransformByType: {
+			"toolmold-*-fired-anvil": {
+				translation: { x: -1.35, y: -1, z: -0.64 },
+				rotation: { x: 180, y: -20, z: 105 },
+				scale: 0.75
+			},
+			"toolmold-*-fired-helvehammer": {
+				translation: { x: -1.48, y: -1.04, z: -1.3 },
+				rotation: { x: -86, y: -18, z: -1 },
+				scale: 0.65
+			},
+			"*": {
+				translation: { x: -1.7, y: -1.3, z: -0.57 },
+				rotation: { x: 98, y: 16, z: 3 },
+				scale: 0.55
+			}
+		},
+		handbook: {
+			groupBy: ["toolmold-*-{materialtype}-{tooltype}"]
+		}
+	},
+	attributesByType: {
+		"toolmold-*-fired-anvil": {
+			requiredUnits: 900,
+			fillHeight: 10,
+			fillQuadsByLevel: [
+				{ x1: 3, z1: 3, x2: 14, z2: 13 },
+				{ x1: 3, z1: 3, x2: 14, z2: 13 },
+				{ x1: 4, z1: 5, x2: 13, z2: 11 },
+				
+				{ x1: 5, z1: 6, x2: 12, z2: 10 },
+				{ x1: 5, z1: 6, x2: 12, z2: 10 },
+				{ x1: 5, z1: 6, x2: 12, z2: 10 },
+				{ x1: 5, z1: 6, x2: 12, z2: 10 },
+				
+				{ x1: 3, z1: 6, x2: 13, z2: 10 },
+				{ x1: 2, z1: 6, x2: 14, z2: 10 },
+				{ x1: 1, z1: 5, x2: 15, z2: 11 },
+			],
+			drop: { type:"block", code: "anvil-{metal}" },
+			breaksWhenFilled: true
+		},
+		"toolmold-*-fired-helvehammer": {
+			requiredUnits: 200,
+			fillHeight: 2,
+			moldrackable: false,
+			fillQuadsByLevel: [
+				{ x1: 4, z1: 4, x2: 12, z2: 12 }
+			],
+			drop: { type: "item", code: "helvehammerhead-{metal}" },
+			shelvable: "SingleCenter"
+		},
+		"toolmold-*-fired-lamellae": {
+			requiredUnits: 100,
+			fillHeight: 1,
+			moldrackable: true,
+			onmoldrackTransform: { rotation: { z: 90 } },
+			drop: { type: "item", code: "metallamellae-{metal}" }
+		},
+		/*
+		"toolmold-*-fired-bullets": {
+			requiredUnits: 100,
+			fillHeight: 2,
+			moldrackable: true,
+			onmoldrackTransform: { rotation: { z: 90 } },
+			drop: { type: "item", code: "bullets-{metal}", quantity: 16 }
+		},
+		*/
+		"toolmold-*-fired-blade-falx": {
+			requiredUnits: 100,
+			fillHeight: 1,
+			moldrackable: true,
+			onmoldrackTransform: { rotation: { z: 90 } },
+			drop: { type: "item", code: "bladehead-falx-{metal}" }
+		},
+		"toolmold-*-fired-*": {
+			requiredUnits: 100,
+			fillHeight: 1,
+			moldrackable: true,
+			onmoldrackTransform: { rotation: { z: 90 } },
+			drop: { type: "item", code: "{tooltype}head-{metal}" }
+		},
+	},
+	blockmaterial: "Ceramic",
+	creativeinventory: { "general": ["*"], "construction": ["*"] },
+	replaceable: 700,
+	resistance: 1.5,
+	maxStackSize: 8,
+	lightAbsorption: 0,
+	sounds: {
+		walk: "walk/stone",
+	},
+	collisionboxByType: {
+		"*-anvil": { x1: 0, y1: 0, z1: 0.125, x2: 1, y2: 0.6875, z2: 0.875 },
+		"*-helvehammer": { x1: 0.219, y1: 0, z1: 0.1875, x2: 0.781, y2: 0.1875, z2: 0.8125 },
+		"*": { x1: 0.0625, y1: 0, z1: 0.0625, x2: 0.9375, y2: 0.125, z2: 0.9375 },
+	},
+	selectionboxByType: {
+		"*-anvil": { x1: 0, y1: 0, z1: 0.125, x2: 1, y2: 0.6875, z2: 0.875 },
+		"*-helvehammer": { x1: 0.219, y1: 0, z1: 0.1875, x2: 0.781, y2: 0.1875, z2: 0.8125 },
+		"*": { x1: 0.0625, y1: 0, z1: 0.0625, x2: 0.9375, y2: 0.125, z2: 0.9375 },
+	},
+	sideopaque: {
+		all: false
+	},
+	sidesolid: {
+		all: false
+	},
+	heldTpIdleAnimationByType: {
+		"*-anvil": "holdbothhandslarge",
+		"*-helvehammer": "holdbothhandslarge"
+	},
+	heldTpUseAnimationByType: {
+		"*-anvil": "twohandplaceblock",
+		"*-helvehammer": "twohandplaceblock"
+	},
+	guiTransformByType: {
+		"*-anvil": {
+			translation: { x: 0, y: 3, z: 0 },
+			origin: { x: 0.5, y: 0.3, z: 0.5 },
+			scale: 1.33
+		},
+		"*-helvehammer": {
+			origin: { x: 0.5, y: 0.18, z: 0.5 },
+			scale: 1.8
+		},
+		"*": {
+			translation: { x: 0, y: 3, z: 0 },
+			origin: { x: 0.5, y: 0.0625, z: 0.5 },
+			scale: 1.33
+		}
+	},
+	tpHandTransformByType: {
+		"*-anvil": {
+			translation: { x: -0.5, y: -0.03, z: -0.45 },
+			rotation: { x: -81, y: 14, z: -102 },
+			origin: { x: 0.5, y: 0.125, z: 0.5 },
+			scale: 0.7
+		},
+		"*-helvehammer": {
+			translation: { x: -0.8, y: -0, z: -0.3 },
+			rotation: { x: 12, y: 12, z: -92 },
+			origin: { x: 0.5, y: 0.125, z: 0.5 },
+			scale: 0.8
+		},
+		"*": {
+			translation: { x: -1, y: -0.6, z: -1.05 },
+			rotation: { x: -87, y: 9, z: 4 },
+			origin: { x: 0.5, y: 0.125, z: 0.5 },
+			scale: 0.5
+		}
+	},
+	fpHandTransformByType: {
+		"@.*-(anvil|helvehammer)": {
+			translation: { x: -0.3, y: 0, z: 0.5 },
+			rotation: { x: 16, y: -50, z: 1 },
+			origin: { x: 0.5, y: 0.125, z: 0.5 }
+		},
+		"*": {
+			translation: { x: -0.3, y: 0, z: 0.5 },
+			rotation: { x: 16, y: -51, z: 91 },
+			origin: { x: 0.5, y: 0.125, z: 0.5 }
+		}
+	},
+	groundTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: 0, y: -45, z: 0 },
+		origin: { x: 0.5, y: 0, z: 0.5 },
+		scale: 2.2
+	}
+}

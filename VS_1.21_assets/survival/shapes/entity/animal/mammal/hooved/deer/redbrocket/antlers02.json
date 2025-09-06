@@ -1,0 +1,95 @@
+{
+	"editor": {
+		"backDropShape": "entity/animal/mammal/hooved/deer/redbrocket/adult",
+		"collapsedPaths": "Root/Body/Left Shoulder,Root/Body/Right Shoulder,Root/Body/neck/neck2/head/mouth up,Root/Body/neck/neck2/head/jaw",
+		"allAngles": true,
+		"entityTextureMode": true
+	},
+	"textureWidth": 36,
+	"textureHeight": 52,
+	"textureSizes": {
+		"redbrocket-adult": [36,52],
+		"skin": [32,48]
+	},
+	"textures": {
+		"redbrocket-adult": "entity/animal/mammal/hooved/deer/redbrocket-adult"
+	},
+	"elements": [
+		{
+			"name": "AntlerMOVER",
+			"stepParentName": "head",
+			"from": [ 0.0, 1.0, 0.5 ],
+			"to": [ 1.0, 2.0, 1.5 ],
+			"uv": [ 0.0, 0.0 ],
+			"rotationOrigin": [ -0.019, 0.7438, 0.5 ],
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "AntlerBaseR",
+					"from": [ 0.1, 1.4, -0.4 ],
+					"to": [ 0.6, 1.7, 0.1 ],
+					"unwrapMode": 5,
+					"uv": [ 16.5, 4.0 ],
+					"rotationOrigin": [ 0.1, 1.4, 0.2 ],
+					"rotationX": -5.0,
+					"faces": {
+						"north": { "texture": "#redbrocket-adult", "uv": [ 17.0, 4.0, 17.5, 4.5 ], "rotation": 180 },
+						"east": { "texture": "#redbrocket-adult", "uv": [ 17.5, 4.5, 18.0, 5.0 ], "rotation": 90 },
+						"south": { "texture": "#redbrocket-adult", "uv": [ 17.0, 5.0, 17.5, 5.5 ] },
+						"west": { "texture": "#redbrocket-adult", "uv": [ 16.5, 4.5, 17.0, 5.0 ], "rotation": 270 },
+						"up": { "texture": "#redbrocket-adult", "uv": [ 17.0, 4.5, 17.5, 5.0 ] }
+					},
+					"children": [
+						{
+							"name": "AntlerRbase",
+							"from": [ 0.1, 0.1, 0.1 ],
+							"to": [ 0.4, 2.1, 0.4 ],
+							"uv": [ 18.5, 15.5 ],
+							"rotationOrigin": [ 0.1, 0.1, 0.1 ],
+							"faces": {
+								"north": { "texture": "#redbrocket-adult", "uv": [ 18.5, 16.0, 19.0, 18.0 ] },
+								"east": { "texture": "#redbrocket-adult", "uv": [ 19.0, 16.0, 19.5, 18.0 ] },
+								"south": { "texture": "#redbrocket-adult", "uv": [ 19.5, 16.0, 20.0, 18.0 ] },
+								"west": { "texture": "#redbrocket-adult", "uv": [ 20.0, 16.0, 20.5, 18.0 ] },
+								"up": { "texture": "#redbrocket-adult", "uv": [ 18.5, 15.5, 19.0, 16.0 ] }
+							}
+						}
+					]
+				},
+				{
+					"name": "AntlerBaseL",
+					"from": [ 0.1, 1.4, 0.9 ],
+					"to": [ 0.6, 1.7, 1.4 ],
+					"unwrapMode": 5,
+					"uv": [ 16.5, 4.0 ],
+					"rotationOrigin": [ 0.1, 1.4, 0.9 ],
+					"rotationX": 5.0,
+					"faces": {
+						"north": { "texture": "#redbrocket-adult", "uv": [ 17.0, 4.0, 17.5, 4.5 ], "rotation": 180 },
+						"east": { "texture": "#redbrocket-adult", "uv": [ 17.5, 4.5, 18.0, 5.0 ], "rotation": 90 },
+						"south": { "texture": "#redbrocket-adult", "uv": [ 17.0, 5.0, 17.5, 5.5 ] },
+						"west": { "texture": "#redbrocket-adult", "uv": [ 16.5, 4.5, 17.0, 5.0 ], "rotation": 270 },
+						"up": { "texture": "#redbrocket-adult", "uv": [ 17.0, 4.5, 17.5, 5.0 ] }
+					},
+					"children": [
+						{
+							"name": "AntlerLbase",
+							"from": [ 0.1, 0.1, 0.1 ],
+							"to": [ 0.4, 2.1, 0.4 ],
+							"uv": [ 20.5, 14.5 ],
+							"rotationOrigin": [ 0.1, 0.1, 0.1 ],
+							"faces": {
+								"north": { "texture": "#redbrocket-adult", "uv": [ 20.5, 15.0, 21.0, 17.0 ] },
+								"east": { "texture": "#redbrocket-adult", "uv": [ 21.0, 15.0, 21.5, 17.0 ] },
+								"south": { "texture": "#redbrocket-adult", "uv": [ 21.5, 15.0, 22.0, 17.0 ] },
+								"west": { "texture": "#redbrocket-adult", "uv": [ 22.0, 15.0, 22.5, 17.0 ] },
+								"up": { "texture": "#redbrocket-adult", "uv": [ 20.5, 14.5, 21.0, 15.0 ] }
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,149 @@
+{
+	code: "beam-plane",
+	class: "BlockSupportBeam",
+	entityClass: "Generic",
+	entityBehaviors: [ { name: "SupportBeam" } ],
+	variantgroups: [
+		{ code: "material", states: ["copper", "slate", "thatch", "agedthatch", "blackclay", "brownclay", "creamclay", "fireclay", "grayclay", "orangeclay", "redclay", "tanclay", 
+									"bamboo", "sod", "acacia", "aged", "baldcypress", "birch", "ebony", "kapok", "larch", "maple", "oak", "pine", "purpleheart", "redwood", "walnut"] },
+		{ code: "cover", states: ["free", "snow"] }
+	],
+	skipVariants: [
+		"beam-plane-sod-*",
+		"beam-plane-thatch-*",
+		"beam-plane-agedthatch-*"
+	],
+	attributes: {
+		handbook: {	exclude: true }
+	},
+	creativeinventory: { "general": ["*-free"], "construction": ["*-free"] },
+	shapeByType: { 
+		"*-slate-free": { base: "block/roofing/beam/planeshingle-{cover}" },
+		"*-copper-free": { base: "block/roofing/beam/planeshingle-{cover}" },
+		"*-slate-snow": { base: "block/roofing/beam/planeshingle-{cover}" },
+		"*-copper-snow": { base: "block/roofing/beam/planeshingle-{cover}" },
+
+		"*-bamboo-free": { base: "block/roofing/beam/planeshingle-{cover}" },
+		"*-bamboo-snow": { base: "block/roofing/beam/planeshingle-{cover}" },
+		
+		"@.*-(black|brown|cream|fire|gray|orange|red|tan)clay-free": { base: "block/roofing/beam/planeshingle-{cover}" },
+		"@.*-(black|brown|cream|fire|gray|orange|red|tan)clay-snow": { base: "block/roofing/beam/planeshingle-{cover}" },
+
+		"*-free": { base: "block/roofing/beam/planeshingle-free" },
+		"*-snow": { base: "block/roofing/beam/planeshingle-snow*" }
+	},
+	texturesByType: {
+		"beam-plane-copper-*": {
+			"material": { base: "block/metal/shingles/copper*" }
+		},
+		"beam-plane-slate-*": {
+			"material": { base: "block/stone/shingles/slate*" }
+		},
+		"beam-plane-blackclay-*": {
+			"material": { base: "block/clay/shingles/black" }
+		},
+		"beam-plane-brownclay-*": {
+			"material": { base: "block/clay/shingles/brown" }
+		},
+		"beam-plane-creamclay-*": {
+			"material": { base: "block/clay/shingles/cream" }
+		},
+		"beam-plane-fireclay-*": {
+			"material": { base: "block/clay/shingles/fire" }
+		},
+		"beam-plane-grayclay-*": {
+			"material": { base: "block/clay/shingles/gray" }
+		},
+		"beam-plane-orangeclay-*": {
+			"material": { base: "block/clay/shingles/orange" }
+		},
+		"beam-plane-redclay-*": {
+			"material": { base: "block/clay/shingles/red" }
+		},
+		"beam-plane-tanclay-*": {
+			"material": { base: "block/clay/shingles/tan" }
+		},
+		"beam-plane-thatch-*": {
+			"top": { base: "block/plant/grassroofing/normal-side" },
+			"bamboo-top": { base: "block/hay/normal-top" },
+			"agedstraw": { base: "block/plant/grassroofing/straw1" }
+		},
+		"beam-plane-agedthatch-*": {
+			"top": { base: "block/plant/grassroofing/thatch/aged1" },
+			"bamboo-top": { base: "block/plant/grassroofing/thatch/bamboo-top" },
+			"agedstraw": { base: "block/plant/grassroofing/thatch/agedstraw" }
+		},
+		"beam-plane-bamboo-*": {
+			"material": { base: "block/wood/planks/bamboosmooth" }
+		},
+		"*": {"material": { base: "block/wood/shingles/{material}-top" }
+		}
+	},
+	blockmaterialByType: {
+		"*-agedthatch-*": "Plant",
+		"*-thatch-*": "Plant",
+		"*-sod-*": "Plant",
+		"*-bamboo-*": "Wood",
+		"*-copper-*": "Metal",
+		"*clay-*": "Ceramic",
+		"*-slate-*": "Stone",
+		"*": "Wood"
+	},
+	drawtype: "json",
+	faceCullMode: "NeverCull",
+	sideOpaque: { all: false },
+	emitSideAo: { all: false },
+	lightAbsorption: 0,
+	resistance: 3.5,
+	soundsByType: {
+		"*-agedthatch-*": {
+			place: "block/plant",
+			break: "block/plant",
+			hit: "block/plant",
+		},
+		"*-thatch-*": {
+			place: "block/plant",
+			break: "block/plant",
+			hit: "block/plant",
+		},
+		"*-bamboo-*": {
+			place: "block/planks",
+			break: "block/planks",
+			hit: "block/planks",
+		},
+		"*-copper-*": {
+			"place": "block/chute",
+			"break": "block/chute",
+			"hit": "block/chute",
+			"walk": "walk/stone"
+		},
+		"*-slate-*": {
+			walk: "walk/stone",
+			place: "block/ceramicplace"
+		},
+		"*clay-*": {
+			walk: "walk/stone",
+			place: "block/ceramicplace"
+		},
+		"*-sod-*": {
+			"hit": "block/planks",
+			"break": "block/planks",
+			"place": "block/planks",
+			"walk": "walk/grass*"
+		},
+		"*": {
+			place: "block/planks",
+			break: "block/planks",
+			hit: "block/planks",
+		}
+	},
+	maxStackSize: 32,
+	materialDensity: 1200,
+	heldTpIdleAnimation: "holdbothhandslarge", heldRightReadyAnimation: "heldblockready", heldTpUseAnimation: "twohandplaceblock",
+	tpHandTransform: {
+		translation: { x: -1.23, y: -0.91, z: -0.8 },
+		rotation: { x: -2, y: 25, z: -78 },
+		scale: 0.4
+	},
+	drops: []
+}

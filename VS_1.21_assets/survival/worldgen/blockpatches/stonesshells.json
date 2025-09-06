@@ -1,0 +1,88 @@
+[
+	{
+		// Stalactites and Stalagmites
+		blockCodes: ["stalagsection-andesite-06", "stalagsection-andesite-08", "stalagsection-andesite-10", "stalagsection-andesite-12", "stalagsection-andesite-14"],
+		quantity: { avg: 6, var: 3 },
+		chance: 5,
+		offsetX: { avg: 0, var: 8 },
+		offsetZ: { avg: 0, var: 8 },
+		placement: "Underground"
+	},
+	{
+		// Single loose stones everywhere
+		blockCodes: ["loosestones-{rocktype}-free"],
+		minTemp: -2,
+		minForest: 0,
+		quantity: { avg: 1, var: 0 },
+		chance: 1.5,
+	},
+	{
+		// Small patches of loose stones everywhere
+		blockCodes: ["loosestones-{rocktype}-free"],
+		minTemp: -2,
+		minForest: 0,
+		quantity: { avg: 3, var: 6 },
+		chance: 1,
+	},
+	{
+		// Small patches of loose stones in mountains
+		blockCodes: ["loosestones-{rocktype}-free"],
+		minY: 0.8,
+		quantity: { avg: 3, var: 6 },
+		chance: 5,
+		offsetX: { avg: 0, var: 10 },
+		offsetZ: { avg: 0, var: 10 },
+	},
+	{
+		// Small patches of loose boulders in dry places
+		blockCodes: ["looseboulders-{rocktype}-free"],
+		minTemp: -12,
+		maxRain: 0.35,
+		quantity: { avg: 3, var: 6 },
+		chance: 1,
+	},
+	{
+		// Small patches of loose boulders in caves
+		blockCodes: ["looseboulders-{rocktype}-free"],
+		quantity: { avg: 1, var: 0 },
+		chance: 30,
+		placement: "Underground"
+	},
+	{
+		// Small patches of loose boulders in caves
+		blockCodes: ["loosestones-{rocktype}-free"],
+		quantity: { avg: 1, var: 0 },
+		chance: 30,
+		placement: "Underground"
+	},
+	{
+		// Small patches of loose boulders in mountains
+		blockCodes: ["looseboulders-{rocktype}-free"],
+		minY: 0.7,
+		minTemp: -12,
+		quantity: { avg: 3, var: 6 },
+		chance: 3,
+		offsetX: { avg: 0, var: 10 },
+		offsetZ: { avg: 0, var: 10 },
+	},
+	{
+		// Big patches of loose stones in the mountains
+		blockCodes: ["loosestones-{rocktype}-free"],
+		minTemp: -2,
+		minY: 0.72,
+		quantity: { avg: 25, var: 15 },
+		chance: 0.2,
+		offsetX: { avg: 0, var: 10 },
+		offsetZ: { avg: 0, var: 10 },
+	},
+	{
+		// Single pieces of bony remains found in hot and dry climate
+		blockCodes: ["bonyremains-cowskull-up", "bonyremains-ribcage"],
+		minTemp: 20,
+		maxTemp: 37,
+		minRain: 0,
+		maxRain: 0.28,
+		chance: 0.15,
+		quantity: { avg: 1, var: 0 },
+	}
+]

@@ -1,0 +1,63 @@
+{
+    "code": "drock",
+
+    "storageFlags": 5,
+    "attributes": {
+		canChisel: false,
+        "propickable": true,
+        "handbook": {
+            "extraSections": [
+                {
+                    "title": "handbook-item-sources",
+                    "text": "Full block can be obtained by breaking all adjacent blocks."
+                }
+            ]
+        }
+    },
+  
+    "creativeinventory": {
+        "general": [ "*" ],
+        "terrain": [ "*" ]
+    },
+    "shape": { "base": "block/basic/cube" },
+	requiredMiningTier: 99,
+    "drawtype": "cube",
+    "replaceable": 90,
+    "resistance": 8,
+    "fertility": 0,
+    "textures": {
+            "all": {
+                "base": "block/devastation/drock/drock1",
+                "tiles": [
+                    { "base": "block/devastation/drock/*" }
+                ],
+                "tilesWidth": 3
+            }  
+    },
+    "sounds": {
+        "walk": "walk/stone",
+        "byTool": {
+            "Pickaxe": {
+                "hit": "block/rock-hit-pickaxe",
+                "break": "block/rock-break-pickaxe"
+            }
+        }
+    },
+    "drops": [],
+    "heldTpIdleAnimation": "holdbothhandslarge",
+    "heldRightReadyAnimation": "heldblockready",
+    "heldTpUseAnimation": "twohandplaceblock",
+    "tpHandTransform": {
+        "translation": {
+            "x": -1.23,
+            "y": -0.91,
+            "z": -0.8
+        },
+        "rotation": {
+            "x": -2,
+            "y": 25,
+            "z": -78
+        },
+        "scale": 0.4
+    }
+}

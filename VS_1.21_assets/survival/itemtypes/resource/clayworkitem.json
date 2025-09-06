@@ -1,0 +1,10 @@
+{
+	code: "clayworkitem",
+	sdclass: "ItemWorkItem",
+	maxstacksize: 1,
+	variantgroups: [
+		{ code: "type", states: ["blue", "fire", "red" ] },
+	],
+	texture: { base: "block/soil/{type}clay" },
+	creativeinventory: { "general": [""], "items": [""] },
+}

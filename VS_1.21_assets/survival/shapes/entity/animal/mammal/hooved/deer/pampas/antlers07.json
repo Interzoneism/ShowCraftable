@@ -1,0 +1,387 @@
+{
+	"editor": {
+		"backDropShape": "entity/animal/mammal/hooved/deer/pampas/adult",
+		"allAngles": true,
+		"entityTextureMode": true
+	},
+	"textureWidth": 32,
+	"textureHeight": 48,
+	"textureSizes": {
+		"skin": [32,32],
+		"bezoarticus-adult2": [32,48]
+	},
+	"textures": {
+		"bezoarticus-adult2": "entity/animal/mammal/hooved/deer/pampas-adult"
+	},
+	"elements": [
+		{
+			"name": "Horn attachment",
+			"stepParentName": "head",
+			"from": [ 0.0, 2.4, 1.0 ],
+			"to": [ 0.7, 3.1, 1.7 ],
+			"uv": [ 0.0, 0.0 ],
+			"rotationOrigin": [ 0.0, 2.4, 1.0 ],
+			"rotationZ": -36.0,
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "R antler base",
+					"from": [ 0.0, 0.0, -1.1 ],
+					"to": [ 0.4, 1.0, -0.7 ],
+					"unwrapMode": 4,
+					"uv": [ 21.5, 46.0 ],
+					"rotationOrigin": [ -0.1, 0.5, -0.7 ],
+					"rotationX": -20.0,
+					"rotationY": -25.0,
+					"rotationZ": 25.0,
+					"faces": {
+						"north": { "texture": "#bezoarticus-adult2", "uv": [ 21.5, 46.5, 22.0, 47.5 ] },
+						"east": { "texture": "#bezoarticus-adult2", "uv": [ 23.0, 46.5, 23.5, 47.5 ] },
+						"south": { "texture": "#bezoarticus-adult2", "uv": [ 22.5, 46.5, 23.0, 47.5 ] },
+						"west": { "texture": "#bezoarticus-adult2", "uv": [ 22.0, 46.5, 22.5, 47.5 ] },
+						"up": { "texture": "#bezoarticus-adult2", "uv": [ 22.0, 46.0, 22.5, 46.5 ], "rotation": 90 },
+						"down": { "texture": "#bezoarticus-adult2", "uv": [ 22.0, 47.5, 22.5, 48.0 ], "rotation": 90 }
+					},
+					"children": [
+						{
+							"name": "R antler branch 1",
+							"from": [ 0.0, 1.0, 0.0 ],
+							"to": [ 0.4, 3.5, 0.4 ],
+							"unwrapMode": 4,
+							"uv": [ 21.5, 45.0 ],
+							"rotationOrigin": [ 0.0, 1.0, 0.4 ],
+							"rotationY": -1.0,
+							"rotationZ": -25.0,
+							"faces": {
+								"north": { "texture": "#bezoarticus-adult2", "uv": [ 21.5, 45.5, 22.0, 48.0 ] },
+								"east": { "texture": "#bezoarticus-adult2", "uv": [ 23.0, 45.5, 23.5, 48.0 ] },
+								"south": { "texture": "#bezoarticus-adult2", "uv": [ 22.5, 45.5, 23.0, 48.0 ] },
+								"west": { "texture": "#bezoarticus-adult2", "uv": [ 22.0, 45.5, 22.5, 48.0 ] },
+								"up": { "texture": "#bezoarticus-adult2", "uv": [ 22.0, 45.0, 22.5, 45.5 ], "rotation": 90 },
+								"down": { "texture": "#bezoarticus-adult2", "uv": [ 22.0, 48.0, 22.5, 48.5 ], "rotation": 90 }
+							},
+							"children": [
+								{
+									"name": "R antler point 1",
+									"from": [ 0.05, 2.5, 0.05 ],
+									"to": [ 0.35, 4.0, 0.35 ],
+									"unwrapMode": 4,
+									"uv": [ 21.5, 43.0 ],
+									"rotationOrigin": [ 0.05, 2.5, 0.05 ],
+									"rotationX": 15.0,
+									"rotationZ": -5.0,
+									"faces": {
+										"north": { "texture": "#bezoarticus-adult2", "uv": [ 21.5, 43.5, 22.0, 45.0 ] },
+										"east": { "texture": "#bezoarticus-adult2", "uv": [ 23.0, 43.5, 23.5, 45.0 ] },
+										"south": { "texture": "#bezoarticus-adult2", "uv": [ 22.5, 43.5, 23.0, 45.0 ] },
+										"west": { "texture": "#bezoarticus-adult2", "uv": [ 22.0, 43.5, 22.5, 45.0 ] },
+										"up": { "texture": "#bezoarticus-adult2", "uv": [ 22.0, 43.0, 22.5, 43.5 ], "rotation": 90 },
+										"down": { "texture": "#bezoarticus-adult2", "uv": [ 22.0, 45.0, 22.5, 45.5 ], "rotation": 90 }
+									},
+									"children": [
+										{
+											"name": "R antler point 5",
+											"from": [ 0.05, 1.5, 0.05 ],
+											"to": [ 0.25, 3.0, 0.25 ],
+											"unwrapMode": 4,
+											"uv": [ 21.5, 43.0 ],
+											"rotationOrigin": [ 0.25, 1.5, 0.05 ],
+											"rotationZ": 20.0,
+											"faces": {
+												"north": { "texture": "#bezoarticus-adult2", "uv": [ 21.5, 43.5, 22.0, 45.0 ] },
+												"east": { "texture": "#bezoarticus-adult2", "uv": [ 23.0, 43.5, 23.5, 45.0 ] },
+												"south": { "texture": "#bezoarticus-adult2", "uv": [ 22.5, 43.5, 23.0, 45.0 ] },
+												"west": { "texture": "#bezoarticus-adult2", "uv": [ 22.0, 43.5, 22.5, 45.0 ] },
+												"up": { "texture": "#bezoarticus-adult2", "uv": [ 22.0, 43.0, 22.5, 43.5 ], "rotation": 90 },
+												"down": { "texture": "#bezoarticus-adult2", "uv": [ 22.0, 45.0, 22.5, 45.5 ], "rotation": 90 }
+											}
+										}
+									]
+								},
+								{
+									"name": "R antler point 2",
+									"from": [ 0.0, 2.4, 0.05 ],
+									"to": [ 0.3, 3.4, 0.35 ],
+									"unwrapMode": 4,
+									"uv": [ 21.5, 42.0 ],
+									"rotationOrigin": [ 0.0, 2.4, 0.05 ],
+									"rotationX": 25.0,
+									"rotationZ": 45.0,
+									"faces": {
+										"north": { "texture": "#bezoarticus-adult2", "uv": [ 21.5, 42.5, 22.0, 43.5 ] },
+										"east": { "texture": "#bezoarticus-adult2", "uv": [ 23.0, 42.5, 23.5, 43.5 ] },
+										"south": { "texture": "#bezoarticus-adult2", "uv": [ 22.5, 42.5, 23.0, 43.5 ] },
+										"west": { "texture": "#bezoarticus-adult2", "uv": [ 22.0, 42.5, 22.5, 43.5 ] },
+										"up": { "texture": "#bezoarticus-adult2", "uv": [ 22.0, 42.0, 22.5, 42.5 ], "rotation": 90 },
+										"down": { "texture": "#bezoarticus-adult2", "uv": [ 22.0, 43.5, 22.5, 44.0 ], "rotation": 90 }
+									},
+									"children": [
+										{
+											"name": "R antler point 6",
+											"from": [ 0.05, 1.0, 0.05 ],
+											"to": [ 0.25, 2.0, 0.25 ],
+											"unwrapMode": 4,
+											"uv": [ 21.5, 42.0 ],
+											"rotationOrigin": [ 0.05, 1.0, 0.05 ],
+											"rotationZ": -15.0,
+											"faces": {
+												"north": { "texture": "#bezoarticus-adult2", "uv": [ 21.5, 42.5, 22.0, 43.5 ] },
+												"east": { "texture": "#bezoarticus-adult2", "uv": [ 23.0, 42.5, 23.5, 43.5 ] },
+												"south": { "texture": "#bezoarticus-adult2", "uv": [ 22.5, 42.5, 23.0, 43.5 ] },
+												"west": { "texture": "#bezoarticus-adult2", "uv": [ 22.0, 42.5, 22.5, 43.5 ] },
+												"up": { "texture": "#bezoarticus-adult2", "uv": [ 22.0, 42.0, 22.5, 42.5 ], "rotation": 90 },
+												"down": { "texture": "#bezoarticus-adult2", "uv": [ 22.0, 43.5, 22.5, 44.0 ], "rotation": 90 }
+											}
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "R antler branch 2",
+							"from": [ 0.0, 0.7, 0.0 ],
+							"to": [ 0.4, 1.7, 0.4 ],
+							"unwrapMode": 4,
+							"uv": [ 21.5, 44.0 ],
+							"rotationOrigin": [ 0.0, 0.7, 0.0 ],
+							"rotationY": -1.0,
+							"rotationZ": 55.0,
+							"faces": {
+								"north": { "texture": "#bezoarticus-adult2", "uv": [ 21.5, 44.5, 22.0, 45.5 ] },
+								"east": { "texture": "#bezoarticus-adult2", "uv": [ 23.0, 44.5, 23.5, 45.5 ] },
+								"south": { "texture": "#bezoarticus-adult2", "uv": [ 22.5, 44.5, 23.0, 45.5 ] },
+								"west": { "texture": "#bezoarticus-adult2", "uv": [ 22.0, 44.5, 22.5, 45.5 ] },
+								"up": { "texture": "#bezoarticus-adult2", "uv": [ 22.0, 44.0, 22.5, 44.5 ], "rotation": 90 },
+								"down": { "texture": "#bezoarticus-adult2", "uv": [ 22.0, 45.5, 22.5, 46.0 ], "rotation": 90 }
+							},
+							"children": [
+								{
+									"name": "R antler point 3",
+									"from": [ 0.05, 1.0, 0.05 ],
+									"to": [ 0.35, 2.0, 0.35 ],
+									"unwrapMode": 4,
+									"uv": [ 21.5, 41.0 ],
+									"rotationOrigin": [ 0.05, 1.0, 0.05 ],
+									"rotationX": 15.0,
+									"rotationZ": -25.0,
+									"faces": {
+										"north": { "texture": "#bezoarticus-adult2", "uv": [ 21.5, 41.5, 22.0, 42.5 ] },
+										"east": { "texture": "#bezoarticus-adult2", "uv": [ 23.0, 41.5, 23.5, 42.5 ] },
+										"south": { "texture": "#bezoarticus-adult2", "uv": [ 22.5, 41.5, 23.0, 42.5 ] },
+										"west": { "texture": "#bezoarticus-adult2", "uv": [ 22.0, 41.5, 22.5, 42.5 ] },
+										"up": { "texture": "#bezoarticus-adult2", "uv": [ 22.0, 41.0, 22.5, 41.5 ], "rotation": 90 },
+										"down": { "texture": "#bezoarticus-adult2", "uv": [ 22.0, 42.5, 22.5, 43.0 ], "rotation": 90 }
+									},
+									"children": [
+										{
+											"name": "R antler point 4",
+											"from": [ 0.05, 1.0, 0.05 ],
+											"to": [ 0.25, 2.0, 0.25 ],
+											"unwrapMode": 4,
+											"uv": [ 21.5, 41.0 ],
+											"rotationOrigin": [ 0.05, 1.0, 0.05 ],
+											"rotationZ": -20.0,
+											"faces": {
+												"north": { "texture": "#bezoarticus-adult2", "uv": [ 21.5, 41.5, 22.0, 42.5 ] },
+												"east": { "texture": "#bezoarticus-adult2", "uv": [ 23.0, 41.5, 23.5, 42.5 ] },
+												"south": { "texture": "#bezoarticus-adult2", "uv": [ 22.5, 41.5, 23.0, 42.5 ] },
+												"west": { "texture": "#bezoarticus-adult2", "uv": [ 22.0, 41.5, 22.5, 42.5 ] },
+												"up": { "texture": "#bezoarticus-adult2", "uv": [ 22.0, 41.0, 22.5, 41.5 ], "rotation": 90 },
+												"down": { "texture": "#bezoarticus-adult2", "uv": [ 22.0, 42.5, 22.5, 43.0 ], "rotation": 90 }
+											}
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "L antler base",
+					"from": [ 0.0, 0.0, 0.7 ],
+					"to": [ 0.4, 1.0, 1.1 ],
+					"unwrapMode": 4,
+					"uv": [ 19.5, 46.0 ],
+					"rotationOrigin": [ -0.1, 0.5, 0.7 ],
+					"rotationX": 20.0,
+					"rotationY": 25.0,
+					"rotationZ": 25.0,
+					"faces": {
+						"north": { "texture": "#bezoarticus-adult2", "uv": [ 19.5, 46.5, 20.0, 47.5 ] },
+						"east": { "texture": "#bezoarticus-adult2", "uv": [ 21.0, 46.5, 21.5, 47.5 ] },
+						"south": { "texture": "#bezoarticus-adult2", "uv": [ 20.5, 46.5, 21.0, 47.5 ] },
+						"west": { "texture": "#bezoarticus-adult2", "uv": [ 20.0, 46.5, 20.5, 47.5 ] },
+						"up": { "texture": "#bezoarticus-adult2", "uv": [ 20.0, 46.0, 20.5, 46.5 ], "rotation": 90, "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] },
+						"down": { "texture": "#bezoarticus-adult2", "uv": [ 20.0, 47.5, 20.5, 48.0 ], "rotation": 90, "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] }
+					},
+					"children": [
+						{
+							"name": "L antler branch 1",
+							"from": [ 0.0, 1.0, 0.0 ],
+							"to": [ 0.4, 3.5, 0.4 ],
+							"unwrapMode": 4,
+							"uv": [ 19.5, 45.0 ],
+							"rotationOrigin": [ 0.0, 1.0, 0.0 ],
+							"rotationY": 1.0,
+							"rotationZ": -25.0,
+							"faces": {
+								"north": { "texture": "#bezoarticus-adult2", "uv": [ 19.5, 45.5, 20.0, 48.0 ] },
+								"east": { "texture": "#bezoarticus-adult2", "uv": [ 21.0, 45.5, 21.5, 48.0 ] },
+								"south": { "texture": "#bezoarticus-adult2", "uv": [ 20.5, 45.5, 21.0, 48.0 ] },
+								"west": { "texture": "#bezoarticus-adult2", "uv": [ 20.0, 45.5, 20.5, 48.0 ] },
+								"up": { "texture": "#bezoarticus-adult2", "uv": [ 20.0, 45.0, 20.5, 45.5 ], "rotation": 90 },
+								"down": { "texture": "#bezoarticus-adult2", "uv": [ 20.0, 48.0, 20.5, 48.5 ], "rotation": 90 }
+							},
+							"children": [
+								{
+									"name": "L antler point 1",
+									"from": [ 0.05, 2.5, 0.05 ],
+									"to": [ 0.35, 4.0, 0.35 ],
+									"unwrapMode": 4,
+									"uv": [ 19.5, 43.0 ],
+									"rotationOrigin": [ 0.05, 2.5, 0.35 ],
+									"rotationX": -15.0,
+									"rotationZ": -5.0,
+									"faces": {
+										"north": { "texture": "#bezoarticus-adult2", "uv": [ 19.5, 43.5, 20.0, 45.0 ] },
+										"east": { "texture": "#bezoarticus-adult2", "uv": [ 21.0, 43.5, 21.5, 45.0 ] },
+										"south": { "texture": "#bezoarticus-adult2", "uv": [ 20.5, 43.5, 21.0, 45.0 ] },
+										"west": { "texture": "#bezoarticus-adult2", "uv": [ 20.0, 43.5, 20.5, 45.0 ] },
+										"up": { "texture": "#bezoarticus-adult2", "uv": [ 20.0, 43.0, 20.5, 43.5 ], "rotation": 90 },
+										"down": { "texture": "#bezoarticus-adult2", "uv": [ 20.0, 45.0, 20.5, 45.5 ], "rotation": 90 }
+									},
+									"children": [
+										{
+											"name": "L antler point 5",
+											"from": [ 0.05, 1.5, 0.05 ],
+											"to": [ 0.25, 2.5, 0.25 ],
+											"unwrapMode": 4,
+											"uv": [ 19.5, 43.0 ],
+											"rotationOrigin": [ 0.25, 1.5, 0.25 ],
+											"rotationZ": 20.0,
+											"faces": {
+												"north": { "texture": "#bezoarticus-adult2", "uv": [ 19.5, 43.5, 20.0, 44.5 ] },
+												"east": { "texture": "#bezoarticus-adult2", "uv": [ 21.0, 43.5, 21.5, 44.5 ] },
+												"south": { "texture": "#bezoarticus-adult2", "uv": [ 20.5, 43.5, 21.0, 44.5 ] },
+												"west": { "texture": "#bezoarticus-adult2", "uv": [ 20.0, 43.5, 20.5, 44.5 ] },
+												"up": { "texture": "#bezoarticus-adult2", "uv": [ 20.0, 43.0, 20.5, 43.5 ], "rotation": 90 },
+												"down": { "texture": "#bezoarticus-adult2", "uv": [ 20.0, 44.5, 20.5, 45.0 ], "rotation": 90 }
+											}
+										}
+									]
+								},
+								{
+									"name": "L antler point 2",
+									"from": [ 0.0, 2.4, 0.05 ],
+									"to": [ 0.3, 3.4, 0.35 ],
+									"unwrapMode": 4,
+									"uv": [ 19.5, 42.0 ],
+									"rotationOrigin": [ 0.0, 2.4, 0.35 ],
+									"rotationX": -25.0,
+									"rotationZ": 45.0,
+									"faces": {
+										"north": { "texture": "#bezoarticus-adult2", "uv": [ 19.5, 42.5, 20.0, 43.5 ] },
+										"east": { "texture": "#bezoarticus-adult2", "uv": [ 21.0, 42.5, 21.5, 43.5 ] },
+										"south": { "texture": "#bezoarticus-adult2", "uv": [ 20.5, 42.5, 21.0, 43.5 ] },
+										"west": { "texture": "#bezoarticus-adult2", "uv": [ 20.0, 42.5, 20.5, 43.5 ] },
+										"up": { "texture": "#bezoarticus-adult2", "uv": [ 20.0, 42.0, 20.5, 42.5 ], "rotation": 90 },
+										"down": { "texture": "#bezoarticus-adult2", "uv": [ 20.0, 43.5, 20.5, 44.0 ], "rotation": 90 }
+									},
+									"children": [
+										{
+											"name": "L antler point 6",
+											"from": [ 0.05, 1.0, 0.05 ],
+											"to": [ 0.25, 2.0, 0.25 ],
+											"unwrapMode": 4,
+											"uv": [ 19.5, 42.0 ],
+											"rotationOrigin": [ 0.05, 1.0, 0.25 ],
+											"rotationZ": -15.0,
+											"faces": {
+												"north": { "texture": "#bezoarticus-adult2", "uv": [ 19.5, 42.5, 20.0, 43.5 ] },
+												"east": { "texture": "#bezoarticus-adult2", "uv": [ 21.0, 42.5, 21.5, 43.5 ] },
+												"south": { "texture": "#bezoarticus-adult2", "uv": [ 20.5, 42.5, 21.0, 43.5 ] },
+												"west": { "texture": "#bezoarticus-adult2", "uv": [ 20.0, 42.5, 20.5, 43.5 ] },
+												"up": { "texture": "#bezoarticus-adult2", "uv": [ 20.0, 42.0, 20.5, 42.5 ], "rotation": 90 },
+												"down": { "texture": "#bezoarticus-adult2", "uv": [ 20.0, 43.5, 20.5, 44.0 ], "rotation": 90 }
+											}
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "L antlerbranch 2",
+							"from": [ 0.0, 0.7, 0.0 ],
+							"to": [ 0.4, 1.7, 0.4 ],
+							"unwrapMode": 4,
+							"uv": [ 19.5, 44.0 ],
+							"rotationOrigin": [ 0.0, 0.8, 0.6 ],
+							"rotationY": 1.0,
+							"rotationZ": 55.0,
+							"faces": {
+								"north": { "texture": "#bezoarticus-adult2", "uv": [ 19.5, 44.5, 20.0, 45.5 ] },
+								"east": { "texture": "#bezoarticus-adult2", "uv": [ 21.0, 44.5, 21.5, 45.5 ] },
+								"south": { "texture": "#bezoarticus-adult2", "uv": [ 20.5, 44.5, 21.0, 45.5 ] },
+								"west": { "texture": "#bezoarticus-adult2", "uv": [ 20.0, 44.5, 20.5, 45.5 ] },
+								"up": { "texture": "#bezoarticus-adult2", "uv": [ 20.0, 44.0, 20.5, 44.5 ], "rotation": 90 },
+								"down": { "texture": "#bezoarticus-adult2", "uv": [ 20.0, 45.5, 20.5, 46.0 ], "rotation": 90 }
+							},
+							"children": [
+								{
+									"name": "L antler point 3",
+									"from": [ 0.05, 1.0, 0.05 ],
+									"to": [ 0.35, 2.0, 0.35 ],
+									"unwrapMode": 4,
+									"uv": [ 19.5, 41.0 ],
+									"rotationOrigin": [ 0.05, 1.0, 0.35 ],
+									"rotationX": -15.0,
+									"rotationZ": -25.0,
+									"faces": {
+										"north": { "texture": "#bezoarticus-adult2", "uv": [ 19.5, 41.5, 20.0, 42.5 ] },
+										"east": { "texture": "#bezoarticus-adult2", "uv": [ 21.0, 41.5, 21.5, 42.5 ] },
+										"south": { "texture": "#bezoarticus-adult2", "uv": [ 20.5, 41.5, 21.0, 42.5 ] },
+										"west": { "texture": "#bezoarticus-adult2", "uv": [ 20.0, 41.5, 20.5, 42.5 ] },
+										"up": { "texture": "#bezoarticus-adult2", "uv": [ 20.0, 41.0, 20.5, 41.5 ], "rotation": 90 },
+										"down": { "texture": "#bezoarticus-adult2", "uv": [ 20.0, 42.5, 20.5, 43.0 ], "rotation": 90 }
+									},
+									"children": [
+										{
+											"name": "L antler point 4",
+											"from": [ 0.05, 1.0, 0.05 ],
+											"to": [ 0.25, 2.0, 0.25 ],
+											"unwrapMode": 4,
+											"uv": [ 19.5, 41.0 ],
+											"rotationOrigin": [ 0.05, 1.0, 0.25 ],
+											"rotationZ": -20.0,
+											"faces": {
+												"north": { "texture": "#bezoarticus-adult2", "uv": [ 19.5, 41.5, 20.0, 42.5 ] },
+												"east": { "texture": "#bezoarticus-adult2", "uv": [ 21.0, 41.5, 21.5, 42.5 ] },
+												"south": { "texture": "#bezoarticus-adult2", "uv": [ 20.5, 41.5, 21.0, 42.5 ] },
+												"west": { "texture": "#bezoarticus-adult2", "uv": [ 20.0, 41.5, 20.5, 42.5 ] },
+												"up": { "texture": "#bezoarticus-adult2", "uv": [ 20.0, 41.0, 20.5, 41.5 ], "rotation": 90 },
+												"down": { "texture": "#bezoarticus-adult2", "uv": [ 20.0, 42.5, 20.5, 43.0 ], "rotation": 90 }
+											}
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"animations": [
+		{
+			"name": "Walk",
+			"code": "walk",
+			"quantityframes": 30,
+			"onActivityStopped": "Rewind",
+			"onAnimationEnd": "Repeat",
+			"keyframes": [
+
+			]
+		}
+	]
+}

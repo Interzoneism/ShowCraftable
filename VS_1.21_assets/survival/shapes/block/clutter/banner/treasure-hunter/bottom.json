@@ -1,0 +1,30 @@
+{
+	"editor": {
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+		"treasure-bottom-1": [16,16]
+	},
+	"textures": {
+		"treasure-bottom-1": "block/cloth/banner/treasure-hunter/treasure-bottom-1"
+	},
+	"elements": [
+		{
+			"name": "lower deco",
+			"from": [ 0.0, 0.0, 0.1 ],
+			"to": [ 16.0, 16.0, 0.1 ],
+			"renderPass": 2,
+			"rotationOrigin": [ 8.0, 16.0, 0.1 ],
+			"faces": {
+				"north": { "texture": "#treasure-bottom-1", "uv": [ 2.0, 0.0, 18.0, 16.0 ], "enabled": false },
+				"east": { "texture": "#treasure-bottom-1", "uv": [ 0.0, 0.0, 0.5, 16.0 ], "enabled": false },
+				"south": { "texture": "#treasure-bottom-1", "uv": [ 0.0, 0.0, 16.0, 16.0 ], "windMode": [-1,-1,-1,-1] },
+				"west": { "texture": "#treasure-bottom-1", "uv": [ 0.0, 0.0, 0.5, 16.0 ], "enabled": false },
+				"up": { "texture": "#treasure-bottom-1", "uv": [ 0.0, 0.0, 16.0, 0.5 ], "enabled": false },
+				"down": { "texture": "#treasure-bottom-1", "uv": [ 0.0, 0.0, 16.0, 0.5 ], "enabled": false }
+			}
+		}
+	]}

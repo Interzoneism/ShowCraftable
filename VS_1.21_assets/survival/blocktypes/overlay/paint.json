@@ -1,0 +1,60 @@
+{
+	"code": "paint",
+	"behaviors": [
+		{
+			"name": "Decor",
+			"properties": {
+				"sides": [ "north", "east", "south", "west", "up", "down" ],
+				"notFullFace": true,
+				"thickness": 0.0
+			}
+		}
+	],
+	"shapeInventory": {
+		"base": "block/basic/layers/0voxel",
+		"rotateX": 90
+	},
+    "variantgroups": [
+        { "code": "pattern", "states": [ "scratched" ] },
+        { "code": "color", "states": [ "white" ] },
+    ],
+	"texturesByType": {
+		"*": { "all": { "base": "block/overlay/paint/{pattern}/{color}*" } }
+	},
+	vertexflags: {
+		zOffset: 1
+	},
+	"attributes": {
+		"handbook": {
+			"exclude": true
+		},
+		"ignoreSounds": true
+	},
+	"renderPass": "Transparent",
+	"drawtype": "surfacelayer",
+	"doNotRenderAtLod2": true,
+	"randomizeRotations": true,
+	"sidesolid": { "all": false },
+	"sideopaque": { "all": false },
+	"blockmaterial": "Stone",
+	"creativeinventory": {
+		"general": [ "*" ],
+		"clutter": [ "*" ]
+	},
+	"replaceable": 5500,
+	"resistance": 0,
+	"lightAbsorption": 0,
+	"drops": [],
+	"combustibleProps": {
+		"burnTemperature": 150,
+		"burnDuration": 2
+	},
+	"guiTransform": {
+		"origin": {
+			"x": 0.5,
+			"y": 0.5,
+			"z": 0
+		}
+	},
+	"materialDensity": 400
+}

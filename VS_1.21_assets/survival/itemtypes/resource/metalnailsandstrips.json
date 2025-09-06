@@ -1,0 +1,125 @@
+{
+	code: "metalnailsandstrips",
+	behaviors: [
+		{ name: "GroundStorable", properties: { layout: 'Messy12', collisionBox: { x1: 0, y1: 0, z1: 0, x2: 1, y2: 0.125, z2: 1 } } }
+	],
+	variantgroups: [
+		{ code: "metal", loadFromProperties: "block/metal" },
+	],
+	allowedVariants: [
+		"*-copper",
+		"*-cupronickel",
+		"*-tinbronze",
+		"*-bismuthbronze",
+		"*-blackbronze",
+		"*-iron",
+		"*-meteoriciron",
+		"*-steel",
+		"*-gold",
+		"*-silver"
+	],
+	shape: { base: "item/resource/metalnailsandstrips" },
+	textures: {
+		"metal": { base: "block/metal/sheet/{metal}1" }
+	},	
+	attributes: {
+		reinforcementStrengthByType: {
+			"*-copper": 150,
+			"*-tinbronze": 300,
+			"*-bismuthbronze": 300,
+			"*-blackbronze": 400,
+			"*-iron": 800,
+			"*-meteoriciron": 1000,
+			"*-steel": 1200,
+			"*-gold": 25,
+			"*-silver": 100
+		},		
+		handbook: {
+			groupBy: ["metalnailsandstrips-*"],
+		},
+		onTongTransform: {
+			translation: { x: -1.05, y: -0.74, z: -1.01 },
+			rotation: { x: 24, y: 89, z: 109 }
+		}
+	},
+	maxstacksize: 32,
+	storageFlags: 5,
+	creativeinventory: { "general": ["*"], "items": ["*"] },
+	materialDensityByType: {
+		"*-copper": 8960,
+		"*-tinbronze": 7600,
+		"*-bismuthbronze": 7900,
+		"*-blackbronze": 9000,
+		"*-iron": 7870,
+		"*-meteoriciron": 7500,
+		"*-gold": 19300,
+		"*-silver": 10500
+	},
+	combustiblePropsByType: {
+		"metalnailsandstrips-copper": {
+			meltingPoint: 1084,
+			meltingDuration: 30,
+			smeltedRatio: 4,
+			smeltedStack: { type: "item", code: "ingot-copper", stacksize: 1 }
+		},
+		"metalnailsandstrips-tinbronze": {
+			meltingPoint: 950,
+			meltingDuration: 30,
+			smeltedRatio: 4,
+			smeltedStack: { type: "item", code: "ingot-tinbronze", stacksize: 1 }
+		},
+		"metalnailsandstrips-bismuthbronze": {
+			meltingPoint: 850,
+			meltingDuration: 30,
+			smeltedRatio: 4,
+			smeltedStack: { type: "item", code: "ingot-bismuthbronze", stacksize: 1 }
+		},
+		"metalnailsandstrips-blackbronze": {
+			meltingPoint: 1020,
+			meltingDuration: 30,
+			smeltedRatio: 4,
+			smeltedStack: { type: "item", code: "ingot-blackbronze", stacksize: 1 }
+		},
+		"metalnailsandstrips-iron": {
+			meltingPoint: 1482,
+			meltingDuration: 30,
+			smeltedRatio: 4,
+			smeltedStack: { type: "item", code: "ingot-iron", stacksize: 1 }
+		},
+		"metalnailsandstrips-gold": {
+			meltingPoint: 1063,
+			meltingDuration: 30,
+			smeltedRatio: 4,
+			smeltedStack: { type: "item", code: "ingot-gold", stacksize: 1 }
+		},
+		"metalnailsandstrips-silver": {
+			meltingPoint: 961,
+			meltingDuration: 30,
+			smeltedRatio: 4,
+			smeltedStack: { type: "item", code: "ingot-silver", stacksize: 1 }
+		}
+	},
+	fpHandTransform: {
+		translation: { x: -0.15, y: 0.25, z: 0 },
+		rotation: { x: 0, y: 0, z: 2 },
+		scale: 2.54
+	},
+	guiTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: -30, y: -46, z: -180 },
+		origin: { x: 0.58, y: 0.07, z: 0.55 },
+		scale: 3.55
+	},
+	groundTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: 0, y: 90, z: 0 },
+		origin: { x: 0.5, y: 0, z: 0.5 },
+		scale: 4
+	},
+	tpHandTransform: {
+		translation: { x: -0.7, y: 0.1, z: -0.53 },
+		rotation: { x: 94, y: 0, z: 0 },
+		origin: { x: 0.5, y: 0.1, z: 0.5 },
+		scale: 0.75
+	}
+}

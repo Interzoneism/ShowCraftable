@@ -1,0 +1,354 @@
+{
+	"editor": {
+		"backDropShape": "entity/humanoid/villager-male",
+		"collapsedPaths": "Root/Hair-Base/hideme/tieR,Root/Hair-Base/hideme/tieL",
+		"allAngles": false,
+		"entityTextureMode": true
+	},
+	"textureWidth": 48,
+	"textureHeight": 48,
+	"textureSizes": {
+		"hair": [48,48],
+		"reedrope": [16,16]
+	},
+	"textures": {
+		"reedrope": "block/cloth/reedrope",
+		"hair": "entity/humanoid/seraphskinparts/hair/eerieblack"
+	},
+	"elements": [
+		{
+			"name": "Hair-Base",
+			"stepParentName": "Head",
+			"from": [ -0.3, -0.2, -0.25 ],
+			"to": [ 5.7, 5.3, 5.25 ],
+			"renderPass": 1,
+			"autoUnwrap": false,
+			"uv": [ 0.0, 0.0 ],
+			"rotationOrigin": [ 2.5, 3.0, 2.5 ],
+			"faces": {
+				"north": { "texture": "#hair", "uv": [ 9.0, 25.5, 15.0, 31.0 ], "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] },
+				"east": { "texture": "#hair", "uv": [ 4.5, 25.5, 10.0, 31.0 ], "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] },
+				"south": { "texture": "#hair", "uv": [ 0.0, 25.5, 6.0, 31.0 ], "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] }
+			},
+			"children": [
+				{
+					"name": "Hair-Lower",
+					"from": [ 3.0, 3.0, 2.8 ],
+					"to": [ 3.0, 3.0, 2.8 ],
+					"uv": [ 0.0, 0.0 ],
+					"rotationOrigin": [ 3.0, 3.0, 2.8 ],
+					"faces": {
+					},
+					"children": [
+						{
+							"name": "back1",
+							"from": [ 3.0, -1.5, -2.5 ],
+							"to": [ 3.0, 0.0, 2.5 ],
+							"renderPass": 1,
+							"uv": [ 18.5, 4.5 ],
+							"rotationOrigin": [ 3.0, 0.0, 0.0 ],
+							"rotationZ": 15.0,
+							"faces": {
+								"east": { "texture": "#hair", "uv": [ 18.5, 4.5, 23.5, 6.0 ], "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] }
+							}
+						},
+						{
+							"name": "back2",
+							"from": [ 3.0, -2.0, -2.8 ],
+							"to": [ 3.0, 0.0, 2.7 ],
+							"renderPass": 1,
+							"uv": [ 21.5, 11.0 ],
+							"rotationOrigin": [ 3.0, 0.0, 0.0 ],
+							"rotationZ": 5.0,
+							"faces": {
+								"east": { "texture": "#hair", "uv": [ 21.5, 11.0, 27.0, 13.0 ], "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] }
+							}
+						},
+						{
+							"name": "left1",
+							"from": [ 0.0, -1.5, 2.7 ],
+							"to": [ 3.0, 0.0, 2.7 ],
+							"renderPass": 1,
+							"uv": [ 7.5, 11.0 ],
+							"rotationOrigin": [ 0.0, 0.0, 2.7 ],
+							"rotationX": -15.0,
+							"faces": {
+								"south": { "texture": "#hair", "uv": [ 7.5, 11.0, 10.5, 12.5 ], "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] }
+							}
+						},
+						{
+							"name": "left2",
+							"from": [ 0.0, -2.5, 2.7 ],
+							"to": [ 3.0, -0.5, 2.7 ],
+							"renderPass": 1,
+							"uv": [ 19.5, 11.0 ],
+							"rotationOrigin": [ 0.0, -0.5, 2.7 ],
+							"rotationX": -5.0,
+							"faces": {
+								"south": { "texture": "#hair", "uv": [ 19.5, 11.0, 22.5, 13.0 ], "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] }
+							}
+						},
+						{
+							"name": "right1",
+							"from": [ 0.0, -1.5, -2.8 ],
+							"to": [ 3.0, 0.0, -2.8 ],
+							"renderPass": 1,
+							"uv": [ 9.5, 11.0 ],
+							"rotationOrigin": [ 0.0, 0.0, -2.8 ],
+							"rotationX": 15.0,
+							"faces": {
+								"north": { "texture": "#hair", "uv": [ 9.5, 11.0, 12.5, 12.5 ], "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] }
+							}
+						},
+						{
+							"name": "right2",
+							"from": [ 0.0, -2.5, -2.8 ],
+							"to": [ 3.0, -0.5, -2.8 ],
+							"renderPass": 1,
+							"uv": [ 19.0, 4.0 ],
+							"rotationOrigin": [ 0.0, -0.5, -2.8 ],
+							"rotationX": 15.0,
+							"faces": {
+								"north": { "texture": "#hair", "uv": [ 19.0, 4.0, 22.0, 6.0 ], "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] }
+							}
+						},
+						{
+							"name": "tieL",
+							"from": [ 0.5, -2.6, 1.5 ],
+							"to": [ 1.5, -0.6, 2.5 ],
+							"uv": [ 0.0, 0.0 ],
+							"rotationOrigin": [ 1.0, -0.6, 2.0 ],
+							"rotationX": -22.5,
+							"faces": {
+								"east": { "texture": "#reedrope", "uv": [ 0.0, 1.0, 1.0, 3.0 ] },
+								"south": { "texture": "#reedrope", "uv": [ 1.0, 1.0, 2.0, 3.0 ] },
+								"west": { "texture": "#reedrope", "uv": [ 2.0, 1.0, 3.0, 3.0 ] },
+								"down": { "texture": "#reedrope", "uv": [ 1.0, 0.0, 2.0, 1.0 ] }
+							},
+							"children": [
+								{
+									"name": "hairL1",
+									"from": [ 0.35, -1.1, 0.25 ],
+									"to": [ 0.85, 0.4, 0.75 ],
+									"uv": [ 23.5, 33.0 ],
+									"rotationOrigin": [ 0.6, 0.4, 0.5 ],
+									"rotationZ": -22.5,
+									"faces": {
+										"north": { "texture": "#hair", "uv": [ 23.5, 33.5, 24.0, 35.0 ] },
+										"east": { "texture": "#hair", "uv": [ 24.0, 33.5, 24.5, 35.0 ] },
+										"south": { "texture": "#hair", "uv": [ 24.5, 33.5, 25.0, 35.0 ] },
+										"west": { "texture": "#hair", "uv": [ 25.0, 33.5, 25.5, 35.0 ] },
+										"down": { "texture": "#hair", "uv": [ 23.5, 33.0, 24.0, 33.5 ] }
+									},
+									"children": [
+										{
+											"name": "hairL2",
+											"from": [ -1.6, -0.05, 0.0 ],
+											"to": [ 0.4, 0.45, 0.5 ],
+											"uv": [ 18.5, 32.5 ],
+											"rotationOrigin": [ 0.4, 0.2, 0.25 ],
+											"rotationY": -10.0,
+											"rotationZ": 22.5,
+											"faces": {
+												"north": { "texture": "#hair", "uv": [ 18.5, 33.0, 20.5, 33.5 ] },
+												"east": { "texture": "#hair", "uv": [ 20.5, 33.0, 21.0, 33.5 ] },
+												"south": { "texture": "#hair", "uv": [ 21.0, 33.0, 23.0, 33.5 ] },
+												"west": { "texture": "#hair", "uv": [ 23.0, 33.0, 23.5, 33.5 ] },
+												"up": { "texture": "#hair", "uv": [ 18.5, 32.5, 20.5, 33.0 ] },
+												"down": { "texture": "#hair", "uv": [ 20.5, 32.5, 22.5, 33.0 ] }
+											},
+											"children": [
+												{
+													"name": "hairL3",
+													"from": [ -1.9, 0.0, 0.0 ],
+													"to": [ 0.1, 0.5, 0.5 ],
+													"uv": [ 20.0, 35.0 ],
+													"rotationOrigin": [ 0.1, 0.25, 0.25 ],
+													"rotationY": -22.5,
+													"rotationZ": -10.0,
+													"faces": {
+														"north": { "texture": "#hair", "uv": [ 20.0, 35.5, 22.0, 36.0 ] },
+														"east": { "texture": "#hair", "uv": [ 22.0, 35.5, 22.5, 36.0 ] },
+														"south": { "texture": "#hair", "uv": [ 22.5, 35.5, 24.5, 36.0 ] },
+														"west": { "texture": "#hair", "uv": [ 24.5, 35.5, 25.0, 36.0 ] },
+														"up": { "texture": "#hair", "uv": [ 20.0, 35.0, 22.0, 35.5 ] },
+														"down": { "texture": "#hair", "uv": [ 22.0, 35.0, 24.0, 35.5 ] }
+													},
+													"children": [
+														{
+															"name": "hairL4",
+															"from": [ 0.0, -1.7, 0.0 ],
+															"to": [ 0.5, 0.3, 0.5 ],
+															"renderPass": 1,
+															"uv": [ 28.5, 41.0 ],
+															"rotationOrigin": [ 0.25, 0.3, 0.25 ],
+															"rotationX": 22.5,
+															"rotationZ": -22.5,
+															"faces": {
+																"north": { "texture": "#hair", "uv": [ 28.5, 41.5, 29.0, 43.5 ] },
+																"east": { "texture": "#hair", "uv": [ 29.0, 41.5, 29.5, 43.5 ] },
+																"south": { "texture": "#hair", "uv": [ 29.5, 41.5, 30.0, 43.5 ] },
+																"west": { "texture": "#hair", "uv": [ 30.0, 41.5, 30.5, 43.5 ] },
+																"up": { "texture": "#hair", "uv": [ 28.5, 41.0, 29.0, 41.5 ] }
+															}
+														}
+													]
+												}
+											]
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "tieR",
+							"from": [ 0.5, -2.6, -2.7 ],
+							"to": [ 1.5, -0.6, -1.7 ],
+							"uv": [ 0.0, 0.0 ],
+							"rotationOrigin": [ 1.0, -0.6, -2.2 ],
+							"rotationX": 22.5,
+							"faces": {
+								"north": { "texture": "#reedrope", "uv": [ 0.0, 1.0, 1.0, 3.0 ], "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] },
+								"east": { "texture": "#reedrope", "uv": [ 1.0, 1.0, 2.0, 3.0 ] },
+								"west": { "texture": "#reedrope", "uv": [ 2.0, 1.0, 3.0, 3.0 ] },
+								"down": { "texture": "#reedrope", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+							},
+							"children": [
+								{
+									"name": "hairR1",
+									"from": [ 0.35, -1.1, 0.25 ],
+									"to": [ 0.85, 0.4, 0.75 ],
+									"uv": [ 23.5, 33.0 ],
+									"rotationOrigin": [ 0.6, 0.4, 0.5 ],
+									"rotationZ": -22.5,
+									"faces": {
+										"north": { "texture": "#hair", "uv": [ 23.5, 33.5, 24.0, 35.0 ] },
+										"east": { "texture": "#hair", "uv": [ 24.0, 33.5, 24.5, 35.0 ] },
+										"south": { "texture": "#hair", "uv": [ 24.5, 33.5, 25.0, 35.0 ] },
+										"west": { "texture": "#hair", "uv": [ 25.0, 33.5, 25.5, 35.0 ] },
+										"down": { "texture": "#hair", "uv": [ 23.5, 33.0, 24.0, 33.5 ] }
+									},
+									"children": [
+										{
+											"name": "hairR2",
+											"from": [ -1.6, -0.05, 0.0 ],
+											"to": [ 0.4, 0.45, 0.5 ],
+											"uv": [ 18.5, 32.5 ],
+											"rotationOrigin": [ 0.4, 0.2, 0.25 ],
+											"rotationY": 10.0,
+											"rotationZ": 22.5,
+											"faces": {
+												"north": { "texture": "#hair", "uv": [ 18.5, 33.0, 20.5, 33.5 ] },
+												"east": { "texture": "#hair", "uv": [ 20.5, 33.0, 21.0, 33.5 ] },
+												"south": { "texture": "#hair", "uv": [ 21.0, 33.0, 23.0, 33.5 ] },
+												"west": { "texture": "#hair", "uv": [ 23.0, 33.0, 23.5, 33.5 ] },
+												"up": { "texture": "#hair", "uv": [ 18.5, 32.5, 20.5, 33.0 ] },
+												"down": { "texture": "#hair", "uv": [ 20.5, 32.5, 22.5, 33.0 ] }
+											},
+											"children": [
+												{
+													"name": "hairR3",
+													"from": [ -1.9, 0.0, 0.0 ],
+													"to": [ 0.1, 0.5, 0.5 ],
+													"uv": [ 20.0, 35.0 ],
+													"rotationOrigin": [ 0.1, 0.25, 0.25 ],
+													"rotationY": 22.5,
+													"rotationZ": -10.0,
+													"faces": {
+														"north": { "texture": "#hair", "uv": [ 20.0, 35.5, 22.0, 36.0 ] },
+														"east": { "texture": "#hair", "uv": [ 22.0, 35.5, 22.5, 36.0 ] },
+														"south": { "texture": "#hair", "uv": [ 22.5, 35.5, 24.5, 36.0 ] },
+														"west": { "texture": "#hair", "uv": [ 24.5, 35.5, 25.0, 36.0 ] },
+														"up": { "texture": "#hair", "uv": [ 20.0, 35.0, 22.0, 35.5 ] },
+														"down": { "texture": "#hair", "uv": [ 22.0, 35.0, 24.0, 35.5 ] }
+													},
+													"children": [
+														{
+															"name": "hairR4",
+															"from": [ 0.0, -1.7, 0.0 ],
+															"to": [ 0.5, 0.3, 0.5 ],
+															"renderPass": 1,
+															"uv": [ 28.5, 41.0 ],
+															"rotationOrigin": [ 0.25, 0.3, 0.25 ],
+															"rotationX": -22.5,
+															"rotationZ": -22.5,
+															"faces": {
+																"north": { "texture": "#hair", "uv": [ 28.5, 41.5, 29.0, 43.5 ] },
+																"east": { "texture": "#hair", "uv": [ 29.0, 41.5, 29.5, 43.5 ] },
+																"south": { "texture": "#hair", "uv": [ 29.5, 41.5, 30.0, 43.5 ] },
+																"west": { "texture": "#hair", "uv": [ 30.0, 41.5, 30.5, 43.5 ] },
+																"up": { "texture": "#hair", "uv": [ 28.5, 41.0, 29.0, 41.5 ] }
+															}
+														}
+													]
+												}
+											]
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Hair-Upper",
+					"from": [ 0.0, 0.0, 0.0 ],
+					"to": [ 1.0, 1.0, 1.0 ],
+					"uv": [ 0.0, 0.0 ],
+					"faces": {
+					},
+					"children": [
+						{
+							"name": "Bangs",
+							"from": [ 0.25, 5.25, 1.8 ],
+							"to": [ 2.25, 5.25, 3.8 ],
+							"renderPass": 1,
+							"autoUnwrap": false,
+							"uv": [ 19.0, 4.0 ],
+							"rotationOrigin": [ 0.2, 5.3, 2.8 ],
+							"rotationZ": 0.0,
+							"faces": {
+								"up": { "texture": "#hair", "uv": [ 16.5, 4.0, 18.5, 6.0 ], "rotation": 270, "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] }
+							},
+							"children": [
+								{
+									"name": "fringe2",
+									"from": [ 0.0, -1.5, 0.0 ],
+									"to": [ 0.0, 0.0, 2.0 ],
+									"renderPass": 1,
+									"uv": [ 21.5, 11.5 ],
+									"faces": {
+										"west": { "texture": "#hair", "uv": [ 21.5, 11.5, 23.5, 13.0 ], "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] }
+									}
+								},
+								{
+									"name": "fringe3",
+									"from": [ 0.0, -2.0, 0.0 ],
+									"to": [ 0.0, 0.0, 2.0 ],
+									"renderPass": 1,
+									"uv": [ 23.5, 11.0 ],
+									"rotationOrigin": [ 0.0, 0.0, 0.0 ],
+									"rotationZ": -15.0,
+									"faces": {
+										"west": { "texture": "#hair", "uv": [ 23.5, 11.0, 25.5, 13.0 ], "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] }
+									}
+								},
+								{
+									"name": "fringe4",
+									"from": [ 0.0, -2.0, 0.0 ],
+									"to": [ 0.0, -1.0, 2.0 ],
+									"renderPass": 1,
+									"uv": [ 14.5, 5.0 ],
+									"rotationOrigin": [ 0.0, -1.0, 0.0 ],
+									"rotationZ": -15.0,
+									"faces": {
+										"west": { "texture": "#hair", "uv": [ 14.5, 5.0, 16.5, 6.0 ], "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] }
+									}
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	]}

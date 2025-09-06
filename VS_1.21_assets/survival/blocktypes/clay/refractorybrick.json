@@ -1,0 +1,79 @@
+{
+	code: "refractorybricks",
+	// BlockRefractoryBrick only adds some tool tip info
+	class: "BlockRefractoryBrick",
+	attributes: {
+		handbook: {
+			groupBy: ["refractorybricks-*"]
+		},
+		heatResistanceByType: {
+			"*-tier1": 0.9,
+			"*-tier2": 0.95,
+			"*-tier3": 0.999
+		},
+		cokeOvenViableByType: {
+			"*-good-*": true
+		}
+	},
+	variantgroups: [
+		{ code: "state", states: ["good", "damaged"] },
+		{ code: "type", states: ["tier1", "tier2", "tier3"] }
+	],
+	shapeByType: {
+		"refractorybricks-good-*": { base: "block/basic/cube" },
+		"refractorybricks-damaged-*": { base: "block/clay/refractory/damaged*" }
+	},
+	drawtypeByType: {
+		"refractorybricks-good-*": "Cube",
+		"refractorybricks-damaged-*": "Json"
+	},
+	sideopaqueByType: {
+		"refractorybricks-good-*": { all: true },
+		"refractorybricks-damaged-*": { all: false }
+	},
+	sidesolidByType: {
+		"refractorybricks-good-*": { all: true },
+		"refractorybricks-damaged-*": { all: false }
+	},
+	blockmaterial: "Ceramic",
+	creativeinventory: { "general": ["*"], "construction": ["*"] },
+	replaceable: 700,
+	resistance: 2.5,
+	lightAbsorption: 99,
+	texturesByType: {
+		"*-good-*": { 
+			all: {  base: "block/clay/refractory/{type}/front*" }
+		},
+		"*-damaged-*": { 
+			all: { 
+				base: "block/clay/refractory/{type}/front1", overlays: ["block/overlay/cracked/cracked1"],
+				alternates: [
+					{ base: "block/clay/refractory/{type}/front2", overlays: ["block/overlay/cracked/cracked2"] },
+					{ base: "block/clay/refractory/{type}/front3", overlays: ["block/overlay/cracked/cracked3"] }
+				]
+			} 
+		}
+	},
+	sounds: {
+		walk: "walk/stone",
+		place: "block/ceramicplace"
+	},
+	heldTpIdleAnimation: "holdbothhandslarge", heldRightReadyAnimation: "heldblockready", heldTpUseAnimation: "twohandplaceblock",
+	tpHandTransform: {
+		translation: { x: -1.23, y: -0.91, z: -0.8 },
+		rotation: { x: -2, y: 25, z: -78 },
+		scale: 0.4
+	},
+	dropsByType: {
+		"refractorybricks-damaged-*": [{
+			type: "item", 
+			code: "refractorybrick-fired-{type}",
+			quantity: { avg: 2, var: 0.5 } 
+		}],
+		"refractorybricks-good-*": [{
+			type: "block", 
+			code: "refractorybricks-{state}-{type}",
+			quantity: { avg: 1, var: 0 } 
+		}]
+	}
+}

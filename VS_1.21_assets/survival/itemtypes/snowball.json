@@ -1,0 +1,272 @@
+{
+	code: "snowball",
+	classByType: {
+		"snowball-beenade": "ItemClosedBeenade",
+		"*": "ItemSnowball"
+	},
+	maxstacksize: 8,
+	variantgroups: [
+		{ code: "rock", states: ["meteorite-iron", "beenade", "snow"], loadFromProperties: "block/rockwithdeposit" },
+	],
+	shape: { base: "item/snowball" },
+	attributes: {
+		damageByType: {
+			"*-snow": 0.001,
+			"*-beenade": 0.001,
+			"*": 1
+		},
+		thrownEntityTypeCode: "thrownsnownade",
+		displaycaseable: false,
+		shelvable: false,
+		handbook: {
+			"groupBy": ["snowball-*"]
+		},
+	},
+	texturesByType: {
+		"snowball-snow": {
+			"normal2": { base: "block/liquid/snow/normal1" },
+		},
+		"snowball-beenade": {
+			"normal2": { base: "block/reed/beehive/beenade" },
+		},
+		"snowball-*": { 
+			"normal2": { base: "block/stone/rock/{rock}1" }
+		},
+	},
+	materialDensity: 600,
+	guiTransform: {
+		translation: { x: 2, y: 1, z: 0 },
+		rotation: { x: 150, y: -38, z: 0 },
+		origin: { x: 0.5, y: 0.1, z: 0.5 },
+		scale: 3.5
+	},
+	fpHandTransform: {
+		translation: { x: 0.05, y: 0.2, z: 0 },
+		rotation: { x: 94, y: 95, z: -21 },
+		origin: { x: 0.5, y: 0.1, z: 0.5 },
+		scale: 1.78
+	},
+	tpHandTransform: {
+		translation: { x: -0.8, y: -0.22, z: -0.7 },
+		rotation: { x: -44, y: 7, z: -9 },
+		origin: { x: 0.5, y: 0.1, z: 0.5 },
+		scale: 0.7
+	},
+	groundTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: 0, y: 0, z: 0 },
+		origin: { x: 0.5, y: 0, z: 0.5 },
+		scale: 4.5
+	},
+	transitionablePropsByType: {
+		"snowball-snow":
+			[{
+				type: "Melt",
+				freshHours: { avg: 0 },
+				transitionHours: { avg: 3 },
+				transitionedStack: { type: "item", code: "slush" },
+				transitionRatio: 1
+			}],
+		"snowball-beenade":
+			[{
+				type: "Melt",
+				freshHours: { avg: 0 },
+				transitionHours: { avg: 3 },
+				transitionedStack: { type: "item", code: "beenade-closed" },
+				transitionRatio: 1
+			}],
+		"snowball-meteorite-iron":
+			[{
+				type: "Melt",
+				freshHours: { avg: 0 },
+				transitionHours: { avg: 3 },
+				transitionedStack: { type: "item", code: "stone-meteorite-iron" },
+				transitionRatio: 1
+			}],
+		"snowball-andesite":
+			[{
+				type: "Melt",
+				freshHours: { avg: 0 },
+				transitionHours: { avg: 3 },
+				transitionedStack: { type: "item", code: "stone-andesite" },
+				transitionRatio: 1
+			}],
+		"snowball-chalk":
+			[{
+				type: "Melt",
+				freshHours: { avg: 0 },
+				transitionHours: { avg: 3 },
+				transitionedStack: { type: "item", code: "stone-chalk" },
+				transitionRatio: 1
+			}],
+		"snowball-chert":
+			[{
+				type: "Melt",
+				freshHours: { avg: 0 },
+				transitionHours: { avg: 3 },
+				transitionedStack: { type: "item", code: "stone-chert" },
+				transitionRatio: 1
+			}],
+		"snowball-conglomerate":
+			[{
+				type: "Melt",
+				freshHours: { avg: 0 },
+				transitionHours: { avg: 3 },
+				transitionedStack: { type: "item", code: "stone-conglomerate" },
+				transitionRatio: 1
+			}],
+		"snowball-limestone":
+			[{
+				type: "Melt",
+				freshHours: { avg: 0 },
+				transitionHours: { avg: 3 },
+				transitionedStack: { type: "item", code: "stone-limestone" },
+				transitionRatio: 1
+			}],
+		"snowball-claystone":
+			[{
+				type: "Melt",
+				freshHours: { avg: 0 },
+				transitionHours: { avg: 3 },
+				transitionedStack: { type: "item", code: "stone-claystone" },
+				transitionRatio: 1
+			}],
+		"snowball-granite":
+			[{
+				type: "Melt",
+				freshHours: { avg: 0 },
+				transitionHours: { avg: 3 },
+				transitionedStack: { type: "item", code: "stone-granite" },
+				transitionRatio: 1
+			}],
+		"snowball-sandstone":
+			[{
+				type: "Melt",
+				freshHours: { avg: 0 },
+				transitionHours: { avg: 3 },
+				transitionedStack: { type: "item", code: "stone-sandstone" },
+				transitionRatio: 1
+			}],
+		"snowball-shale":
+			[{
+				type: "Melt",
+				freshHours: { avg: 0 },
+				transitionHours: { avg: 3 },
+				transitionedStack: { type: "item", code: "stone-shale" },
+				transitionRatio: 1
+			}],
+		"snowball-basalt":
+			[{
+				type: "Melt",
+				freshHours: { avg: 0 },
+				transitionHours: { avg: 3 },
+				transitionedStack: { type: "item", code: "stone-basalt" },
+				transitionRatio: 1
+			}],
+		"snowball-peridotite":
+			[{
+				type: "Melt",
+				freshHours: { avg: 0 },
+				transitionHours: { avg: 3 },
+				transitionedStack: { type: "item", code: "stone-peridotite" },
+				transitionRatio: 1
+			}],
+		"snowball-phyllite":
+			[{
+				type: "Melt",
+				freshHours: { avg: 0 },
+				transitionHours: { avg: 3 },
+				transitionedStack: { type: "item", code: "stone-phyllite" },
+				transitionRatio: 1
+			}],
+		"snowball-slate":
+			[{
+				type: "Melt",
+				freshHours: { avg: 0 },
+				transitionHours: { avg: 3 },
+				transitionedStack: { type: "item", code: "stone-slate" },
+				transitionRatio: 1
+			}],
+		"snowball-obsidian":
+			[{
+				type: "Melt",
+				freshHours: { avg: 0 },
+				transitionHours: { avg: 3 },
+				transitionedStack: { type: "item", code: "stone-obsidian" },
+				transitionRatio: 1
+			}],
+		"snowball-kimberlite":
+			[{
+				type: "Melt",
+				freshHours: { avg: 0 },
+				transitionHours: { avg: 3 },
+				transitionedStack: { type: "item", code: "stone-kimberlite" },
+				transitionRatio: 1
+			}],
+		"snowball-scoria":
+			[{
+				type: "Melt",
+				freshHours: { avg: 0 },
+				transitionHours: { avg: 3 },
+				transitionedStack: { type: "item", code: "stone-scoria" },
+				transitionRatio: 1
+			}],
+		"snowball-tuff":
+			[{
+				type: "Melt",
+				freshHours: { avg: 0 },
+				transitionHours: { avg: 3 },
+				transitionedStack: { type: "item", code: "stone-tuff" },
+				transitionRatio: 1
+			}],
+		"snowball-bauxite":
+			[{
+				type: "Melt",
+				freshHours: { avg: 0 },
+				transitionHours: { avg: 3 },
+				transitionedStack: { type: "item", code: "stone-bauxite" },
+				transitionRatio: 1
+			}],
+		"snowball-halite":
+			[{
+				type: "Melt",
+				freshHours: { avg: 0 },
+				transitionHours: { avg: 1 },
+				transitionedStack: { type: "item", code: "stone-halite" },
+				transitionRatio: 1
+			}],
+		"snowball-suevite":
+			[{
+				type: "Melt",
+				freshHours: { avg: 0 },
+				transitionHours: { avg: 3 },
+				transitionedStack: { type: "item", code: "stone-suevite" },
+				transitionRatio: 1
+			}],
+		"snowball-whitemarble":
+			[{
+				type: "Melt",
+				freshHours: { avg: 0 },
+				transitionHours: { avg: 3 },
+				transitionedStack: { type: "item", code: "stone-whitemarble" },
+				transitionRatio: 1
+			}],
+		"snowball-redmarble":
+			[{
+				type: "Melt",
+				freshHours: { avg: 0 },
+				transitionHours: { avg: 3 },
+				transitionedStack: { type: "item", code: "stone-redmarble" },
+				transitionRatio: 1
+			}],
+		"snowball-greenmarble":
+			[{
+				type: "Melt",
+				freshHours: { avg: 0 },
+				transitionHours: { avg: 3 },
+				transitionedStack: { type: "item", code: "stone-greenmarble" },
+				transitionRatio: 1
+			}]
+	},
+	creativeinventory: { "general": ["*"], "items": ["*"] }
+}

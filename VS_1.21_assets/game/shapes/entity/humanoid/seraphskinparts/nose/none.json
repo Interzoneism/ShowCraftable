@@ -1,0 +1,25 @@
+{
+	"editor": {
+		"backDropShape": "seraph-hairless",
+		"allAngles": true,
+		"entityTextureMode": true
+	},
+	"textureWidth": 32,
+	"textureHeight": 76,
+	"textureSizes": {
+		"seraph": [32,76]
+	},
+	"textures": {
+	},
+	"elements": [
+		{
+			"name": "origin",
+			"stepParentName": "Head",
+			"from": [ 3.0, 2.0, 2.5 ],
+			"to": [ 3.0, 2.0, 2.5 ],
+			"uv": [ 0.0, 0.0 ],
+			"rotationOrigin": [ 3.0, 2.0, 2.5 ],
+			"faces": {
+			}
+		}
+	]}

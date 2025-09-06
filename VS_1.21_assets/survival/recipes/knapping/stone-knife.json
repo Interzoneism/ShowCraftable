@@ -1,0 +1,17 @@
+{
+	ingredient: { type: "item", code: "stone-*", name: "rock", allowedVariants: ["chert", "granite", "andesite", "basalt", "obsidian", "flint", "peridotite"] },
+	pattern: [[
+		"_____#____",
+		"_____#____",
+		"____##____",
+		"____##____",
+		"____##____",
+		"___###____",
+		"___###____",
+		"___###____",
+		"___###____",
+		"___###____"
+	]],
+	name: "Stone knife",
+	output: { type: "item", code: "knifeblade-{rock}", stacksize: 1  }
+}

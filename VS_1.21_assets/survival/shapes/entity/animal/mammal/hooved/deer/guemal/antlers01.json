@@ -1,0 +1,112 @@
+{
+	"editor": {
+		"backDropShape": "entity/animal/mammal/hooved/deer/guemal/adult",
+		"collapsedPaths": "Root/Body/Left Shoulder,Root/Body/Right Shoulder",
+		"allAngles": true,
+		"entityTextureMode": true
+	},
+	"textureWidth": 52,
+	"textureHeight": 64,
+	"textureSizes": {
+		"skin": [64,32],
+		"taruca-adult": [52,64]
+	},
+	"textures": {
+		"taruca-adult": "entity/animal/mammal/hooved/deer/guemal-adult"
+	},
+	"elements": [
+		{
+			"name": "Horn attachment",
+			"stepParentName": "head",
+			"from": [ 0.0, 3.5, 1.25 ],
+			"to": [ 0.9, 4.4, 2.15 ],
+			"uv": [ 0.0, 0.0 ],
+			"rotationOrigin": [ 0.0, 3.5, 1.25 ],
+			"rotationZ": -22.0,
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "R antler base",
+					"from": [ 0.1, -0.1, -1.2 ],
+					"to": [ 0.6, 0.9, -0.7 ],
+					"unwrapMode": 4,
+					"uv": [ 38.5, 60.5 ],
+					"rotationOrigin": [ 0.1, 0.7, -0.6 ],
+					"rotationY": -25.0,
+					"rotationZ": 25.0,
+					"faces": {
+						"north": { "texture": "#taruca-adult", "uv": [ 38.5, 61.0, 39.0, 62.0 ] },
+						"east": { "texture": "#taruca-adult", "uv": [ 40.0, 61.0, 40.5, 62.0 ] },
+						"south": { "texture": "#taruca-adult", "uv": [ 39.5, 61.0, 40.0, 62.0 ] },
+						"west": { "texture": "#taruca-adult", "uv": [ 39.0, 61.0, 39.5, 62.0 ] },
+						"up": { "texture": "#taruca-adult", "uv": [ 39.0, 60.5, 39.5, 61.0 ], "rotation": 90 }
+					},
+					"children": [
+						{
+							"name": "R antler branch 1",
+							"from": [ 0.05, 1.0, 0.05 ],
+							"to": [ 0.45, 2.5, 0.45 ],
+							"unwrapMode": 4,
+							"uv": [ 38.5, 57.5 ],
+							"rotationOrigin": [ 0.05, 1.0, 0.45 ],
+							"faces": {
+								"north": { "texture": "#taruca-adult", "uv": [ 38.5, 58.0, 39.0, 59.5 ] },
+								"east": { "texture": "#taruca-adult", "uv": [ 40.0, 58.0, 40.5, 59.5 ] },
+								"south": { "texture": "#taruca-adult", "uv": [ 39.5, 58.0, 40.0, 59.5 ] },
+								"west": { "texture": "#taruca-adult", "uv": [ 39.0, 58.0, 39.5, 59.5 ] },
+								"up": { "texture": "#taruca-adult", "uv": [ 39.0, 57.5, 39.5, 58.0 ], "rotation": 90 }
+							}
+						}
+					]
+				},
+				{
+					"name": "L antler base",
+					"from": [ 0.1, -0.1, 0.6 ],
+					"to": [ 0.6, 0.9, 1.1 ],
+					"unwrapMode": 4,
+					"uv": [ 36.5, 60.5 ],
+					"rotationOrigin": [ 0.1, 0.7, 0.6 ],
+					"rotationY": 25.0,
+					"rotationZ": 25.0,
+					"faces": {
+						"north": { "texture": "#taruca-adult", "uv": [ 36.5, 61.0, 37.0, 62.0 ] },
+						"east": { "texture": "#taruca-adult", "uv": [ 38.0, 61.0, 38.5, 62.0 ] },
+						"south": { "texture": "#taruca-adult", "uv": [ 37.5, 61.0, 38.0, 62.0 ] },
+						"west": { "texture": "#taruca-adult", "uv": [ 37.0, 61.0, 37.5, 62.0 ] },
+						"up": { "texture": "#taruca-adult", "uv": [ 37.0, 60.5, 37.5, 61.0 ], "rotation": 90, "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] }
+					},
+					"children": [
+						{
+							"name": "L antler branch 1",
+							"from": [ 0.05, 1.0, 0.05 ],
+							"to": [ 0.45, 2.5, 0.45 ],
+							"unwrapMode": 4,
+							"uv": [ 36.5, 57.5 ],
+							"rotationOrigin": [ 0.05, 1.0, 0.05 ],
+							"faces": {
+								"north": { "texture": "#taruca-adult", "uv": [ 36.5, 58.0, 37.0, 59.5 ] },
+								"east": { "texture": "#taruca-adult", "uv": [ 38.0, 58.0, 38.5, 59.5 ] },
+								"south": { "texture": "#taruca-adult", "uv": [ 37.5, 58.0, 38.0, 59.5 ] },
+								"west": { "texture": "#taruca-adult", "uv": [ 37.0, 58.0, 37.5, 59.5 ] },
+								"up": { "texture": "#taruca-adult", "uv": [ 37.0, 57.5, 37.5, 58.0 ], "rotation": 90 }
+							}
+						}
+					]
+				}
+			]
+		}
+	],
+	"animations": [
+		{
+			"name": "Walk",
+			"code": "walk",
+			"quantityframes": 30,
+			"onActivityStopped": "Rewind",
+			"onAnimationEnd": "Repeat",
+			"keyframes": [
+
+			]
+		}
+	]
+}

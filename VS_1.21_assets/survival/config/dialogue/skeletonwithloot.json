@@ -1,0 +1,40 @@
+{
+	components: [
+		{
+			code: "intro",
+			owner: "skeletonwithloot",
+			type: "talk",
+			text: [
+				{ value: "dialogue-skeleton-intro" }
+			],
+		},
+		{
+			code: "main",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-skeleton-inspectskeleton", jumpTo: "skeleton" },
+				{ value: "dialogue-skeleton-inspectwounds", jumpTo: "wounds", condition: { variable: "player.inspectskeleton", isValue: "true" }  },
+			],
+		},
+		{
+			code: "skeleton",
+			owner: "skeletonwithloot",
+			type: "talk",
+			setVariables: { "player.inspectskeleton": "true" },
+			text: [
+				{ value: "dialogue-skeleton-old" }
+			],
+			jumpTo: "main"
+		},
+		{
+			code: "wounds",
+			owner: "skeletonwithloot",
+			type: "talk",
+			text: [
+				{ value: "dialogue-skeleton-arm" }
+			],
+			jumpTo: "main"
+		},
+	]
+}

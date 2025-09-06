@@ -1,0 +1,49 @@
+{
+	code: "creativegrass",
+	variantgroups: [
+		{ code: "fertility", states: ["medium"] },
+		{ code: "grasscoverage", states: ["normal"] },
+	],
+	behaviors: [{ name: "MyceliumHost" }],
+	creativeinventory: { "general": ["*"], "flora": ["*"], "terrain": ["*"] },
+	shape: { base: "block/basic/cube" },
+	drawtype: "Json",
+	renderpass: "Opaque",
+	blockmaterial: "Soil",
+	textures: {
+		all: { base: "block/plant/grasscoverage/{grasscoverage}-top" },
+	},
+	attributes: {
+		handbook: {
+			exclude: true
+		},
+		mapColorCode: "land",
+		canChisel: true,
+		growthBlockLayer: "l1soilwithgrass",
+		growthLightLevel: 7,
+		preventsDecay: true,
+		tallGrassGrowthChance: 0.3,
+		spreadsGrassByType: {
+			"*-none": false,
+			"*": true
+		}
+	},
+	climateColorMap: "climatePlantTint",
+	seasonColorMap: "seasonalGrass",
+	frostable: "true",
+	replaceable: 400,
+	fertility: 100,
+	resistance: 1.5,
+	sounds: {
+		place: "block/dirt",
+		break: "block/dirt",
+		hit: "block/dirt",
+		walk: "walk/grass"
+	},
+	heldTpIdleAnimation: "holdbothhandslarge", heldRightReadyAnimation: "heldblockready", heldTpUseAnimation: "twohandplaceblock",
+	tpHandTransform: {
+		translation: { x: -1.23, y: -0.91, z: -0.8 },
+		rotation: { x: -2, y: 25, z: -78 },
+		scale: 0.4
+	}
+}

@@ -1,0 +1,110 @@
+{
+	code: "worldedit-tooloptions-repeat",
+	padding: 5,
+	posX: 330,
+	disableWorldInteract: false,
+	alignment: "FixedTop",
+	rows: [
+		{ elements: [
+			{
+				code: "std.repeatMode",
+				width: 180,
+				height: 30,
+				type: "select",
+				mode: "dropdown",
+				label: "we-mode",
+				values: ["0", "1"],
+				names: [
+					"we-repeatMode-1",
+					"we-repeatMode-2"
+				],
+				param: "/we tm",
+			},
+			{
+				code: "std.repeatSelectionMode",
+				width: 200,
+				height: 30,
+				type: "select",
+				mode: "dropdown",
+				label: "we-mode",
+				values: ["0", "1", "2"],
+				names: [
+					"we-repeatSelectionMode-1",
+					"we-repeatSelectionMode-2",
+					"we-repeatSelectionMode-3"
+				],
+				param: "/we sm",
+			},
+			{
+				width: 40,
+				code: "north",
+				type: "button",
+				tooltip: "we-north-tooltip",
+				text: "we-north-text",
+				param: "/we north",
+				fontSize: 16,
+				paddingLeft: 10
+			},
+			{
+				width: 40,
+				code: "south",
+				type: "button",
+				tooltip: "we-south-tooltip",
+				text: "we-south-text",
+				param: "/we south",
+				fontSize: 16,
+				paddingLeft: 10
+			},
+			{
+				width: 35,
+				code: "east",
+				type: "button",
+				tooltip: "we-east-tooltip",
+				text: "we-east-text",
+				param: "/we east",
+				fontSize: 16,
+				paddingLeft: 20
+			},
+			{
+				width: 40,
+				code: "west",
+				type: "button",
+				tooltip: "we-west-tooltip",
+				text: "we-west-text",
+				param: "/we west",
+				fontSize: 16,
+				paddingLeft: 0
+			},
+			{
+				width: 24,
+				code: "up",
+				type: "button",
+				tooltip: "we-up-tooltip",
+				text: "we-up-text",
+				param: "/we up",
+				fontSize: 16,
+				paddingLeft: 13
+			},
+			{
+				width: 30,
+				code: "down",
+				type: "button",
+				tooltip: "we-down-tooltip",
+				text: "we-down-text",
+				param: "/we down",
+				fontSize: 16
+			},
+			{
+				width: 30,
+				code: "look",
+				type: "button",
+				tooltip: "we-look-tooltip",
+				text: "we-look-text",
+				param: "/we look",
+				fontSize: 16,
+				paddingLeft: 25
+			}
+		]
+		},
+	]
+}

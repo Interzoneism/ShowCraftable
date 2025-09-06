@@ -1,0 +1,3899 @@
+{
+	"editor": {
+		"allAngles": true,
+		"entityTextureMode": false
+	},
+	"textureWidth": 32,
+	"textureHeight": 32,
+	"textureSizes": {
+	},
+	"textures": {
+		"rust": "block/metal/tarnished/rust"
+	},
+	"elements": [
+		{
+			"name": "origin",
+			"from": [ 8.0, 0.0, 8.0 ],
+			"to": [ 8.0, 0.0, 8.0 ],
+			"rotationOrigin": [ 8.0, 0.0, 8.0 ],
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "body-main",
+					"from": [ -7.0, 75.0, -7.0 ],
+					"to": [ 7.0, 91.0, 7.0 ],
+					"rotationOrigin": [ 0.0, 83.0, 0.0 ],
+					"faces": {
+						"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 14.0, 16.0 ] },
+						"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 14.0, 16.0 ] },
+						"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 14.0, 16.0 ] },
+						"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 14.0, 16.0 ] },
+						"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 14.0, 14.0 ] },
+						"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 14.0, 14.0 ] }
+					},
+					"children": [
+						{
+							"name": "body-top",
+							"from": [ 2.0, 16.0, 2.0 ],
+							"to": [ 12.0, 26.0, 12.0 ],
+							"rotationOrigin": [ 7.0, 16.0, 7.0 ],
+							"faces": {
+								"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 10.0, 10.0 ] },
+								"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 10.0, 10.0 ] },
+								"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 10.0, 10.0 ] },
+								"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 10.0, 10.0 ] },
+								"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 10.0, 10.0 ] }
+							},
+							"children": [
+								{
+									"name": "neck1",
+									"from": [ 1.5, 12.0, 1.5 ],
+									"to": [ 8.5, 28.0, 8.5 ],
+									"rotationOrigin": [ 5.0, 12.0, 5.0 ],
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 16.0 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 16.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 16.0 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 16.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 7.0 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 7.0 ] }
+									},
+									"children": [
+										{
+											"name": "neck1-joint2",
+											"from": [ 1.5, 15.0, 1.5 ],
+											"to": [ 5.5, 19.0, 5.5 ],
+											"rotationOrigin": [ 3.5, 17.0, 3.5 ],
+											"rotationY": 45.0,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 4.0 ] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 4.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 4.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 4.0 ] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 4.0 ] }
+											}
+										},
+										{
+											"name": "neck2",
+											"from": [ 0.5, 18.5, 0.5 ],
+											"to": [ 6.5, 34.5, 6.5 ],
+											"rotationOrigin": [ 3.5, 18.5, 3.5 ],
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 16.0 ] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 16.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 16.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 16.0 ] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 6.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 6.0 ] }
+											},
+											"children": [
+												{
+													"name": "neck2-extension",
+													"from": [ 0.5, 16.0, 0.5 ],
+													"to": [ 5.5, 32.0, 5.5 ],
+													"rotationOrigin": [ 3.0, 16.0, 3.0 ],
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 16.0 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 16.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 16.0 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 16.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 5.0 ] }
+													},
+													"children": [
+														{
+															"name": "rod2",
+															"from": [ 4.0, -10.0, 2.0 ],
+															"to": [ 5.0, 6.0, 3.0 ],
+															"rotationOrigin": [ 4.5, -10.0, 2.5 ],
+															"rotationZ": -45.0,
+															"faces": {
+																"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 16.0 ] },
+																"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 16.0 ] },
+																"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 16.0 ] },
+																"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 16.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+															}
+														},
+														{
+															"name": "rod3",
+															"from": [ 4.0, 6.0, 2.0 ],
+															"to": [ 5.0, 22.0, 3.0 ],
+															"rotationOrigin": [ 4.5, 6.0, 2.5 ],
+															"rotationZ": -45.0,
+															"faces": {
+																"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 16.0 ] },
+																"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 16.0 ] },
+																"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 16.0 ] },
+																"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 16.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+															}
+														},
+														{
+															"name": "neck2-spine2",
+															"from": [ 3.5, 1.0, 1.0 ],
+															"to": [ 6.5, 15.0, 4.0 ],
+															"rotationOrigin": [ 5.0, 1.0, 2.5 ],
+															"rotationY": -45.0,
+															"faces": {
+																"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 14.0 ], "windMode": [-1,-1,-1,-1], "windData": [5,6,6,5] },
+																"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 14.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ] },
+																"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ] }
+															}
+														},
+														{
+															"name": "rivet59",
+															"from": [ 2.5, 1.5, -0.5 ],
+															"to": [ 3.5, 2.5, 5.5 ],
+															"rotationOrigin": [ 3.0, 2.0, 2.5 ],
+															"rotationZ": -45.0,
+															"faces": {
+																"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 1.0 ] },
+																"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 1.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 6.0 ] },
+																"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 6.0 ] }
+															}
+														},
+														{
+															"name": "rivet60",
+															"from": [ 2.5, 4.5, -0.5 ],
+															"to": [ 3.5, 5.5, 5.5 ],
+															"rotationOrigin": [ 3.0, 5.0, 2.5 ],
+															"rotationZ": -45.0,
+															"faces": {
+																"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 1.0 ] },
+																"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 1.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 6.0 ] },
+																"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 6.0 ] }
+															}
+														},
+														{
+															"name": "rivet61",
+															"from": [ 2.5, 7.5, -0.5 ],
+															"to": [ 3.5, 8.5, 5.5 ],
+															"rotationOrigin": [ 3.0, 8.0, 2.5 ],
+															"rotationZ": -45.0,
+															"faces": {
+																"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 1.0 ] },
+																"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 1.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 6.0 ] },
+																"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 6.0 ] }
+															}
+														},
+														{
+															"name": "rivet62",
+															"from": [ 2.5, 10.5, -0.5 ],
+															"to": [ 3.5, 11.5, 5.5 ],
+															"rotationOrigin": [ 3.0, 11.0, 2.5 ],
+															"rotationZ": -45.0,
+															"faces": {
+																"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 1.0 ] },
+																"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 1.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 6.0 ] },
+																"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 6.0 ] }
+															}
+														},
+														{
+															"name": "rivet63",
+															"from": [ 2.5, 13.5, -0.5 ],
+															"to": [ 3.5, 14.5, 5.5 ],
+															"rotationOrigin": [ 3.0, 14.0, 2.5 ],
+															"rotationZ": -45.0,
+															"faces": {
+																"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 1.0 ] },
+																"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 1.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 6.0 ] },
+																"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 6.0 ] }
+															}
+														},
+														{
+															"name": "neck3",
+															"from": [ 0.5, 18.0, 0.5 ],
+															"to": [ 4.5, 34.0, 4.5 ],
+															"rotationOrigin": [ 2.5, 18.0, 2.5 ],
+															"faces": {
+																"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 16.0 ] },
+																"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 16.0 ] },
+																"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 16.0 ] },
+																"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 16.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 4.0 ] },
+																"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 4.0 ] }
+															},
+															"children": [
+																{
+																	"name": "neck3-joint",
+																	"from": [ 0.5, 15.5, 0.5 ],
+																	"to": [ 3.5, 18.5, 3.5 ],
+																	"rotationOrigin": [ 2.0, 17.0, 2.0 ],
+																	"rotationY": -45.0,
+																	"faces": {
+																		"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ] },
+																		"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ] },
+																		"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ] },
+																		"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ] },
+																		"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ] },
+																		"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ] }
+																	}
+																},
+																{
+																	"name": "neck4",
+																	"from": [ 0.0, 17.5, 0.0 ],
+																	"to": [ 4.0, 33.5, 4.0 ],
+																	"rotationOrigin": [ 2.0, 17.5, 2.0 ],
+																	"faces": {
+																		"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 16.0 ] },
+																		"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 16.0 ] },
+																		"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 16.0 ] },
+																		"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 16.0 ] },
+																		"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 4.0 ] },
+																		"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 4.0 ] }
+																	},
+																	"children": [
+																		{
+																			"name": "neck4-joint",
+																			"from": [ 0.5, 15.5, 0.5 ],
+																			"to": [ 3.5, 18.5, 3.5 ],
+																			"rotationOrigin": [ 2.0, 17.0, 2.0 ],
+																			"rotationY": -45.0,
+																			"faces": {
+																				"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ] },
+																				"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ] },
+																				"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ] },
+																				"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ] },
+																				"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ] }
+																			}
+																		},
+																		{
+																			"name": "head",
+																			"from": [ -5.0, 17.0, -1.0 ],
+																			"to": [ 7.0, 20.0, 5.0 ],
+																			"rotationOrigin": [ 2.0, 17.0, 2.0 ],
+																			"rotationZ": 22.5,
+																			"faces": {
+																				"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 12.0, 3.0 ] },
+																				"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 3.0 ] },
+																				"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 12.0, 3.0 ] },
+																				"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 3.0 ] },
+																				"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 12.0, 6.0 ] },
+																				"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 12.0, 6.0 ] }
+																			},
+																			"children": [
+																				{
+																					"name": "rod6",
+																					"from": [ 11.0, 4.0, 2.5 ],
+																					"to": [ 12.0, 20.0, 3.5 ],
+																					"rotationOrigin": [ 11.5, 4.0, 3.0 ],
+																					"rotationZ": -45.0,
+																					"faces": {
+																						"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 16.0 ] },
+																						"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 16.0 ] },
+																						"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 16.0 ] },
+																						"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 16.0 ] },
+																						"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+																					}
+																				},
+																				{
+																					"name": "eye",
+																					"from": [ -3.0, 1.5, 1.0 ],
+																					"to": [ 13.0, 5.5, 5.0 ],
+																					"rotationOrigin": [ -1.0, 3.5, 3.0 ],
+																					"rotationX": -45.0,
+																					"faces": {
+																						"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 16.0, 4.0 ] },
+																						"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 4.0 ] },
+																						"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 16.0, 4.0 ] },
+																						"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 4.0 ] },
+																						"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 16.0, 4.0 ] },
+																						"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 16.0, 4.0 ] }
+																					},
+																					"children": [
+																						{
+																							"name": "lens",
+																							"from": [ -1.0, 0.5, 0.5 ],
+																							"to": [ 0.0, 3.5, 3.5 ],
+																							"rotationOrigin": [ -1.0, 2.0, 2.0 ],
+																							"faces": {
+																								"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 3.0 ] },
+																								"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 3.0 ] },
+																								"west": { "texture": "#rust", "uv": [ 0.0, 5.0, 3.0, 8.0 ] },
+																								"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 3.0 ] },
+																								"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 3.0 ] }
+																							}
+																						},
+																						{
+																							"name": "rivet72",
+																							"from": [ 1.0, -0.5, 1.5 ],
+																							"to": [ 2.0, 4.5, 2.5 ],
+																							"rotationOrigin": [ 1.5, -0.5, 2.0 ],
+																							"rotationY": -45.0,
+																							"faces": {
+																								"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] },
+																								"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] },
+																								"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] },
+																								"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] },
+																								"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																								"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+																							}
+																						},
+																						{
+																							"name": "rivet73",
+																							"from": [ 1.0, 1.5, -0.5 ],
+																							"to": [ 2.0, 2.5, 4.5 ],
+																							"rotationOrigin": [ 1.5, 2.0, 0.0 ],
+																							"rotationZ": -45.0,
+																							"faces": {
+																								"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																								"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+																								"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																								"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+																								"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] },
+																								"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] }
+																							}
+																						},
+																						{
+																							"name": "rivet74",
+																							"from": [ 4.0, 4.0, 1.5 ],
+																							"to": [ 5.0, 4.5, 2.5 ],
+																							"rotationOrigin": [ 4.5, 4.0, 2.0 ],
+																							"rotationY": -45.0,
+																							"faces": {
+																								"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+																								"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+																								"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+																								"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+																								"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+																							}
+																						},
+																						{
+																							"name": "rivet75",
+																							"from": [ 7.0, 4.0, 1.5 ],
+																							"to": [ 8.0, 4.5, 2.5 ],
+																							"rotationOrigin": [ 7.5, 4.0, 2.0 ],
+																							"rotationY": -45.0,
+																							"faces": {
+																								"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+																								"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+																								"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+																								"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+																								"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+																							}
+																						},
+																						{
+																							"name": "rivet76",
+																							"from": [ 10.0, 4.0, 1.5 ],
+																							"to": [ 11.0, 4.5, 2.5 ],
+																							"rotationOrigin": [ 10.5, 4.0, 2.0 ],
+																							"rotationY": -45.0,
+																							"faces": {
+																								"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+																								"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+																								"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+																								"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+																								"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+																							}
+																						},
+																						{
+																							"name": "rivet77",
+																							"from": [ 13.0, 4.0, 1.5 ],
+																							"to": [ 14.0, 4.5, 2.5 ],
+																							"rotationOrigin": [ 13.5, 4.0, 2.0 ],
+																							"rotationY": -45.0,
+																							"faces": {
+																								"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+																								"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+																								"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+																								"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+																								"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+																							}
+																						},
+																						{
+																							"name": "rivet78",
+																							"from": [ 4.0, 1.5, 4.0 ],
+																							"to": [ 5.0, 2.5, 4.5 ],
+																							"rotationOrigin": [ 4.5, 2.0, 4.5 ],
+																							"rotationZ": -45.0,
+																							"faces": {
+																								"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+																								"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																								"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+																								"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+																								"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] }
+																							}
+																						},
+																						{
+																							"name": "rivet79",
+																							"from": [ 7.0, 1.5, 4.0 ],
+																							"to": [ 8.0, 2.5, 4.5 ],
+																							"rotationOrigin": [ 7.5, 2.0, 4.5 ],
+																							"rotationZ": -45.0,
+																							"faces": {
+																								"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+																								"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																								"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+																								"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+																								"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] }
+																							}
+																						},
+																						{
+																							"name": "rivet80",
+																							"from": [ 10.0, 1.5, 4.0 ],
+																							"to": [ 11.0, 2.5, 4.5 ],
+																							"rotationOrigin": [ 10.5, 2.0, 4.5 ],
+																							"rotationZ": -45.0,
+																							"faces": {
+																								"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+																								"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																								"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+																								"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+																								"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] }
+																							}
+																						},
+																						{
+																							"name": "rivet81",
+																							"from": [ 13.0, 1.5, 4.0 ],
+																							"to": [ 14.0, 2.5, 4.5 ],
+																							"rotationOrigin": [ 13.5, 2.0, 4.5 ],
+																							"rotationZ": -45.0,
+																							"faces": {
+																								"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+																								"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																								"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+																								"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+																								"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] }
+																							}
+																						}
+																					]
+																				},
+																				{
+																					"name": "head-panelR1",
+																					"from": [ 0.0, 2.0, 0.0 ],
+																					"to": [ 10.0, 4.0, 4.0 ],
+																					"rotationOrigin": [ 0.0, 2.0, 0.0 ],
+																					"rotationX": 22.5,
+																					"rotationY": 22.5,
+																					"faces": {
+																						"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 10.0, 2.0 ] },
+																						"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 2.0 ] },
+																						"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 10.0, 4.0 ] },
+																						"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 10.0, 4.0 ] }
+																					},
+																					"children": [
+																						{
+																							"name": "rod7R1",
+																							"from": [ 9.5, 0.5, 0.5 ],
+																							"to": [ 21.5, 1.5, 1.5 ],
+																							"rotationOrigin": [ 9.5, 1.0, 1.0 ],
+																							"rotationY": 22.5,
+																							"rotationZ": 22.5,
+																							"faces": {
+																								"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 12.0, 1.0 ] },
+																								"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																								"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 12.0, 1.0 ] },
+																								"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 12.0, 1.0 ] },
+																								"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 12.0, 1.0 ] }
+																							}
+																						}
+																					]
+																				},
+																				{
+																					"name": "head-panelL1",
+																					"from": [ 0.0, 2.0, 2.0 ],
+																					"to": [ 10.0, 4.0, 6.0 ],
+																					"rotationOrigin": [ 0.0, 2.0, 6.0 ],
+																					"rotationX": -22.5,
+																					"rotationY": -22.5,
+																					"faces": {
+																						"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 2.0 ] },
+																						"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 10.0, 2.0 ] },
+																						"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 10.0, 4.0 ] },
+																						"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 10.0, 4.0 ] }
+																					},
+																					"children": [
+																						{
+																							"name": "rod7L1",
+																							"from": [ 9.5, 0.5, 2.5 ],
+																							"to": [ 21.5, 1.5, 3.5 ],
+																							"rotationOrigin": [ 9.5, 1.0, 3.0 ],
+																							"rotationY": -22.5,
+																							"rotationZ": 22.5,
+																							"faces": {
+																								"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 12.0, 1.0 ] },
+																								"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																								"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 12.0, 1.0 ] },
+																								"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 12.0, 1.0 ] },
+																								"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 12.0, 1.0 ] }
+																							}
+																						}
+																					]
+																				},
+																				{
+																					"name": "head-panelL2",
+																					"from": [ 1.0, 0.0, 1.0 ],
+																					"to": [ 10.0, 2.0, 5.0 ],
+																					"rotationOrigin": [ 0.0, 0.0, 6.0 ],
+																					"rotationX": 22.5,
+																					"rotationY": -22.5,
+																					"faces": {
+																						"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 2.0 ] },
+																						"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 9.0, 2.0 ] },
+																						"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 9.0, 4.0 ] },
+																						"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 9.0, 4.0 ] }
+																					},
+																					"children": [
+																						{
+																							"name": "rod7L2",
+																							"from": [ 8.5, 0.5, 2.5 ],
+																							"to": [ 20.5, 1.5, 3.5 ],
+																							"rotationOrigin": [ 8.5, 1.0, 3.0 ],
+																							"rotationY": -22.5,
+																							"faces": {
+																								"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 12.0, 1.0 ] },
+																								"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																								"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 12.0, 1.0 ] },
+																								"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 12.0, 1.0 ] },
+																								"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 12.0, 1.0 ] }
+																							}
+																						}
+																					]
+																				},
+																				{
+																					"name": "head-panelR2",
+																					"from": [ 1.0, 0.0, 1.0 ],
+																					"to": [ 10.0, 2.0, 5.0 ],
+																					"rotationOrigin": [ 1.0, 0.0, 1.0 ],
+																					"rotationX": -22.5,
+																					"rotationY": 22.5,
+																					"faces": {
+																						"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 9.0, 2.0 ] },
+																						"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 2.0 ] },
+																						"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 9.0, 4.0 ] },
+																						"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 9.0, 4.0 ] }
+																					},
+																					"children": [
+																						{
+																							"name": "rod7R2",
+																							"from": [ 8.5, 0.5, 0.5 ],
+																							"to": [ 20.5, 1.5, 1.5 ],
+																							"rotationOrigin": [ 8.5, 1.0, 1.0 ],
+																							"rotationY": 22.5,
+																							"faces": {
+																								"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 12.0, 1.0 ] },
+																								"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																								"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 12.0, 1.0 ] },
+																								"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 12.0, 1.0 ] },
+																								"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 12.0, 1.0 ] }
+																							}
+																						}
+																					]
+																				}
+																			]
+																		},
+																		{
+																			"name": "neck4-spine",
+																			"from": [ 3.0, 1.0, 1.0 ],
+																			"to": [ 5.0, 15.0, 3.0 ],
+																			"rotationOrigin": [ 4.0, 1.0, 2.0 ],
+																			"rotationY": -45.0,
+																			"faces": {
+																				"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 14.0 ] },
+																				"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 14.0 ] },
+																				"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 2.0 ] },
+																				"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 2.0 ] }
+																			}
+																		},
+																		{
+																			"name": "neck4-plateW",
+																			"from": [ -1.5, -0.5, 0.5 ],
+																			"to": [ 0.5, 3.5, 3.5 ],
+																			"rotationOrigin": [ -0.5, -0.5, 2.0 ],
+																			"rotationZ": -22.5,
+																			"faces": {
+																				"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 4.0 ] },
+																				"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 4.0 ] },
+																				"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 4.0 ] },
+																				"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 4.0 ] },
+																				"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 3.0 ] }
+																			}
+																		},
+																		{
+																			"name": "neck4-plateN",
+																			"from": [ 0.5, -0.5, -1.5 ],
+																			"to": [ 3.5, 3.5, 0.5 ],
+																			"rotationOrigin": [ 2.0, -0.5, -0.5 ],
+																			"rotationX": 22.5,
+																			"faces": {
+																				"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 4.0 ] },
+																				"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 4.0 ] },
+																				"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 4.0 ] },
+																				"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 4.0 ] },
+																				"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 2.0 ] }
+																			}
+																		},
+																		{
+																			"name": "neck4-plateS",
+																			"from": [ 0.5, -0.5, 3.5 ],
+																			"to": [ 3.5, 3.5, 5.5 ],
+																			"rotationOrigin": [ 2.0, -0.5, 4.5 ],
+																			"rotationX": -22.5,
+																			"faces": {
+																				"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 4.0 ] },
+																				"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 4.0 ] },
+																				"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 4.0 ] },
+																				"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 4.0 ] },
+																				"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 2.0 ] }
+																			}
+																		},
+																		{
+																			"name": "rivet68",
+																			"from": [ 2.0, 4.5, -0.5 ],
+																			"to": [ 3.0, 5.5, 4.5 ],
+																			"rotationOrigin": [ 2.5, 5.0, 2.0 ],
+																			"rotationZ": 45.0,
+																			"faces": {
+																				"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																				"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+																				"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																				"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+																				"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] },
+																				"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] }
+																			}
+																		},
+																		{
+																			"name": "rivet69",
+																			"from": [ 2.0, 7.5, -0.5 ],
+																			"to": [ 3.0, 8.5, 4.5 ],
+																			"rotationOrigin": [ 2.5, 8.0, 2.0 ],
+																			"rotationZ": 45.0,
+																			"faces": {
+																				"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																				"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+																				"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																				"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+																				"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] },
+																				"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] }
+																			}
+																		},
+																		{
+																			"name": "rivet70",
+																			"from": [ 2.0, 10.5, -0.5 ],
+																			"to": [ 3.0, 11.5, 4.5 ],
+																			"rotationOrigin": [ 2.5, 11.0, 2.0 ],
+																			"rotationZ": 45.0,
+																			"faces": {
+																				"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																				"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+																				"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																				"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+																				"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] },
+																				"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] }
+																			}
+																		},
+																		{
+																			"name": "rivet71",
+																			"from": [ 2.0, 13.5, -0.5 ],
+																			"to": [ 3.0, 14.5, 4.5 ],
+																			"rotationOrigin": [ 2.5, 14.0, 2.0 ],
+																			"rotationZ": 45.0,
+																			"faces": {
+																				"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																				"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+																				"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																				"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+																				"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] },
+																				"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] }
+																			}
+																		}
+																	]
+																},
+																{
+																	"name": "rod4",
+																	"from": [ 3.0, 7.0, 1.5 ],
+																	"to": [ 4.0, 23.0, 2.5 ],
+																	"rotationOrigin": [ 3.5, 7.0, 2.0 ],
+																	"rotationZ": -45.0,
+																	"faces": {
+																		"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 16.0 ] },
+																		"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 16.0 ] },
+																		"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 16.0 ] },
+																		"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 16.0 ] },
+																		"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+																	}
+																},
+																{
+																	"name": "neck3-spine",
+																	"from": [ 3.0, 1.0, 1.0 ],
+																	"to": [ 5.0, 15.0, 3.0 ],
+																	"rotationOrigin": [ 4.0, 1.0, 2.0 ],
+																	"rotationY": -45.0,
+																	"faces": {
+																		"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 14.0 ] },
+																		"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 14.0 ] },
+																		"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 2.0 ] },
+																		"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 2.0 ] }
+																	}
+																},
+																{
+																	"name": "neck3-plateW",
+																	"from": [ -1.5, -1.0, 0.5 ],
+																	"to": [ 0.5, 3.0, 3.5 ],
+																	"rotationOrigin": [ -0.5, -1.0, 2.0 ],
+																	"rotationZ": -22.5,
+																	"faces": {
+																		"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 4.0 ] },
+																		"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 4.0 ] },
+																		"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 4.0 ] },
+																		"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 4.0 ] },
+																		"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 3.0 ] }
+																	}
+																},
+																{
+																	"name": "neck3-plateN",
+																	"from": [ 0.5, -1.0, -1.5 ],
+																	"to": [ 3.5, 3.0, 0.5 ],
+																	"rotationOrigin": [ 2.0, -1.0, -0.5 ],
+																	"rotationX": 22.5,
+																	"faces": {
+																		"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 4.0 ] },
+																		"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 4.0 ] },
+																		"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 4.0 ] },
+																		"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 4.0 ] },
+																		"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 2.0 ] }
+																	}
+																},
+																{
+																	"name": "neck3-plateS",
+																	"from": [ 0.5, -1.0, 3.5 ],
+																	"to": [ 3.5, 3.0, 5.5 ],
+																	"rotationOrigin": [ 2.0, -1.0, 4.5 ],
+																	"rotationX": -22.5,
+																	"faces": {
+																		"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 4.0 ] },
+																		"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 4.0 ] },
+																		"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 4.0 ] },
+																		"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 4.0 ] },
+																		"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 2.0 ] }
+																	}
+																},
+																{
+																	"name": "rivet64",
+																	"from": [ 2.0, 4.0, -0.5 ],
+																	"to": [ 3.0, 5.0, 4.5 ],
+																	"rotationOrigin": [ 2.5, 4.5, 2.0 ],
+																	"rotationZ": -45.0,
+																	"faces": {
+																		"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																		"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+																		"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																		"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+																		"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] },
+																		"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] }
+																	}
+																},
+																{
+																	"name": "rivet65",
+																	"from": [ 2.0, 7.0, -0.5 ],
+																	"to": [ 3.0, 8.0, 4.5 ],
+																	"rotationOrigin": [ 2.5, 7.5, 2.0 ],
+																	"rotationZ": -45.0,
+																	"faces": {
+																		"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																		"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+																		"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																		"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+																		"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] },
+																		"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] }
+																	}
+																},
+																{
+																	"name": "rivet66",
+																	"from": [ 2.0, 10.0, -0.5 ],
+																	"to": [ 3.0, 11.0, 4.5 ],
+																	"rotationOrigin": [ 2.5, 10.5, 2.0 ],
+																	"rotationZ": -45.0,
+																	"faces": {
+																		"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																		"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+																		"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																		"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+																		"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] },
+																		"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] }
+																	}
+																},
+																{
+																	"name": "rivet67",
+																	"from": [ 2.0, 13.0, -0.5 ],
+																	"to": [ 3.0, 14.0, 4.5 ],
+																	"rotationOrigin": [ 2.5, 13.5, 2.0 ],
+																	"rotationZ": -45.0,
+																	"faces": {
+																		"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																		"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+																		"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																		"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+																		"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] },
+																		"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] }
+																	}
+																}
+															]
+														},
+														{
+															"name": "neck2-joint",
+															"from": [ 1.0, 15.5, 1.0 ],
+															"to": [ 4.0, 18.5, 4.0 ],
+															"rotationOrigin": [ 2.5, 17.0, 2.5 ],
+															"rotationY": -45.0,
+															"faces": {
+																"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ] },
+																"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ] },
+																"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ] },
+																"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ] }
+															}
+														}
+													]
+												},
+												{
+													"name": "neck2-spine1",
+													"from": [ 4.5, 1.0, 1.5 ],
+													"to": [ 7.5, 15.0, 4.5 ],
+													"rotationOrigin": [ 6.0, 1.0, 3.0 ],
+													"rotationY": -45.0,
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 14.0 ], "windMode": [-1,-1,-1,-1], "windData": [4,5,5,4] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 14.0 ], "windMode": [-1,-1,-1,-1], "windData": [4,5,5,4] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ] },
+														"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ] }
+													}
+												},
+												{
+													"name": "neck2-plateW",
+													"from": [ -1.0, -1.0, 1.0 ],
+													"to": [ 1.0, 4.5, 5.0 ],
+													"rotationOrigin": [ 0.0, 2.0, 3.0 ],
+													"rotationZ": -22.5,
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 5.5 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 5.5 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 5.5 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 5.5 ] },
+														"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 4.0 ] }
+													}
+												},
+												{
+													"name": "neck2-plateN",
+													"from": [ 1.0, -1.0, -1.0 ],
+													"to": [ 5.0, 4.5, 1.0 ],
+													"rotationOrigin": [ 3.0, 2.0, 0.0 ],
+													"rotationX": 22.5,
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 5.5 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 5.5 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 5.5 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 5.5 ] },
+														"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 2.0 ] }
+													}
+												},
+												{
+													"name": "neck2-plateS",
+													"from": [ 1.0, -1.0, 5.0 ],
+													"to": [ 5.0, 4.5, 7.0 ],
+													"rotationOrigin": [ 3.0, 2.0, 6.0 ],
+													"rotationX": -22.5,
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 5.5 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 5.5 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 5.5 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 5.5 ] },
+														"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 2.0 ] }
+													}
+												},
+												{
+													"name": "rivet55",
+													"from": [ 3.0, 5.0, -0.5 ],
+													"to": [ 4.0, 6.0, 6.5 ],
+													"rotationOrigin": [ 3.5, 5.5, 3.0 ],
+													"rotationZ": -45.0,
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] },
+														"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] }
+													}
+												},
+												{
+													"name": "rivet56",
+													"from": [ 3.0, 8.0, -0.5 ],
+													"to": [ 4.0, 9.0, 6.5 ],
+													"rotationOrigin": [ 3.5, 8.5, 3.0 ],
+													"rotationZ": -45.0,
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] },
+														"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] }
+													}
+												},
+												{
+													"name": "rivet57",
+													"from": [ 3.0, 11.0, -0.5 ],
+													"to": [ 4.0, 12.0, 6.5 ],
+													"rotationOrigin": [ 3.5, 11.5, 3.0 ],
+													"rotationZ": -45.0,
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] },
+														"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] }
+													}
+												},
+												{
+													"name": "rivet58",
+													"from": [ 3.0, 14.0, -0.5 ],
+													"to": [ 4.0, 15.0, 6.5 ],
+													"rotationOrigin": [ 3.5, 14.5, 3.0 ],
+													"rotationZ": -45.0,
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] },
+														"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] }
+													}
+												}
+											]
+										},
+										{
+											"name": "rod1",
+											"from": [ 6.0, 5.0, 3.0 ],
+											"to": [ 7.0, 21.0, 4.0 ],
+											"rotationOrigin": [ 6.5, 5.0, 3.5 ],
+											"rotationZ": -45.0,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 16.0 ] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 16.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 16.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 16.0 ] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+											}
+										},
+										{
+											"name": "neck1-spine",
+											"from": [ 5.5, 1.0, 2.0 ],
+											"to": [ 8.5, 15.0, 5.0 ],
+											"rotationOrigin": [ 7.0, 9.0, 3.5 ],
+											"rotationY": -45.0,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 3.0, 0.0, 6.0, 14.0 ], "windMode": [-1,-1,-1,-1], "windData": [3,4,4,3] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 14.0 ], "windMode": [-1,-1,-1,-1], "windData": [3,4,4,3] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ] }
+											}
+										},
+										{
+											"name": "neck1-vent1",
+											"from": [ -2.3, 1.5, 1.51 ],
+											"to": [ 0.2, 7.5, 5.51 ],
+											"rotationOrigin": [ -2.3, 1.5, 3.5 ],
+											"rotationZ": -22.5,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.5, 6.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.5, 6.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 6.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.5, 4.0 ] }
+											}
+										},
+										{
+											"name": "neck1-vent3",
+											"from": [ -2.3, 5.5, 1.49 ],
+											"to": [ 0.2, 11.5, 5.49 ],
+											"rotationOrigin": [ -2.3, 5.5, 3.5 ],
+											"rotationZ": -22.5,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.5, 6.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.5, 6.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 6.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.5, 4.0 ] }
+											}
+										},
+										{
+											"name": "neck1-vent2",
+											"from": [ -2.3, 3.5, 1.5 ],
+											"to": [ 0.2, 9.5, 5.5 ],
+											"rotationOrigin": [ -2.3, 3.5, 3.5 ],
+											"rotationZ": -22.5,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.5, 6.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.5, 6.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 6.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.5, 4.0 ] }
+											}
+										},
+										{
+											"name": "neck1-vent4",
+											"from": [ -2.3, 7.5, 1.52 ],
+											"to": [ 0.2, 13.5, 5.52 ],
+											"rotationOrigin": [ -2.3, 7.5, 3.5 ],
+											"rotationZ": -22.5,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.5, 6.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.5, 6.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 6.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.5, 4.0 ] }
+											}
+										},
+										{
+											"name": "neck1-vent5",
+											"from": [ -2.3, 9.5, 1.48 ],
+											"to": [ 0.2, 15.5, 5.48 ],
+											"rotationOrigin": [ -2.3, 9.5, 3.5 ],
+											"rotationZ": -22.5,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.5, 6.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.5, 6.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 6.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.5, 4.0 ] }
+											}
+										},
+										{
+											"name": "rivet50",
+											"from": [ 4.0, 2.0, -0.5 ],
+											"to": [ 5.0, 3.0, 7.5 ],
+											"rotationOrigin": [ 4.5, 2.5, 3.5 ],
+											"rotationZ": 45.0,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 1.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 1.0 ] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 8.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 8.0 ] }
+											}
+										},
+										{
+											"name": "rivet51",
+											"from": [ 4.0, 5.0, -0.5 ],
+											"to": [ 5.0, 6.0, 7.5 ],
+											"rotationOrigin": [ 4.5, 5.5, 3.5 ],
+											"rotationZ": 45.0,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 1.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 1.0 ] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 8.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 8.0 ] }
+											}
+										},
+										{
+											"name": "rivet52",
+											"from": [ 4.0, 8.0, -0.5 ],
+											"to": [ 5.0, 9.0, 7.5 ],
+											"rotationOrigin": [ 4.5, 8.5, 3.5 ],
+											"rotationZ": 45.0,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 1.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 1.0 ] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 8.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 8.0 ] }
+											}
+										},
+										{
+											"name": "rivet53",
+											"from": [ 4.0, 11.0, -0.5 ],
+											"to": [ 5.0, 12.0, 7.5 ],
+											"rotationOrigin": [ 4.5, 11.5, 3.5 ],
+											"rotationZ": 45.0,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 1.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 1.0 ] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 8.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 8.0 ] }
+											}
+										},
+										{
+											"name": "rivet54",
+											"from": [ 4.0, 14.0, -0.5 ],
+											"to": [ 5.0, 15.0, 7.5 ],
+											"rotationOrigin": [ 4.5, 14.5, 3.5 ],
+											"rotationZ": 45.0,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 1.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 1.0 ] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 8.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 8.0 ] }
+											}
+										}
+									]
+								},
+								{
+									"name": "neck1-joint1",
+									"from": [ 3.0, 9.0, 3.0 ],
+									"to": [ 7.0, 13.0, 7.0 ],
+									"rotationOrigin": [ 5.0, 11.0, 5.0 ],
+									"rotationY": 45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 4.0 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 4.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 4.0 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 4.0 ] }
+									}
+								},
+								{
+									"name": "body-plateS",
+									"from": [ 1.0, 1.0, 7.0 ],
+									"to": [ 9.0, 11.0, 10.5 ],
+									"rotationOrigin": [ 5.0, 9.0, 9.5 ],
+									"rotationX": -22.5,
+									"faces": {
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.5, 10.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 10.0 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.5, 10.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 3.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 3.5 ] }
+									}
+								},
+								{
+									"name": "body-plateN",
+									"from": [ 1.0, 1.0, -0.5 ],
+									"to": [ 9.0, 11.0, 3.0 ],
+									"rotationOrigin": [ 5.0, 9.0, 0.5 ],
+									"rotationX": 22.5,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 10.0 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.5, 10.0 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.5, 10.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 3.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 3.5 ] }
+									}
+								},
+								{
+									"name": "body-plateW",
+									"from": [ -0.5, 1.0, 1.0 ],
+									"to": [ 3.0, 11.0, 9.0 ],
+									"rotationOrigin": [ 1.5, 9.0, 5.0 ],
+									"rotationZ": -22.5,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.5, 10.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.5, 10.0 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 10.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.5, 8.0 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.5, 8.0 ] }
+									}
+								},
+								{
+									"name": "body-plateE",
+									"from": [ 7.0, 1.0, 1.0 ],
+									"to": [ 10.5, 11.0, 9.0 ],
+									"rotationOrigin": [ 8.0, 9.0, 5.0 ],
+									"rotationZ": 22.5,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.5, 10.0 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 10.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.5, 10.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.5, 8.0 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.5, 8.0 ] }
+									}
+								},
+								{
+									"name": "body-eyesides",
+									"from": [ 3.5, 5.0, -3.0 ],
+									"to": [ 6.5, 8.0, 13.0 ],
+									"rotationOrigin": [ 5.0, 6.5, 5.0 ],
+									"rotationZ": -45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 16.0, 3.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 16.0, 3.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 16.0 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 16.0 ] }
+									}
+								},
+								{
+									"name": "body-eyesfront",
+									"from": [ -3.5, 4.0, 3.0 ],
+									"to": [ 13.5, 8.0, 7.0 ],
+									"rotationOrigin": [ 4.5, 6.0, 5.0 ],
+									"rotationX": -45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 17.0, 4.0 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 4.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 17.0, 4.0 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 4.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 17.0, 4.0 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 17.0, 4.0 ] }
+									}
+								}
+							]
+						},
+						{
+							"name": "legR",
+							"from": [ 0.0, 5.0, 0.0 ],
+							"to": [ 0.0, 5.0, 0.0 ],
+							"rotationOrigin": [ 0.0, 5.0, 0.0 ],
+							"faces": {
+							},
+							"children": [
+								{
+									"name": "femurR",
+									"from": [ -3.0, -20.0, -3.0 ],
+									"to": [ 3.0, 0.0, 3.0 ],
+									"rotationOrigin": [ 0.0, 0.0, 0.0 ],
+									"rotationZ": -22.5,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 20.0 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 20.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 20.0 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 20.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 6.0 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 6.0 ] }
+									},
+									"children": [
+										{
+											"name": "tibiaR",
+											"from": [ -21.0, -2.0, 1.0 ],
+											"to": [ 5.0, 2.0, 5.0 ],
+											"rotationOrigin": [ 3.0, 0.0, 3.0 ],
+											"rotationZ": 90.0,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 26.0, 4.0 ] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 4.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 26.0, 4.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 4.0 ] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 26.0, 4.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 26.0, 4.0 ] }
+											},
+											"children": [
+												{
+													"name": "metatarsusR",
+													"from": [ -1.0, -17.0, 0.5 ],
+													"to": [ 2.0, 13.0, 3.5 ],
+													"rotationOrigin": [ 0.5, 2.0, 2.0 ],
+													"rotationZ": -67.5,
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 30.0 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 30.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 30.0 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 30.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ] },
+														"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ] }
+													},
+													"children": [
+														{
+															"name": "tarsusR",
+															"from": [ 0.5, -26.0, 0.5 ],
+															"to": [ 2.5, 0.0, 2.5 ],
+															"rotationOrigin": [ 1.5, 0.0, 1.5 ],
+															"faces": {
+																"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 26.0 ] },
+																"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 26.0 ] },
+																"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 26.0 ] },
+																"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 26.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 2.0 ] },
+																"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 2.0 ] }
+															},
+															"children": [
+																{
+																	"name": "clawR",
+																	"from": [ -6.5, 4.5, 0.5 ],
+																	"to": [ 0.5, 5.5, 1.5 ],
+																	"rotationOrigin": [ 0.5, 5.0, 1.0 ],
+																	"rotationZ": 22.5,
+																	"faces": {
+																		"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+																		"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																		"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+																		"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																		"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+																		"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] }
+																	}
+																}
+															]
+														},
+														{
+															"name": "lowerleg-tubeR",
+															"from": [ 0.5, 29.0, 0.5 ],
+															"to": [ 2.5, 45.0, 2.5 ],
+															"rotationOrigin": [ 1.5, 30.0, 1.5 ],
+															"rotationZ": 45.0,
+															"faces": {
+																"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 16.0 ] },
+																"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 16.0 ] },
+																"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 16.0 ] },
+																"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 16.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 2.0 ] }
+															},
+															"children": [
+																{
+																	"name": "legR-rod2",
+																	"from": [ 0.5, 15.0, 0.5 ],
+																	"to": [ 1.5, 45.0, 1.5 ],
+																	"rotationOrigin": [ 1.0, 15.0, 1.0 ],
+																	"rotationZ": -22.5,
+																	"faces": {
+																		"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 30.0 ] },
+																		"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 30.0 ] },
+																		"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 30.0 ] },
+																		"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 30.0 ] },
+																		"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+																	}
+																}
+															]
+														},
+														{
+															"name": "metatarsusR-bone",
+															"from": [ -1.0, 1.0, 0.5 ],
+															"to": [ 1.0, 28.0, 2.5 ],
+															"rotationOrigin": [ 0.0, 1.0, 1.5 ],
+															"rotationY": -45.0,
+															"faces": {
+																"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 27.0 ] },
+																"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 27.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 2.0 ] },
+																"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 2.0 ] }
+															}
+														},
+														{
+															"name": "rivet94",
+															"from": [ 1.0, 1.5, -0.5 ],
+															"to": [ 2.0, 2.5, 3.5 ],
+															"rotationOrigin": [ 1.5, 2.0, -0.5 ],
+															"rotationZ": -45.0,
+															"faces": {
+																"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 1.0 ] },
+																"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 1.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 4.0 ] },
+																"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 4.0 ] }
+															}
+														},
+														{
+															"name": "rivet95",
+															"from": [ 1.0, 4.5, -0.5 ],
+															"to": [ 2.0, 5.5, 3.5 ],
+															"rotationOrigin": [ 1.5, 5.0, 1.5 ],
+															"rotationZ": -45.0,
+															"faces": {
+																"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 1.0 ] },
+																"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 1.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 4.0 ] },
+																"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 4.0 ] }
+															}
+														},
+														{
+															"name": "rivet96",
+															"from": [ 1.0, 7.5, -0.5 ],
+															"to": [ 2.0, 8.5, 3.5 ],
+															"rotationOrigin": [ 1.5, 8.0, 1.5 ],
+															"rotationZ": -45.0,
+															"faces": {
+																"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 1.0 ] },
+																"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 1.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 4.0 ] },
+																"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 4.0 ] }
+															}
+														},
+														{
+															"name": "rivet97",
+															"from": [ 1.0, 10.5, -0.5 ],
+															"to": [ 2.0, 11.5, 3.5 ],
+															"rotationOrigin": [ 1.5, 11.0, 1.5 ],
+															"rotationZ": -45.0,
+															"faces": {
+																"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 1.0 ] },
+																"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 1.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 4.0 ] },
+																"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 4.0 ] }
+															}
+														},
+														{
+															"name": "rivet98",
+															"from": [ 1.0, 13.5, -0.5 ],
+															"to": [ 2.0, 14.5, 3.5 ],
+															"rotationOrigin": [ 1.5, 14.0, 1.5 ],
+															"rotationZ": -45.0,
+															"faces": {
+																"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 1.0 ] },
+																"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 1.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 4.0 ] },
+																"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 4.0 ] }
+															}
+														}
+													]
+												},
+												{
+													"name": "tibiarR-bone",
+													"from": [ 3.0, 3.1, 1.0 ],
+													"to": [ 24.0, 5.1, 3.0 ],
+													"rotationOrigin": [ 3.0, 4.1, 2.0 ],
+													"rotationX": -45.0,
+													"faces": {
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 2.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 21.0, 2.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 21.0, 2.0 ] }
+													}
+												},
+												{
+													"name": "rivet88",
+													"from": [ 2.0, 1.5, -0.5 ],
+													"to": [ 3.0, 2.5, 4.5 ],
+													"rotationOrigin": [ 2.5, 2.0, 1.5 ],
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] },
+														"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] }
+													}
+												},
+												{
+													"name": "rivet89",
+													"from": [ 5.0, 1.5, -0.5 ],
+													"to": [ 6.0, 2.5, 4.5 ],
+													"rotationOrigin": [ 5.5, 2.0, 1.5 ],
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] },
+														"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] }
+													}
+												},
+												{
+													"name": "rivet90",
+													"from": [ 8.0, 1.5, -0.5 ],
+													"to": [ 9.0, 2.5, 4.5 ],
+													"rotationOrigin": [ 8.5, 2.0, 1.5 ],
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] },
+														"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] }
+													}
+												},
+												{
+													"name": "rivet91",
+													"from": [ 11.0, 1.5, -0.5 ],
+													"to": [ 12.0, 2.5, 4.5 ],
+													"rotationOrigin": [ 11.5, 2.0, 1.5 ],
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] },
+														"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] }
+													}
+												},
+												{
+													"name": "rivet92",
+													"from": [ 14.0, 1.5, -0.5 ],
+													"to": [ 15.0, 2.5, 4.5 ],
+													"rotationOrigin": [ 14.5, 2.0, 1.5 ],
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] },
+														"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] }
+													}
+												},
+												{
+													"name": "rivet93",
+													"from": [ 17.0, 1.5, -0.5 ],
+													"to": [ 18.0, 2.5, 4.5 ],
+													"rotationOrigin": [ 17.5, 2.0, 1.5 ],
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] },
+														"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] }
+													}
+												}
+											]
+										},
+										{
+											"name": "rivet82",
+											"from": [ 2.0, 2.0, -0.5 ],
+											"to": [ 3.0, 3.0, 6.5 ],
+											"rotationOrigin": [ 2.5, 2.5, 3.0 ],
+											"rotationZ": -45.0,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] }
+											}
+										},
+										{
+											"name": "rivet83",
+											"from": [ 2.0, 5.0, -0.5 ],
+											"to": [ 3.0, 6.0, 6.5 ],
+											"rotationOrigin": [ 2.5, 5.5, 3.0 ],
+											"rotationZ": -45.0,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] }
+											}
+										},
+										{
+											"name": "rivet84",
+											"from": [ 2.0, 8.0, -0.5 ],
+											"to": [ 3.0, 9.0, 6.5 ],
+											"rotationOrigin": [ 2.5, 8.5, 3.0 ],
+											"rotationZ": -45.0,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] }
+											}
+										},
+										{
+											"name": "rivet85",
+											"from": [ 2.0, 11.0, -0.5 ],
+											"to": [ 3.0, 12.0, 6.5 ],
+											"rotationOrigin": [ 2.5, 11.5, 3.0 ],
+											"rotationZ": -45.0,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] }
+											}
+										},
+										{
+											"name": "rivet86",
+											"from": [ 2.0, 14.0, -0.5 ],
+											"to": [ 3.0, 15.0, 6.5 ],
+											"rotationOrigin": [ 2.5, 14.5, 3.0 ],
+											"rotationZ": -45.0,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] }
+											}
+										},
+										{
+											"name": "rivet87",
+											"from": [ 2.0, 17.0, -0.5 ],
+											"to": [ 3.0, 18.0, 6.5 ],
+											"rotationOrigin": [ 2.5, 17.5, 3.0 ],
+											"rotationZ": -45.0,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] }
+											}
+										},
+										{
+											"name": "femurR-bone",
+											"from": [ -1.0, 1.0, 1.5 ],
+											"to": [ 2.0, 19.0, 4.5 ],
+											"rotationOrigin": [ 0.5, 1.0, 3.0 ],
+											"rotationY": -45.0,
+											"faces": {
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 18.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 18.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ], "windMode": [-1,-1,-1,-1], "windData": [2,2,2,2] }
+											}
+										},
+										{
+											"name": "knee-tubeR",
+											"from": [ -2.0, 18.0, 2.0 ],
+											"to": [ 0.0, 34.0, 4.0 ],
+											"rotationOrigin": [ -1.0, 16.0, 3.0 ],
+											"rotationZ": 67.5,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 16.0 ] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 16.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 16.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 16.0 ] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 2.0 ] }
+											},
+											"children": [
+												{
+													"name": "legR-rod1",
+													"from": [ 0.5, 15.5, 0.5 ],
+													"to": [ 1.5, 45.5, 1.5 ],
+													"rotationOrigin": [ 1.0, 15.5, 1.0 ],
+													"rotationZ": -22.5,
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 30.0 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 30.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 30.0 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 30.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+													}
+												},
+												{
+													"name": "kneeR",
+													"from": [ -1.0, -3.5, -0.5 ],
+													"to": [ 3.0, 0.5, 2.5 ],
+													"rotationOrigin": [ 1.0, -1.5, 1.0 ],
+													"rotationZ": -45.0,
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 4.0 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 4.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 4.0 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 4.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 3.0 ] },
+														"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 3.0 ] }
+													}
+												}
+											]
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "body-low-plateW",
+							"from": [ -4.5, 3.0, 1.0 ],
+							"to": [ 5.5, 13.0, 13.0 ],
+							"rotationOrigin": [ 0.5, 8.0, 6.0 ],
+							"rotationZ": 45.0,
+							"faces": {
+								"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 10.0, 10.0 ] },
+								"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 10.0, 10.0 ] },
+								"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 12.0, 10.0 ] },
+								"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 10.0, 12.0 ] }
+							},
+							"children": [
+								{
+									"name": "rivet38",
+									"from": [ 1.0, 10.0, 1.0 ],
+									"to": [ 2.0, 10.5, 2.0 ],
+									"rotationOrigin": [ 1.5, 10.0, 1.5 ],
+									"rotationY": -45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet39",
+									"from": [ 4.0, 10.0, 1.0 ],
+									"to": [ 5.0, 10.5, 2.0 ],
+									"rotationOrigin": [ 4.5, 10.0, 1.5 ],
+									"rotationY": -45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet40",
+									"from": [ 7.0, 10.0, 1.0 ],
+									"to": [ 8.0, 10.5, 2.0 ],
+									"rotationOrigin": [ 7.5, 10.0, 1.5 ],
+									"rotationY": -45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet41",
+									"from": [ 7.0, 10.0, 10.0 ],
+									"to": [ 8.0, 10.5, 11.0 ],
+									"rotationOrigin": [ 7.5, 10.0, 10.5 ],
+									"rotationY": -45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet42",
+									"from": [ 4.0, 10.0, 10.0 ],
+									"to": [ 5.0, 10.5, 11.0 ],
+									"rotationOrigin": [ 4.5, 10.0, 10.5 ],
+									"rotationY": -45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet43",
+									"from": [ 1.0, 10.0, 10.0 ],
+									"to": [ 2.0, 10.5, 11.0 ],
+									"rotationOrigin": [ 1.5, 10.0, 10.5 ],
+									"rotationY": -45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet44",
+									"from": [ -0.5, 2.0, 1.0 ],
+									"to": [ 0.0, 3.0, 2.0 ],
+									"rotationOrigin": [ 0.0, 2.5, 1.5 ],
+									"rotationX": 45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"west": { "texture": "#rust", "uv": [ 2.0, 3.5, 3.0, 4.5 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet45",
+									"from": [ -0.5, 5.0, 1.0 ],
+									"to": [ 0.0, 6.0, 2.0 ],
+									"rotationOrigin": [ 0.0, 5.5, 1.5 ],
+									"rotationX": 45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"west": { "texture": "#rust", "uv": [ 2.0, 3.5, 3.0, 4.5 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet46",
+									"from": [ -0.5, 8.0, 1.0 ],
+									"to": [ 0.0, 9.0, 2.0 ],
+									"rotationOrigin": [ 0.0, 8.5, 1.5 ],
+									"rotationX": 45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"west": { "texture": "#rust", "uv": [ 2.0, 3.5, 3.0, 4.5 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet47",
+									"from": [ -0.5, 8.0, 10.0 ],
+									"to": [ 0.0, 9.0, 11.0 ],
+									"rotationOrigin": [ 0.0, 8.5, 10.5 ],
+									"rotationX": 45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"west": { "texture": "#rust", "uv": [ 2.0, 3.5, 3.0, 4.5 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet48",
+									"from": [ -0.5, 5.0, 10.0 ],
+									"to": [ 0.0, 6.0, 11.0 ],
+									"rotationOrigin": [ 0.0, 5.5, 10.5 ],
+									"rotationX": 45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"west": { "texture": "#rust", "uv": [ 2.0, 3.5, 3.0, 4.5 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet49",
+									"from": [ -0.5, 2.0, 10.0 ],
+									"to": [ 0.0, 3.0, 11.0 ],
+									"rotationOrigin": [ 0.0, 2.5, 10.5 ],
+									"rotationX": 45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"west": { "texture": "#rust", "uv": [ 2.0, 3.5, 3.0, 4.5 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] }
+									}
+								}
+							]
+						},
+						{
+							"name": "body-low-plateE",
+							"from": [ 8.5, 3.0, 1.0 ],
+							"to": [ 18.5, 13.0, 13.0 ],
+							"rotationOrigin": [ 13.5, 8.0, 6.0 ],
+							"rotationZ": 45.0,
+							"faces": {
+								"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 10.0, 10.0 ] },
+								"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 12.0, 10.0 ], "windMode": [-1,-1,-1,-1], "windData": [2,2,2,2] },
+								"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 10.0, 10.0 ] },
+								"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 10.0, 12.0 ], "windMode": [-1,-1,-1,-1], "windData": [1,2,2,1] }
+							},
+							"children": [
+								{
+									"name": "rivet25",
+									"from": [ 10.0, 7.0, 1.0 ],
+									"to": [ 10.5, 8.0, 2.0 ],
+									"rotationOrigin": [ 10.0, 7.6, 1.5 ],
+									"rotationX": 45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet26",
+									"from": [ 10.0, 4.0, 1.0 ],
+									"to": [ 10.5, 5.0, 2.0 ],
+									"rotationOrigin": [ 10.0, 4.6, 1.5 ],
+									"rotationX": 45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet27",
+									"from": [ 10.0, 4.0, 1.0 ],
+									"to": [ 10.5, 5.0, 2.0 ],
+									"rotationOrigin": [ 10.0, 4.6, 1.5 ],
+									"rotationX": 45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet28",
+									"from": [ 10.0, 1.0, 1.0 ],
+									"to": [ 10.5, 2.0, 2.0 ],
+									"rotationOrigin": [ 10.0, 1.6, 1.5 ],
+									"rotationX": 45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet29",
+									"from": [ 10.0, 1.0, 10.0 ],
+									"to": [ 10.5, 2.0, 11.0 ],
+									"rotationOrigin": [ 10.0, 1.6, 10.5 ],
+									"rotationX": 45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet30",
+									"from": [ 10.0, 4.0, 10.0 ],
+									"to": [ 10.5, 5.0, 11.0 ],
+									"rotationOrigin": [ 10.0, 4.6, 10.5 ],
+									"rotationX": 45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet31",
+									"from": [ 10.0, 7.0, 10.0 ],
+									"to": [ 10.5, 8.0, 11.0 ],
+									"rotationOrigin": [ 10.0, 7.6, 10.5 ],
+									"rotationX": 45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet32",
+									"from": [ 2.0, -0.5, 1.0 ],
+									"to": [ 3.0, 0.0, 2.0 ],
+									"rotationOrigin": [ 2.5, -0.5, 1.5 ],
+									"rotationY": -45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet33",
+									"from": [ 5.0, -0.5, 1.0 ],
+									"to": [ 6.0, 0.0, 2.0 ],
+									"rotationOrigin": [ 5.5, -0.5, 1.5 ],
+									"rotationY": -45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet34",
+									"from": [ 8.0, -0.5, 1.0 ],
+									"to": [ 9.0, 0.0, 2.0 ],
+									"rotationOrigin": [ 8.5, -0.5, 1.5 ],
+									"rotationY": -45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet35",
+									"from": [ 8.0, -0.5, 10.0 ],
+									"to": [ 9.0, 0.0, 11.0 ],
+									"rotationOrigin": [ 8.5, -0.5, 10.5 ],
+									"rotationY": -45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet36",
+									"from": [ 5.0, -0.5, 10.0 ],
+									"to": [ 6.0, 0.0, 11.0 ],
+									"rotationOrigin": [ 5.5, -0.5, 10.5 ],
+									"rotationY": -45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet37",
+									"from": [ 2.0, -0.5, 10.0 ],
+									"to": [ 3.0, 0.0, 11.0 ],
+									"rotationOrigin": [ 2.5, -0.5, 10.5 ],
+									"rotationY": -45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+									}
+								}
+							]
+						},
+						{
+							"name": "body-low-plateN",
+							"from": [ 1.0, 3.0, -4.5 ],
+							"to": [ 13.0, 13.0, 5.5 ],
+							"rotationOrigin": [ 7.0, 8.0, 0.5 ],
+							"rotationX": 45.0,
+							"faces": {
+								"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 12.0, 10.0 ] },
+								"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 10.0, 10.0 ] },
+								"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 10.0, 10.0 ], "windMode": [-1,-1,-1,-1], "windData": [2,1,2,2] },
+								"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 12.0, 10.0 ] }
+							},
+							"children": [
+								{
+									"name": "rivet13",
+									"from": [ 1.0, 1.0, -0.5 ],
+									"to": [ 2.0, 2.0, 0.0 ],
+									"rotationOrigin": [ 1.5, 1.5, -0.5 ],
+									"rotationZ": -45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 1.5, 3.5, 2.5, 4.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] }
+									}
+								},
+								{
+									"name": "rivet14",
+									"from": [ 1.0, 4.0, -0.5 ],
+									"to": [ 2.0, 5.0, 0.0 ],
+									"rotationOrigin": [ 1.5, 4.5, -0.5 ],
+									"rotationZ": -45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 1.5, 3.5, 2.5, 4.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] }
+									}
+								},
+								{
+									"name": "rivet15",
+									"from": [ 1.0, 7.0, -0.5 ],
+									"to": [ 2.0, 8.0, 0.0 ],
+									"rotationOrigin": [ 1.5, 7.5, -0.5 ],
+									"rotationZ": -45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 1.5, 3.5, 2.5, 4.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] }
+									}
+								},
+								{
+									"name": "rivet16",
+									"from": [ 10.0, 7.0, -0.5 ],
+									"to": [ 11.0, 8.0, 0.0 ],
+									"rotationOrigin": [ 10.5, 7.5, -0.5 ],
+									"rotationZ": -45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 1.5, 3.5, 2.5, 4.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] }
+									}
+								},
+								{
+									"name": "rivet17",
+									"from": [ 10.0, 4.0, -0.5 ],
+									"to": [ 11.0, 5.0, 0.0 ],
+									"rotationOrigin": [ 10.5, 4.5, -0.5 ],
+									"rotationZ": -45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 1.5, 3.5, 2.5, 4.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] }
+									}
+								},
+								{
+									"name": "rivet18",
+									"from": [ 10.0, 1.0, -0.5 ],
+									"to": [ 11.0, 2.0, 0.0 ],
+									"rotationOrigin": [ 10.5, 1.5, -0.5 ],
+									"rotationZ": -45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 1.5, 3.5, 2.5, 4.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] }
+									}
+								},
+								{
+									"name": "rivet19",
+									"from": [ 1.0, -0.5, 1.0 ],
+									"to": [ 2.0, 0.0, 2.0 ],
+									"rotationOrigin": [ 1.5, -0.5, 1.5 ],
+									"rotationY": 45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet20",
+									"from": [ 1.0, -0.5, 4.0 ],
+									"to": [ 2.0, 0.0, 5.0 ],
+									"rotationOrigin": [ 1.5, -0.5, 4.5 ],
+									"rotationY": 45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet21",
+									"from": [ 1.0, -0.5, 7.0 ],
+									"to": [ 2.0, 0.0, 8.0 ],
+									"rotationOrigin": [ 1.5, -0.5, 7.5 ],
+									"rotationY": 45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet22",
+									"from": [ 10.0, -0.5, 7.0 ],
+									"to": [ 11.0, 0.0, 8.0 ],
+									"rotationOrigin": [ 10.5, -0.5, 7.5 ],
+									"rotationY": 45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet23",
+									"from": [ 10.0, -0.5, 4.0 ],
+									"to": [ 11.0, 0.0, 5.0 ],
+									"rotationOrigin": [ 10.5, -0.5, 4.5 ],
+									"rotationY": 45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet24",
+									"from": [ 10.0, -0.5, 1.0 ],
+									"to": [ 11.0, 0.0, 2.0 ],
+									"rotationOrigin": [ 10.5, -0.5, 1.5 ],
+									"rotationY": 45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+									}
+								}
+							]
+						},
+						{
+							"name": "body-low-plateS",
+							"from": [ 1.0, 3.0, 8.5 ],
+							"to": [ 13.0, 13.0, 18.5 ],
+							"rotationOrigin": [ 7.0, 8.0, 13.5 ],
+							"rotationX": 45.0,
+							"faces": {
+								"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 10.0, 10.0 ] },
+								"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 12.0, 10.0 ] },
+								"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 10.0, 10.0 ] },
+								"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 12.0, 10.0 ], "windMode": [-1,-1,-1,-1], "windData": [2,2,2,2] }
+							},
+							"children": [
+								{
+									"name": "rivet1",
+									"from": [ 1.0, 10.0, 2.0 ],
+									"to": [ 2.0, 10.5, 3.0 ],
+									"rotationOrigin": [ 1.5, 10.0, 2.5 ],
+									"rotationY": -45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet2",
+									"from": [ 1.0, 10.0, 5.0 ],
+									"to": [ 2.0, 10.5, 6.0 ],
+									"rotationOrigin": [ 1.5, 10.0, 5.5 ],
+									"rotationY": -45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet3",
+									"from": [ 1.0, 10.0, 8.0 ],
+									"to": [ 2.0, 10.5, 9.0 ],
+									"rotationOrigin": [ 1.5, 10.0, 8.5 ],
+									"rotationY": -45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet6",
+									"from": [ 10.0, 10.0, 8.0 ],
+									"to": [ 11.0, 10.5, 9.0 ],
+									"rotationOrigin": [ 10.5, 10.0, 8.5 ],
+									"rotationY": -45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet4",
+									"from": [ 10.0, 10.0, 2.0 ],
+									"to": [ 11.0, 10.5, 3.0 ],
+									"rotationOrigin": [ 10.5, 10.0, 2.5 ],
+									"rotationY": -45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet5",
+									"from": [ 10.0, 10.0, 5.0 ],
+									"to": [ 11.0, 10.5, 6.0 ],
+									"rotationOrigin": [ 10.5, 10.0, 5.5 ],
+									"rotationY": -45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet7",
+									"from": [ 1.0, 8.0, 10.0 ],
+									"to": [ 2.0, 9.0, 10.5 ],
+									"rotationOrigin": [ 1.5, 8.5, 10.0 ],
+									"rotationZ": 45.0,
+									"faces": {
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] }
+									}
+								},
+								{
+									"name": "rivet8",
+									"from": [ 1.0, 5.0, 10.0 ],
+									"to": [ 2.0, 6.0, 10.5 ],
+									"rotationOrigin": [ 1.5, 5.5, 10.0 ],
+									"rotationZ": 45.0,
+									"faces": {
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] }
+									}
+								},
+								{
+									"name": "rivet9",
+									"from": [ 1.0, 2.0, 10.0 ],
+									"to": [ 2.0, 3.0, 10.5 ],
+									"rotationOrigin": [ 1.5, 2.5, 10.0 ],
+									"rotationZ": 45.0,
+									"faces": {
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] }
+									}
+								},
+								{
+									"name": "rivet10",
+									"from": [ 10.0, 8.0, 10.0 ],
+									"to": [ 11.0, 9.0, 10.5 ],
+									"rotationOrigin": [ 10.5, 8.5, 10.0 ],
+									"rotationZ": 45.0,
+									"faces": {
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] }
+									}
+								},
+								{
+									"name": "rivet11",
+									"from": [ 10.0, 5.0, 10.0 ],
+									"to": [ 11.0, 6.0, 10.5 ],
+									"rotationOrigin": [ 10.5, 5.5, 10.0 ],
+									"rotationZ": 45.0,
+									"faces": {
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] }
+									}
+								},
+								{
+									"name": "rivet12",
+									"from": [ 10.0, 2.0, 10.0 ],
+									"to": [ 11.0, 3.0, 10.5 ],
+									"rotationOrigin": [ 10.5, 2.5, 10.0 ],
+									"rotationZ": 45.0,
+									"faces": {
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] }
+									}
+								}
+							]
+						},
+						{
+							"name": "body-barSW",
+							"from": [ -4.5, 6.5, 13.0 ],
+							"to": [ 3.5, 9.5, 16.0 ],
+							"rotationOrigin": [ -0.5, 8.0, 14.5 ],
+							"rotationY": -45.0,
+							"faces": {
+								"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 3.0 ] },
+								"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 3.0 ] },
+								"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 3.0 ] },
+								"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 3.0 ] }
+							}
+						},
+						{
+							"name": "body-barNE",
+							"from": [ 10.5, 6.5, -2.0 ],
+							"to": [ 18.5, 9.5, 1.0 ],
+							"rotationOrigin": [ 14.5, 8.0, -0.5 ],
+							"rotationY": -45.0,
+							"faces": {
+								"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 3.0 ] },
+								"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 3.0 ] },
+								"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 3.0 ] },
+								"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 3.0 ] }
+							}
+						},
+						{
+							"name": "body-barNW",
+							"from": [ -4.5, 6.5, -2.0 ],
+							"to": [ 3.5, 9.5, 1.0 ],
+							"rotationOrigin": [ -0.5, 8.0, -0.5 ],
+							"rotationY": 45.0,
+							"faces": {
+								"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 3.0 ] },
+								"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 3.0 ] },
+								"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 3.0 ] },
+								"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 3.0 ] }
+							}
+						},
+						{
+							"name": "body-barSE",
+							"from": [ 10.5, 6.5, 13.0 ],
+							"to": [ 18.5, 9.5, 16.0 ],
+							"rotationOrigin": [ 14.5, 8.0, 14.5 ],
+							"rotationY": 45.0,
+							"faces": {
+								"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 3.0 ] },
+								"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 3.0 ] },
+								"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 3.0 ] },
+								"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 8.0, 3.0 ] }
+							}
+						},
+						{
+							"name": "legL",
+							"from": [ 0.0, 5.0, 13.0 ],
+							"to": [ 0.0, 5.0, 13.0 ],
+							"rotationOrigin": [ 0.0, 5.0, 13.0 ],
+							"faces": {
+							},
+							"children": [
+								{
+									"name": "femurL",
+									"from": [ -3.0, -20.0, -3.0 ],
+									"to": [ 3.0, 0.0, 3.0 ],
+									"rotationOrigin": [ 0.0, 0.0, 0.0 ],
+									"rotationZ": -22.5,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 20.0 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 20.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 20.0 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 20.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 6.0 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 6.0 ] }
+									},
+									"children": [
+										{
+											"name": "tibiaL",
+											"from": [ -21.0, -2.0, 1.0 ],
+											"to": [ 5.0, 2.0, 5.0 ],
+											"rotationOrigin": [ 3.0, 0.0, 3.0 ],
+											"rotationZ": 90.0,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 26.0, 4.0 ] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 4.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 26.0, 4.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 4.0 ] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 26.0, 4.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 26.0, 4.0 ] }
+											},
+											"children": [
+												{
+													"name": "metatarsusL",
+													"from": [ -1.0, -17.0, 0.5 ],
+													"to": [ 2.0, 13.0, 3.5 ],
+													"rotationOrigin": [ 0.5, 2.0, 2.0 ],
+													"rotationZ": -67.5,
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 30.0 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 30.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 30.0 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 30.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ] },
+														"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ] }
+													},
+													"children": [
+														{
+															"name": "tarsusL",
+															"from": [ 0.5, -26.0, 0.5 ],
+															"to": [ 2.5, 0.0, 2.5 ],
+															"rotationOrigin": [ 1.5, 0.0, 1.5 ],
+															"faces": {
+																"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 26.0 ] },
+																"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 26.0 ] },
+																"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 26.0 ] },
+																"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 26.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 2.0 ] },
+																"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 2.0 ] }
+															},
+															"children": [
+																{
+																	"name": "clawL",
+																	"from": [ -6.5, 4.5, 0.5 ],
+																	"to": [ 0.5, 5.5, 1.5 ],
+																	"rotationOrigin": [ 0.5, 5.0, 1.0 ],
+																	"rotationZ": 22.5,
+																	"faces": {
+																		"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+																		"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																		"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+																		"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																		"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+																		"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] }
+																	}
+																}
+															]
+														},
+														{
+															"name": "lowerleg-tubeL",
+															"from": [ 0.5, 29.0, 0.5 ],
+															"to": [ 2.5, 45.0, 2.5 ],
+															"rotationOrigin": [ 1.5, 30.0, 1.5 ],
+															"rotationZ": 45.0,
+															"faces": {
+																"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 16.0 ] },
+																"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 16.0 ] },
+																"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 16.0 ] },
+																"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 16.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 2.0 ] }
+															},
+															"children": [
+																{
+																	"name": "legL-rod2",
+																	"from": [ 0.5, 15.0, 0.5 ],
+																	"to": [ 1.5, 45.0, 1.5 ],
+																	"rotationOrigin": [ 1.0, 15.0, 1.0 ],
+																	"rotationZ": -22.5,
+																	"faces": {
+																		"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 30.0 ] },
+																		"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 30.0 ] },
+																		"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 30.0 ] },
+																		"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 30.0 ] },
+																		"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+																	}
+																}
+															]
+														},
+														{
+															"name": "metatarsusL-bone",
+															"from": [ -1.0, 1.0, 0.5 ],
+															"to": [ 1.0, 28.0, 2.5 ],
+															"rotationOrigin": [ 0.0, 1.0, 1.5 ],
+															"rotationY": -45.0,
+															"faces": {
+																"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 27.0 ] },
+																"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 27.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 2.0 ] },
+																"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 2.0 ] }
+															}
+														},
+														{
+															"name": "rivet99",
+															"from": [ 1.0, 1.5, -0.5 ],
+															"to": [ 2.0, 2.5, 3.5 ],
+															"rotationOrigin": [ 1.5, 2.0, -0.5 ],
+															"rotationZ": -45.0,
+															"faces": {
+																"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 1.0 ] },
+																"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 1.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 4.0 ] },
+																"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 4.0 ] }
+															}
+														},
+														{
+															"name": "rivet100",
+															"from": [ 1.0, 4.5, -0.5 ],
+															"to": [ 2.0, 5.5, 3.5 ],
+															"rotationOrigin": [ 1.5, 5.0, 1.5 ],
+															"rotationZ": -45.0,
+															"faces": {
+																"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 1.0 ] },
+																"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 1.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 4.0 ] },
+																"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 4.0 ] }
+															}
+														},
+														{
+															"name": "rivet101",
+															"from": [ 1.0, 7.5, -0.5 ],
+															"to": [ 2.0, 8.5, 3.5 ],
+															"rotationOrigin": [ 1.5, 8.0, 1.5 ],
+															"rotationZ": -45.0,
+															"faces": {
+																"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 1.0 ] },
+																"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 1.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 4.0 ] },
+																"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 4.0 ] }
+															}
+														},
+														{
+															"name": "rivet102",
+															"from": [ 1.0, 10.5, -0.5 ],
+															"to": [ 2.0, 11.5, 3.5 ],
+															"rotationOrigin": [ 1.5, 11.0, 1.5 ],
+															"rotationZ": -45.0,
+															"faces": {
+																"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 1.0 ] },
+																"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 1.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 4.0 ] },
+																"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 4.0 ] }
+															}
+														},
+														{
+															"name": "rivet103",
+															"from": [ 1.0, 13.5, -0.5 ],
+															"to": [ 2.0, 14.5, 3.5 ],
+															"rotationOrigin": [ 1.5, 14.0, 1.5 ],
+															"rotationZ": -45.0,
+															"faces": {
+																"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 1.0 ] },
+																"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 1.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 4.0 ] },
+																"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 4.0 ] }
+															}
+														}
+													]
+												},
+												{
+													"name": "tibiarL-bone",
+													"from": [ 3.0, 3.1, 1.0 ],
+													"to": [ 24.0, 5.1, 3.0 ],
+													"rotationOrigin": [ 3.0, 4.1, 2.0 ],
+													"rotationX": -45.0,
+													"faces": {
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 2.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 21.0, 2.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 21.0, 2.0 ] }
+													}
+												},
+												{
+													"name": "rivet104",
+													"from": [ 2.0, 1.5, -0.5 ],
+													"to": [ 3.0, 2.5, 4.5 ],
+													"rotationOrigin": [ 2.5, 2.0, 1.5 ],
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] },
+														"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] }
+													}
+												},
+												{
+													"name": "rivet105",
+													"from": [ 5.0, 1.5, -0.5 ],
+													"to": [ 6.0, 2.5, 4.5 ],
+													"rotationOrigin": [ 5.5, 2.0, 1.5 ],
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] },
+														"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] }
+													}
+												},
+												{
+													"name": "rivet106",
+													"from": [ 8.0, 1.5, -0.5 ],
+													"to": [ 9.0, 2.5, 4.5 ],
+													"rotationOrigin": [ 8.5, 2.0, 1.5 ],
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] },
+														"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] }
+													}
+												},
+												{
+													"name": "rivet107",
+													"from": [ 11.0, 1.5, -0.5 ],
+													"to": [ 12.0, 2.5, 4.5 ],
+													"rotationOrigin": [ 11.5, 2.0, 1.5 ],
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] },
+														"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] }
+													}
+												},
+												{
+													"name": "rivet108",
+													"from": [ 14.0, 1.5, -0.5 ],
+													"to": [ 15.0, 2.5, 4.5 ],
+													"rotationOrigin": [ 14.5, 2.0, 1.5 ],
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] },
+														"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] }
+													}
+												},
+												{
+													"name": "rivet109",
+													"from": [ 17.0, 1.5, -0.5 ],
+													"to": [ 18.0, 2.5, 4.5 ],
+													"rotationOrigin": [ 17.5, 2.0, 1.5 ],
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] },
+														"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] }
+													}
+												}
+											]
+										},
+										{
+											"name": "rivet110",
+											"from": [ 2.0, 2.0, -0.5 ],
+											"to": [ 3.0, 3.0, 6.5 ],
+											"rotationOrigin": [ 2.5, 2.5, 3.0 ],
+											"rotationZ": -45.0,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] }
+											}
+										},
+										{
+											"name": "rivet111",
+											"from": [ 2.0, 5.0, -0.5 ],
+											"to": [ 3.0, 6.0, 6.5 ],
+											"rotationOrigin": [ 2.5, 5.5, 3.0 ],
+											"rotationZ": -45.0,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] }
+											}
+										},
+										{
+											"name": "rivet112",
+											"from": [ 2.0, 8.0, -0.5 ],
+											"to": [ 3.0, 9.0, 6.5 ],
+											"rotationOrigin": [ 2.5, 8.5, 3.0 ],
+											"rotationZ": -45.0,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] }
+											}
+										},
+										{
+											"name": "rivet113",
+											"from": [ 2.0, 11.0, -0.5 ],
+											"to": [ 3.0, 12.0, 6.5 ],
+											"rotationOrigin": [ 2.5, 11.5, 3.0 ],
+											"rotationZ": -45.0,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] }
+											}
+										},
+										{
+											"name": "rivet114",
+											"from": [ 2.0, 14.0, -0.5 ],
+											"to": [ 3.0, 15.0, 6.5 ],
+											"rotationOrigin": [ 2.5, 14.5, 3.0 ],
+											"rotationZ": -45.0,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] }
+											}
+										},
+										{
+											"name": "rivet115",
+											"from": [ 2.0, 17.0, -0.5 ],
+											"to": [ 3.0, 18.0, 6.5 ],
+											"rotationOrigin": [ 2.5, 17.5, 3.0 ],
+											"rotationZ": -45.0,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] }
+											}
+										},
+										{
+											"name": "femurL-bone",
+											"from": [ -1.0, 0.0, 1.5 ],
+											"to": [ 2.0, 18.0, 4.5 ],
+											"rotationOrigin": [ 0.5, 0.0, 3.0 ],
+											"rotationY": -45.0,
+											"faces": {
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 18.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 18.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ] }
+											}
+										},
+										{
+											"name": "knee-tubeL",
+											"from": [ -2.0, 18.0, 2.0 ],
+											"to": [ 0.0, 34.0, 4.0 ],
+											"rotationOrigin": [ -1.0, 16.0, 3.0 ],
+											"rotationZ": 67.5,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 16.0 ] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 16.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 16.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 16.0 ] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 2.0 ] }
+											},
+											"children": [
+												{
+													"name": "legL-rod1",
+													"from": [ 0.5, 15.5, 0.5 ],
+													"to": [ 1.5, 45.5, 1.5 ],
+													"rotationOrigin": [ 1.0, 15.5, 1.0 ],
+													"rotationZ": -22.5,
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 30.0 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 30.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 30.0 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 30.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+													}
+												},
+												{
+													"name": "kneeR194",
+													"from": [ -1.0, -3.5, -0.5 ],
+													"to": [ 3.0, 0.5, 2.5 ],
+													"rotationOrigin": [ 1.0, -1.5, 1.0 ],
+													"rotationZ": -45.0,
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 4.0 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 4.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 4.0 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 4.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 3.0 ] },
+														"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 3.0 ] }
+													}
+												}
+											]
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "legB",
+							"from": [ 17.0, 5.0, 6.0 ],
+							"to": [ 17.0, 5.0, 6.0 ],
+							"rotationOrigin": [ 17.0, 5.0, 6.0 ],
+							"faces": {
+							},
+							"children": [
+								{
+									"name": "femurB",
+									"from": [ -3.0, -20.0, -3.0 ],
+									"to": [ 3.0, 0.0, 3.0 ],
+									"rotationOrigin": [ 0.0, 0.0, 0.0 ],
+									"rotationZ": 22.5,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 20.0 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 20.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 20.0 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 20.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 6.0 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 6.0, 6.0 ] }
+									},
+									"children": [
+										{
+											"name": "tibiaB",
+											"from": [ 1.0, -1.0, 1.0 ],
+											"to": [ 27.0, 3.0, 5.0 ],
+											"rotationOrigin": [ 3.0, 1.0, 3.0 ],
+											"rotationZ": -90.0,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 26.0, 4.0 ] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 4.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 26.0, 4.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 4.0 ] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 26.0, 4.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 26.0, 4.0 ] }
+											},
+											"children": [
+												{
+													"name": "metatarsusB",
+													"from": [ 24.0, -17.0, 0.5 ],
+													"to": [ 27.0, 13.0, 3.5 ],
+													"rotationOrigin": [ 25.5, 2.0, 2.0 ],
+													"rotationZ": 67.5,
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 30.0 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 30.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 30.0 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 30.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ] },
+														"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ] }
+													},
+													"children": [
+														{
+															"name": "tarsusB",
+															"from": [ 0.5, -26.0, 0.5 ],
+															"to": [ 2.5, 0.0, 2.5 ],
+															"rotationOrigin": [ 1.5, 0.0, 1.5 ],
+															"faces": {
+																"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 26.0 ] },
+																"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 26.0 ] },
+																"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 26.0 ] },
+																"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 26.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 2.0 ] },
+																"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 2.0 ] }
+															},
+															"children": [
+																{
+																	"name": "clawB",
+																	"from": [ 1.5, 4.5, 0.5 ],
+																	"to": [ 8.5, 5.5, 1.5 ],
+																	"rotationOrigin": [ 1.5, 5.0, 1.0 ],
+																	"rotationZ": -22.5,
+																	"faces": {
+																		"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+																		"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																		"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+																		"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																		"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+																		"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] }
+																	}
+																}
+															]
+														},
+														{
+															"name": "lowerleg-tubeB",
+															"from": [ 0.5, 28.5, 0.5 ],
+															"to": [ 2.5, 44.5, 2.5 ],
+															"rotationOrigin": [ 1.5, 29.5, 1.5 ],
+															"rotationZ": -45.0,
+															"faces": {
+																"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 16.0 ] },
+																"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 16.0 ] },
+																"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 16.0 ] },
+																"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 16.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 2.0 ] }
+															},
+															"children": [
+																{
+																	"name": "legL-rodB",
+																	"from": [ 0.5, 15.0, 0.5 ],
+																	"to": [ 1.5, 45.0, 1.5 ],
+																	"rotationOrigin": [ 1.0, 15.0, 1.0 ],
+																	"rotationZ": 45.0,
+																	"faces": {
+																		"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 30.0 ] },
+																		"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 30.0 ] },
+																		"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 30.0 ] },
+																		"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 30.0 ] },
+																		"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+																	}
+																}
+															]
+														},
+														{
+															"name": "metatarsusB-bone",
+															"from": [ 2.0, 1.0, 0.5 ],
+															"to": [ 4.0, 28.0, 2.5 ],
+															"rotationOrigin": [ 3.0, 1.0, 1.5 ],
+															"rotationY": -45.0,
+															"faces": {
+																"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 27.0 ], "windMode": [-1,-1,-1,-1], "windData": [1,2,2,1] },
+																"east": { "texture": "#rust", "uv": [ 0.5, 1.0, 2.5, 28.0 ], "windMode": [-1,-1,-1,-1], "windData": [1,2,2,1] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 2.0 ] },
+																"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 2.0 ] }
+															}
+														},
+														{
+															"name": "rivet116",
+															"from": [ 1.0, 1.5, -0.5 ],
+															"to": [ 2.0, 2.5, 3.5 ],
+															"rotationOrigin": [ 1.5, 2.0, 3.5 ],
+															"rotationZ": 45.0,
+															"faces": {
+																"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 1.0 ] },
+																"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 1.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 4.0 ] },
+																"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 4.0 ] }
+															}
+														},
+														{
+															"name": "rivet117",
+															"from": [ 1.0, 4.5, -0.5 ],
+															"to": [ 2.0, 5.5, 3.5 ],
+															"rotationOrigin": [ 1.5, 5.0, 1.5 ],
+															"rotationZ": 45.0,
+															"faces": {
+																"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 1.0 ] },
+																"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 1.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 4.0 ] },
+																"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 4.0 ] }
+															}
+														},
+														{
+															"name": "rivet118",
+															"from": [ 1.0, 7.5, -0.5 ],
+															"to": [ 2.0, 8.5, 3.5 ],
+															"rotationOrigin": [ 1.5, 8.0, 1.5 ],
+															"rotationZ": 45.0,
+															"faces": {
+																"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 1.0 ] },
+																"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 1.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 4.0 ] },
+																"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 4.0 ] }
+															}
+														},
+														{
+															"name": "rivet119",
+															"from": [ 1.0, 10.5, -0.5 ],
+															"to": [ 2.0, 11.5, 3.5 ],
+															"rotationOrigin": [ 1.5, 11.0, 1.5 ],
+															"rotationZ": 45.0,
+															"faces": {
+																"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 1.0 ] },
+																"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 1.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 4.0 ] },
+																"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 4.0 ] }
+															}
+														},
+														{
+															"name": "rivet120",
+															"from": [ 1.0, 13.5, -0.5 ],
+															"to": [ 2.0, 14.5, 3.5 ],
+															"rotationOrigin": [ 1.5, 14.0, 1.5 ],
+															"rotationZ": 45.0,
+															"faces": {
+																"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 1.0 ] },
+																"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+																"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 1.0 ] },
+																"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 4.0 ] },
+																"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 4.0 ] }
+															}
+														}
+													]
+												},
+												{
+													"name": "tibiarB-bone",
+													"from": [ 2.0, 3.1, 1.0 ],
+													"to": [ 23.0, 5.1, 3.0 ],
+													"rotationOrigin": [ 23.0, 4.1, 2.0 ],
+													"rotationX": 45.0,
+													"faces": {
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 2.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 21.0, 2.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 21.0, 2.0 ] }
+													}
+												},
+												{
+													"name": "rivet121",
+													"from": [ 23.0, 1.5, -0.5 ],
+													"to": [ 24.0, 2.5, 4.5 ],
+													"rotationOrigin": [ 23.5, 2.0, 2.5 ],
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] },
+														"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] }
+													}
+												},
+												{
+													"name": "rivet122",
+													"from": [ 20.0, 1.5, -0.5 ],
+													"to": [ 21.0, 2.5, 4.5 ],
+													"rotationOrigin": [ 20.5, 2.0, 2.5 ],
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] },
+														"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] }
+													}
+												},
+												{
+													"name": "rivet123",
+													"from": [ 17.0, 1.5, -0.5 ],
+													"to": [ 18.0, 2.5, 4.5 ],
+													"rotationOrigin": [ 17.5, 2.0, 2.5 ],
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] },
+														"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] }
+													}
+												},
+												{
+													"name": "rivet124",
+													"from": [ 14.0, 1.5, -0.5 ],
+													"to": [ 15.0, 2.5, 4.5 ],
+													"rotationOrigin": [ 14.5, 2.0, 2.5 ],
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] },
+														"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] }
+													}
+												},
+												{
+													"name": "rivet125",
+													"from": [ 11.0, 1.5, -0.5 ],
+													"to": [ 12.0, 2.5, 4.5 ],
+													"rotationOrigin": [ 11.5, 2.0, 2.5 ],
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] },
+														"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] }
+													}
+												},
+												{
+													"name": "rivet126",
+													"from": [ 8.0, 1.5, -0.5 ],
+													"to": [ 9.0, 2.5, 4.5 ],
+													"rotationOrigin": [ 8.5, 2.0, 2.5 ],
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] },
+														"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 5.0 ] }
+													}
+												}
+											]
+										},
+										{
+											"name": "rivet127",
+											"from": [ 3.0, 2.0, -0.5 ],
+											"to": [ 4.0, 3.0, 6.5 ],
+											"rotationOrigin": [ 3.5, 2.5, 3.0 ],
+											"rotationZ": 45.0,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] }
+											}
+										},
+										{
+											"name": "rivet128",
+											"from": [ 3.0, 5.0, -0.5 ],
+											"to": [ 4.0, 6.0, 6.5 ],
+											"rotationOrigin": [ 3.5, 5.5, 3.0 ],
+											"rotationZ": 45.0,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] }
+											}
+										},
+										{
+											"name": "rivet129",
+											"from": [ 3.0, 8.0, -0.5 ],
+											"to": [ 4.0, 9.0, 6.5 ],
+											"rotationOrigin": [ 3.5, 8.5, 3.0 ],
+											"rotationZ": 45.0,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] }
+											}
+										},
+										{
+											"name": "rivet130",
+											"from": [ 3.0, 11.0, -0.5 ],
+											"to": [ 4.0, 12.0, 6.5 ],
+											"rotationOrigin": [ 3.5, 11.5, 3.0 ],
+											"rotationZ": 45.0,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] }
+											}
+										},
+										{
+											"name": "rivet131",
+											"from": [ 3.0, 14.0, -0.5 ],
+											"to": [ 4.0, 15.0, 6.5 ],
+											"rotationOrigin": [ 3.5, 14.5, 3.0 ],
+											"rotationZ": 45.0,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] }
+											}
+										},
+										{
+											"name": "rivet132",
+											"from": [ 3.0, 17.0, -0.5 ],
+											"to": [ 4.0, 18.0, 6.5 ],
+											"rotationOrigin": [ 3.5, 17.5, 3.0 ],
+											"rotationZ": 45.0,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 7.0, 1.0 ] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 7.0 ] }
+											}
+										},
+										{
+											"name": "femurB-bone",
+											"from": [ 4.0, 1.0, 1.5 ],
+											"to": [ 7.0, 19.0, 4.5 ],
+											"rotationOrigin": [ 5.5, 1.0, 3.0 ],
+											"rotationY": -45.0,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 3.5, 1.0, 6.5, 19.0 ], "windMode": [-1,-1,-1,-1], "windData": [2,2,2,2] },
+												"east": { "texture": "#rust", "uv": [ 1.5, -0.5, 4.5, 17.5 ], "windMode": [-1,-1,-1,-1], "windData": [2,2,2,2] },
+												"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 3.0 ] }
+											}
+										},
+										{
+											"name": "knee-tubeB",
+											"from": [ 6.0, 20.0, 2.0 ],
+											"to": [ 8.0, 36.0, 4.0 ],
+											"rotationOrigin": [ 7.0, 18.0, 3.0 ],
+											"rotationZ": -67.5,
+											"faces": {
+												"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 16.0 ] },
+												"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 16.0 ] },
+												"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 16.0 ] },
+												"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 16.0 ] },
+												"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 2.0, 2.0 ] }
+											},
+											"children": [
+												{
+													"name": "legB-rod",
+													"from": [ 0.5, 15.0, 0.5 ],
+													"to": [ 1.5, 45.0, 1.5 ],
+													"rotationOrigin": [ 1.0, 16.0, 1.0 ],
+													"rotationZ": 45.0,
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 30.0 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 30.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 30.0 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 30.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+													}
+												},
+												{
+													"name": "kneeB",
+													"from": [ -1.0, -3.5, -0.5 ],
+													"to": [ 3.0, 0.5, 2.5 ],
+													"rotationOrigin": [ 1.0, -1.5, 1.0 ],
+													"rotationZ": 45.0,
+													"faces": {
+														"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 4.0 ] },
+														"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 4.0 ] },
+														"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 4.0 ] },
+														"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 3.0, 4.0 ] },
+														"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 3.0 ] },
+														"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 4.0, 3.0 ] }
+													}
+												}
+											]
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "body-bottom",
+							"from": [ 2.0, -5.0, 2.0 ],
+							"to": [ 12.0, 0.0, 12.0 ],
+							"rotationOrigin": [ 7.0, 0.0, 7.0 ],
+							"rotationY": -45.0,
+							"faces": {
+								"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 10.0, 5.0 ] },
+								"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 10.0, 5.0 ] },
+								"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 10.0, 5.0 ] },
+								"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 10.0, 5.0 ] },
+								"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 10.0, 10.0 ] }
+							},
+							"children": [
+								{
+									"name": "rivet133",
+									"from": [ 1.0, -0.5, 1.0 ],
+									"to": [ 2.0, 0.0, 2.0 ],
+									"rotationOrigin": [ 1.5, -0.5, 1.5 ],
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet134",
+									"from": [ 4.5, -0.5, 1.0 ],
+									"to": [ 5.5, 0.0, 2.0 ],
+									"rotationOrigin": [ 5.0, -0.5, 1.5 ],
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet145",
+									"from": [ 8.0, -0.5, 1.0 ],
+									"to": [ 9.0, 0.0, 2.0 ],
+									"rotationOrigin": [ 8.5, -0.5, 1.5 ],
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet146",
+									"from": [ 8.0, -0.5, 4.5 ],
+									"to": [ 9.0, 0.0, 5.5 ],
+									"rotationOrigin": [ 8.5, -0.5, 5.0 ],
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet147",
+									"from": [ 8.0, -0.5, 8.0 ],
+									"to": [ 9.0, 0.0, 9.0 ],
+									"rotationOrigin": [ 8.5, -0.5, 8.5 ],
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet148",
+									"from": [ 4.5, -0.5, 8.0 ],
+									"to": [ 5.5, 0.0, 9.0 ],
+									"rotationOrigin": [ 5.0, -0.5, 8.5 ],
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet149",
+									"from": [ 1.0, -0.5, 8.0 ],
+									"to": [ 2.0, 0.0, 9.0 ],
+									"rotationOrigin": [ 1.5, -0.5, 8.5 ],
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet150",
+									"from": [ 1.0, -0.5, 4.5 ],
+									"to": [ 2.0, 0.0, 5.5 ],
+									"rotationOrigin": [ 1.5, -0.5, 5.0 ],
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet152",
+									"from": [ -0.5, 2.0, 1.0 ],
+									"to": [ 10.5, 3.0, 2.0 ],
+									"rotationOrigin": [ 5.0, 2.5, 1.5 ],
+									"rotationX": -45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 11.0, 1.0 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 11.0, 1.0 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 11.0, 1.0 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 11.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet153",
+									"from": [ -0.5, 2.0, 4.5 ],
+									"to": [ 10.5, 3.0, 5.5 ],
+									"rotationOrigin": [ 5.0, 2.5, 5.0 ],
+									"rotationX": -45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 11.0, 1.0 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 11.0, 1.0 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 11.0, 1.0 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 11.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet154",
+									"from": [ -0.5, 2.0, 8.0 ],
+									"to": [ 10.5, 3.0, 9.0 ],
+									"rotationOrigin": [ 5.0, 2.5, 8.5 ],
+									"rotationX": -45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 11.0, 1.0 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 11.0, 1.0 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 11.0, 1.0 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 11.0, 1.0 ] }
+									}
+								},
+								{
+									"name": "rivet155",
+									"from": [ 1.0, 2.0, -0.5 ],
+									"to": [ 2.0, 3.0, 10.5 ],
+									"rotationOrigin": [ 1.5, 2.5, 5.0 ],
+									"rotationZ": -45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 11.0, 1.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 11.0, 1.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 11.0 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 11.0 ] }
+									}
+								},
+								{
+									"name": "rivet156",
+									"from": [ 4.5, 2.0, -0.5 ],
+									"to": [ 5.5, 3.0, 10.5 ],
+									"rotationOrigin": [ 5.0, 2.5, 5.0 ],
+									"rotationZ": -45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 11.0, 1.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 11.0, 1.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 11.0 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 11.0 ] }
+									}
+								},
+								{
+									"name": "rivet157",
+									"from": [ 8.0, 2.0, -0.5 ],
+									"to": [ 9.0, 3.0, 10.5 ],
+									"rotationOrigin": [ 8.5, 2.5, 5.0 ],
+									"rotationZ": -45.0,
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 11.0, 1.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 11.0, 1.0 ] },
+										"up": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 11.0 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 1.0, 11.0 ] }
+									}
+								},
+								{
+									"name": "hatch",
+									"from": [ 2.5, -1.0, 2.5 ],
+									"to": [ 7.5, 0.0, 7.5 ],
+									"rotationOrigin": [ 5.0, -1.0, 5.0 ],
+									"faces": {
+										"north": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+										"east": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+										"south": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+										"west": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 1.0 ] },
+										"down": { "texture": "#rust", "uv": [ 0.0, 0.0, 5.0, 5.0 ] }
+									}
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"animations": [
+		{
+			"name": "Walk",
+			"code": "walk",
+			"quantityframes": 181,
+			"onActivityStopped": "EaseOut",
+			"onAnimationEnd": "Repeat",
+			"keyframes": [
+				{
+					"frame": 5,
+					"elements": {
+						"tarsusB": { "offsetX": 0.0, "offsetY": 3.0, "offsetZ": 0.0 },
+						"knee-tubeB": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 23.0 },
+						"knee-tubeR": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 0.0 },
+						"legR-rod1": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 0.0 },
+						"lowerleg-tubeR": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -42.0 },
+						"legR-rod2": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 7.0 }
+					}
+				},
+				{
+					"frame": 7,
+					"elements": {
+						"knee-tubeL": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -25.0 }
+					}
+				},
+				{
+					"frame": 30,
+					"elements": {
+						"body-main": { "offsetX": 0.0, "offsetY": 1.0, "offsetZ": 0.0, "rotationX": 3.0, "rotationY": 0.0, "rotationZ": 2.0 },
+						"legR": { "offsetX": 0.0, "offsetY": 0.0, "offsetZ": 0.0, "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -45.0 },
+						"metatarsusR": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 22.5 },
+						"tarsusR": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 45.0 },
+						"knee-tubeR": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 15.0 },
+						"legL": { "rotationX": -4.0, "rotationY": 0.0, "rotationZ": 19.0 },
+						"tarsusL": { "offsetX": 0.0, "offsetY": 6.0, "offsetZ": 0.0 },
+						"legL-rod1": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -17.0 },
+						"legB": { "rotationX": -3.0, "rotationY": 0.0, "rotationZ": -30.0 },
+						"tarsusB": { "offsetX": 0.0, "offsetY": 4.0, "offsetZ": 0.0, "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 22.5 },
+						"legB-rod": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 4.0 },
+						"neck1": { "rotationX": -2.0, "rotationY": 0.0, "rotationZ": -22.5 },
+						"neck2": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 15.0 },
+						"neck3": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 5.0 },
+						"neck4": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 15.0 },
+						"head": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -22.5 }
+					}
+				},
+				{
+					"frame": 55,
+					"elements": {
+						"tarsusR": { "offsetX": 0.0, "offsetY": 3.0, "offsetZ": 0.0 },
+						"legL": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 0.0 },
+						"metatarsusL": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 22.5 },
+						"legL-rodB": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -6.0 }
+					}
+				},
+				{
+					"frame": 60,
+					"elements": {
+						"body-main": { "offsetX": 0.0, "offsetY": 1.0, "offsetZ": 0.0, "rotationX": -3.0, "rotationY": 0.0, "rotationZ": 0.0 },
+						"legB": { "offsetX": 0.0, "offsetY": 2.0, "offsetZ": 0.0, "rotationX": 3.0, "rotationY": 0.0, "rotationZ": -22.5 },
+						"tarsusB": { "offsetX": 0.0, "offsetY": 4.0, "offsetZ": 0.0 },
+						"lowerleg-tubeB": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 0.0 },
+						"legR": { "offsetX": 0.0, "offsetY": 0.0, "offsetZ": 0.0, "rotationX": 3.0, "rotationY": 0.0, "rotationZ": 0.0 },
+						"metatarsusR": { "offsetX": 0.0, "offsetY": 0.0, "offsetZ": 0.0, "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 0.0 },
+						"tarsusR": { "offsetX": 0.0, "offsetY": 2.0, "offsetZ": 0.0, "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 0.0 },
+						"lowerleg-tubeR": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -21.0 },
+						"legR-rod2": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 4.0 }
+					}
+				},
+				{
+					"frame": 84,
+					"elements": {
+						"knee-tubeB": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 0.0 }
+					}
+				},
+				{
+					"frame": 90,
+					"elements": {
+						"body-main": { "offsetX": 0.0, "offsetY": -2.0, "offsetZ": 0.0 },
+						"legL": { "offsetX": 0.0, "offsetY": 0.0, "offsetZ": 0.0, "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -45.0 },
+						"metatarsusL": { "offsetX": 0.0, "offsetY": 0.0, "offsetZ": 0.0, "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 22.5 },
+						"tarsusL": { "offsetX": 0.0, "offsetY": 0.0, "offsetZ": 0.0, "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 45.0 },
+						"knee-tubeL": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 17.0 },
+						"legL-rod1": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 0.0 },
+						"tarsusR": { "offsetX": 0.0, "offsetY": 8.0, "offsetZ": 0.0 },
+						"legR-rod2": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -4.0 },
+						"knee-tubeR": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -28.0 },
+						"legR-rod1": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -8.0 },
+						"neck1": { "rotationX": 2.0, "rotationY": 0.0, "rotationZ": -30.0 },
+						"neck2": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 22.5 },
+						"neck3": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 22.5 },
+						"neck4": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 22.5 },
+						"head": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -45.0 }
+					}
+				},
+				{
+					"frame": 115,
+					"elements": {
+						"body-main": { "offsetX": 0.0, "offsetY": 1.0, "offsetZ": 0.0 },
+						"tarsusL": { "offsetX": 0.0, "offsetY": 2.0, "offsetZ": 0.0 },
+						"lowerleg-tubeL": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -19.0 },
+						"legB-rod": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 0.0 },
+						"lowerleg-tubeB": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -39.0 },
+						"legL-rodB": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 11.0 }
+					}
+				},
+				{
+					"frame": 120,
+					"elements": {
+						"body-main": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 2.0 },
+						"legR": { "offsetX": 0.0, "offsetY": -3.0, "offsetZ": 0.0, "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 22.5 },
+						"metatarsusR": { "offsetX": 0.0, "offsetY": -2.0, "offsetZ": 0.0, "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 22.5 },
+						"tarsusR": { "offsetX": 0.0, "offsetY": 3.0, "offsetZ": 0.0, "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -45.0 },
+						"lowerleg-tubeR": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -50.0 },
+						"legR-rod2": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 0.0 },
+						"legL": { "offsetX": 0.0, "offsetY": 0.0, "offsetZ": 0.0, "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 0.0 },
+						"metatarsusL": { "offsetX": 0.0, "offsetY": 0.0, "offsetZ": 0.0, "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 0.0 },
+						"tarsusL": { "offsetX": 0.0, "offsetY": 3.0, "offsetZ": 0.0, "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 0.0 },
+						"legL-rod1": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -8.0 },
+						"legB": { "offsetX": 0.0, "offsetY": 0.0, "offsetZ": 0.0, "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 0.0 },
+						"metatarsusB": { "offsetX": 0.0, "offsetY": -5.0, "offsetZ": 0.0, "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 22.5 },
+						"tarsusB": { "offsetX": 0.0, "offsetY": 4.0, "offsetZ": 0.0, "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 0.0 },
+						"lowerleg-tubeB": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -42.0 },
+						"knee-tubeB": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 0.0 }
+					}
+				},
+				{
+					"frame": 150,
+					"elements": {
+						"body-main": { "offsetX": 0.0, "offsetY": -3.0, "offsetZ": 0.0 },
+						"legB": { "offsetX": 0.0, "offsetY": 0.0, "offsetZ": 0.0, "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -45.0 },
+						"metatarsusB": { "offsetX": 0.0, "offsetY": 0.0, "offsetZ": 0.0, "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -67.5 },
+						"tarsusB": { "offsetX": 0.0, "offsetY": 0.0, "offsetZ": 0.0, "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 67.5 },
+						"lowerleg-tubeB": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 72.0 },
+						"legL": { "offsetX": 0.0, "offsetY": -2.0, "offsetZ": 0.0, "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 22.5 },
+						"metatarsusL": { "offsetX": 0.0, "offsetY": 2.0, "offsetZ": 0.0, "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 22.5 },
+						"tarsusL": { "offsetX": 0.0, "offsetY": 3.0, "offsetZ": 0.0, "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -45.0 },
+						"metatarsusR": { "offsetX": 0.0, "offsetY": -7.0, "offsetZ": 0.0, "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 45.0 },
+						"tarsusR": { "offsetX": 0.0, "offsetY": 6.0, "offsetZ": 0.0, "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -22.5 },
+						"legR-rod2": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -11.0 },
+						"legR-rod1": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -3.0 },
+						"neck1": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 0.0 },
+						"neck2": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 0.0 },
+						"neck3": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 0.0 },
+						"neck4": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 0.0 },
+						"head": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -22.5 }
+					}
+				},
+				{
+					"frame": 151,
+					"elements": {
+						"lowerleg-tubeL": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -47.0 }
+					}
+				},
+				{
+					"frame": 161,
+					"elements": {
+						"knee-tubeL": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -22.0 }
+					}
+				},
+				{
+					"frame": 177,
+					"elements": {
+						"lowerleg-tubeL": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -42.0 },
+						"legB-rod": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 19.0 },
+						"lowerleg-tubeB": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 17.0 }
+					}
+				},
+				{
+					"frame": 180,
+					"elements": {
+						"body-main": { "offsetX": 0.0, "offsetY": 0.0, "offsetZ": 0.0, "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -2.0 },
+						"legB": { "offsetX": 0.0, "offsetY": -3.0, "offsetZ": 0.0, "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -45.0 },
+						"metatarsusB": { "offsetX": 0.0, "offsetY": -4.0, "offsetZ": 0.0, "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 0.0 },
+						"tarsusB": { "offsetX": 0.0, "offsetY": 1.0, "offsetZ": 0.0, "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 45.0 },
+						"legL": { "offsetX": 0.0, "offsetY": -3.0, "offsetZ": 0.0, "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 45.0 },
+						"metatarsusL": { "offsetX": 0.0, "offsetY": -3.0, "offsetZ": 0.0, "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 0.0 },
+						"tarsusL": { "offsetX": 0.0, "offsetY": 0.0, "offsetZ": 0.0, "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -22.5 },
+						"legL-rod1": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -14.0 }
+					}
+				}
+			]
+		},
+
+		{
+			"name": "Walk2",
+			"code": "walk2",
+			"quantityframes": 45,
+			"onActivityStopped": "Rewind",
+			"onAnimationEnd": "Repeat",
+			"keyframes": [
+				{
+					"frame": 0,
+					"elements": {
+						"body-main": { "rotationX": -2.0, "rotationY": 2.0, "rotationZ": 2.0 },
+						"neck1": { "rotationX": 2.0, "rotationY": 1.0, "rotationZ": -11.0 },
+						"neck2": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -5.0 },
+						"neck2-extension": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 12.0 },
+						"neck3": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 13.0 },
+						"neck4": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 15.0 },
+						"head": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -25.0 },
+						"legR": { "rotationX": 0.0, "rotationY": -28.0, "rotationZ": -15.0 },
+						"femurR": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 0.0 },
+						"tibiaR": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 0.0 },
+						"metatarsusR": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -8.0 },
+						"legL": { "rotationX": 0.0, "rotationY": 38.0, "rotationZ": -38.0 },
+						"tibiaL": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 28.0 },
+						"metatarsusL": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 13.0 },
+						"legB": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 12.0 },
+						"tibiaB": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 0.0 },
+						"metatarsusB": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 8.0 }
+					}
+				},
+				{
+					"frame": 15,
+					"elements": {
+						"body-main": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 1.0 },
+						"neck1": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -11.0 },
+						"neck2": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -5.0 },
+						"neck2-extension": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 12.0 },
+						"neck3": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 13.0 },
+						"neck4": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 15.0 },
+						"head": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -25.0 },
+						"legR": { "rotationX": 0.0, "rotationY": -44.0, "rotationZ": -16.0 },
+						"femurR": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -6.0 },
+						"tibiaR": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 25.0 },
+						"metatarsusR": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 1.0 },
+						"legL": { "rotationX": 0.0, "rotationY": 14.0, "rotationZ": -16.0 },
+						"tibiaL": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 0.0 },
+						"metatarsusL": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -12.0 },
+						"legB": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 30.0 },
+						"tibiaB": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -22.0 },
+						"metatarsusB": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -17.0 }
+					}
+				},
+				{
+					"frame": 30,
+					"elements": {
+						"body-main": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 1.0 },
+						"neck1": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -11.0 },
+						"neck2": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -5.0 },
+						"neck2-extension": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 12.0 },
+						"neck3": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 13.0 },
+						"neck4": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 15.0 },
+						"head": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -25.0 },
+						"legR": { "rotationX": 0.0, "rotationY": -23.0, "rotationZ": -16.0 },
+						"femurR": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -20.0 },
+						"tibiaR": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 18.0 },
+						"metatarsusR": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 17.0 },
+						"legL": { "rotationX": 0.0, "rotationY": 26.0, "rotationZ": -16.0 },
+						"tibiaL": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 21.0 },
+						"metatarsusL": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": 2.0 },
+						"legB": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -2.0 },
+						"tibiaB": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -8.0 },
+						"metatarsusB": { "rotationX": 0.0, "rotationY": 0.0, "rotationZ": -8.0 }
+					}
+				}
+			]
+		}
+	]
+}

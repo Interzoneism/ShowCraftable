@@ -1,0 +1,14 @@
+{
+	ingredientPattern: "HRR,CXR,_FR",
+	ingredients: {
+		"H": { type: "item", code: "hammer-*", isTool: true, toolDurabilityCost: 20 },
+		"C": { type: "item", code: "chisel-*", isTool: true, toolDurabilityCost: 50 },
+		"F": { type: "item", code: "firewood", quantity: 2 },
+		"X": { type: "block", code: "rock-*", name: "rock" },
+		"R": { type: "item", code: "rope", quantity: 3 }
+	},
+	name: "anchor",
+	width: 3,
+	height: 3,
+	output: { type: "item", code: "anchor-stone"  }
+}

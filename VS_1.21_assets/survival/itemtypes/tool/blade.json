@@ -1,0 +1,499 @@
+{
+	code: "blade",
+	tags: ["weapon", "weapon-melee"],
+	damagedby: ["blockbreaking", "attacking"],
+	tool: "sword",
+	variantgroups: [
+		{ code: "type", states: ["falx", "blackguard", "longsword", "forlorn", "scrap", "gladius", "arming", "claymore", "sabre" ] },
+		{ code: "metal", states: ["scrap", "copper", "tinbronze", "bismuthbronze", "blackbronze", "gold", "silver", "iron", "meteoriciron", "steel", "admin", "ruined" ] }
+	],
+	skipVariants: [
+		"blade-falx-scrap",
+		"blade-falx-ruined",
+		"blade-falx-admin"
+	],
+	allowedVariants: [
+		"blade-falx-*",
+		"blade-scrap-scrap",
+		"blade-blackguard-iron",
+		"blade-longsword-admin",
+		"blade-forlorn-iron",
+		"blade-gladius-ruined",
+		"blade-arming-ruined",
+		"blade-claymore-ruined",
+		"blade-sabre-ruined"
+	],
+	shapeByType: {
+		"blade-longsword-admin": { base: "item/tool/blade/admin" },
+		"blade-*-ruined": { base: "item/tool/blade/ruined/{type}" },
+		"*": { base: "item/tool/blade/{type}" }
+	},
+	texturesByType: {
+		"blade-scrap-scrap": { },
+		"blade-blackguard-iron": { },
+		"blade-forlorn-iron": { },
+		"blade-longsword-admin": { "metal":  { base: "block/fire-pink"  } },
+		"blade-falx-copper": { 
+			"falxstring": { base: "block/cloth/burlap/string" },
+			"thongs": { base: "block/cloth/leather/longstiches" },			
+			"woodguard": { base: "block/wood/debarked/veryaged" },
+			"handle":  { base: "block/wood/debarked/veryaged" },
+			"falxblade":  { base: "block/metal/ingot/copper" },
+			"cloth":  { base: "block/transparent" },
+			"handguard":  { base: "block/transparent" },
+			"spinerivet":  { base: "block/transparent" },
+			"pips":  { base: "block/transparent" }
+		},
+		"blade-falx-tinbronze": { 
+			"falxstring": { base: "block/transparent" },
+			"thongs": { base: "block/transparent" },			
+			"woodguard": { base: "block/transparent" },
+			"handle":  { base: "block/wood/debarked/aged" },
+			"falxblade":  { base: "block/metal/ingot/tinbronze" },
+			"cloth":  { base: "block/transparent" },
+			"handguard":  { base: "block/metal/sheet/tinbronze1" },
+			"spinerivet":  { base: "block/metal/sheet/tinbronze1" },
+			"pips":  { base: "block/transparent" }
+		},
+		"blade-falx-bismuthbronze": { 
+			"falxstring": { base: "block/transparent" },
+			"thongs": { base: "block/transparent" },			
+			"woodguard": { base: "block/transparent" },
+			"handle":  { base: "block/wood/debarked/veryaged"  },
+			"falxblade":  { base: "block/metal/ingot/bismuthbronze"  },
+			"cloth":  { base: "block/transparent"  },
+			"handguard":  { base: "block/metal/sheet/bismuthbronze5"  },
+			"spinerivet":  { base: "block/metal/sheet/bismuthbronze5"  },
+			"pips":  { base: "block/transparent"  }
+		},
+		"blade-falx-blackbronze": { 
+			"falxstring": { base: "block/transparent" },
+			"thongs": { base: "block/transparent" },			
+			"woodguard": { base: "block/transparent" },
+			"handle":  { base: "block/wood/debarked/birch"  },
+			"falxblade":  { base: "block/metal/sheet/blackbronze5"  },
+			"cloth":  { base: "block/transparent"  },
+			"handguard":  { base: "block/metal/sheet/blackbronze5"  },
+			"spinerivet":  { base: "block/metal/sheet/lead1"  },
+			"pips":  { base: "block/transparent"  }
+		},
+		"blade-falx-iron": { 
+			"falxstring": { base: "block/transparent" },
+			"thongs": { base: "block/transparent" },			
+			"woodguard": { base: "block/transparent" },
+			"handle":  { base: "item/tool/material/handle"  },
+			"falxblade":  { base: "block/metal/ingot/iron"  },
+			"cloth":  { base: "block/transparent"  },
+			"handguard":  { base: "block/metal/sheet/lead1"  },
+			"spinerivet":  { base: "block/metal/sheet/lead1"  },
+			"pips":  { base: "block/transparent"  }
+		},
+		"blade-falx-meteoriciron": { 
+			"falxstring": { base: "block/transparent" },
+			"thongs": { base: "block/transparent" },			
+			"woodguard": { base: "block/transparent" },
+			"handle":  { base: "block/wood/debarked/veryaged"  },
+			"falxblade":  { base: "block/metal/ingot/meteoriciron"  },
+			"cloth":  { base: "block/transparent"  },
+			"handguard":  { base: "block/metal/sheet/meteoriciron1"  },
+			"spinerivet":  { base: "block/metal/sheet/iron1"  },
+			"pips":  { base: "block/transparent"  }
+		},
+		"blade-falx-steel": { 
+			"falxstring": { base: "block/transparent" },
+			"thongs": { base: "block/transparent" },			
+			"woodguard": { base: "block/transparent" },
+			"handle":  { base: "block/wood/debarked/aged"  },
+			"falxblade":  { base: "block/metal/ingot/steel"  },
+			"cloth":  { base: "block/transparent"  },
+			"handguard":  { base: "block/metal/sheet/steel1"  },
+			"spinerivet":  { base: "block/metal/sheet/lead1"  },
+			"pips":  { base: "block/transparent"  }
+		},
+		"blade-falx-silver": { 
+			"falxstring": { base: "block/transparent" },
+			"thongs": { base: "block/transparent" },			
+			"woodguard": { base: "block/transparent" },
+			"handle":  { base: "block/wood/debarked/veryaged"  },
+			"falxblade":  { base: "block/metal/ingot/steel"  },
+			"cloth":  { base: "block/cloth/linen/blue"  },
+			"handguard":  { base: "block/metal/sheet/silver1"  },
+			"spinerivet":  { base: "block/metal/sheet/silver1"  },
+			"pips":  { base: "block/metal/sheet/silver1"  }
+		},
+		"blade-falx-gold": { 
+			"falxstring": { base: "block/transparent" },
+			"thongs": { base: "block/transparent" },			
+			"woodguard": { base: "block/transparent" },
+			"handle":  { base: "block/wood/debarked/veryaged"  },
+			"falxblade":  { base: "block/metal/ingot/steel"  },
+			"cloth":  { base: "block/cloth/linen/black"  },
+			"handguard":  { base: "block/metal/sheet/gold1"  },
+			"spinerivet":  { base: "block/metal/sheet/gold1"  },
+			"pips":  { base: "block/metal/sheet/gold1"  }
+		}
+	},
+	attributes: {
+		heldItemPitchFollow: 0.9,
+		handbook: {
+			groupBy: ["blade-*"]
+		},
+		toolrackTransformByType: {
+			"blade-scrap-scrap":
+				{
+					translation: { x: 0.2, y: 0.85 },
+					rotation: { y: 180, z: 1 },
+					scale: 1.66
+				},
+			"blade-blackguard-iron":
+				{
+					rotation: { y: 180, z: 1 },
+					translation: { x: -0.1, y: 0.6 },
+					scale: 1.25
+				},
+			"blade-forlorn-iron":
+				{
+					rotation: { y: 180, z: 1 },
+					translation: { x: -0.05, y: 0.7 },
+					scale: 1.25
+				},
+			"blade-claymore-ruined": 
+				{
+					translation: { x: 0.56, y: 0.6, z: -0.2 },
+					rotation: { x: -16, y: 180, z: 1 },
+					scale: 1.25
+				},
+			"*-ruined":
+				{
+					translation: { x: 0.16, y: 0.7, z: 0 },
+					rotation: { x: 0, y: 180, z: 1 },
+					scale: 1.25
+				},
+			"*":
+				{
+					rotation: { y: 180, z: 1 },
+					translation: { x: -0.1, y: 0.6 },
+					scale: 1.25
+				}
+		},
+		groundStorageTransformByType: {
+			"blade-scrap-scrap": {
+				translation: { x: 0.24, y: 0.34, z: 0 },
+				rotation: { x: 24, y: 61, z: -87 },
+				scale: 0.88
+			},
+			"blade-forlorn-iron": {
+				translation: { x: 0, y: 0.77, z: -0.18 },
+				rotation: { x: 22, y: 88, z: -87 },
+				scale: 0.88
+			},
+			"blade-falx-*": {
+				translation: { x: 0.24, y: 0.195, z: -0.06 },
+				rotation: { x: 24, y: 61, z: -87 },
+				scale: 0.88
+			},
+			"blade-gladius-ruined": {
+				translation: { x: 0, y: 0.33, z: 0.07 },
+				rotation: { x: 24, y: 90, z: -87 },
+				scale: 0.63
+			},
+			"blade-arming-ruined": {
+				translation: { x: 0, y: 0.63, z: 0.08 },
+				rotation: { x: 24, y: 90, z: -87 },
+				scale: 0.63
+			},
+
+			"blade-claymore-ruined": {
+				translation: { x: 0, y: 1.05, z: 0.065 },
+				rotation: { x: 24, y: 90, z: -87 },
+				scale: 0.63
+			},
+			"*": {
+				translation: { x: 0.24, y: 0.195, z: -0.06 },
+				rotation: { x: 24, y: 61, z: -87 },
+				scale: 0.88
+			}
+		}
+	},
+	attributesByType: {
+		"blade-falx-*": {
+			ripHarvest: true,
+			attachableToEntity: {
+				categoryCode: "utilities",
+				attachedShapeBySlotCode: {
+					"frontrightside": { base: "item/wearable/hooved/elk/weaponr-falx" },
+					"frontleftside": { base: "item/wearable/hooved/elk/weaponl-falx" }
+				}
+			}				
+		},
+		"blade-blackguard-iron": {
+			attachableToEntity: {
+				categoryCode: "utilities",
+				attachedShapeBySlotCode: {
+					"frontrightside": { base: "item/wearable/hooved/elk/weaponr-blackguard" },
+					"frontleftside": { base: "item/wearable/hooved/elk/weaponl-blackguard" }
+				}
+			}				
+		}
+	},
+	behaviors: [
+		{ 
+			name: "GroundStorable",
+			properties: {
+				layout: 'WallHalves',
+				wallOffYByType: {
+					"blade-forlorn-iron": 2,
+					"blade-claymore-ruined": 2,
+					"blade-arming-ruined": 2,
+					"*": 1
+				},
+				ctrlKey: true,
+				selectionBox: { x1: 0, y1: 0, z1: 0, x2: 1, y2: 0.1, z2: 1 },
+				collisionBox: { x1: 0, y1: 0, z1: 0, x2: 0, y2: 0, z2: 0 },
+			},
+		},
+		{ name: "AnimationAuthoritative" }
+	],
+	heldTpHitAnimationByType: {
+		"blade-forlorn-iron": "spearhit",
+		"blade-blackguard-iron": "spearhit",
+		"blade-gladius-ruined": "spearhit",
+		"*": "falx"
+	},
+	attackRangebytype: {
+		"blade-longsword-admin": 10,	
+		"*": 2.5
+	},
+	tooltierbytype: {
+		"*-scrap": 2,
+		"*-copper": 2,
+		"*-ruined": 2,
+		"*-gold": 5,
+		"*-silver": 5,
+		"*-bismuthbronze": 3,
+		"*-tinbronze": 3,
+		"*-blackbronze": 3,
+		"*-iron": 4,
+		"*-meteoriciron": 4,
+		"*-steel": 5,
+		"*-blackguard": 4,
+		"*-forlorn": 4,
+		"*-admin": 5
+	},
+	attackpowerbytype: {
+		"blade-scrap-scrap": 3,
+		"blade-falx-copper": 3.75,
+		"blade-falx-bismuthbronze": 4.25,
+		"blade-falx-tinbronze": 4.5,
+		"*-ruined": 4.5,
+		"blade-falx-blackbronze": 4.75,
+		"blade-falx-iron": 5,
+		"blade-falx-meteoriciron": 5.25,
+		"blade-falx-steel": 5.25,
+		"blade-falx-gold": 5.25,
+		"blade-falx-silver": 5.25,
+		"blade-blackguard-iron": 5.25,
+		"blade-forlorn-iron": 5.25,
+		"blade-longsword-admin": 300
+	},
+	durabilitybytype: {
+		"*-ruined": 15,
+		"blade-scrap-scrap": 90,
+		"blade-falx-copper": 250,
+		"blade-falx-tinbronze": 450,
+		"blade-falx-bismuthbronze": 530,
+		"blade-falx-blackbronze": 600,
+		"blade-falx-iron": 850,
+		"blade-falx-meteoriciron": 1100,
+		"blade-falx-steel": 2125,
+		"blade-falx-gold": 2125,
+		"blade-falx-silver": 2125,
+		"blade-blackguard-iron": 1100,
+		"blade-forlorn-iron": 650,
+		"blade-longsword-admin": 9999
+	},
+	creativeinventoryByType: {
+		"*": { "general": ["*"], "items": ["*"], "tools": ["*"], "clutterByType": { "*-ruined": ["*"] } }
+	},
+	guiTransformByType: {
+		"blade-scrap-scrap":
+			{
+				translation: { x: 0, y: 0, z: 0 },
+				rotation: { x: -94, y: 47, z: 44 },
+				origin: { x: 0.73, y: 0, z: 0.48 },
+				scale: 2.2
+			},
+		"blade-blackguard-iron":
+			{
+				translation: { x: 0, y: 0, z: 0 },
+				rotation: { x: -89, y: 47, z: -13 },
+				origin: { x: 0.6, y: -0.1, z: 0.44 },
+				scale: 1.65
+			},
+		"blade-forlorn-iron":
+			{
+				translation: { x: 0, y: 0, z: 0 },
+				rotation: { x: -89, y: 47, z: 44 },
+				origin: { x: 0.6, y: -0.2, z: 0.44 },
+				scale: 1.42
+			},
+		"blade-longsword-admin":
+			{
+				translation: { x: 0, y: 0, z: 0 },
+				rotation: { x: -53, y: 118, z: -5 },
+				origin: { x: 0.64, y: 0.1, z: 0.44 },
+				scale: 1.65
+			},
+		"blade-claymore-ruined": 
+			{
+				translation: { x: 0, y: 0, z: 0 },
+				rotation: { x: -87, y: 119, z: 30 },
+				origin: { x: 1.15, y: -0.1, z: 0.57 },
+				scale: 1.95
+			},
+		"blade-sabre-ruined": 
+			{
+				translation: { x: 0, y: 0, z: 0 },
+				rotation: { x: -37, y: 124, z: -7 },
+				origin: { x: 0.85, y: -0.1, z: 0.57 },
+				scale: 2.06
+			},
+		"*-ruined": 
+			{
+				translation: { x: 0, y: 0, z: 0 },
+				rotation: { x: -53, y: 118, z: 8 },
+				origin: { x: 1.15, y: 0.2, z: 0.57 },
+				scale: 1.76
+			},
+		"*":
+			{
+				translation: { x: 0, y: 0, z: 0 },
+				rotation: { x: -53, y: 118, z: -5 },
+				origin: { x: 0.65, y: 0.1, z: 0.37 },
+				scale: 1.65
+			}
+	},
+	fpHandTransformByType: {
+		"blade-scrap-scrap":
+			{
+				translation: { x: -0.2, y: -0.4, z: 0 },
+				rotation: { x: -13, y: 15, z: 90 },
+				scale: 3.69
+			},
+		"blade-blackguard-iron":
+			{
+				translation: { x: -0.2, y: -0.2, z: 0 },
+				rotation: { x: -21, y: 15, z: 90 },
+				scale: 3.18
+			},
+		"blade-forlorn-iron":
+			{
+				translation: { x: -0.2, y: -0.2, z: 0 },
+				rotation: { x: -21, y: 15, z: 90 },
+				scale: 3.18
+			},
+		"blade-arming-ruined": {
+				translation: { x: -0.2, y: -0.4, z: 0 },
+				rotation: { x: -18, y: 15, z: 90 },
+				scale: 1.97
+		},
+		"blade-sabre-ruined": {
+				translation: { x: -0.2, y: -0.5, z: 0 },
+				rotation: { x: -55, y: -4, z: 83 },
+				scale: 1.93
+		},
+		"*-ruined":
+			{
+				translation: { x: -0.2, y: -0.6, z: 0 },
+				rotation: { x: -18, y: 15, z: 90 },
+				scale: 2.27
+			},
+		"*":
+			{
+				translation: { x: -0.2, y: -0.2, z: 0 },
+				rotation: { x: -3, y: 15, z: 90 },
+				scale: 3.18
+			}
+	},
+	groundTransformByType: {
+		"blade-scrap-scrap":
+			{
+				translation: { x: 0, y: 0.05, z: 0 },
+				rotation: { x: 0, y: 0, z: 0 },
+				origin: { x: 0.5, y: 0, z: 0.5 },
+				scale: 3.67
+			},
+		"blade-claymore-ruined": 
+			{
+				translation: { x: 0, y: 0.05, z: 0 },
+				rotation: { x: 14, y: 0, z: 0 },
+				origin: { x: 0.5, y: 0, z: 0.5 },
+				scale: 3.4
+			},
+		"*-ruined":
+			{
+				translation: { x: 0, y: 0.04, z: 0 },
+				rotation: { x: 0, y: 0, z: 0 },
+				origin: { x: 0.5, y: 0, z: 0.5 },
+				scale: 3.4
+			},
+		"*":
+			{
+				translation: { x: 0, y: 0, z: 0 },
+				rotation: { x: 0, y: 0, z: 0 },
+				origin: { x: 0.5, y: 0, z: 0.5 },
+				scale: 3.4
+			}
+	},
+	tpHandTransformByType: {
+		"blade-scrap-scrap":
+			{
+				translation: { x: -0.65, y: -0.01, z: -0.53 },
+				rotation: { x: 90, y: 0, z: 0 },
+				origin: { x: 0.5, y: 0, z: 0.5 },
+				scale: 0.91
+			},
+		"blade-blackguard-iron":
+			{
+				translation: { x: -1.03, y: -0.01, z: -0.56 },
+				rotation: { x: -90, y: 0, z: 0 },
+				origin: { x: 0.5, y: 0, z: 0.5 },
+				scale: 0.8
+			},
+		"blade-forlorn-iron":
+			{
+				translation: { x: -1.07, y: 0.03, z: -0.59 },
+				rotation: { x: -90, y: 0, z: 0 },
+				origin: { x: 0.5, y: 0, z: 0.5 },
+				scale: 0.8
+			},
+		"blade-arming-ruined":
+			{
+				translation: { x: -1.08, y: 0.055, z: -0.78 },
+				rotation: { x: 85, y: 0, z: 2 },
+				origin: { x: 0.5, y: 0, z: 0.5 },
+				scale: 0.63
+			},
+		"blade-claymore-ruined":
+			{
+				translation: { x: -0.68, y: 0.055, z: -0.78 },
+				rotation: { x: 85, y: 0, z: 2 },
+				origin: { x: 0.5, y: 0, z: 0.5 },
+				scale: 0.67
+			},
+		"*-ruined":
+			{
+				translation: { x: -0.98, y: 0.055, z: -0.78 },
+				rotation: { x: 85, y: 0, z: 2 },
+				origin: { x: 0.5, y: 0, z: 0.5 },
+				scale: 0.63
+			},
+		"*":
+			{
+				translation: { x: -1.03, y: -0.005, z: -0.66 },
+				rotation: { x: 85, y: 0, z: 2 },
+				origin: { x: 0.5, y: 0, z: 0.5 },
+				scale: 0.8
+			}
+	}
+}

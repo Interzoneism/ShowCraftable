@@ -1,0 +1,199 @@
+{
+	code: "slantedroofingbottom",
+	behaviors: [{name: "HorizontalOrientable", properties: {  dropBlockFace: "east", drop: { type: "block", code: "slantedroofingbottom-{material}-east-free" }  }}],
+	variantgroups: [
+		{ code: "material", states: ["copper", "slate", "thatch", "agedthatch", "blackclay", "brownclay", "creamclay", "fireclay", "grayclay", "orangeclay", "redclay", "tanclay", 
+									"bamboo", "sod", "acacia", "aged", "baldcypress", "birch", "ebony", "kapok", "larch", "maple", "oak", "pine", "purpleheart", "redwood", "walnut"] },
+		{ loadFromProperties: "abstract/horizontalorientation" },
+		{ code: "cover", states: ["free", "snow"] }
+	],
+	attributes: {
+		humanoidTraversalCost: 100,
+		mapColorCode: "settlement",
+	},
+	heldTpIdleAnimation: "holdbothhandslarge", 
+	heldRightReadyAnimation: "heldblockready", 
+	heldTpUseAnimation: "twohandplaceblock",
+	shapeByType: { 
+		"@.*-(agedthatch|thatch)-north-.*": { base: "block/roofing/main-bottom/{material}-{cover}", rotateY: 90 },
+		"@.*-(agedthatch|thatch)-west-.*": { base: "block/roofing/main-bottom/{material}-{cover}", rotateY: 180 },
+		"@.*-(agedthatch|thatch)-south-.*": { base: "block/roofing/main-bottom/{material}-{cover}", rotateY: 270 },
+		"@.*-(agedthatch|thatch)-east-.*": { base: "block/roofing/main-bottom/{material}-{cover}", rotateY: 0 },
+		
+		"@.*-(black|brown|cream|fire|gray|orange|red|tan)clay-north-.*": { base: "block/roofing/main-bottom/shingles-clay-{cover}", rotateY: 90 },
+		"@.*-(black|brown|cream|fire|gray|orange|red|tan)clay-west-.*": { base: "block/roofing/main-bottom/shingles-clay-{cover}", rotateY: 180 },
+		"@.*-(black|brown|cream|fire|gray|orange|red|tan)clay-south-.*": { base: "block/roofing/main-bottom/shingles-clay-{cover}", rotateY: 270 },
+		"@.*-(black|brown|cream|fire|gray|orange|red|tan)clay-east-.*": { base: "block/roofing/main-bottom/shingles-clay-{cover}", rotateY: 0 },
+		
+		"*-bamboo-north-*": { base: "block/roofing/main-bottom/bamboo-{cover}", rotateY: 90 },
+		"*-bamboo-west-*": { base: "block/roofing/main-bottom/bamboo-{cover}", rotateY: 180 },
+		"*-bamboo-south-*": { base: "block/roofing/main-bottom/bamboo-{cover}", rotateY: 270 },
+		"*-bamboo-east-*": { base: "block/roofing/main-bottom/bamboo-{cover}", rotateY: 0 },
+		
+		"*-sod-north-*": { base: "block/roofing/main-bottom/sod-{cover}", rotateY: 90 },
+		"*-sod-west-*": { base: "block/roofing/main-bottom/sod-{cover}", rotateY: 180 },
+		"*-sod-south-*": { base: "block/roofing/main-bottom/sod-{cover}", rotateY: 270 },
+		"*-sod-east-*": { base: "block/roofing/main-bottom/sod-{cover}", rotateY: 0 },
+		
+		"@.*-(slate|copper)-north-.*": { base: "block/roofing/main-bottom/shingles-slate-copper-{cover}", rotateY: 90 },
+		"@.*-(slate|copper)-west-.*": { base: "block/roofing/main-bottom/shingles-slate-copper-{cover}", rotateY: 180 },
+		"@.*-(slate|copper)-south-.*": { base: "block/roofing/main-bottom/shingles-slate-copper-{cover}", rotateY: 270 },
+		"@.*-(slate|copper)-east-.*": { base: "block/roofing/main-bottom/shingles-slate-copper-{cover}", rotateY: 0 },
+
+		"*-north-*": { base: "block/roofing/main-bottom/wood-{cover}", rotateY: 90 },
+		"*-west-*": { base: "block/roofing/main-bottom/wood-{cover}", rotateY: 180 },
+		"*-south-*": { base: "block/roofing/main-bottom/wood-{cover}", rotateY: 270 },
+		"*-east-*": { base: "block/roofing/main-bottom/wood-{cover}", rotateY: 0 },
+	},
+	texturesByType: {
+		"*-copper-*": {
+			"material": { base: "block/metal/shingles/copper*" }
+		},
+		"*-slate-*": {
+			"material": { base: "block/stone/shingles/slate*" }
+		},
+		"*-blackclay-*": {
+			"material": { base: "block/clay/shingles/black" }
+		},
+		"*-brownclay-*": {
+			"material": { base: "block/clay/shingles/brown" }
+		},
+		"*-creamclay-*": {
+			"material": { base: "block/clay/shingles/cream" }
+		},
+		"*-fireclay-*": {
+			"material": { base: "block/clay/shingles/fire" }
+		},
+		"*-grayclay-*": {
+			"material": { base: "block/clay/shingles/gray" }
+		},
+		"*-orangeclay-*": {
+			"material": { base: "block/clay/shingles/orange" }
+		},
+		"*-redclay-*": {
+			"material": { base: "block/clay/shingles/red" }
+		},
+		"*-tanclay-*": {
+			"material": { base: "block/clay/shingles/tan" }
+		},
+		"*-thatch-*": {
+			"top": { base: "block/plant/grassroofing/normal-side" },
+			"bamboo-top": { base: "block/hay/normal-top" },
+			"agedstraw": { base: "block/plant/grassroofing/straw1" }
+		},
+		"*-agedthatch-*": {
+			"top": { base: "block/plant/grassroofing/thatch/aged1" },
+			"bamboo-top": { base: "block/plant/grassroofing/thatch/bamboo-top" },
+			"agedstraw": { base: "block/plant/grassroofing/thatch/agedstraw" }
+		},
+		"*-bamboo-*": {
+			"bamboo-side": { base: "block/wood/planks/bamboo-side" },
+			"bamboo-top": { base: "block/wood/planks/bamboo-top" },
+			"bamboosmooth": { base: "block/wood/planks/bamboosmooth" }
+		},
+		"@.*-(acacia|aged|baldcypress|birch|ebony|kapok|larch|maple|oak|pine|purpleheart|redwood|walnut)-.*": {
+			"acacia1": { base: "block/wood/planks/{material}1" },
+			"acacia-top": { base: "block/wood/shingles/{material}-top" },
+			"acacia-side": { base: "block/wood/shingles/{material}-side" },
+		},
+	},
+	drawtype: "json",
+	faceCullMode: "NeverCull",
+	renderpass: "OpaqueNoCull",
+	sidesolid: { all: false, down: true },
+	sideopaque: { all: false },
+	blockmaterialByType: {
+		"*-agedthatch-*": "Plant",
+		"*-thatch-*": "Plant",
+		"*-sod-*": "Plant",
+		"*-bamboo-*": "Wood",
+		"*-copper-*": "Metal",
+		"*clay-*": "Ceramic",
+		"*-slate-*": "Stone",
+		"*": "Wood",
+	},
+	creativeinventory: { "general": ["*-east-free"], "decorative": ["*-east-free"] },
+	replaceable: 300,
+	resistance: 2,
+	lightAbsorption: 99,
+	emitSideAo: {
+		all: true
+	},
+	sideAoByType: { "*-sod-*": { all: false } },
+	collisionSelectionBoxesByType: {
+		"*-north-*": [ { x1: 0.4, y1: 0, z1: 0, x2: 1, y2: 0.5, z2: 1, rotateY: 90 }, { x1: 0, y1: 0, z1: 0, x2: 1, y2: 0.3, z2: 1, rotateY: 90 }],
+		"*-west-*": [ { x1: 0.4, y1: 0, z1: 0, x2: 1, y2: 0.5, z2: 1, rotateY: 180 }, { x1: 0, y1: 0, z1: 0, x2: 1, y2: 0.3, z2: 1, rotateY: 180 }],
+		"*-south-*": [ { x1: 0.4, y1: 0, z1: 0, x2: 1, y2: 0.5, z2: 1, rotateY: 270 }, { x1: 0, y1: 0, z1: 0, x2: 1, y2: 0.3, z2: 1, rotateY: 270 }],
+		"*-east-*": [ { x1: 0.4, y1: 0, z1: 0, x2: 1, y2: 0.5, z2: 1 }, { x1: 0, y1: 0, z1: 0, x2: 1, y2: 0.3, z2: 1 }]
+	},
+	soundsByType: {
+		"*-agedthatch-*": {
+			place: "block/plant",
+			break: "block/plant",
+			hit: "block/plant",
+		},
+		"*-thatch-*": {
+			place: "block/plant",
+			break: "block/plant",
+			hit: "block/plant",
+		},
+		"*-bamboo-*": {
+			place: "block/planks",
+			break: "block/planks",
+			hit: "block/planks",
+		},
+		"*-copper-*": {
+			"place": "block/chute",
+			"break": "block/chute",
+			"hit": "block/chute",
+			"walk": "walk/stone"
+		},
+		"*-slate-*": {
+			walk: "walk/stone",
+			place: "block/ceramicplace"
+		},
+		"*clay-*": {
+			walk: "walk/stone",
+			place: "block/ceramicplace"
+		},
+		"*-sod-*": {
+			"hit": "block/planks",
+			"break": "block/planks",
+			"place": "block/planks",
+			"walk": "walk/grass*"
+		},
+		"*": {
+			place: "block/planks",
+			break: "block/planks",
+			hit: "block/planks",
+		},
+	},
+	guiTransformByType: {
+		"*-thatch-*": {
+			rotation: { x: -22.6, y: -40, z: 0 },
+			origin: { x: 0.5299, y: 0.35, z: 0.66 },
+			scale: 0.92
+		},
+		"*-agedthatch-*": {
+			rotation: { x: -22.6, y: -40, z: 0 },
+			origin: { x: 0.29, y: 0.44, z: 0.54 },
+			scale: 0.92
+		},
+		"*": {
+			rotation: { x: -22.6, y: -40, z: 0 },
+			origin: { x: 0.5299, y: 0.45, z: 0.46 },
+			scale: 0.96
+		}
+	},
+	tpHandTransform: {
+		translation: { x: -1.6, y: -0.8, z: -0.5 },
+		rotation: { x: 19, y: -168, z: 63 },
+		scale: 0.43
+	},
+	groundTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: 0, y: -45, z: 0 },
+		origin: { x: 0.5, y: 0, z: 0.5 },
+		scale: 2.2
+	}
+}

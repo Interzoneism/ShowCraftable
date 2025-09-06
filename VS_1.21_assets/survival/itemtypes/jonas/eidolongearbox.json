@@ -1,0 +1,30 @@
+{
+	code: "eidolongearbox",
+	shape: { base: "item/jonas/eidolongearbox" },
+	creativeinventory: { "general": ["*"], "items": ["*"] },
+	heldTpIdleAnimation: "holdunderarm",
+	guiTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: 129, y: 117, z: 12 },
+		origin: { x: 0.67, y: 0.35, z: 0.5 },
+		scale: 2.11
+	},
+	groundTransform: {
+		translation: { x: 0.3, y: 1.44, z: 1.1 },
+		rotation: { x: 0, y: 0, z: 0 },
+		origin: { x: 0.4, y: 1.42, z: 0.4 },
+		scale: 5
+	},
+	fpHandTransform: {
+		translation: { x: 0.42, y: 0.6, z: 1.56 },
+		rotation: { x: 111, y: 7, z: -117 },
+		origin: { x: 0, y: 0, z: 0 },
+		scale: 2.37
+	},
+	tpHandTransform: {
+		translation: { x: -0.3899, y: -0.1, z: -0.5 },
+		rotation: { x: -77, y: 6, z: -8 },
+		origin: { x: 0.4, y: 0.4, z: 0.4 },
+		scale: 1
+	}
+}

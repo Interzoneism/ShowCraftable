@@ -1,0 +1,442 @@
+{
+	"editor": {
+		"backDropShape": "entity/humanoid/villager-male",
+		"collapsedPaths": "Root/Hair-Base",
+		"allAngles": true,
+		"entityTextureMode": true
+	},
+	"textureWidth": 64,
+	"textureHeight": 68,
+	"textureSizes": {
+		"skin1": [64,68],
+		"hair": [48,48],
+		"reedrope": [16,16],
+		"lips": [4,4],
+		"eyelashes": [4,4],
+		"iris": [4,4],
+		"eyebrows": [4,4],
+		"sclera": [4,4],
+		"pupil": [4,4],
+		"shine": [4,4],
+		"scar": [24,16],
+		"tatoo": [24,16],
+		"faceextra": [24,16]
+	},
+	"textures": {
+		"eyebrows": "entity/humanoid/villagerbody/face/eyebrows/normal1",
+		"eyelashes": "entity/humanoid/villagerbody/face/eyelashes/normal1",
+		"iris": "entity/humanoid/villagerbody/face/iris/normal1",
+		"lips": "entity/humanoid/villagerbody/face/lips/normal2",
+		"pupil": "entity/humanoid/villagerbody/face/pupil",
+		"sclera": "entity/humanoid/villagerbody/face/sclera/normal1",
+		"shine": "entity/humanoid/villagerbody/face/shine",
+		"faceextra": "entity/humanoid/villagerbody/face/scar/transparent",
+		"scar": "entity/humanoid/villagerbody/face/scar/transparent",
+		"tatoo": "entity/humanoid/villagerbody/face/scar/transparent"
+	},
+	"elements": [
+		{
+			"name": "faceroot",
+			"stepParentName": "Head",
+			"from": [ 0.0, 0.0, 0.0 ],
+			"to": [ 0.0, 0.0, 0.0 ],
+			"uv": [ 0.0, 0.0 ],
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "L eyebrow 1",
+					"from": [ -0.1, 2.7, 2.8 ],
+					"to": [ 0.1, 2.95, 3.8 ],
+					"unwrapMode": 4,
+					"uv": [ 1.5, 2.5 ],
+					"rotationOrigin": [ 0.0, 2.8, 2.8 ],
+					"rotationX": -5.0,
+					"faces": {
+						"north": { "texture": "#eyebrows", "uv": [ 1.5, 3.0, 2.0, 3.5 ] },
+						"south": { "texture": "#eyebrows", "uv": [ 3.0, 3.0, 3.5, 3.5 ] },
+						"west": { "texture": "#eyebrows", "uv": [ 2.0, 3.0, 3.0, 3.5 ] },
+						"up": { "texture": "#eyebrows", "uv": [ 2.0, 2.5, 3.0, 3.0 ], "rotation": 90 },
+						"down": { "texture": "#eyebrows", "uv": [ 2.0, 3.5, 3.0, 4.0 ], "rotation": 90 }
+					},
+					"children": [
+						{
+							"name": "L eyebrow 2",
+							"from": [ 0.01, 0.02, 0.95 ],
+							"to": [ 0.21, 0.22, 1.65 ],
+							"unwrapMode": 4,
+							"uv": [ 3.0, 2.5 ],
+							"rotationOrigin": [ 0.0, 0.0, 1.0 ],
+							"rotationX": 10.0,
+							"faces": {
+								"south": { "texture": "#eyebrows", "uv": [ 3.5, 3.0, 4.0, 3.5 ] },
+								"west": { "texture": "#eyebrows", "uv": [ 3.0, 3.0, 3.5, 3.5 ] },
+								"up": { "texture": "#eyebrows", "uv": [ 3.0, 2.5, 3.5, 3.0 ], "rotation": 90 },
+								"down": { "texture": "#eyebrows", "uv": [ 3.0, 3.5, 3.5, 4.0 ], "rotation": 90 }
+							}
+						}
+					]
+				},
+				{
+					"name": "R eyebrow 1",
+					"from": [ -0.1, 2.7, 1.2 ],
+					"to": [ 0.1, 2.95, 2.2 ],
+					"unwrapMode": 4,
+					"uv": [ 0.5, 0.0 ],
+					"rotationOrigin": [ 0.0, 2.8, 2.2 ],
+					"rotationX": 5.0,
+					"faces": {
+						"north": { "texture": "#eyebrows", "uv": [ 0.5, 0.5, 1.0, 1.0 ] },
+						"south": { "texture": "#eyebrows", "uv": [ 2.0, 0.5, 2.5, 1.0 ] },
+						"west": { "texture": "#eyebrows", "uv": [ 1.0, 0.5, 2.0, 1.0 ] },
+						"up": { "texture": "#eyebrows", "uv": [ 1.0, 0.0, 2.0, 0.5 ], "rotation": 90 },
+						"down": { "texture": "#eyebrows", "uv": [ 1.0, 1.0, 2.0, 1.5 ], "rotation": 90 }
+					},
+					"children": [
+						{
+							"name": "R eyebrow 2",
+							"from": [ 0.01, 0.02, -0.65 ],
+							"to": [ 0.21, 0.22, 0.05 ],
+							"unwrapMode": 4,
+							"uv": [ 0.0, 0.0 ],
+							"rotationOrigin": [ 0.0, 0.0, 0.0 ],
+							"rotationX": -10.0,
+							"faces": {
+								"north": { "texture": "#eyebrows", "uv": [ 0.0, 0.5, 0.5, 1.0 ] },
+								"west": { "texture": "#eyebrows", "uv": [ 0.5, 0.5, 1.0, 1.0 ] },
+								"up": { "texture": "#eyebrows", "uv": [ 0.5, 0.0, 1.0, 0.5 ], "rotation": 90 },
+								"down": { "texture": "#eyebrows", "uv": [ 0.5, 1.0, 1.0, 1.5 ], "rotation": 90 }
+							}
+						}
+					]
+				},
+				{
+					"name": "L eye",
+					"from": [ -0.01, 1.7, 2.95 ],
+					"to": [ 0.09, 2.4, 4.05 ],
+					"uv": [ 0.0, 0.0 ],
+					"rotationOrigin": [ 0.0, 1.7, 3.5 ],
+					"rotationX": -1.0,
+					"faces": {
+						"north": { "texture": "#sclera", "uv": [ 0.0, 1.0, 0.5, 1.5 ] },
+						"south": { "texture": "#sclera", "uv": [ 0.5, 1.0, 1.0, 1.5 ] },
+						"west": { "texture": "#sclera", "uv": [ 1.0, 1.0, 2.0, 1.5 ] },
+						"up": { "texture": "#sclera", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+						"down": { "texture": "#sclera", "uv": [ 0.5, 0.0, 1.0, 1.0 ] }
+					},
+					"children": [
+						{
+							"name": "L iris",
+							"from": [ -0.03, 0.1, 0.15 ],
+							"to": [ 0.07, 0.7, 0.95 ],
+							"unwrapMode": 4,
+							"uv": [ 2.5, 0.0 ],
+							"rotationOrigin": [ 0.0, 0.5, 0.6 ],
+							"faces": {
+								"north": { "texture": "#iris", "uv": [ 2.5, 0.5, 3.0, 1.0 ] },
+								"south": { "texture": "#iris", "uv": [ 3.5, 0.5, 4.0, 1.0 ] },
+								"west": { "texture": "#iris", "uv": [ 3.0, 0.5, 3.5, 1.0 ] },
+								"up": { "texture": "#iris", "uv": [ 3.0, 0.0, 3.5, 0.5 ], "rotation": 90 },
+								"down": { "texture": "#iris", "uv": [ 3.0, 1.0, 3.5, 1.5 ], "rotation": 90 }
+							},
+							"children": [
+								{
+									"name": "L pupil",
+									"from": [ -0.01, 0.1, 0.12 ],
+									"to": [ 0.09, 0.6, 0.72 ],
+									"unwrapMode": 4,
+									"uv": [ 2.5, 0.0 ],
+									"rotationOrigin": [ 0.0, 0.15, 0.1 ],
+									"faces": {
+										"north": { "texture": "#pupil", "uv": [ 2.5, 0.5, 3.0, 1.0 ] },
+										"south": { "texture": "#pupil", "uv": [ 3.5, 0.5, 4.0, 1.0 ] },
+										"west": { "texture": "#pupil", "uv": [ 3.0, 0.5, 3.5, 1.0 ] },
+										"up": { "texture": "#pupil", "uv": [ 3.0, 0.0, 3.5, 0.5 ], "rotation": 90 },
+										"down": { "texture": "#pupil", "uv": [ 3.0, 1.0, 3.5, 1.5 ], "rotation": 90 }
+									}
+								},
+								{
+									"name": "L shine",
+									"from": [ -0.02, 0.33, 0.35 ],
+									"to": [ 0.08, 0.43, 0.45 ],
+									"unwrapMode": 4,
+									"uv": [ 2.5, 0.0 ],
+									"rotationOrigin": [ 0.0, 0.45, 0.5 ],
+									"faces": {
+										"north": { "texture": "#shine", "uv": [ 2.5, 0.5, 3.0, 1.0 ] },
+										"south": { "texture": "#shine", "uv": [ 3.5, 0.5, 4.0, 1.0 ] },
+										"west": { "texture": "#shine", "uv": [ 3.0, 0.5, 3.5, 1.0 ] },
+										"up": { "texture": "#shine", "uv": [ 3.0, 0.0, 3.5, 0.5 ], "rotation": 90 },
+										"down": { "texture": "#shine", "uv": [ 3.0, 1.0, 3.5, 1.5 ], "rotation": 90 }
+									}
+								}
+							]
+						},
+						{
+							"name": "L upper eyelid",
+							"from": [ -0.05, 0.65, -0.1 ],
+							"to": [ 0.05, 0.8, 1.25 ],
+							"unwrapMode": 4,
+							"uv": [ 2.0, 0.0 ],
+							"rotationOrigin": [ -0.1, 0.6, 0.6 ],
+							"rotationX": -2.0,
+							"faces": {
+								"north": { "texture": "#eyelashes", "uv": [ 2.0, 0.5, 2.5, 1.0 ] },
+								"south": { "texture": "#eyelashes", "uv": [ 3.5, 0.5, 4.0, 1.0 ] },
+								"west": { "texture": "#eyelashes", "uv": [ 2.5, 0.5, 3.5, 1.0 ] },
+								"up": { "texture": "#eyelashes", "uv": [ 2.5, 0.0, 3.5, 0.5 ], "rotation": 90 },
+								"down": { "texture": "#eyelashes", "uv": [ 2.5, 1.0, 3.5, 1.5 ], "rotation": 90 }
+							}
+						},
+						{
+							"name": "L lower eyelid",
+							"from": [ 0.05, 0.0, -0.1 ],
+							"to": [ 0.15, 0.05, 1.25 ],
+							"unwrapMode": 4,
+							"uv": [ 2.0, 2.5 ],
+							"rotationOrigin": [ 0.0, 0.0, 0.6 ],
+							"rotationX": -3.0,
+							"faces": {
+								"north": { "texture": "#eyelashes", "uv": [ 2.0, 3.0, 2.5, 3.5 ], "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] },
+								"south": { "texture": "#eyelashes", "uv": [ 3.5, 3.0, 4.0, 3.5 ] },
+								"west": { "texture": "#eyelashes", "uv": [ 2.5, 3.0, 3.5, 3.5 ] },
+								"up": { "texture": "#eyelashes", "uv": [ 2.5, 2.5, 3.5, 3.0 ], "rotation": 90 },
+								"down": { "texture": "#eyelashes", "uv": [ 2.5, 3.5, 3.5, 4.0 ], "rotation": 90 }
+							}
+						}
+					]
+				},
+				{
+					"name": "R eye",
+					"from": [ -0.01, 1.7, 0.95 ],
+					"to": [ 0.09, 2.4, 2.05 ],
+					"uv": [ 0.0, 0.0 ],
+					"rotationOrigin": [ 0.0, 1.7, 1.5 ],
+					"rotationX": 1.0,
+					"faces": {
+						"north": { "texture": "#sclera", "uv": [ 0.0, 1.0, 0.5, 1.5 ] },
+						"south": { "texture": "#sclera", "uv": [ 0.5, 1.0, 1.0, 1.5 ] },
+						"west": { "texture": "#sclera", "uv": [ 1.0, 1.0, 2.0, 1.5 ] },
+						"up": { "texture": "#sclera", "uv": [ 0.0, 0.0, 0.5, 1.0 ], "rotation": 180 },
+						"down": { "texture": "#sclera", "uv": [ 0.5, 0.0, 1.0, 1.0 ] }
+					},
+					"children": [
+						{
+							"name": "R iris",
+							"from": [ -0.03, 0.1, 0.15 ],
+							"to": [ 0.07, 0.7, 0.95 ],
+							"unwrapMode": 4,
+							"uv": [ 0.0, 0.0 ],
+							"rotationOrigin": [ 0.0, 0.5, 0.6 ],
+							"faces": {
+								"north": { "texture": "#iris", "uv": [ 0.0, 0.5, 0.5, 1.0 ] },
+								"south": { "texture": "#iris", "uv": [ 1.0, 0.5, 1.5, 1.0 ] },
+								"west": { "texture": "#iris", "uv": [ 0.5, 0.5, 1.0, 1.0 ] },
+								"up": { "texture": "#iris", "uv": [ 0.5, 0.0, 1.0, 0.5 ], "rotation": 90 },
+								"down": { "texture": "#iris", "uv": [ 0.5, 1.0, 1.0, 1.5 ], "rotation": 90 }
+							},
+							"children": [
+								{
+									"name": "R pupil",
+									"from": [ -0.01, 0.1, 0.1 ],
+									"to": [ 0.09, 0.6, 0.7 ],
+									"unwrapMode": 4,
+									"uv": [ 0.0, 0.0 ],
+									"rotationOrigin": [ 0.0, 0.15, 0.1 ],
+									"faces": {
+										"north": { "texture": "#pupil", "uv": [ 0.0, 0.5, 0.5, 1.0 ] },
+										"south": { "texture": "#pupil", "uv": [ 1.0, 0.5, 1.5, 1.0 ] },
+										"west": { "texture": "#pupil", "uv": [ 0.5, 0.5, 1.0, 1.0 ] },
+										"up": { "texture": "#pupil", "uv": [ 0.5, 0.0, 1.0, 0.5 ], "rotation": 90 },
+										"down": { "texture": "#pupil", "uv": [ 0.5, 1.0, 1.0, 1.5 ], "rotation": 90 }
+									}
+								},
+								{
+									"name": "R shine",
+									"from": [ -0.02, 0.33, 0.35 ],
+									"to": [ 0.08, 0.43, 0.45 ],
+									"unwrapMode": 4,
+									"uv": [ 0.0, 0.0 ],
+									"rotationOrigin": [ 0.0, 0.45, 0.5 ],
+									"faces": {
+										"north": { "texture": "#shine", "uv": [ 0.0, 0.5, 0.5, 1.0 ] },
+										"south": { "texture": "#shine", "uv": [ 1.0, 0.5, 1.5, 1.0 ] },
+										"west": { "texture": "#shine", "uv": [ 0.5, 0.5, 1.0, 1.0 ] },
+										"up": { "texture": "#shine", "uv": [ 0.5, 0.0, 1.0, 0.5 ], "rotation": 90 },
+										"down": { "texture": "#shine", "uv": [ 0.5, 1.0, 1.0, 1.5 ], "rotation": 90 }
+									}
+								}
+							]
+						},
+						{
+							"name": "R upper eyelid",
+							"from": [ -0.05, 0.65, -0.2 ],
+							"to": [ 0.05, 0.8, 1.15 ],
+							"unwrapMode": 4,
+							"uv": [ 0.0, 0.0 ],
+							"rotationOrigin": [ -0.1, 0.6, 0.5 ],
+							"rotationX": 2.0,
+							"faces": {
+								"north": { "texture": "#eyelashes", "uv": [ 0.0, 0.5, 0.5, 1.0 ] },
+								"south": { "texture": "#eyelashes", "uv": [ 1.5, 0.5, 2.0, 1.0 ] },
+								"west": { "texture": "#eyelashes", "uv": [ 0.5, 0.5, 1.5, 1.0 ] },
+								"up": { "texture": "#eyelashes", "uv": [ 0.5, 0.0, 1.5, 0.5 ], "rotation": 90 },
+								"down": { "texture": "#eyelashes", "uv": [ 0.5, 1.0, 1.5, 1.5 ], "rotation": 90 }
+							}
+						},
+						{
+							"name": "R lower eyelid",
+							"from": [ 0.05, 0.0, -0.1 ],
+							"to": [ 0.15, 0.05, 1.25 ],
+							"unwrapMode": 4,
+							"uv": [ 0.0, 2.5 ],
+							"rotationOrigin": [ 0.0, 0.0, 0.6 ],
+							"rotationX": 3.0,
+							"faces": {
+								"north": { "texture": "#eyelashes", "uv": [ 0.0, 3.0, 0.5, 3.5 ] },
+								"south": { "texture": "#eyelashes", "uv": [ 1.5, 3.0, 2.0, 3.5 ] },
+								"west": { "texture": "#eyelashes", "uv": [ 0.5, 3.0, 1.5, 3.5 ] },
+								"up": { "texture": "#eyelashes", "uv": [ 0.5, 2.5, 1.5, 3.0 ], "rotation": 90 },
+								"down": { "texture": "#eyelashes", "uv": [ 0.5, 3.5, 1.5, 4.0 ], "rotation": 90 }
+							}
+						}
+					]
+				},
+				{
+					"name": "mouth",
+					"from": [ -0.05, 0.55, 2.0 ],
+					"to": [ 0.15, 0.9, 3.0 ],
+					"unwrapMode": 4,
+					"uv": [ 1.0, 0.0 ],
+					"rotationOrigin": [ -0.1, 0.5, 2.5 ],
+					"faces": {
+						"north": { "texture": "#lips", "uv": [ 1.0, 0.5, 1.5, 1.0 ], "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] },
+						"south": { "texture": "#lips", "uv": [ 2.5, 0.5, 3.0, 1.0 ] },
+						"west": { "texture": "#lips", "uv": [ 1.5, 0.5, 2.5, 1.0 ], "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] },
+						"up": { "texture": "#lips", "uv": [ 1.5, 0.0, 2.5, 0.5 ], "rotation": 90 },
+						"down": { "texture": "#lips", "uv": [ 1.5, 1.0, 2.5, 1.5 ], "rotation": 90 }
+					},
+					"children": [
+						{
+							"name": "mouthL",
+							"from": [ 0.03, 0.02, 0.5 ],
+							"to": [ 0.23, 0.32, 1.4 ],
+							"unwrapMode": 4,
+							"uv": [ 2.5, 0.0 ],
+							"rotationOrigin": [ 0.1, 0.0, 0.5 ],
+							"rotationX": -2.0,
+							"faces": {
+								"south": { "texture": "#lips", "uv": [ 3.0, 0.5, 3.5, 1.0 ] },
+								"west": { "texture": "#lips", "uv": [ 2.5, 0.5, 3.0, 1.0 ] },
+								"up": { "texture": "#lips", "uv": [ 2.5, 0.0, 3.0, 0.5 ], "rotation": 90 },
+								"down": { "texture": "#lips", "uv": [ 2.5, 1.0, 3.0, 1.5 ], "rotation": 90 }
+							}
+						},
+						{
+							"name": "mouthR",
+							"from": [ 0.03, 0.02, -0.4 ],
+							"to": [ 0.23, 0.32, 0.5 ],
+							"unwrapMode": 4,
+							"uv": [ 0.5, 0.0 ],
+							"rotationOrigin": [ 0.1, 0.0, 0.5 ],
+							"rotationX": 2.0,
+							"faces": {
+								"north": { "texture": "#lips", "uv": [ 0.5, 0.5, 1.0, 1.0 ] },
+								"west": { "texture": "#lips", "uv": [ 1.0, 0.5, 1.5, 1.0 ] },
+								"up": { "texture": "#lips", "uv": [ 1.0, 0.0, 1.5, 0.5 ], "rotation": 90 },
+								"down": { "texture": "#lips", "uv": [ 1.0, 1.0, 1.5, 1.5 ], "rotation": 90 }
+							}
+						}
+					]
+				},
+				{
+					"name": "scar",
+					"from": [ -0.001, -0.001, -0.001 ],
+					"to": [ 5.4992, 5.001, 5.001 ],
+					"unwrapMode": 4,
+					"uv": [ 0.0, 0.0 ],
+					"faces": {
+						"north": { "texture": "#scar", "uv": [ 0.0, 5.5, 5.5, 10.5 ] },
+						"east": { "texture": "#scar", "uv": [ 16.0, 5.5, 21.0, 10.5 ] },
+						"south": { "texture": "#scar", "uv": [ 10.5, 5.5, 16.0, 10.5 ] },
+						"west": { "texture": "#scar", "uv": [ 5.5, 5.5, 10.5, 10.5 ] },
+						"up": { "texture": "#scar", "uv": [ 5.5, 0.0, 10.5, 5.5 ], "rotation": 90 },
+						"down": { "texture": "#scar", "uv": [ 5.5, 10.5, 10.5, 16.0 ], "rotation": 90 }
+					}
+				},
+				{
+					"name": "faceextra",
+					"from": [ -0.002, -0.002, -0.002 ],
+					"to": [ 5.4993, 5.002, 5.002 ],
+					"unwrapMode": 4,
+					"uv": [ 0.0, 0.0 ],
+					"faces": {
+						"north": { "texture": "#faceextra", "uv": [ 0.0, 5.5, 5.5, 10.5 ] },
+						"east": { "texture": "#faceextra", "uv": [ 16.0, 5.5, 21.0, 10.5 ] },
+						"south": { "texture": "#faceextra", "uv": [ 10.5, 5.5, 16.0, 10.5 ] },
+						"west": { "texture": "#faceextra", "uv": [ 5.5, 5.5, 10.5, 10.5 ] },
+						"up": { "texture": "#faceextra", "uv": [ 5.5, 0.0, 10.5, 5.5 ], "rotation": 90 },
+						"down": { "texture": "#faceextra", "uv": [ 5.5, 10.5, 10.5, 16.0 ], "rotation": 90 }
+					}
+				},
+				{
+					"name": "tatoo",
+					"from": [ -0.003, -0.003, -0.003 ],
+					"to": [ 5.4994, 5.003, 5.003 ],
+					"unwrapMode": 4,
+					"uv": [ 0.0, 0.0 ],
+					"faces": {
+						"north": { "texture": "#tatoo", "uv": [ 0.0, 5.5, 5.5, 10.5 ] },
+						"east": { "texture": "#tatoo", "uv": [ 16.0, 5.5, 21.0, 10.5 ] },
+						"south": { "texture": "#tatoo", "uv": [ 10.5, 5.5, 16.0, 10.5 ] },
+						"west": { "texture": "#tatoo", "uv": [ 5.5, 5.5, 10.5, 10.5 ] },
+						"up": { "texture": "#tatoo", "uv": [ 5.5, 0.0, 10.5, 5.5 ], "rotation": 90 },
+						"down": { "texture": "#tatoo", "uv": [ 5.5, 10.5, 10.5, 16.0 ], "rotation": 90 }
+					}
+				}
+			]
+		}
+	],
+	"animations": [
+		{
+			"name": "Balanced-Lie",
+			"code": "balanced-lie",
+			"quantityframes": 100,
+			"onActivityStopped": "EaseOut",
+			"onAnimationEnd": "Repeat",
+			"keyframes": [
+				{
+					"frame": 0,
+					"elements": {
+						"R eye": { "offsetX": 0.2, "offsetY": 0.0, "offsetZ": 0.0 },
+						"R upper eyelid": { "offsetX": -0.2, "offsetY": -0.5, "offsetZ": 0.0 },
+						"L eye": { "offsetX": 0.2, "offsetY": 0.0, "offsetZ": 0.0 },
+						"L upper eyelid": { "offsetX": -0.2, "offsetY": -0.5, "offsetZ": 0.0 },
+						"R eyebrow 1": { "offsetX": 0.0, "offsetY": 0.3, "offsetZ": 0.0, "rotationX": -5.0, "rotationY": 0.0, "rotationZ": 0.0 },
+						"L eyebrow 1": { "offsetX": 0.0, "offsetY": 0.3, "offsetZ": 0.0, "rotationX": 5.0, "rotationY": 0.0, "rotationZ": 0.0 }
+					}
+				}
+			]
+		},
+		{
+			"name": "ElderBalanced-Lie",
+			"code": "elderbalanced-lie",
+			"quantityframes": 100,
+			"onActivityStopped": "EaseOut",
+			"onAnimationEnd": "Repeat",
+			"keyframes": [
+				{
+					"frame": 0,
+					"elements": {
+						"R eye": { "offsetX": 0.2, "offsetY": 0.0, "offsetZ": 0.0 },
+						"R upper eyelid": { "offsetX": -0.2, "offsetY": -0.5, "offsetZ": 0.0 },
+						"L eye": { "offsetX": 0.2, "offsetY": 0.0, "offsetZ": 0.0 },
+						"L upper eyelid": { "offsetX": -0.2, "offsetY": -0.5, "offsetZ": 0.0 },
+						"R eyebrow 1": { "offsetX": 0.0, "offsetY": 0.3, "offsetZ": 0.0, "rotationX": -5.0, "rotationY": 0.0, "rotationZ": 0.0 },
+						"L eyebrow 1": { "offsetX": 0.0, "offsetY": 0.3, "offsetZ": 0.0, "rotationX": 5.0, "rotationY": 0.0, "rotationZ": 0.0 }
+					}
+				}
+			]
+		}
+	]
+}

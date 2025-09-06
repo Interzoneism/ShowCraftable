@@ -1,0 +1,128 @@
+[
+	{
+		name: "Crude door",
+		ingredientPattern: "AS,PS,PS",
+		ingredients: {
+			"A": { type: "item", code: "axe-*", isTool: true  },
+			"P": { type: "block", code: "log-placed-*-ud" },
+			"S": { type: "item", code: "stick" }
+		},
+		width: 2,
+		height: 3,
+		output: { type: "block", code: "door-crude"  }
+	},
+	{
+		name: "Crude door",
+		ingredientPattern: "AS,PS,PS",
+		ingredients: {
+			"A": { type: "item", code: "axe-*", isTool: true  },
+			"P": { type: "block", code: "logsection-placed-*"},
+			"S": { type: "item", code: "stick" }
+		},
+		width: 2,
+		height: 3,
+		output: { type: "block", code: "door-crude"  }
+	},
+	{
+		name: "Solid door",
+		ingredientPattern: "WW,WW,WW",
+		ingredients: {
+			"W": { type: "item", code: "plank-*", name: "wood" }
+		},
+		width: 2,
+		height: 3,
+		output: { type: "block", code: "door-solid-{wood}"  }
+	},
+	{
+		name: "1x3 gate",
+		ingredientPattern: "WW_,WW_,WWN",
+		ingredients: {
+			"W": { type: "item", code: "plank-*", name: "wood", quantity: 2 },
+			"N": { type: "item", code: "metalnailsandstrips-*" }
+		},
+		width: 3,
+		height: 3,
+		output: { type: "block", code: "door-1x3gate-{wood}"  }
+	},
+	{
+		name: "2x2 gate",
+		ingredientPattern: "N__,WWW,WWW",
+		ingredients: {
+			"W": { type: "item", code: "plank-*", name: "wood", quantity: 2 },
+			"N": { type: "item", code: "metalnailsandstrips-*", quantity: 2 }
+		},
+		width: 3,
+		height: 3,
+		output: { type: "block", code: "door-2x2gate-{wood}"  }
+	},
+	{
+		name: "2x3 gate",
+		ingredientPattern: "WWW,WWW,NWW",
+		ingredients: {
+			"W": { type: "item", code: "plank-*", name: "wood", quantity: 3 },
+			"N": { type: "item", code: "metalnailsandstrips-*", quantity: 6 }
+		},
+		width: 3,
+		height: 3,
+		output: { type: "block", code: "door-2x3gate-{wood}"  }
+	},
+	{
+		name: "2x4 gate",
+		ingredientPattern: "WWW,WWW,WWN",
+		ingredients: {
+			"W": { type: "item", code: "plank-*", name: "wood", quantity: 4 },
+			"N": { type: "item", code: "metalnailsandstrips-*", quantity: 10 }
+		},
+		width: 3,
+		height: 3,
+		output: { type: "block", code: "door-2x4gate-{wood}"  }
+	},
+	{
+		name: "Fire brick kiln door",
+		ingredientPattern: "BR,BN,BR",
+		ingredients: {
+			"B": { type: "item", code: "burnedbrick-fire", name: "type", quantity: 4 },
+			"R": { type: "item", code: "rod-iron", quantity: 2 },
+			"N": { type: "item", code: "metalnailsandstrips-*", name: "metal", allowedVariants: ["iron", "meteoriciron", "steel"], quantity: 4 }
+		},
+		width: 2,
+		height: 3,
+		output: { type: "block", code: "doorkiln-fire" }
+	},
+	{
+		name: "Refractory brick kiln door",
+		ingredientPattern: "BR,BN,BR",
+		ingredients: {
+			"B": { type: "item", code: "refractorybrick-fired-tier1", name: "type", quantity: 4 },
+			"R": { type: "item", code: "rod-iron", quantity: 2 },
+			"N": { type: "item", code: "metalnailsandstrips-*", name: "metal", allowedVariants: ["iron", "meteoriciron", "steel"], quantity: 4 }
+		},
+		width: 2,
+		height: 3,
+		output: { type: "block", code: "doorkiln-tier1" }
+	},
+	{
+		name: "Refractory brick kiln door",
+		ingredientPattern: "BR,BN,BR",
+		ingredients: {
+			"B": { type: "item", code: "refractorybrick-fired-tier2", name: "type", quantity: 4 },
+			"R": { type: "item", code: "rod-iron", quantity: 2 },
+			"N": { type: "item", code: "metalnailsandstrips-*", name: "metal", allowedVariants: ["iron", "meteoriciron", "steel"], quantity: 4 }
+		},
+		width: 2,
+		height: 3,
+		output: { type: "block", code: "doorkiln-tier2" }
+	},
+	{
+		name: "Refractory brick kiln door",
+		ingredientPattern: "BR,BN,BR",
+		ingredients: {
+			"B": { type: "item", code: "refractorybrick-fired-tier3", name: "type", quantity: 4 },
+			"R": { type: "item", code: "rod-iron", quantity: 2 },
+			"N": { type: "item", code: "metalnailsandstrips-*", name: "metal", allowedVariants: ["iron", "meteoriciron", "steel"], quantity: 4 }
+		},
+		width: 2,
+		height: 3,
+		output: { type: "block", code: "doorkiln-tier3" }
+	}
+]

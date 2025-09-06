@@ -1,0 +1,26 @@
+{
+	code: "commandblock",
+	class: "BlockCommand",
+	entityClass: "GuiConfigurableCommands",
+	shape: { base: "block/meta/command-block01" },
+	attributes: {
+		handbook: {
+			exclude: true
+		}
+	},
+	variantgroups: [
+		{ code: "type", states: ["normal"] },
+	],
+	drawtype: "json",
+	creativeinventory: { "general": ["*"], "meta": ["*"] },
+	blockmaterial: "Stone",
+	replaceable: 900,
+	lightAbsorption: 0,
+	resistance: 1,
+	sideopaque: {
+		all: false
+	},
+	sidesolid: {
+		all: false
+	}
+}

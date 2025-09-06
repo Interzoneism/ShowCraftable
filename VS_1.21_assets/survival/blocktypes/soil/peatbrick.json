@@ -1,0 +1,62 @@
+{
+	// There's no real reason why this is a block. Should be an item instead
+	code: "peatbrick",
+	class: "BlockPeatbrick",
+	behaviors: [{
+		name: "GroundStorable",
+		properties: {
+			layout: 'Stacking',
+			placeRemoveSound: "block/dirt",
+			stackingModel: 'block/peatpile',
+			modelItemsToStackSizeRatio: 1,
+			upSolid: true,
+			stackingCapacity: 32,
+			transferQuantity: 1,
+			bulkTransferQuantity: 4,
+			collisionBox: { x1: 0, y1: 0, z1: 0, x2: 1, y2: 0.125, z2: 1 },
+			cbScaleYByLayer: 0.25,
+			burnHoursPerItem: 0.5
+		}
+	}],
+	attributes: {
+		mapColorCode: "settlement",
+		placeSound: "block/dirt"
+	},
+	shape: { base: "block/peatbrick" },
+	shapeinventory: { base: "block/peatbrick" },
+	creativeinventory: { "general": ["*"], "items": ["*"] },
+	blockmaterial: "Soil",
+	replaceable: 700,
+	resistance: 2,
+	textures: {
+		all: {base: "block/soil/peat"},
+	},
+	sounds: {
+		place: "block/dirt",
+		break: "block/dirt",
+		hit: "block/dirt",
+	},
+	maxStackSize: 32,
+	combustibleProps: {
+		burnTemperature: 900,
+		burnDuration: 25,
+	},
+	guiTransform: {
+		origin: { x: 0.5, y: 0.125, z: 0.5 },
+		scale: 2.65
+	},
+	groundTransform: {
+		scale: 3.25,
+	},
+	fpHandTransform: {
+		translation: { x: 0, y: 0.1, z: 0.5 },
+		origin: { x: 0.5, y: 0, z: 0.5 },
+		scale: 2
+	},
+	tpHandTransform: {
+		translation: { x: -0.66, y: 0, z: -0.51 },
+		rotation: { x: -77, y: 59, z: -1 },
+		origin: { x: 0.5, y: 0, z: 0.5 },
+		scale: 0.73
+	}
+}

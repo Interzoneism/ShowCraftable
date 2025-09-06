@@ -1,0 +1,364 @@
+{
+	"editor": {
+		"backDropShape": "entity/water/boat/sailed",
+		"collapsedPaths": "Root/ORIGIN/hideWater/hideWater14,Root/ORIGIN/ORIGIN-Section2,Root/ORIGIN/MastORIGIN/Mast1/Mast2/Mast3/Mast4/Mast5/Mast6/SparORIGIN/SparL1/FurledORIGIN,Root/ORIGIN/MastORIGIN/Mast1/Mast2/Mast3/Mast4/Mast5/Mast6/Mast7/FlagWrap,Root/ORIGIN/ORIGIN-Section1/GunwhaleS1,Root/ORIGIN/MastORIGIN/Mast1/Mast2/Mast3/Mast4/Mast5/Mast6/SparORIGIN/ClewORIGIN/ClewRopeL1,Root/ORIGIN/hideWater,Root/ORIGIN/ORIGIN-Section2/GunwhaleS3,Root/ORIGIN/MastORIGIN/Mast1/Mast2/Mast3/Mast4/Mast5/Mast6/SparORIGIN/RatlineORIGIN/ORIGINSouth,Root/ORIGIN/ORIGIN-Section1,Root/ORIGIN/ORIGIN-Prow2/GunwhaleN4,Root/ORIGIN/MastORIGIN/Mast1/Mast2/Mast3/Mast4/Mast5/Mast6/SparORIGIN/SparL1/SailUnfurledN,Root/ORIGIN/MastORIGIN/Mast1/Mast2/Mast3/Mast4/Mast5/Mast6/SparORIGIN/SparL1/SailUnfurledS,Root/ORIGIN/ORIGIN-Section1/FloorS1,Root/ORIGIN/ORIGIN-Section1/GunwhaleS5/HullUpperS5,Root/ORIGIN/ORIGIN-Prow2/GunwhaleS4,Root/ORIGIN/hideWater27,Root/ORIGIN/MastORIGIN/Mast1/Mast2/Mast3/Mast4/Mast5/Mast6/SparORIGIN/RatlineORIGIN/ORIGINNorth,Root/ORIGIN/ORIGIN-Prow2/ProwFloorS6/ProwFloorS7/SeatPlankN1/SeatPlankN2,Root/ORIGIN/MastORIGIN/Mast1/Mast2/Mast3/Mast4/Mast5/Mast6/SparORIGIN/RatlineORIGIN/ORIGINNorth/RatlineS4,Root/ORIGIN/ORIGIN-Section1/GunwhaleN1,Root/ORIGIN/ORIGIN-Prow2/ProwFloorN5/ProwFloorN6/ProwFloorN7,Root/ORIGIN/MastORIGIN/Mast1/Mast2/Mast3/Mast4/Mast5/Mast6/SparORIGIN/SparL1/MastRopeN,Root/ORIGIN/ORIGIN-Section2/FloorS2,Root/ORIGIN/MastORIGIN/Mast1/Mast2/Mast3/Mast4/Mast5/Mast6/SparORIGIN/SparL1/SparL2,Root/ORIGIN/ORIGIN-Prow/GunwhaleN2,Root/ORIGIN/hideWater-upper/hideWater-upper2,Root/ORIGIN/MastORIGIN/Mast1/Mast2/Mast3/Mast4/Mast5/Mast6/SparORIGIN/SparR1,Root/ORIGIN/MastORIGIN/Mast1/Mast2/Mast3/Mast4/Mast5/Mast6/SparORIGIN/SparL1/FurledORIGIN/SheetS3,Root/ORIGIN/MastORIGIN/Mast1/Mast2/Mast3/Mast4/Mast5/Mast6/SparORIGIN/SparL1/FurledORIGIN/SheetS2,Root/ORIGIN/MastORIGIN/Mast1/Mast2/Mast3/Mast4/Mast5/Mast6/SparORIGIN/SparL1/FurledORIGIN/SheetS1,Root/ORIGIN/ORIGIN-Prow2/GunwhaleN4/HullUpperN6,Root/ORIGIN/ORIGIN-Section2/GunwhaleN3,Root/ORIGIN/MastORIGIN/Mast1/Mast2/Mast3/Mast4/Mast5/Mast6/Mast7/RopeKnot,Root/ORIGIN/ORIGIN-Section1/FloorN1,Root/ORIGIN/ORIGIN-Prow2/HalyardORIGIN,Root/ORIGIN/hideWater-upper,Root/ORIGIN/ORIGIN-Section2/FloorN2,Root/ORIGIN/ORIGIN-Prow2/ProwFloorN5/ProwFloorN6/SeatPlankS1/SeatPlankS2,Root/ORIGIN/ORIGIN-Prow2/ProwFloorS6/ProwFloorS7/ProwFloorS8,Root/ORIGIN/ORIGIN-Prow2/ProwFloorS6/ProwFloorS7/ProwFloorS8/ProwFloorS9,Root/ORIGIN/ORIGIN-Prow/ProwFloorS1,Root/ORIGIN/ORIGIN-Prow/GunwhaleS2,Root/ORIGIN/MastORIGIN/Mast1/Mast2/Mast3/Mast4/Mast5/Mast6/SparORIGIN/ClewORIGIN/ClewRopeR1,Root/ORIGIN/ORIGIN-Prow",
+		"allAngles": true,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+		"rope": "item/resource/rope"
+	},
+	"elements": [
+		{
+			"name": "RatlineORIGIN",
+			"stepParentName": "Mast6",
+			"from": [ -0.5, -64.0, 2.0 ],
+			"to": [ 0.5, -63.0, 3.0 ],
+			"rotationOrigin": [ -0.5, -64.0, 2.0 ],
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "ORIGINSouth",
+					"from": [ 0.0, -2.4, 18.5 ],
+					"to": [ 1.0, -1.4, 19.5 ],
+					"rotationOrigin": [ 0.0, -2.4, 19.5 ],
+					"rotationX": -11.5,
+					"faces": {
+					}
+				},
+				{
+					"name": "ORIGINNorth",
+					"from": [ 0.0, -2.4, -20.8 ],
+					"to": [ 1.0, -1.4, -19.8 ],
+					"rotationOrigin": [ 0.0, -2.4, -19.8 ],
+					"rotationX": 12.0,
+					"faces": {
+					},
+					"children": [
+						{
+							"name": "RatlineN1",
+							"from": [ -15.0, 3.0, 0.8 ],
+							"to": [ -14.0, 19.0, 1.8 ],
+							"rotationOrigin": [ -15.0, 3.0, 0.8 ],
+							"rotationX": -0.4,
+							"rotationZ": -11.0,
+							"faces": {
+								"north": { "texture": "#rope", "uv": [ 11.0, 0.0, 12.0, 16.0 ] },
+								"east": { "texture": "#rope", "uv": [ 4.0, 0.0, 5.0, 16.0 ] },
+								"south": { "texture": "#rope", "uv": [ 10.0, 0.0, 11.0, 16.0 ] },
+								"west": { "texture": "#rope", "uv": [ 5.0, 0.0, 6.0, 16.0 ] }
+							},
+							"children": [
+								{
+									"name": "Ratline12",
+									"from": [ 0.0, 16.0, 0.0 ],
+									"to": [ 1.0, 32.0, 1.0 ],
+									"rotationOrigin": [ 0.0, 16.0, 0.0 ],
+									"faces": {
+										"north": { "texture": "#rope", "uv": [ 11.0, 0.0, 12.0, 16.0 ] },
+										"east": { "texture": "#rope", "uv": [ 4.0, 0.0, 5.0, 16.0 ] },
+										"south": { "texture": "#rope", "uv": [ 10.0, 0.0, 11.0, 16.0 ] },
+										"west": { "texture": "#rope", "uv": [ 5.0, 0.0, 6.0, 16.0 ] }
+									},
+									"children": [
+										{
+											"name": "Ratline13",
+											"from": [ 0.0, 16.0, 0.0 ],
+											"to": [ 1.0, 32.0, 1.0 ],
+											"rotationOrigin": [ 0.0, 16.0, 0.0 ],
+											"faces": {
+												"north": { "texture": "#rope", "uv": [ 11.0, 0.0, 12.0, 16.0 ] },
+												"east": { "texture": "#rope", "uv": [ 4.0, 0.0, 5.0, 16.0 ] },
+												"south": { "texture": "#rope", "uv": [ 10.0, 0.0, 11.0, 16.0 ] },
+												"west": { "texture": "#rope", "uv": [ 5.0, 0.0, 6.0, 16.0 ] }
+											},
+											"children": [
+												{
+													"name": "Ratline14",
+													"from": [ 0.0, 16.0, 0.0 ],
+													"to": [ 1.0, 32.0, 1.0 ],
+													"rotationOrigin": [ 0.0, 16.0, 0.0 ],
+													"faces": {
+														"north": { "texture": "#rope", "uv": [ 11.0, 0.0, 12.0, 16.0 ] },
+														"east": { "texture": "#rope", "uv": [ 4.0, 0.0, 5.0, 16.0 ] },
+														"south": { "texture": "#rope", "uv": [ 10.0, 0.0, 11.0, 16.0 ] },
+														"west": { "texture": "#rope", "uv": [ 5.0, 0.0, 6.0, 16.0 ] }
+													},
+													"children": [
+														{
+															"name": "Ratline15",
+															"from": [ 0.0, 16.0, 0.0 ],
+															"to": [ 1.0, 32.0, 1.0 ],
+															"rotationOrigin": [ 0.0, 16.0, 0.0 ],
+															"faces": {
+																"north": { "texture": "#rope", "uv": [ 11.0, 0.0, 12.0, 16.0 ] },
+																"east": { "texture": "#rope", "uv": [ 4.0, 0.0, 5.0, 16.0 ] },
+																"south": { "texture": "#rope", "uv": [ 10.0, 0.0, 11.0, 16.0 ] },
+																"west": { "texture": "#rope", "uv": [ 5.0, 0.0, 6.0, 16.0 ] }
+															},
+															"children": [
+																{
+																	"name": "Ratline16",
+																	"from": [ 0.0, 16.0, 0.0 ],
+																	"to": [ 1.0, 20.5, 1.0 ],
+																	"rotationOrigin": [ 0.0, 16.0, 0.0 ],
+																	"faces": {
+																		"north": { "texture": "#rope", "uv": [ 11.0, 0.0, 12.0, 4.5 ] },
+																		"east": { "texture": "#rope", "uv": [ 4.0, 0.0, 5.0, 4.5 ] },
+																		"south": { "texture": "#rope", "uv": [ 10.0, 0.0, 11.0, 4.5 ] },
+																		"west": { "texture": "#rope", "uv": [ 5.0, 0.0, 6.0, 4.5 ] }
+																	}
+																}
+															]
+														}
+													]
+												}
+											]
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "RatlineN11",
+							"from": [ 0.0, 2.6, 1.0 ],
+							"to": [ 1.0, 18.6, 2.0 ],
+							"rotationOrigin": [ 0.0, 2.6, 1.0 ],
+							"rotationY": -4.0,
+							"rotationZ": -2.0,
+							"faces": {
+								"north": { "texture": "#rope", "uv": [ 11.0, 0.0, 12.0, 16.0 ] },
+								"east": { "texture": "#rope", "uv": [ 4.0, 0.0, 5.0, 16.0 ] },
+								"south": { "texture": "#rope", "uv": [ 10.0, 0.0, 11.0, 16.0 ] },
+								"west": { "texture": "#rope", "uv": [ 5.0, 0.0, 6.0, 16.0 ] }
+							},
+							"children": [
+								{
+									"name": "Ratline17",
+									"from": [ 0.0, 16.0, 0.0 ],
+									"to": [ 1.0, 32.0, 1.0 ],
+									"rotationOrigin": [ 0.0, 16.0, 0.0 ],
+									"faces": {
+										"north": { "texture": "#rope", "uv": [ 11.0, 0.0, 12.0, 16.0 ] },
+										"east": { "texture": "#rope", "uv": [ 4.0, 0.0, 5.0, 16.0 ] },
+										"south": { "texture": "#rope", "uv": [ 10.0, 0.0, 11.0, 16.0 ] },
+										"west": { "texture": "#rope", "uv": [ 5.0, 0.0, 6.0, 16.0 ] }
+									},
+									"children": [
+										{
+											"name": "Ratline18",
+											"from": [ 0.0, 16.0, 0.0 ],
+											"to": [ 1.0, 32.0, 1.0 ],
+											"rotationOrigin": [ 0.0, 16.0, 0.0 ],
+											"faces": {
+												"north": { "texture": "#rope", "uv": [ 11.0, 0.0, 12.0, 16.0 ] },
+												"east": { "texture": "#rope", "uv": [ 4.0, 0.0, 5.0, 16.0 ] },
+												"south": { "texture": "#rope", "uv": [ 10.0, 0.0, 11.0, 16.0 ] },
+												"west": { "texture": "#rope", "uv": [ 5.0, 0.0, 6.0, 16.0 ] }
+											},
+											"children": [
+												{
+													"name": "Ratline19",
+													"from": [ 0.0, 16.0, 0.0 ],
+													"to": [ 1.0, 32.0, 1.0 ],
+													"rotationOrigin": [ 0.0, 16.0, 0.0 ],
+													"faces": {
+														"north": { "texture": "#rope", "uv": [ 11.0, 0.0, 12.0, 16.0 ] },
+														"east": { "texture": "#rope", "uv": [ 4.0, 0.0, 5.0, 16.0 ] },
+														"south": { "texture": "#rope", "uv": [ 10.0, 0.0, 11.0, 16.0 ] },
+														"west": { "texture": "#rope", "uv": [ 5.0, 0.0, 6.0, 16.0 ] }
+													},
+													"children": [
+														{
+															"name": "Ratline20",
+															"from": [ 0.0, 16.0, 0.0 ],
+															"to": [ 1.0, 32.0, 1.0 ],
+															"rotationOrigin": [ 0.0, 16.0, 0.0 ],
+															"faces": {
+																"north": { "texture": "#rope", "uv": [ 11.0, 0.0, 12.0, 16.0 ] },
+																"east": { "texture": "#rope", "uv": [ 4.0, 0.0, 5.0, 16.0 ] },
+																"south": { "texture": "#rope", "uv": [ 10.0, 0.0, 11.0, 16.0 ] },
+																"west": { "texture": "#rope", "uv": [ 5.0, 0.0, 6.0, 16.0 ] }
+															},
+															"children": [
+																{
+																	"name": "Ratline21",
+																	"from": [ 0.0, 16.0, 0.0 ],
+																	"to": [ 1.0, 20.0, 1.0 ],
+																	"rotationOrigin": [ 0.0, 16.0, 0.0 ],
+																	"faces": {
+																		"north": { "texture": "#rope", "uv": [ 11.0, 0.0, 12.0, 4.0 ] },
+																		"east": { "texture": "#rope", "uv": [ 4.0, 0.0, 5.0, 4.0 ] },
+																		"south": { "texture": "#rope", "uv": [ 10.0, 0.0, 11.0, 4.0 ] },
+																		"west": { "texture": "#rope", "uv": [ 5.0, 0.0, 6.0, 4.0 ] }
+																	}
+																},
+																{
+																	"name": "TopKnotN",
+																	"from": [ -2.0, 19.0, -1.0 ],
+																	"to": [ 1.0, 22.0, 2.0 ],
+																	"rotationOrigin": [ -0.5, 20.5, -1.0 ],
+																	"rotationZ": 45.0,
+																	"faces": {
+																		"north": { "texture": "#rope", "uv": [ 11.0, 0.0, 14.0, 3.0 ], "windMode": [-1,-1,-1,-1], "windData": [5,5,5,5] },
+																		"east": { "texture": "#rope", "uv": [ 4.0, 0.0, 7.0, 3.0 ] },
+																		"west": { "texture": "#rope", "uv": [ 6.0, 1.5, 9.0, 4.5 ] },
+																		"up": { "texture": "#rope", "uv": [ 1.0, 0.0, 4.0, 3.0 ], "windMode": [-1,-1,-1,-1], "windData": [6,6,6,6] },
+																		"down": { "texture": "#rope", "uv": [ 0.0, 0.0, 3.0, 3.0 ], "windMode": [-1,-1,-1,-1], "windData": [5,6,6,5] }
+																	}
+																}
+															]
+														}
+													]
+												}
+											]
+										},
+										{
+											"name": "RatlineHoriz9",
+											"from": [ 0.0, -2.0, 1.0 ],
+											"to": [ 12.0, -1.0, 2.0 ],
+											"rotationOrigin": [ 0.0, 62.0, 1.0 ],
+											"rotationY": 182.6,
+											"faces": {
+												"north": { "texture": "#rope", "uv": [ 2.5, 8.5, 14.5, 9.5 ], "windMode": [-1,-1,-1,-1], "windData": [1,2,2,1] },
+												"south": { "texture": "#rope", "uv": [ 2.5, 0.5, 14.5, 1.5 ] },
+												"up": { "texture": "#rope", "uv": [ 1.5, 14.5, 13.5, 15.5 ], "windMode": [-1,-1,-1,-1], "windData": [2,2,2,2] },
+												"down": { "texture": "#rope", "uv": [ 1.0, 1.0, 13.0, 2.0 ], "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] }
+											}
+										},
+										{
+											"name": "RatlineHoriz10",
+											"from": [ 0.0, 14.0, -1.0 ],
+											"to": [ 9.5, 15.0, 0.0 ],
+											"rotationOrigin": [ 0.0, 14.0, 0.0 ],
+											"rotationY": 181.0,
+											"faces": {
+												"north": { "texture": "#rope", "uv": [ 2.5, 8.5, 12.0, 9.5 ], "windMode": [-1,-1,-1,-1], "windData": [1,2,2,1] },
+												"south": { "texture": "#rope", "uv": [ 2.5, 0.5, 12.0, 1.5 ] },
+												"up": { "texture": "#rope", "uv": [ 1.5, 14.5, 11.0, 15.5 ], "windMode": [-1,-1,-1,-1], "windData": [2,2,2,2] },
+												"down": { "texture": "#rope", "uv": [ 1.0, 1.0, 10.5, 2.0 ], "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] }
+											}
+										},
+										{
+											"name": "RatlineHoriz11",
+											"from": [ 0.0, 6.0, -1.0 ],
+											"to": [ 11.0, 7.0, 0.0 ],
+											"rotationOrigin": [ 0.0, 6.0, 0.0 ],
+											"rotationY": 181.9,
+											"faces": {
+												"north": { "texture": "#rope", "uv": [ 2.5, 8.5, 13.5, 9.5 ], "windMode": [-1,-1,-1,-1], "windData": [1,2,2,1] },
+												"south": { "texture": "#rope", "uv": [ 2.5, 0.5, 13.5, 1.5 ] },
+												"up": { "texture": "#rope", "uv": [ 1.5, 14.5, 12.5, 15.5 ], "windMode": [-1,-1,-1,-1], "windData": [2,2,2,2] },
+												"down": { "texture": "#rope", "uv": [ 1.0, 1.0, 12.0, 2.0 ], "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] }
+											}
+										},
+										{
+											"name": "RatlineHoriz12",
+											"from": [ 0.0, 22.0, -1.0 ],
+											"to": [ 8.5, 23.0, 0.0 ],
+											"rotationOrigin": [ 0.0, 22.0, 0.0 ],
+											"rotationY": 180.3,
+											"faces": {
+												"north": { "texture": "#rope", "uv": [ 2.5, 8.5, 11.0, 9.5 ], "windMode": [-1,-1,-1,-1], "windData": [1,2,2,1] },
+												"south": { "texture": "#rope", "uv": [ 2.5, 0.5, 11.0, 1.5 ] },
+												"up": { "texture": "#rope", "uv": [ 1.5, 14.5, 10.0, 15.5 ], "windMode": [-1,-1,-1,-1], "windData": [2,2,2,2] },
+												"down": { "texture": "#rope", "uv": [ 1.0, 1.0, 9.5, 2.0 ], "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] }
+											}
+										},
+										{
+											"name": "RatlineHoriz13",
+											"from": [ 0.0, 30.0, 1.0 ],
+											"to": [ 7.0, 31.0, 2.0 ],
+											"rotationOrigin": [ 0.0, 30.0, 1.0 ],
+											"rotationY": 178.6,
+											"faces": {
+												"north": { "texture": "#rope", "uv": [ 2.5, 8.5, 9.5, 9.5 ], "windMode": [-1,-1,-1,-1], "windData": [1,2,2,1] },
+												"south": { "texture": "#rope", "uv": [ 2.5, 0.5, 9.5, 1.5 ] },
+												"up": { "texture": "#rope", "uv": [ 1.5, 14.5, 8.5, 15.5 ], "windMode": [-1,-1,-1,-1], "windData": [2,2,2,2] },
+												"down": { "texture": "#rope", "uv": [ 1.0, 1.0, 8.0, 2.0 ], "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] }
+											}
+										},
+										{
+											"name": "RatlineHoriz14",
+											"from": [ 0.0, 38.0, 1.0 ],
+											"to": [ 6.0, 39.0, 2.0 ],
+											"rotationOrigin": [ 0.0, 38.0, 1.0 ],
+											"rotationY": 177.0,
+											"faces": {
+												"north": { "texture": "#rope", "uv": [ 2.5, 8.5, 8.5, 9.5 ], "windMode": [-1,-1,-1,-1], "windData": [1,2,2,1] },
+												"south": { "texture": "#rope", "uv": [ 2.5, 0.5, 8.5, 1.5 ] },
+												"up": { "texture": "#rope", "uv": [ 1.5, 14.5, 7.5, 15.5 ], "windMode": [-1,-1,-1,-1], "windData": [2,2,2,2] },
+												"down": { "texture": "#rope", "uv": [ 1.0, 1.0, 7.0, 2.0 ], "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] }
+											}
+										},
+										{
+											"name": "RatlineHoriz15",
+											"from": [ 0.0, 46.0, 1.0 ],
+											"to": [ 4.5, 47.0, 2.0 ],
+											"rotationOrigin": [ 0.0, 46.0, 1.0 ],
+											"rotationY": 173.8,
+											"faces": {
+												"north": { "texture": "#rope", "uv": [ 2.5, 8.5, 7.0, 9.5 ], "windMode": [-1,-1,-1,-1], "windData": [1,2,2,1] },
+												"south": { "texture": "#rope", "uv": [ 2.5, 0.5, 7.0, 1.5 ] },
+												"up": { "texture": "#rope", "uv": [ 1.5, 14.5, 6.0, 15.5 ], "windMode": [-1,-1,-1,-1], "windData": [2,2,2,2] },
+												"down": { "texture": "#rope", "uv": [ 1.0, 1.0, 5.5, 2.0 ], "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] }
+											}
+										},
+										{
+											"name": "RatlineHoriz16",
+											"from": [ 0.0, -10.0, 1.0 ],
+											"to": [ 13.5, -9.0, 2.0 ],
+											"rotationOrigin": [ 0.0, 54.0, 1.0 ],
+											"rotationY": 183.2,
+											"faces": {
+												"north": { "texture": "#rope", "uv": [ 2.5, 8.5, 16.0, 9.5 ], "windMode": [-1,-1,-1,-1], "windData": [1,2,2,1] },
+												"south": { "texture": "#rope", "uv": [ 2.5, 0.5, 16.0, 1.5 ] },
+												"up": { "texture": "#rope", "uv": [ 1.5, 14.5, 15.0, 15.5 ], "windMode": [-1,-1,-1,-1], "windData": [2,2,2,2] },
+												"down": { "texture": "#rope", "uv": [ 1.0, 1.0, 14.5, 2.0 ], "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] }
+											}
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "RatlineRopeNW",
+							"from": [ -16.5, 1.7, -0.9 ],
+							"to": [ -12.5, 3.7, 2.1 ],
+							"rotationOrigin": [ -16.5, 1.7, -0.9 ],
+							"rotationX": -22.0,
+							"faces": {
+								"north": { "texture": "#rope", "uv": [ 11.0, 12.0, 13.0, 16.0 ], "rotation": 90 },
+								"east": { "texture": "#rope", "uv": [ 6.5, 12.5, 8.5, 15.5 ], "rotation": 90 },
+								"south": { "texture": "#rope", "uv": [ 3.0, 1.5, 5.0, 5.5 ], "rotation": 90 },
+								"west": { "texture": "#rope", "uv": [ 10.5, 11.0, 12.5, 14.0 ], "rotation": 90 },
+								"up": { "texture": "#rope", "uv": [ 9.0, 5.5, 12.0, 9.5 ], "rotation": 90, "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] },
+								"down": { "texture": "#rope", "uv": [ 0.0, 9.5, 3.0, 13.5 ], "rotation": 90, "windMode": [-1,-1,-1,-1] }
+							}
+						},
+						{
+							"name": "RatlineRopeNE",
+							"from": [ -1.0, 1.6, -1.1 ],
+							"to": [ 3.0, 3.6, 1.9 ],
+							"rotationOrigin": [ -1.0, 1.6, -1.1 ],
+							"rotationX": -22.0,
+							"rotationY": -20.0,
+							"faces": {
+								"north": { "texture": "#rope", "uv": [ 11.0, 12.0, 13.0, 16.0 ], "rotation": 90 },
+								"east": { "texture": "#rope", "uv": [ 6.5, 12.5, 8.5, 15.5 ], "rotation": 90 },
+								"south": { "texture": "#rope", "uv": [ 3.0, 1.5, 5.0, 5.5 ], "rotation": 90 },
+								"west": { "texture": "#rope", "uv": [ 10.5, 11.0, 12.5, 14.0 ], "rotation": 90 },
+								"up": { "texture": "#rope", "uv": [ 9.0, 5.5, 12.0, 9.5 ], "rotation": 90, "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] },
+								"down": { "texture": "#rope", "uv": [ 0.0, 9.5, 3.0, 13.5 ], "rotation": 90, "windMode": [-1,-1,-1,-1] }
+							}
+						}
+					]
+				}
+			]
+		}
+	]}

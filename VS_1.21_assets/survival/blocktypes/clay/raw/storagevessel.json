@@ -1,0 +1,104 @@
+{
+	code: "storagevessel",
+	class: "Block",
+	behaviors: [ 
+		{ name: "GroundStorable", properties: { layout: 'SingleCenter' } },
+		{ name: "Unplaceable", }, // The ground storable obsoletes this being a block. Should be an item, but is kept a block for backwards compatibility
+		{ name: "RightClickPickup"} 
+	],
+	variantgroups: [
+		{ code: "color", states: ["blue", "fire", "red" ] },
+		{ code: "state", states: ["raw"] }
+	],
+	shape: { base: "block/clay/lootvessel" },
+	textures: { 
+		all: { base: "block/clay/{color}clay" }
+	},
+	attributes: {
+		reinforcable: true,
+		humanoidTraversalCost: 100,
+		tempGlowMode: 1,
+		partialAttachable: true,
+		onTongTransform: {
+			translation: { x: -1.3, y: -1.06, z: -0.4 },
+			rotation: { x: -88, y: -16, z: -2 },
+			scale: 0.7
+		},
+		handbook: {
+			groupBy: ["storagevessel-*-{state}"]
+		}
+	},
+	attributesByType:{
+		"storagevessel-red-raw":{
+			beehivekiln:{
+				"0": { "type": "block", "code": "storagevessel-tan-fired", attributes: { type: "normal" } },
+				"1": { "type": "block", "code": "storagevessel-orange-fired", attributes: { type: "normal" } },
+				"2": { "type": "block", "code": "storagevessel-red-fired", attributes: { type: "normal" } },
+				"3": { "type": "block", "code": "storagevessel-brown-fired", attributes: { type: "normal" } }
+			}
+		},
+		"storagevessel-blue-raw":{
+			beehivekiln:{
+				"0": { "type": "block", "code": "storagevessel-cream-fired", attributes: { type: "normal" } },
+				"1": { "type": "block", "code": "storagevessel-gray-fired", attributes: { type: "normal" } },
+				"2": { "type": "block", "code": "storagevessel-black-fired", attributes: { type: "normal" } },
+				"3": { "type": "block", "code": "storagevessel-black-fired", attributes: { type: "normal" } }
+			}
+		},
+		"storagevessel-fire-raw":{
+			beehivekiln:{
+				"0": { "type": "block", "code": "storagevessel-fire-fired", attributes: { type: "normal" } },
+				"1": { "type": "block", "code": "storagevessel-fire-fired", attributes: { type: "normal" } },
+				"2": { "type": "block", "code": "storagevessel-fire-fired", attributes: { type: "normal" } },
+				"3": { "type": "block", "code": "storagevessel-fire-fired", attributes: { type: "normal" } }
+			}
+		}
+	},
+	blockmaterial: "Ceramic",
+	creativeinventory: { "general": ["*"], "decorative": ["*"] },
+	replaceable: 1000,
+	resistance: 0.8,
+	maxStackSize: 4,
+	sideAo: { all: false },
+	lightAbsorption: 0,
+	sounds: {
+		walk: "walk/stone",
+		break: "block/ceramicplace",
+		hit: "block/ceramichit",
+		place: "block/ceramicplace"
+	},
+	sideopaque: {
+		all: false
+	},
+	sidesolid: {
+		all: false
+	},
+	collisionSelectionBox: { x1: 0.125, y1: 0, z1: 0.125, x2: 0.875, y2: 1, z2: 0.875 },
+	heldTpIdleAnimation: "holdunderarm",
+	combustiblePropsByType: {
+		"storagevessel-fire-raw": {
+			meltingPoint: 600,
+			meltingDuration: 45,
+			smeltedRatio: 1,
+			smeltingType: "fire",
+			smeltedStack: { type: "block", code: "storagevessel-fire-fired", attributes: { type: "normal" } },
+			requiresContainer: false
+		},
+		"storagevessel-*-raw": {
+			meltingPoint: 600,
+			meltingDuration: 45,
+			smeltedRatio: 1,
+			smeltingType: "fire",
+			smeltedStack: { type: "block", code: "storagevessel-blue-fired", attributes: { type: "normal" } },
+			requiresContainer: false
+		}
+	},
+	guiTransform: {
+		scale: 1.25
+	},
+	tpHandTransform: {
+		translation: { x: -1, y: -0.5, z: -0.5 },
+		rotation: { x: 25, y: -20, z: -99 },
+		scale: 0.56
+	}
+}

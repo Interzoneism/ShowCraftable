@@ -1,0 +1,1016 @@
+{
+	code: "tameddeer",
+	class: "EntityAgent",
+	tags: ["animal", "huntable", "habitat-land", "tamed"],
+	weight: 450,
+	handbook: { exclude: true },
+	variantgroups: [
+		{ code: "type", "states": ["albinoelk", "elk" ] },
+		{ code: "gender", "states": ["male", "female"] },
+		{ code: "age", "states": ["adult"] }
+	],
+	hitBoxSizeByType: {
+		"*-adult": { "x": 1.3,"y": 1.5}
+	},
+	deadhitBoxSizeByType: {
+		"*-adult": { "x": 1.3,"y": 0.5}
+	},
+	eyeHeightByType: {
+		"*-adult": 1.75
+	},
+	fallDamageMultiplier: 0.5,
+	drops: [],
+	attributes: {
+		tamed: true,
+		killedByInfoText: "deadcreature-killed",
+		creatureDiet: {
+			foodCategories: ["Vegetable", "Grain"],
+			weightedFoodTags: [
+				{ weight: 0.5, code: "nibbleCrop" }, 
+				{ weight: 0.1, code: "grass" },
+				{ weight: 0.9, code: "fruitmash" },
+				{ weight: 1, code: "tastyvegetable" },
+				{ weight: 0.2, code: "peanut" }
+			],
+			skipFoodTags: ["rice", "parsnip"]
+		},
+		minGenerationToAllowHealing: 0,
+		handbook: {
+			"groupcode": "creaturegroup-deer"
+		}
+	},
+	behaviorConfigs: {
+		controlledphysics: { 
+			stepHeight: 3.1251,
+			stepUpSpeed: 0.1
+		},
+		floatupwhenstuck: { "onlyWhenDead": true },
+		rideableaccessories: {
+			wearableSlots: [
+				{ code: "head", forCategoryCodes: ["bridle"], attachmentPointCode: "HeadAP" }, 
+				{ code: "face", forCategoryCodes: ["face"], attachmentPointCode: "FaceAP" }, 
+				{ code: "neck", forCategoryCodes: ["lantern"], attachmentPointCode: "NeckAP" },
+				{ code: "middleback", forCategoryCodes: ["saddle"], attachmentPointCode: "MidAP" },
+				{ code: "middlebackunder", forCategoryCodes: ["blanket"], attachmentPointCode: "MidUnderAP" },
+				{ code: "lowerback", forCategoryCodes: ["bedroll", "pillion"], attachmentPointCode: "RearAP" },
+				{ code: "lowerbackside", forCategoryCodes: ["sidebags"], attachmentPointCode: "RearSideAP" },
+				{ code: "frontrightside", forCategoryCodes: ["utilities"], attachmentPointCode: "RFrontAP" },
+				{ code: "frontleftside", forCategoryCodes: ["utilities"], attachmentPointCode: "LFrontAP" },
+				{ code: "gearleft", forCategoryCodes: ["gear"], attachmentPointCode: "TempGear1AP" }, 
+				{ code: "gearback", forCategoryCodes: ["gear"], attachmentPointCode: "TempGear2AP" }, 
+				{ code: "gearright", forCategoryCodes: ["gear"], attachmentPointCode: "TempGear3AP" }
+			]
+		},
+		selectionboxes: {
+			selectionBoxes: ["HeadAP", "FaceAP", "NeckAP", "MidAP", "MidUnderAP", "RearAP", "RearSideAP", "RFrontAP", "LFrontAP", "TempGear1AP", "TempGear2AP", "TempGear3AP"]
+		},
+		gait: {
+			idleGait: "idle",
+			gaits: [
+				{
+					code: "walkback",
+					movespeed: 0.011,
+					backwards: true,
+					yawMultiplier: 1,
+					sound: "game:creature/hooved/trot"
+				},
+				{
+					code: "idle",
+					yawMultiplier: 1
+				},
+				{
+					code: "walk",
+					movespeed: 0.019,
+					yawMultiplier: 1,
+					sound: "game:creature/hooved/trot"
+				},
+				{
+					code: "trot",
+					movespeed: 0.036,
+					yawMultiplier: 0.85,
+					fallbackGaitCode: "walk",
+					sound: "game:creature/hooved/trot"
+				},
+				{
+					code: "canter",
+					movespeed: 0.075,
+					yawMultiplier: 0.75,
+					fallbackGaitCode: "trot",
+					sound: "game:creature/hooved/trot"
+				},
+				{
+					code: "sprint",
+					movespeed: 0.1067,
+					yawMultiplier: 1,
+					isSprint: true,
+					fallbackGaitCode: "walk",
+					sound: "game:creature/hooved/gallop"
+				},
+				{
+					code: "swim",
+					movespeed: 0.02,
+					yawMultiplier: 1,
+					fallbackGaitCode: "idle",
+					sound: "game:creature/hooved/gallop"
+				},
+				{
+					code: "swimback",
+					movespeed: 0.02,
+					backwards: true,
+					yawMultiplier: 1,
+					fallbackGaitCode: "idle",
+					sound: "game:creature/hooved/gallop"
+				},
+				{
+					code: "jump",
+					movespeed: 0.1067,
+					yawMultiplier: 1,
+					fallbackGaitCode: "walk",
+					sound: "game:creature/hooved/gallop"
+				}
+			]
+		},
+		rideable: {
+			interactMountAnySeat: true,
+			seats: [
+				{ apName: "Rider", selectionBox: "MidAP", bodyYawLimit: 1.5, controllable: true, mountOffset: { x: -0.05, y: -0.69, z: 0 } }
+			],
+			rideableGaitOrder: ["walkback", "idle", "walk", "sprint"],
+			controls: {
+				walkback: {
+					moveSpeedMultiplier: 1,
+					animation: "walkback",
+					animationSpeed: 2.7,
+					weight: 10,
+					easeInSpeed: 1,
+					easeOutSpeed: 3,
+					blendMode: "Average",
+					riderAnim: {
+						animation: "rideelk-walk",
+						animationSpeed: 1,
+						weight: 1,
+						withFpVariant: true,
+						blendMode: "Average", 
+						elementWeight: {
+							"LowerTorso": 80,
+							"UpperTorso": 80,
+							"UpperFootR": 80,
+							"UpperFootL": 80,
+							"LowerFootR": 80,
+							"LowerFootL": 80
+						},
+						elementBlendMode: {
+							"LowerTorso": "Average",
+							"UpperTorso": "Average",
+							"UpperFootR": "Average",
+							"UpperFootL": "Average",
+							"LowerFootR": "Average",
+							"LowerFootL": "Average"
+						}
+					}
+				},	
+				idle: {
+					weight: 1,
+					riderAnim: {
+						animation: "rideelk-idle",
+						animationSpeed: 1,
+						weight: 1,
+						withFpVariant: true,
+						blendMode: "Average", 
+						elementWeight: {
+							"LowerTorso": 80,
+							"UpperTorso": 80,
+							"UpperFootR": 80,
+							"UpperFootL": 80,
+							"LowerFootR": 80,
+							"LowerFootL": 80
+						},
+						elementBlendMode: {
+							"LowerTorso": "Average",
+							"UpperTorso": "Average",
+							"UpperFootR": "Average",
+							"UpperFootL": "Average",
+							"LowerFootR": "Average",
+							"LowerFootL": "Average"
+						}
+					}
+				},
+				walk: {
+					moveSpeedMultiplier: 1,
+					animation: "trot",
+					animationSpeed: 1.35,
+					weight: 10,
+					blendMode: "Average",
+					riderAnim: {
+						animation: "rideelk-walk",
+						animationSpeed: 1,
+						weight: 1,	
+						withFpVariant: true,
+						blendMode: "Average", 
+						elementWeight: {
+							"LowerTorso": 80,
+							"UpperTorso": 80,
+							"UpperFootR": 80,
+							"UpperFootL": 80,
+							"LowerFootR": 80,
+							"LowerFootL": 80
+						},
+						elementBlendMode: {
+							"LowerTorso": "Average",
+							"UpperTorso": "Average",
+							"UpperFootR": "Average",
+							"UpperFootL": "Average",
+							"LowerFootR": "Average",
+							"LowerFootL": "Average"
+						}
+					}
+				},
+				sprint: {
+					moveSpeedMultiplier: 0.75,
+					animation: "Run",
+					weight: 10,
+					animationSpeed: 2,
+					blendMode: "Average",
+					riderAnim: {
+						animation: "rideelk-run",
+						animationSpeed: 2,
+						weight: 1,
+						withFpVariant: true,
+						blendMode: "Average", 
+						elementWeight: {
+							"LowerTorso": 80,
+							"UpperTorso": 80,
+							"UpperFootR": 80,
+							"UpperFootL": 80,
+							"LowerFootR": 80,
+							"LowerFootL": 80
+						},
+						elementBlendMode: {
+							"LowerTorso": "Average",
+							"UpperTorso": "Average",
+							"UpperFootR": "Average",
+							"UpperFootL": "Average",
+							"LowerFootR": "Average",
+							"LowerFootL": "Average"
+						}
+					}
+				},
+				swim: {
+					moveSpeedMultiplier: 1,
+					animation: "Swim",
+					animationSpeed: 1,
+					weight: 10,
+					blendMode: "Average",
+					riderAnim: {
+						animation: "rideelk-walk",
+						animationSpeed: 1,
+						weight: 1,	
+						withFpVariant: true,
+						blendMode: "Average", 
+						elementWeight: {
+							"LowerTorso": 80,
+							"UpperTorso": 80,
+							"UpperFootR": 80,
+							"UpperFootL": 80,
+							"LowerFootR": 80,
+							"LowerFootL": 80
+						},
+						elementBlendMode: {
+							"LowerTorso": "Average",
+							"UpperTorso": "Average",
+							"UpperFootR": "Average",
+							"UpperFootL": "Average",
+							"LowerFootR": "Average",
+							"LowerFootL": "Average"
+						}
+					}
+				},
+				swimback: {
+					moveSpeedMultiplier: 1,
+					animation: "Swim",
+					animationSpeed: 1,
+					weight: 10,
+					blendMode: "Average",
+					riderAnim: {
+						animation: "rideelk-walk",
+						animationSpeed: 1,
+						weight: 1,	
+						withFpVariant: true,
+						blendMode: "Average", 
+						elementWeight: {
+							"LowerTorso": 80,
+							"UpperTorso": 80,
+							"UpperFootR": 80,
+							"UpperFootL": 80,
+							"LowerFootR": 80,
+							"LowerFootL": 80
+						},
+						elementBlendMode: {
+							"LowerTorso": "Average",
+							"UpperTorso": "Average",
+							"UpperFootR": "Average",
+							"UpperFootL": "Average",
+							"LowerFootR": "Average",
+							"LowerFootL": "Average"
+						}
+					}
+				},	
+				jump: {
+					moveSpeedMultiplier: 0.75,
+					animation: "jump",
+					weight: 50,
+					easeOutSpeed: 40,
+					blendMode: "Average",
+					animationSpeed: 1,
+					riderAnim: {
+						animation: "rideelk-jump",
+						animationSpeed: 1,
+						weight: 10,
+						withFpVariant: true,
+						blendMode: "Average", 
+						elementWeight: {
+							"LowerTorso": 160,
+							"UpperTorso": 160,
+							"UpperFootR": 160,
+							"UpperFootL": 160,
+							"LowerFootR": 160,
+							"LowerFootL": 160
+						},
+						elementBlendMode: {
+							"LowerTorso": "Average",
+							"UpperTorso": "Average",
+							"UpperFootR": "Average",
+							"UpperFootL": "Average",
+							"LowerFootR": "Average",
+							"LowerFootL": "Average"
+						}
+					}
+				}
+			}
+		},
+		health: {
+			currenthealthByType: {
+				"*-adult": 30
+			},
+			maxhealthByType: {
+				"*-adult": 30,
+				"*-baby": 9
+			}
+		},
+		ownable: {
+			groupCode: "mountableanimal"
+		},
+		emotionstates: {
+			states: [
+				{
+					code: "fleeondamage",
+					"whenHealthRelBelow": 0.4,
+					"duration": 60,
+					"chanceByType": {
+						"*-male-*": 0.95,
+						"*": 1.0
+					},
+					slot: 0,
+					priority: 5,
+					"accumType": "max"
+				},
+				{
+					code: "aggressiveondamage",
+					"duration": 30,
+					"chanceByType": {
+						"*-male-*": 0.5,
+						"*": 0.0
+					},
+					slot: 0,
+					priority: 2,
+					"accumType": "noaccum"
+				},					
+				{
+					code: "fleeondamage",
+					"duration": 40,
+					"chanceByType": {
+						"*-male-*": 0.85,
+						"*": 1.0
+					},
+					slot: 0,
+					priority: 1,
+					"accumType": "max"
+				},
+				{
+					code: "alarmherdondamage",
+					chance: 1,
+					slot: 1,
+					priority: 1,
+					"accumType": "max"
+				},
+				{
+					code: "saturated",
+					"duration": 1200,
+					chance: 1,
+					slot: 0,
+					priority: 1,
+					"accumType": "sum"
+				}
+			]
+		},
+		deaddecay: {
+			hoursToDecay: 96,
+			decayedBlockByType: {
+				"*-adult": "carcass-large"
+			}			
+		},
+		harvestable: {
+			drops: [
+			{
+				type: "item",
+				code: "redmeat-raw",
+				quantityByType: {
+					"*-adult": {
+						avg: 20,
+						var: 5
+					}
+				}
+			},
+			{
+				type: "item",
+				code: "hide-raw-large",
+				quantity: {
+					avgByType: {
+						"*-adult": 2.0
+					},
+					var: 0
+				}
+			},
+			{
+				type: "item",
+				code: "hide-raw-medium",
+				quantityByType: {
+					"*": {
+						avg: 0,
+						var: 0
+					}
+				}
+			},
+			{
+				type: "item",
+				code: "fat",
+				quantityByType: {
+					"*-adult": {
+						avg: 2,
+						var: 0.5
+					}
+				}
+			}
+		]
+		},
+		taskai: {
+			"aitasks": [
+				{
+					code: "cometoowner",
+					priority: 4,
+					animation: "trot",
+					animationSpeed: 1.35,
+					movespeed: 0.019,
+					__allowTeleport: true,
+					teleportMaxRange: 1000,
+					teleportAfterRange: 200,
+					teleportToRange: 25
+				},
+				{
+					code: "meleeattack",
+					animation: "Attack",
+					enabledByType: {
+						"*-baby": false,
+						"*-female-*": false,
+						"*": true
+					},
+					entityCodes: [ "player", "wolf-*", "bear-*", "hyena-*", "fox-*" ],
+					priority: 3,
+					damageByType: {
+						"*-male-adult": 12,
+						"*-female-adult": 9
+					},
+					damageTier: 2,
+					damageType: "SlashingAttack",
+					slot: 1,
+					mincooldown: 1500,
+					maxcooldown: 2500,
+					attackDurationMs: 1250,
+					damagePlayerAtMs: 500,
+					animationSpeed: 2.5,
+					sound: "creature/hooved/generic/sniff*",
+					whenInEmotionState: "aggressiveondamage"
+				},
+				{
+					code: "seekentity",
+					animation: "Charge",
+					enabledByType: {
+						"*-baby": false,
+						"*-female-*": false,
+						"*": true
+					},
+					entityCodes: [ "player", "wolf-*", "hyena-*" ],
+					priority: 1.6,
+					mincooldown: 600,
+					maxcooldown: 650,
+					movespeed: 0.05,
+					seekingRange: 20,
+					animationSpeed: 1,
+					sound: "creature/hooved/generic/sniff*",
+					whenInEmotionState: "aggressiveondamage"
+				},
+				{
+					code: "fleeentity",
+					animation: "Run",
+					// Entity codes empty means it will only flee from the damage source alone through instafleeOnDamageChance
+					entityCodes: [ ],
+					priority: 1.5,
+					movespeedByType: {
+						"*-adult": 0.08,
+						"*-baby": 0.06
+					},
+					seekingRange: 20,
+					animationSpeed: 2,
+					instafleeOnDamageChance: 1,
+					sound: "creature/hooved/generic/call*",
+					whenInEmotionState: "fleeondamage"
+				},
+				{
+					code: "followleadholder",
+					priority: 1.45,
+					animation: "trot",
+					animationSpeed: 1.35,
+					movespeedByType: {
+						"*-adult": 0.045,
+						"*-baby": 0.035
+					}
+				},
+				{
+					code: "stayclosetoentity",
+					animation: "Run",
+					enabledByType: {
+						"*-baby": true,
+						"*": false
+					},
+					priority: 1.4,
+					entityCodeByType: {
+						"*": "tameddeer-{type}-female-adult"
+					},
+					movespeed: 0.02,
+					animationSpeed: 3,
+					maxDistance: 5,
+					searchRange: 25
+				},
+				{
+					code: "getoutofwater",
+					animation: "Swim",
+					priority: 1.4,
+					movespeedByType: {
+						"*-adult": 0.045,
+						"*-baby": 0.035
+					},
+					animationSpeed: 1
+				},
+				{
+					code: "idle",
+					animation: "Sleep",
+					priority: 1.38,
+					minduration: 200000,
+					maxduration: 800000,
+					mincooldown: 10000,
+					maxcooldown: 30000,
+					priorityForCancel: 1.38,
+					whenNotInEmotionState: "aggressiveondamage",
+					duringDayTimeFrames: [
+						{
+							"fromHour": 10,
+							"toHour": 18
+						},
+						{
+							"fromHour": 1,
+							"toHour": 4
+						}
+					],
+					stopOnNearbyEntityCodes: [ "player", "wolf-*", "hyena-*", "bear-*" ],
+					stopRange: 8,
+					stopOnHurt: true
+				},
+				{
+					code: "seekfoodandeat",
+					movespeedByType: {
+						"*-adult": 0.0065
+					},
+					priority: 1.25,
+					eatSound: "creature/animal-eat-small",
+					eatTime: 2.5,
+					eatLooseItems: true,
+					animationSpeedByType: {
+						"*-adult": 1.35
+					},
+					animation: "Walk",
+					eatAnimation: "Eat2",
+					mincooldownHours: 1,
+					maxcooldownHours: 4
+				},
+				{
+					code: "idle",
+					animation: "Eat",
+					priority: 1.2,
+					priorityForCancel: 1.35,
+					stopOnNearbyEntityCodes: [ "player", "wolf-*", "hyena-*", "bear-*" ],
+					minduration: 7360,
+					maxduration: 7360,
+					mincooldown: 6000,
+					maxcooldown: 20000,
+					animationSpeed: 1
+				},
+				{
+					code: "idle",
+					animation: "Roar",
+					animationSpeed: 1.0,
+					priority: 1.0,
+					priorityForCancel: 1.35,
+					chance: 0.1,
+					stopOnNearbyEntityCodes: [ "player", "wolf-*", "hyena-*", "bear-*" ],
+					mincooldown: 8000,
+					maxcooldown: 50000,
+					minduration: 2800,
+					maxduration: 2950,
+					sound: "creature/hooved/large/elk/bugle*",
+					soundRange: 120
+				},
+				{
+					code: "wander",
+					animation: "Walk",
+					priority: 1.0,
+					priorityForCancel: 1.35,
+					stopOnNearbyEntityCodes: [ "player", "wolf-*", "hyena-*", "bear-*" ],
+					movespeedByType: {
+						"*-adult": 0.0065,
+						"*-baby": 0.0045
+					},
+					animationSpeedByType: {
+						"*-baby": 1.8,
+						"*": 1.35
+					},
+					preferredLightLevel: 12
+				},
+				{
+					code: "idle",
+					animation: "Idle",
+					priority: 0.9,
+					minduration: 6000,
+					maxduration: 45000,
+					mincooldown: 6000,
+					maxcooldown: 120000,
+					priorityForCancel: 1.28,
+					stopOnNearbyEntityCodes: [ "player", "wolf-*", "hyena-*", "bear-*" ],
+					stopRange: 10,
+					stopOnHurt: true,
+					sound: "creature/hooved/generic/sniff*"
+				},
+				{
+					code: "idle",
+					animation: "Sit",
+					priority: 0.8,
+					minduration: 150000,
+					maxduration: 600000,
+					mincooldown: 6000,
+					maxcooldown: 120000,
+					priorityForCancel: 1.4,
+					stopOnNearbyEntityCodes: [ "wolf-*", "hyena-*", "bear-*" ],
+					stopRange: 10,
+					stopOnHurt: true
+				}
+
+			]
+		},
+		antlergrowth: {
+			enabledByType: { "*-male-adult": true, "*": false },
+			variantsByType: {
+				"*-male-adult": ["01", "02", "03", "04", "05", "06", "07", "08"]
+			},
+			overrideTypeByType: {
+				"*-albinoelk-male-adult": "elk"
+			},
+			beginGrowMonth: 7,
+			
+			"c1": "Amount of months until full growth. Must be less than 12 months (including grown and shed duration)",
+			growDurationMonths: 6.5,
+			
+			"c2": "Amount of months the antler can be at full growth until shedding",
+			grownDurationMonths: 2,
+			
+			"c3": "Amount of months the antler can shed. Higher values allows players to find them for longer. A value of 0 will make antlers never drop",
+			shedDurationMonths: 0.5,
+			
+			noItemDrop: false
+		}
+	},
+	client: {
+		renderer: "Shape",
+		shapeByType: {
+			"*-male-adult": { "base": "entity/animal/mammal/hooved/deer/elk/female", overlays: [ { base: "entity/animal/mammal/hooved/deer/elk/malefringe" }] },
+			"*-female-adult": { "base": "entity/animal/mammal/hooved/deer/elk/female" }
+		},
+		texturesByType: {
+			"*-albinoelk-*": {
+				"skin": { base: "game:entity/animal/mammal/hooved/deer/elkalbino-adult"}
+			},
+			"*": { 
+				"skin": { base: "game:entity/animal/mammal/hooved/deer/{type}-{age}" } 
+			}
+		},
+		sizeByType: {
+			"*-male-adult": 1.05,
+			"*-female-adult": 0.95
+		},
+		behaviors: [
+			{ code: "repulseagents" },
+			{ code: "controlledphysics" },
+			{ code: "mortallywoundable" },
+			{ code: "health" },
+			{ code: "interpolateposition" },
+			{ code: "floatupwhenstuck" },
+			{ code: "harvestable" },
+			{ code: "antlergrowth" },
+			{ code: "selectionboxes" },
+			{ code: "ownable" },
+			{ code: "rideableaccessories" },
+			{ code: "gait" },
+			{ code: "rideable",  enabledByType: { "*-adult": true, "*": false } },
+			{ code: "ropetieable" }
+		],
+		animations: [
+			{
+				code: "attack",
+				animation: "Attack",
+				animationSpeed: 2.2,
+				weight: 10,
+				blendMode: "AddAverage"
+			},
+			{
+				code: "charge",
+				animation: "Charge",
+				animationSpeed: 2.2,
+				weight: 10,
+				blendMode: "AddAverage"
+			},
+			{
+				code: "roar",
+				animation: "Roar",
+				animationSpeed: 2.2,
+				weight: 10,
+				blendMode: "AddAverage",
+				elementWeight: {
+					"Head": 80,
+					"Neck": 80,
+					"Neck2": 80
+				},
+				elementBlendMode: {
+					"Head": "AddAverage",
+					"Neck": "AddAverage",
+					"Neck2": "AddAverage"
+				}				
+			},
+			{
+				code: "hurt",
+				animation: "Hurt",
+				animationSpeed: 2.2,
+				weight: 10,
+				blendMode: "AddAverage"
+			},
+			{
+				code: "die",
+				animation: "Die",
+				easeInSpeed: 3,
+				animationSpeedByType: {
+					"*-adult": 0.8,
+					"*-baby": 1.0
+				},
+				weight: 10,
+				blendMode: "Average",
+				triggeredBy: { "onControls": [ "dead" ] }
+			},
+			{
+				code: "wounded-idle",
+				animation: "wounded-idle",
+				easeInSpeed: 3,
+				weight: 10,
+				blendMode: "Average"
+			},
+			{
+				code: "wounded-resthead",
+				animation: "wounded-resthead",
+				easeInSpeed: 3,
+				weight: 10,
+				blendMode: "Average"
+			},
+			{
+				code: "wounded-trystand",
+				animation: "wounded-trystand",
+				weight: 100,
+				easeInSpeed: 3,
+				blendMode: "Average"
+			},
+			{
+				code: "wounded-look",
+				animation: "wounded-look",
+				weight: 100,
+				easeInSpeed: 3,
+				blendMode: "Average"
+			},
+			{
+				code: "wounded-stand",
+				animation: "wounded-stand",
+				weight: 10,
+				blendMode: "Average"
+			},
+			{
+				code: "dead",
+				animation: "dead",
+				weight: 10,
+				easeInSpeed: 3,
+				blendMode: "Average"
+			},
+			{
+				code: "idle",
+				animation: "Idle",
+				blendMode: "AddAverage",
+				easeOutSpeed: 4,
+				triggeredBy: { "defaultAnim": true }
+			},
+			{
+				code: "sleep",
+				animation: "Sleep-Antlers",
+				easeInSpeed: 4,
+				easeOutSpeed: 4,
+				blendMode: "Average"
+			},
+			{
+				code: "sit",
+				animation: "Sit",
+				easeInSpeed: 2,
+				easeOutSpeed: 2,
+				blendMode: "Average"
+			},
+			{
+				code: "eat",
+				animation: "Eat",
+				easeInSpeed: 3,
+				easeOutSpeed: 3,
+				blendMode: "Average"
+			},
+			{
+				code: "swim",
+				animation: "Swim",
+				supressDefaultAnimation: true,
+				blendMode: "Average"
+			},
+			{
+				code: "walk",
+				animation: "Walk",
+				supressDefaultAnimation: true,
+				blendMode: "Average"
+			},
+			{
+				code: "run",
+				animation: "Run",
+				supressDefaultAnimation: true,
+				blendMode: "Average"
+			},
+			{
+				code: "stot",
+				animation: "Stot",
+				supressDefaultAnimation: true,
+				blendMode: "Average"
+			},
+			{
+				code: "gallop",
+				animation: "Gallop",
+				supressDefaultAnimation: true,
+				blendMode: "Average"
+			},
+			{
+				code: "turn-left",
+				animation: "turn-left",
+				easeInSpeed: 3,
+				easeOutSpeed: 10,
+				weight: 0.01,
+				blendMode: "Average",
+				elementWeight: {
+					"Head": 80,
+					"Neck": 80,
+					"Neck2": 80
+				},
+				elementBlendMode: {
+					"Head": "AddAverage",
+					"Neck": "AddAverage",
+					"Neck2": "AddAverage"
+				}				
+			},
+			{
+				code: "turn-right",
+				animation: "turn-right",
+				easeInSpeed: 3,
+				easeOutSpeed: 10,
+				weight: 0.01,
+				blendMode: "Average",
+				elementWeight: {
+					"Head": 80,
+					"Neck": 80,
+					"Neck2": 80
+				},
+				elementBlendMode: {
+					"Head": "AddAverage",
+					"Neck": "AddAverage",
+					"Neck2": "AddAverage"
+				}				
+			},
+			{
+				code: "idle-turn-left",
+				animation: "turn-left",
+				easeInSpeed: 3,
+				easeOutSpeed: 10,
+				weight: 0.01,
+				blendMode: "Average",
+				elementWeight: {
+					"Head": 5,
+					"Neck": 5,
+					"Neck2": 5
+				},
+				elementBlendMode: {
+					"Head": "AddAverage",
+					"Neck": "AddAverage",
+					"Neck2": "AddAverage"
+				}				
+			},
+			{
+				code: "idle-turn-right",
+				animation: "turn-right",
+				easeInSpeed: 3,
+				easeOutSpeed: 10,
+				weight: 0.01,
+				blendMode: "Average",
+				elementWeight: {
+					"Head": 5,
+					"Neck": 5,
+					"Neck2": 5
+				},
+				elementBlendMode: {
+					"Head": "AddAverage",
+					"Neck": "AddAverage",
+					"Neck2": "AddAverage"
+				}				
+			}
+		]
+	},
+	server: {
+		attributes: {
+			pathfinder: {
+				minTurnAnglePerSec: 90,
+				maxTurnAnglePerSec: 180
+			}
+		},
+		behaviors: [
+			{ code: "repulseagents" },
+			{ code: "controlledphysics" },
+			{ code: "mortallywoundable", whenBelowHealth: 6 },
+			{ code: "health" },
+			{ code: "deaddecay" },
+			{ code: "floatupwhenstuck" },
+			{ code: "harvestable" },
+			{ code: "breathe" },
+			{ 
+				code: "grow", 
+				enabledByType: {
+					"*-baby": true,
+					"*-adult": false
+				},
+				hoursToGrow: 336,
+				adultEntityCodesByType: {
+					"*-male-baby": ["*{type}-male-adult"],
+					"*-female-baby": ["*{type}-female-adult"]
+				}
+			},
+			{ code: "emotionstates" },
+			{ code: "taskai" },
+			{ code: "pettable", minGeneration: 1 },
+			{ code: "antlergrowth" },
+			{ code: "selectionboxes" },
+			{ code: "ownable" },
+			{ code: "rideableaccessories" },
+			{ code: "gait" },
+			{ code: "rideable" },
+			{ code: "ropetieable" },
+			{ code: "entitystatetags" }
+		]
+	},
+	"soundsByType": {
+		"*-adult":{
+			"hurt": "creature/hooved/generic/call*",
+			"death": "creature/hooved/large/elk/bellow*"
+		}
+	},
+	"idleSoundChance": 0.05
+}

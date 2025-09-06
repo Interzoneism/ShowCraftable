@@ -1,0 +1,59 @@
+{
+	"editor": {
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+		"stem-brown": "block/plant/bamboo/stem-brown"
+	},
+	"elements": [
+		{
+			"name": "origin",
+			"from": [ 8.0, 0.0, 8.0 ], 
+			"to": [ 8.0, 0.0, 8.0 ], 
+			"rotationOrigin": [ 8.0, 0.0, 8.0 ],
+			"faces": {
+				"north": { "texture": "#stem-brown", "uv": [ 0.0, 0.0, 0.5, 0.5 ], "enabled": false },
+				"east": { "texture": "#stem-brown", "uv": [ 0.0, 0.0, 0.5, 0.5 ], "enabled": false },
+				"south": { "texture": "#stem-brown", "uv": [ 0.0, 0.0, 0.5, 0.5 ], "enabled": false },
+				"west": { "texture": "#stem-brown", "uv": [ 0.0, 0.0, 0.5, 0.5 ], "enabled": false },
+				"up": { "texture": "#stem-brown", "uv": [ 0.0, 0.0, 0.5, 0.5 ], "enabled": false },
+				"down": { "texture": "#stem-brown", "uv": [ 0.0, 0.0, 0.5, 0.5 ], "enabled": false }
+			},
+			"children": [
+				{
+					"name": "stick1",
+					"from": [ 0.0, -0.75, -0.75 ], 
+					"to": [ 16.0, 0.75, 0.75 ], 
+					"faces": {
+						"north": { "texture": "#stem-brown", "uv": [ 4.0, 0.0, 5.5, 16.0 ], "rotation": 90 },
+						"east": { "texture": "#stem-brown", "uv": [ 9.5, 8.5, 11.0, 10.0 ] },
+						"south": { "texture": "#stem-brown", "uv": [ 4.0, 0.0, 5.5, 16.0 ], "rotation": 90 },
+						"west": { "texture": "#stem-brown", "uv": [ 0.0, 0.0, 1.5, 1.5 ], "enabled": false },
+						"up": { "texture": "#stem-brown", "uv": [ 5.0, 0.0, 6.5, 16.0 ], "rotation": 90 },
+						"down": { "texture": "#stem-brown", "uv": [ 2.0, 0.0, 3.5, 16.0 ], "rotation": 90 }
+					},
+					"children": [
+						{
+							"name": "stick2",
+							"from": [ -16.0, 0.0, 0.0 ], 
+							"to": [ 0.0, 1.5, 1.5 ], 
+							"rotationOrigin": [ 0.0, 0.75, 0.75 ],
+							"faces": {
+								"north": { "texture": "#stem-brown", "uv": [ 0.0, 0.0, 1.5, 16.0 ], "rotation": 90 },
+								"east": { "texture": "#stem-brown", "uv": [ 0.0, 0.0, 1.5, 1.5 ], "enabled": false },
+								"south": { "texture": "#stem-brown", "uv": [ 1.0, 0.0, 2.5, 16.0 ], "rotation": 90 },
+								"west": { "texture": "#stem-brown", "uv": [ 9.5, 8.5, 11.0, 10.0 ] },
+								"up": { "texture": "#stem-brown", "uv": [ 4.0, 0.0, 5.5, 16.0 ], "rotation": 90 },
+								"down": { "texture": "#stem-brown", "uv": [ 6.0, 0.0, 7.5, 16.0 ], "rotation": 90 }
+							}
+						}
+					]
+				}
+			]
+		}
+	]}

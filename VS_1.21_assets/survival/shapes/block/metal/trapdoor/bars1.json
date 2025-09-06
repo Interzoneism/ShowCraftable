@@ -1,0 +1,151 @@
+{
+	"editor": {
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+		"trapdoor-metal": "block/metal/trapdoor/sample"
+	},
+	"elements": [
+		{
+			"name": "origin",
+			"from": [ 8.0, 0.0, 8.0 ],
+			"to": [ 8.0, 0.0, 8.0 ],
+			"rotationOrigin": [ 8.0, 0.0, 8.0 ],
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "N frame",
+					"from": [ -8.0, 0.0, -8.0 ],
+					"to": [ 5.0, 3.0, -5.0 ],
+					"rotationOrigin": [ 0.0, 1.5, -6.5 ],
+					"faces": {
+						"north": { "texture": "#trapdoor-metal", "uv": [ 0.0, 0.0, 3.0, 13.0 ], "rotation": 90 },
+						"south": { "texture": "#trapdoor-metal", "uv": [ 2.5, 0.0, 15.5, 3.0 ] },
+						"west": { "texture": "#trapdoor-metal", "uv": [ 3.0, 3.0, 6.0, 6.0 ], "rotation": 180 },
+						"up": { "texture": "#trapdoor-metal", "uv": [ 0.0, 0.0, 13.0, 3.0 ] },
+						"down": { "texture": "#trapdoor-metal", "uv": [ 0.0, 0.0, 3.0, 13.0 ], "rotation": 90 }
+					},
+					"children": [
+						{
+							"name": "S frame",
+							"from": [ 3.0, 0.0, 13.0 ],
+							"to": [ 16.0, 3.0, 16.0 ],
+							"rotationOrigin": [ 8.0, 0.0, 8.0 ],
+							"faces": {
+								"north": { "texture": "#trapdoor-metal", "uv": [ 3.0, 0.0, 16.0, 3.0 ] },
+								"east": { "texture": "#trapdoor-metal", "uv": [ 0.0, 0.0, 3.0, 3.0 ] },
+								"south": { "texture": "#trapdoor-metal", "uv": [ 0.0, 3.0, 3.0, 16.0 ], "rotation": 270 },
+								"up": { "texture": "#trapdoor-metal", "uv": [ 0.0, 3.0, 3.0, 16.0 ], "rotation": 270 },
+								"down": { "texture": "#trapdoor-metal", "uv": [ 0.0, 0.0, 13.0, 3.0 ] }
+							},
+							"children": [
+								{
+									"name": "bar1",
+									"from": [ 6.5, 0.5, -10.0 ],
+									"to": [ 8.5, 2.5, 0.0 ],
+									"rotationOrigin": [ 7.5, 1.5, -5.0 ],
+									"rotationZ": -45.0,
+									"faces": {
+										"east": { "texture": "#trapdoor-metal", "uv": [ 6.0, 4.0, 16.0, 6.0 ] },
+										"west": { "texture": "#trapdoor-metal", "uv": [ 6.0, 4.0, 16.0, 6.0 ] },
+										"up": { "texture": "#trapdoor-metal", "uv": [ 6.0, 4.0, 16.0, 6.0 ], "rotation": 90 },
+										"down": { "texture": "#trapdoor-metal", "uv": [ 6.0, 4.0, 16.0, 6.0 ], "rotation": 90 }
+									}
+								},
+								{
+									"name": "bar2",
+									"from": [ 1.5, 0.5, -10.0 ],
+									"to": [ 3.5, 2.5, 0.0 ],
+									"rotationOrigin": [ 2.5, 1.5, -5.0 ],
+									"rotationZ": -45.0,
+									"faces": {
+										"east": { "texture": "#trapdoor-metal", "uv": [ 6.0, 4.0, 16.0, 6.0 ] },
+										"west": { "texture": "#trapdoor-metal", "uv": [ 6.0, 4.0, 16.0, 6.0 ] },
+										"up": { "texture": "#trapdoor-metal", "uv": [ 6.0, 4.0, 16.0, 6.0 ], "rotation": 90 },
+										"down": { "texture": "#trapdoor-metal", "uv": [ 6.0, 4.0, 16.0, 6.0 ], "rotation": 90 }
+									}
+								}
+							]
+						},
+						{
+							"name": "W frame",
+							"from": [ 0.0, 0.0, 3.0 ],
+							"to": [ 3.0, 3.0, 16.0 ],
+							"rotationOrigin": [ 8.0, 0.0, 8.0 ],
+							"faces": {
+								"east": { "texture": "#trapdoor-metal", "uv": [ 3.0, 0.0, 16.0, 3.0 ] },
+								"south": { "texture": "#trapdoor-metal", "uv": [ 0.0, 0.0, 3.0, 3.0 ], "windMode": [-1,-1,-1,-1] },
+								"west": { "texture": "#trapdoor-metal", "uv": [ 0.0, 0.0, 3.0, 13.0 ], "rotation": 90 },
+								"up": { "texture": "#trapdoor-metal", "uv": [ 0.0, 0.0, 3.0, 13.0 ], "rotation": 180 },
+								"down": { "texture": "#trapdoor-metal", "uv": [ 0.0, 3.0, 3.0, 16.0 ] }
+							},
+							"children": [
+								{
+									"name": "bar3",
+									"from": [ 3.0, 0.5, 1.5 ],
+									"to": [ 13.0, 2.5, 3.5 ],
+									"rotationOrigin": [ 3.0, 1.5, 2.5 ],
+									"rotationX": -45.0,
+									"faces": {
+										"north": { "texture": "#trapdoor-metal", "uv": [ 6.0, 4.0, 16.0, 6.0 ] },
+										"south": { "texture": "#trapdoor-metal", "uv": [ 6.0, 4.0, 16.0, 6.0 ] },
+										"up": { "texture": "#trapdoor-metal", "uv": [ 6.0, 4.0, 16.0, 6.0 ] },
+										"down": { "texture": "#trapdoor-metal", "uv": [ 6.0, 4.0, 16.0, 6.0 ] }
+									}
+								},
+								{
+									"name": "bar4",
+									"from": [ 3.0, 0.5, 6.5 ],
+									"to": [ 13.0, 2.5, 8.5 ],
+									"rotationOrigin": [ 3.0, 1.5, 7.5 ],
+									"rotationX": -45.0,
+									"faces": {
+										"north": { "texture": "#trapdoor-metal", "uv": [ 6.0, 4.0, 16.0, 6.0 ] },
+										"south": { "texture": "#trapdoor-metal", "uv": [ 6.0, 4.0, 16.0, 6.0 ] },
+										"up": { "texture": "#trapdoor-metal", "uv": [ 6.0, 4.0, 16.0, 6.0 ] },
+										"down": { "texture": "#trapdoor-metal", "uv": [ 6.0, 4.0, 16.0, 6.0 ] }
+									}
+								}
+							]
+						},
+						{
+							"name": "E frame",
+							"from": [ 13.0, 0.0, 0.0 ],
+							"to": [ 16.0, 3.0, 13.0 ],
+							"rotationOrigin": [ 8.0, 0.0, 8.0 ],
+							"faces": {
+								"north": { "texture": "#trapdoor-metal", "uv": [ 0.0, 0.0, 3.0, 3.0 ], "windMode": [-1,-1,-1,-1] },
+								"east": { "texture": "#trapdoor-metal", "uv": [ 3.0, 0.0, 16.0, 3.0 ], "rotation": 180 },
+								"west": { "texture": "#trapdoor-metal", "uv": [ 2.5, 0.0, 15.5, 3.0 ] },
+								"up": { "texture": "#trapdoor-metal", "uv": [ 0.0, 0.0, 3.0, 13.0 ] },
+								"down": { "texture": "#trapdoor-metal", "uv": [ 0.0, 0.0, 13.0, 3.0 ], "rotation": 90 }
+							}
+						}
+					]
+				}
+			]
+		}
+	],
+	"animations": [
+		{
+			"name": "opened",
+			"code": "opened",
+			"quantityframes": 2,
+			"onActivityStopped": "EaseOut",
+			"onAnimationEnd": "Repeat",
+			"keyframes": [
+				{
+					"frame": 0,
+					"elements": {
+						"N frame": { "rotationX": -90.0, "rotationY": 0.0, "rotationZ": 0.0 }
+					}
+				}
+			]
+		}
+	]}

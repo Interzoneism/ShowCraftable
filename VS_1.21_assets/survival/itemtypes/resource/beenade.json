@@ -1,0 +1,43 @@
+{
+	code: "beenade",
+	classByType: {
+		"*-opened": "ItemOpenedBeenade",
+		"*-closed": "ItemClosedBeenade"
+	},
+	variantgroups: [
+		{ code: "type", states: ["opened", "closed" ] },
+	],
+	shape: { base: "item/beenade-{type}" },
+	textures: {
+		"particletex": { base: "block/reed/beehive/beenade" }
+	},
+	maxstacksize: 4,
+	creativeinventory: { "general": ["*"], "items": ["*"] },
+	attributes: {
+		displaycaseable: true,
+		shelvable: true,
+	},
+	materialDensity: 200,
+	guiTransform: {
+		translation: { x: 2, y: 0, z: 0 },
+		rotation: { x: -41, y: 45, z: -180 },
+		origin: { x: 0.5, y: 0.15, z: 0.5 },
+		scale: 2.5
+	},
+	tpHandTransform: {
+		translation: { x: -1.2, y: -0.8, z: -0.75 },
+		rotation: { x: 0, y: 0, z: -117 },
+		scale: 0.75
+	},
+	fpHandTransform: {
+		rotation: { x: 17, y: 0, z: 0 },
+		origin: { x: 0.5, y: 0.35, z: 0.5 },
+		scale: 1.25
+	},
+	groundTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: 0, y: 0, z: 0 },
+		origin: { x: 0.5, y: 0, z: 0.5299 },
+		scale: 4
+	}
+}

@@ -1,0 +1,92 @@
+{
+	"editor": {
+		"collapsedPaths": "",
+		"allAngles": true,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+	},
+	"elements": [
+		{
+			"name": "origin",
+			"from": [ 8.0, 1.5, 8.0 ],
+			"to": [ 8.0, 1.5, 8.0 ],
+			"rotationOrigin": [ 8.0, 0.0, 8.0 ],
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "NS",
+					"from": [ -8.0, -2.2, 0.0 ],
+					"to": [ 8.0, 13.8, 0.0 ],
+					"renderPass": 1,
+					"rotationOrigin": [ 0.0, 1.0, 0.0 ],
+					"faces": {
+						"south": { "texture": "#fan1", "uv": [ 0.0, 0.0, 16.0, 16.0 ], "windMode": [0,0,-1,-1], "windData": [0,0,1,1] }
+					}
+				},
+				{
+					"name": "NS5",
+					"from": [ -0.4, -2.2, -8.2 ],
+					"to": [ -0.4, 13.8, 7.8 ],
+					"renderPass": 1,
+					"rotationOrigin": [ 8.0, 1.0, -8.0 ],
+					"faces": {
+						"east": { "texture": "#fan1", "uv": [ 0.0, 0.0, 16.0, 16.0 ], "windMode": [0,-1,-1,0], "windData": [0,1,1,0] }
+					}
+				},
+				{
+					"name": "NS6",
+					"from": [ -0.3, 4.2, -18.5 ],
+					"to": [ -0.3, 20.2, -2.5 ],
+					"renderPass": 1,
+					"rotationOrigin": [ 11.0, 3.0, -9.0 ],
+					"rotationY": 45.0,
+					"rotationZ": 30.0,
+					"faces": {
+						"east": { "texture": "#fan1", "uv": [ 0.0, 0.0, 16.0, 16.0 ], "windMode": [0,-1,-1,0], "windData": [0,1,1,0] }
+					}
+				},
+				{
+					"name": "NS7",
+					"from": [ -0.9, -7.0, -14.4 ],
+					"to": [ -0.9, 7.3, 1.6 ],
+					"renderPass": 1,
+					"rotationOrigin": [ 7.0, 3.0, -5.0 ],
+					"rotationY": 45.0,
+					"rotationZ": -30.0,
+					"faces": {
+						"east": { "texture": "#fan1", "uv": [ 0.0, 0.0, 16.0, 14.0 ], "windMode": [0,-1,-1,0], "windData": [0,1,1,0] }
+					}
+				},
+				{
+					"name": "NS8",
+					"from": [ -2.9, -7.0, -2.4 ],
+					"to": [ -2.9, 7.3, 13.6 ],
+					"renderPass": 1,
+					"rotationOrigin": [ 5.0, 3.0, 7.0 ],
+					"rotationY": -45.0,
+					"rotationZ": -30.0,
+					"faces": {
+						"east": { "texture": "#fan1", "uv": [ 0.0, 0.0, 16.0, 14.0 ], "windMode": [0,-1,-1,0], "windData": [0,1,1,0] }
+					}
+				},
+				{
+					"name": "NS9",
+					"from": [ -3.3, 4.2, 0.5 ],
+					"to": [ -3.3, 20.2, 16.5 ],
+					"renderPass": 1,
+					"rotationOrigin": [ 8.0, 3.0, 10.0 ],
+					"rotationY": -45.0,
+					"rotationZ": 30.0,
+					"faces": {
+						"east": { "texture": "#fan1", "uv": [ 0.0, 0.0, 16.0, 16.0 ], "windMode": [0,-1,-1,0], "windData": [0,1,1,0] }
+					}
+				}
+			]
+		}
+	]}

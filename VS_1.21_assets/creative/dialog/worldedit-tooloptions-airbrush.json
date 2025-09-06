@@ -1,0 +1,72 @@
+{
+	code: "worldedit-tooloptions-airbrush",
+	padding: 5,
+	alignment: "None",
+	disableWorldInteract: false,
+	posX: 330,
+	rows: [
+		{ elements: [
+			{
+				code: "std.airBrushMode",
+				width: 225,
+				height: 30,
+				type: "select",
+				mode: "dropdown",
+				label: "we-mode",
+				values: ["0", "3"],
+				names: [
+					"we-airBrushMode-1",
+					"we-airBrushMode-2"
+				],
+				param: "/we tm",
+			},			
+			{
+				code: "std.airBrushRadius",
+				width: 120,
+				height: 30,
+				type: "numberinput",
+				label: "we-radius",
+				param: "/we tr",
+			},
+			{
+				code: "std.airBrushQuantity",
+				width: 170,
+				height: 30,
+				type: "numberinput",
+				label: "we-airBrushQuantity-label",
+				param: "/we tq",
+			},
+		]
+		}, { elements: [
+			{
+				code: "std.airBrushPlaceMode",
+				width: 250,
+				height: 30,
+				type: "select",
+				mode: "dropdown",
+				label: "we-airBrushPlaceMode-label",
+				values: ["0", "1"],
+				names: [
+					"we-airBrushPlaceMode-1",
+					"we-airBrushPlaceMode-2"
+				],
+				param: "/we tmp",
+			},
+			{
+				code: "std.airBrushApply",
+				width: 250,
+				height: 30,
+				type: "select",
+				mode: "dropdown",
+				label: "we-airBrushApply-label",
+				values: ["0", "1"],
+				names: [
+					"we-airBrushApply-1",
+					"we-airBrushApply-2"
+				],
+				param: "/we ta",
+			}
+		]
+		},
+	]
+}

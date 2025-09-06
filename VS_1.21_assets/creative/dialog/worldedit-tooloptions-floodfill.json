@@ -1,0 +1,66 @@
+{
+	code: "worldedit-tooloptions-floodfill",
+	padding: 5,
+	posX: 330,
+	disableWorldInteract: false,
+	alignment: "FixedTop",
+	rows: [
+		{ elements: [
+			{
+				code: "std.floodFillSearchRadius",
+				width: 170,
+				height: 30,
+				type: "numberinput",
+				label: "we-floodFillSearchRadius-label",
+				param: "/we tr",
+			},
+			{
+				width: 150,
+				code: "std.floodFillCheckEnclosure",
+				label: "we-floodFillCheckEnclosure-label",
+				type: "switch",
+				param: "/we tce",
+			},
+			{
+				code: "std.floodFillMode",
+				width: 160,
+				height: 30,
+				type: "select",
+				mode: "dropdown",
+				label: "we-mode",
+				values: ["2", "3", "1"],
+				names: [
+					"we-floodFillMode-1",
+					"we-floodFillMode-2",
+					"we-floodFillMode-3"
+				],
+				param: "/we tm",
+			}
+		] },
+		{ elements: [
+			
+			{
+				width: 150,
+				code: "std.ignoreWater",
+				label: "we-ignoreWater-label",
+				type: "switch",
+				param: "/we iw",
+			},
+			{
+				width: 150,
+				code: "std.ignorePlants",
+				label: "we-ignorePlants-label",
+				type: "switch",
+				param: "/we ip",
+			},
+			{
+				width: 150,
+				code: "std.ignoreLooseSurfaceItems",
+				label: "we-ignoreLooseSurfaceItems-label",
+				tooltip: "we-ignoreLooseSurfaceItems-tooltip",
+				type: "switch",
+				param: "/we ii"
+			}
+		] }
+	]
+}

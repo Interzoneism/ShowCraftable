@@ -1,0 +1,10 @@
+{
+	ingredients: [
+		{ type: "item", code: "ingot-copper", minratio: 0.65, maxratio: 0.75  },
+		{ type: "item", code: "ingot-nickel", minratio: 0.25, maxratio: 0.35  },
+	],
+	output: {
+		type: "item",
+		code: "ingot-cupronickel"
+	}
+}

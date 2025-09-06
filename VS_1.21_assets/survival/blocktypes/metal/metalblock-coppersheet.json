@@ -1,0 +1,27 @@
+{
+	code: "metalblock-corroded-sheet-copper",
+	drawtype: "cube",
+	sidesolid: { all: true },
+	sideopaque: { all: true },
+	blockmaterial: "Metal",
+	creativeinventory: { "general": ["*"], "decorative": ["*"] },
+	replaceable: 300,
+	resistance: 2,
+	lightAbsorption: 1,
+	emitSideAo: {
+		all: false
+	},
+	texturesByType: {
+		"*": {
+			all: { 
+				base: "block/metal/tarnished/sheet/copper*", 
+			}
+		},
+	},
+	sounds: {
+		"place": "block/chute",
+		"break": "block/chute",
+		"hit": "block/chute",
+		"walk": "walk/stone"
+	}
+}

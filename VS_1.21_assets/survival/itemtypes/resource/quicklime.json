@@ -1,0 +1,40 @@
+{
+	code: "quicklime",
+	behaviors: [
+		{ name: "GroundStorable", properties: { layout: 'Messy12', collisionBox: { x1: 0, y1: 0, z1: 0, x2: 1, y2: 0.125, z2: 1 } } }
+	],
+	attributes: {
+		dissolveInWater: true,
+		groundStorageTransform: {
+			translation: { x: 0, y: -0.06, z: 0 },
+			scale: 0.89
+		}
+	},
+	shape: { base: "item/food/flour" },
+	texture: { base: "item/resource/quicklime" },
+	creativeinventory: { "general": ["*"], "items": ["*"] },
+	maxstacksize: 64,
+	materialDensity: 500,
+	guiTransform: {
+		rotation: { x: 155, y: 12, z: 0 },
+		origin: { x: 0.52, y: 0.09, z: 0.49 },
+		scale: 2.54
+	},
+	fpHandTransform: {
+		translation: { x: 0.1, y: 0.16, z: 0 },
+		rotation: { x: 37, y: 77, z: 2 },
+		origin: { x: 0.5, y: 0.1, z: 0.5 },
+		scale: 1.95
+	},
+	tpHandTransform: {
+		translation: { x: -1.53, y: -1.1, z: -0.7 },
+		rotation: { x: 19, y: 26, z: -83 },
+		scale: 0.48
+	},
+	groundTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: 0, y: 0, z: 0 },
+		origin: { x: 0.5, y: 0, z: 0.5 },
+		scale: 3
+	}
+}

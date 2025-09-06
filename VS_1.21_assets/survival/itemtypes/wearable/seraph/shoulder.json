@@ -1,0 +1,296 @@
+{
+	code: "clothes",
+	class: "ItemWearable",
+	variantgroups: [
+		{ code: "category",  states: ["shoulder"] },		
+		{ code: "shoulder", combine: "SelectiveMultiply", onVariant: "category", states: [
+			"aristocrat-mantle", "artisans-scarf", "blacksmith-apron", "embroidered-collar", "embroidered-tartarean-scarf", "hooded-cape", "jord-robe", 
+			"hunter-poncho", "longsleeve-pearl-moonrobe", "minstrel-coat", "mooncloth-robe", "noble-fur-collar", "peasent-kaftan", "royal-fur", "shortsleeve-pearl-moonrobe", 
+			"stained-leather-poncho", "woolen-scarf", "squire-tunic", "clockmaker-apron", "forlorn-sash", "malefactor-cloak", "marketeer", "rotwalker", "surgeon",
+			"miner", "alchemist", "survivor", "scribe"
+		] }
+	],
+	attributes: {
+		wearableAttachment: true,
+		clothescategory: "shoulder",
+		disableElementsByType: {
+			"*-malefactor-cloak": ["hoodupperover", "Hair tile upper part","ponytailhigh", "ponytaillow", "hair-uncovered", "hidehood", "hidehat"],
+			"*-stained-leather-poncho": ["hoodupperover", "ponytailhigh", "ponytaillow", "hair-uncovered", "hidehat"],
+			"*-miner": ["hoodupperover", "Hair tile upper part","ponytailhigh", "ponytaillow", "hair-uncovered", "hidehat"],
+			"*-survivor": ["hoodupperover", "Hair tile upper part","ponytailhigh", "ponytaillow", "hair-uncovered", "hidehat"],
+			"*-marketeer": ["hoodupperover", "ponytailhigh", "ponytaillow", "hair-uncovered", "hidehat"],
+			"*-scribe": ["hoodupperover", "Hair tile upper part","ponytailhigh", "ponytaillow", "hair-uncovered", "hidehat"]
+		},
+		keepElementsByType: {
+			"*-malefactor-cloak": ["hair-covered"],
+			"*-stained-leather-poncho": ["hair-covered"],
+			"*-miner": ["hair-covered"],
+			"*-survivor": ["hair-covered"],
+			"*-marketeer": ["hair-covered"],
+			"*-scribe": ["hair-covered"]
+		},
+		warmthByType: {
+			"*-malefactor-cloak": 0.5,
+			"*-blacksmith-apron": 0.5,
+			"*-clockmaker-apron": 0.5,
+			"*-coat": 2,
+			"*-fur": 3,
+			"*-sash": 0.1,
+			"*-marketeer": 0.5,
+			"*": 1
+		},
+		rainProtectionPercByType: {
+			"@.*-(hooded-cape|hunter-poncho|miner|stained-leather-poncho)": 0.9,
+			"@.*-(malefactor-cloak|survivor)": 0.8,
+			"@.*-(marketeer|rotwalker)": 0.5
+		},
+		handbook: {
+			groupBy: ["clothes-{category}-*"]
+		}
+	},
+	storageFlags: 128,
+	shapeByType: {
+		"@.*-(hunter-poncho|shortsleeve-pearl-moonrobe|woolen-scarf|surgeon|royal-fur)": { 
+			base: "entity/humanoid/seraph/clothing/shoulder/cape",
+			overlays: [ { base: "entity/humanoid/seraph/clothing/shoulder/collar-cape-fancy" }]
+		},
+		"@.*-(marketeer|miner|scribe|stained-leather-poncho|survivor)": { 
+			base: "entity/humanoid/seraph/clothing/shoulder/cape-hood", 
+			overlays: [ { base: "entity/humanoid/seraph/clothing/shoulder/collar-cape-hood-fancy" }]
+		},
+		"@.*-(minstrel-coat|aristocrat-mantle|squire-tunic)": { 
+			base: "entity/humanoid/seraph/clothing/shoulder/shortsleeve-extended", 
+			overlays: [ { base: "entity/humanoid/seraph/clothing/shoulder/collar-cape-hood-fancy" }]
+		},
+		"@.*-(jord-robe|hooded-cape|peasent-kaftan)": { 
+			base: "entity/humanoid/seraph/clothing/shoulder/shortsleeve", 
+			overlays: [ { base: "entity/humanoid/seraph/clothing/shoulder/collar-shortsleeve-fancy" }]
+		},
+		"@.*-(longsleeve-pearl-moonrobe|mooncloth-robe|rotwalker)": { 
+			base: "entity/humanoid/seraph/clothing/shoulder/longsleeve",
+			overlays: [ { base: "entity/humanoid/seraph/clothing/shoulder/collar-cape-hood-fancy" }]		
+		},
+		"*-malefactor-cloak": { 
+			base: "entity/humanoid/seraph/clothing/shoulder/longsleeve-hood",
+			overlays: [ { base: "entity/humanoid/seraph/clothing/shoulder/collar-longsleeve-hood-fancy" }]		
+		},
+		"*-embroidered-tartarean-scarf": { base: "entity/humanoid/seraph/clothing/shoulder/scarf-fancy1" },
+		"*-artisans-scarf": { base: "entity/humanoid/seraph/clothing/shoulder/scarf-simple" },
+		"*-forlorn-sash": { base: "entity/humanoid/seraph/clothing/shoulder/sash-simple" },
+		"*-alchemist": { base: "entity/humanoid/seraph/clothing/shoulder/blacksmith-apron" },
+		"*-squire-tunic": { base: "entity/humanoid/seraph/clothing/shoulder/aristocrat-mantle" },
+		"*": {	base: "entity/humanoid/seraph/clothing/shoulder/{shoulder}" }
+	},
+	texturesByType: {
+		"*-forlorn-sash": {			
+			"seraph": { base: "block/transparent" },
+			"shouldertexture": { base: "block/cloth/linen/white" }
+		},
+		"*-artisans-scarf": {			
+			"seraph": { base: "block/transparent" },
+			"shouldertexture": { base: "block/cloth/linen/blue" }
+		},
+		"*": {
+			"seraph": { base: "block/transparent" },
+			"shouldertexture": { base: "entity/humanoid/seraphclothes/shoulder/{shoulder}" }
+		}
+	},
+	creativeinventory: { "general": ["*"], "items": ["*"], "clothing": ["*"] },
+	renderAlphaTest: 0.25,
+	fpHandTransform: {
+		translation: { x: -0.15, y: -0.8, z: 0.3 },
+		rotation: { x: 180, y: 150, z: 180 },
+		scale: 2
+	},
+	tpHandTransformByType: {
+		"*-forlorn-sash": {
+			translation: { x: -1, y: -1.7, z: -0.3 },
+			rotation: { x: -41, y: 168, z: -13 },
+			scale: 0.58
+		},
+		"*-apron": {
+			translation: { x: -0.6, y: -1.4, z: -0.85 },
+			rotation: { x: -87, y: -96, z: 91 },
+			scale: 0.72
+		},
+		"*-scarf": {
+			translation: { x: -0.8, y: -1.8, z: -1 },
+			rotation: { x: -81, y: -89, z: 91 },
+			scale: 0.59
+		},
+		"*-embroidered-collar": {
+			translation: { x: -0.8, y: -1.8, z: -1 },
+			rotation: { x: -81, y: -89, z: 91 },
+			scale: 0.59
+		},
+		"*-aristocrat-mantle": {
+			translation: { x: -0.7, y: -1.7, z: -0.85 },
+			rotation: { x: 91, y: 94, z: 93 },
+			scale: 0.59
+		},
+		"*-hooded-cape": {
+			translation: { x: -0.7, y: -1.7, z: -0.85 },
+			rotation: { x: 91, y: 94, z: 93 },
+			scale: 0.59
+		},
+		"*": {
+			translation: { x: 0, y: -0.7, z: -0.7 },
+			rotation: { x: -81, y: 180, z: 91 },
+			scale: 0.59
+		}
+	},
+	guiTransformByType: {
+		"*-embroidered-collar": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 19 },
+			rotation: { x: 174, y: -45, z: 23 },
+			origin: { x: 0.47, y: 1.5, z: 0.5 },
+			scale: 2.5
+		},
+		"*-malefactor-cloak": {
+			rotate: false,
+			translation: { x: 2, y: 0, z: 17 },
+			rotation: { x: -178, y: -65, z: 10 },
+			origin: { x: 0.4, y: 1.45, z: 0.5 },
+			scale: 1.51
+		},
+		"*-blacksmith-apron": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: -178, y: -74, z: 22 },
+			origin: { x: 0.2, y: 1.2, z: 0.5 },
+			scale: 1.75
+		},
+		"*-hooded-cape": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: -178, y: -87, z: 16 },
+			origin: { x: 0.2, y: 1.2, z: 0.5 },
+			scale: 1.76
+		},
+		"*-woolen-scarf": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: -180, y: -96, z: -18 },
+			origin: { x: 0.2, y: 1.2, z: 0.6 },
+			scale: 2.42
+		},
+		"@.*-(stained-leather-poncho|marketeer|survivor)": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: -178, y: -62, z: 8 },
+			origin: { x: 0.4, y: 1.6, z: 0.5 },
+			scale: 2.1
+		},
+		"*-aristocrat-mantle": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: -178, y: -60, z: 10 },
+			origin: { x: 0.5, y: 1, z: 0.6 },
+			scale: 1.5
+		},
+		"*-royal-fur": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: -178, y: -65, z: 10 },
+			origin: { x: 0.4, y: 1.3, z: 0.5 },
+			scale: 2.2
+		},
+		"*-peasent-kaftan": {
+			rotate: false,
+			translation: { x: 2, y: 0, z: 17 },
+			rotation: { x: -178, y: -65, z: 10 },
+			origin: { x: 0.5, y: 1.17, z: 0.5 },
+			scale: 2
+		},
+		"*-shortsleeve-pearl-moonrobe": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: -180, y: -65, z: 10 },
+			origin: { x: 0.4, y: 1.3, z: 0.5 },
+			scale: 2.2
+		},
+		"*-longsleeve-pearl-moonrobe": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: -178, y: -65, z: 10 },
+			origin: { x: 0.4, y: 1.2, z: 0.5 },
+			scale: 1.82
+		},
+		"*-robe": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: -178, y: -65, z: 10 },
+			origin: { x: 0.4, y: 1.2, z: 0.5 },
+			scale: 1.82
+		},
+		"*-embroidered-tartarean-scarf": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: -180, y: -90, z: 52 },
+			origin: { x: 0.4, y: 1.3, z: 0.6 },
+			scale: 2.24
+		},
+		"*-artisans-scarf": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: -162, y: -90, z: 52 },
+			origin: { x: 0.5, y: 1.2, z: 0.6 },
+			scale: 2.23
+		},
+		"*-minstrel-coat": {
+			rotate: false,
+			translation: { x: 2, y: 0, z: 17 },
+			rotation: { x: -178, y: -65, z: 10 },
+			origin: { x: 0.5, y: 0.95, z: 0.5 },
+			scale: 1.3	
+		},
+		"*-squire-tunic": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: -178, y: -65, z: 10 },
+			origin: { x: 0.5, y: 1, z: 0.5 },
+			scale: 1.46
+		},
+		"*-scarf": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: -180, y: -90, z: 52 },
+			origin: { x: 0.4, y: 1.3, z: 0.6 },
+			scale: 2.24
+		},		
+		"@.*-(clockmaker-apron|alchemist)": {
+			rotate: false,
+			translation: { x: 2, y: 0, z: 17 },
+			rotation: { x: -178, y: -65, z: 10 },
+			origin: { x: 0.5, y: 1.1, z: 0.55 },
+			scale: 1.69
+		},
+		"*-miner": {
+			rotate: false,
+			translation: { x: 2, y: 11, z: 17 },
+			rotation: { x: -178, y: -65, z: 10 },
+			origin: { x: 0.5, y: 1.4, z: 0.5 },
+			scale: 2.2
+		},	
+		"*-scribe": {
+			translation: { x: 2, y: 11, z: 17 },
+			rotation: { x: -178, y: -65, z: 10 },
+			origin: { x: 0.5, y: 1.4, z: 0.5 },
+			scale: 2.2
+		},
+		"*": {
+			rotate: false,
+			translation: { x: 2, y: 0, z: 17 },
+			rotation: { x: -178, y: -65, z: 10 },
+			origin: { x: 0.5, y: 1.4, z: 0.5 },
+			scale: 2.2
+		}
+	},
+	groundTransform: {
+		translation: { x: 0.05, y: 0.1, z: 0 },
+		rotation: { x: 0, y: 0, z: -87 },
+		origin: { x: 0.5, y: 0.5, z: 0.5299 },
+		scale: 2.19
+	}
+}

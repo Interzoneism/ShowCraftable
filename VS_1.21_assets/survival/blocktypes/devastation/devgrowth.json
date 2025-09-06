@@ -1,0 +1,56 @@
+{
+	code: "devgrowth",
+	class: "BlockDevastationGrowth",
+	creativeinventory: { "general": ["*"], "terrain": ["*"] },
+	variantgroups: [
+		{ code: "type", states: ["shard", "shrike", "thorns", "bush"] }
+	],
+	shapeByType: {
+		"*-shrike": {
+			base: "block/devastation/foliage/shrike*"
+		},
+		"*-thorns": {
+			base: "block/devastation/foliage/thorns*"
+		},
+		"*-bush": {
+			base: "block/devastation/growth/bush*"
+		},
+		"*": {
+			base: "block/devastation/shattered/shard*"
+		}
+	},
+	attributes: {
+		mapColorCode: "devastation"
+	},
+	requiredMiningTier: 99,
+	randomDrawOffset: true,
+	randomizeRotations: true,
+	sideopaque: { all: false },
+	sidesolid: { all: false },
+	emitSideAo: { all: false },
+	drawtype: "Json",
+	renderpass: "Opaque",
+	blockmaterial: "Other",
+	replaceable: 400,
+	resistance: 1.8,
+	sounds: {
+		place: "block/dirt",
+		break: "block/dirt",
+		hit: "block/dirt",
+		walk: "walk/grass"
+	},
+	heldTpIdleAnimation: "holdbothhandslarge",
+	heldRightReadyAnimation: "heldblockready",
+	heldTpUseAnimation: "twohandplaceblock",
+	drops: [],
+	tpHandTransform: {
+		translation: { x: -1.23, y: -0.91, z: -0.8 },
+		rotation: { x: -2, y: 25, z: -78 },
+		scale: 0.4
+	},
+	collisionSelectionBoxByType: {
+		"*-shrike": { x1: 0, y1: 0, z1: 0, x2: 1, y2: 0.8, z2: 1 },
+		"*-bush": { x1: 0, y1: 0, z1: 0, x2: 1, y2: 0.8, z2: 1 },
+		"*": { x1: 0.125, y1: 0, z1: 0.125, x2: 0.875, y2: 0.6, z2: 0.875 },
+	}
+}

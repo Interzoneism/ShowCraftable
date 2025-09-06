@@ -1,0 +1,40 @@
+{
+	"editor": {
+		"backDropShape": "entity/humanoid/seraph-hairless",
+		"allAngles": true,
+		"entityTextureMode": true
+	},
+	"textureWidth": 48,
+	"textureHeight": 48,
+	"textureSizes": {
+		"hair": [48,48]
+	},
+	"textures": {
+		"hair": "entity/humanoid/seraphskinparts/hair/lightgray"
+	},
+	"elements": [
+		{
+			"name": "Hair",
+			"stepParentName": "Head",
+			"from": [ -0.17, -3.1, -0.3 ],
+			"to": [ 6.33, 5.4, 5.2 ],
+			"autoUnwrap": false,
+			"uv": [ 2.0, 2.5 ],
+			"rotationOrigin": [ 3.75, 2.066, 1.8 ],
+			"rotationZ": 2.0,
+			"faces": {
+			}
+		},
+		{
+			"name": "Hair tile upper part",
+			"stepParentName": "Head",
+			"from": [ -0.41, -2.1, -0.6 ],
+			"to": [ 6.59, 5.4, 5.4 ],
+			"autoUnwrap": false,
+			"uv": [ 3.0, 9.0 ],
+			"rotationOrigin": [ 2.9252, 5.6058, 2.1 ],
+			"rotationZ": 2.0,
+			"faces": {
+			}
+		}
+	]}

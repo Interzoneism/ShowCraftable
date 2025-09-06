@@ -1,0 +1,96 @@
+{
+	code: "dirtyclaypot",
+	behaviors: [
+		{ name: "GroundStorable", properties: { layout: 'Quadrants', collisionBox: { x1: 0, y1: 0, z1: 0, x2: 1, y2: 0.4375, z2: 1 } } },
+		{ name: "Unplaceable", }, // The ground storable obsoletes this being a block. Should be an item, but is kept a block for backwards compatibility
+	],
+	classByType: {
+		"dirtyclaypot-*-empty": "BlockCookingContainer",
+		"dirtyclaypot-*-cooked": "BlockCookedContainer"
+	},
+	heldTpIdleAnimation: "holdbothhands",
+	heldTpUseAnimation: "twohandplaceblock",
+
+	attributes: {
+		shelvable: true,
+		attachmentArea: { x1: 4, y1: 0, z1: 4, x2: 11, y2: 0, z2: 11 },
+		servingCapacity: 6,
+		storageType: 1,
+		maxTemperature: 200,
+		inFirePitProps: {
+			transform: { 
+				translation: { x: 0, y: 0.125, z: 0 } 
+			},
+			useFirepitModel: "Wide"
+		},
+		mealContainer: true,
+		mealBlockCode: "dirtyclaypot-{color}-cooked",
+		isDirtyPot: true,
+		handbook: {
+			groupBy: ["dirtyclaypot-*-{type}"]
+		}
+	},
+	attributesByType: {
+		"*-empty": {
+			cookingContainerSlots: 4,
+			maxContainerSlotStackSize: 6,
+			dirtiedBlockCode: "dirtyclaypot-{color}-cooked"
+		},
+		"*-cooked": {
+			emptiedBlockCode: "dirtyclaypot-{color}-empty"
+		}
+	},
+	variantgroups: [
+		{ code: "color", states: ["blue", "fire", "black", "brown", "cream", "gray", "orange", "red", "tan", ] },
+		{ code:"type", states: ["empty", "cooked"] },
+	],
+	entityclassByType: {
+		"*-cooked": "CookedContainer"
+	},
+	shape: { base: "block/clay/pot-opened-empty" },
+	doNotRenderAtLod2: true,
+	blockmaterial: "Ceramic",
+	creativeinventory: { "general": ["*-empty"], "decorative": ["*-empty"] },
+	replaceable: 400,
+	resistance: 1.5,
+	maxStackSizeByType: {
+		"*-cooked": 1,
+		"*": 8
+	},
+	lightAbsorption: 0,
+	texturesByType: {
+		"*": {
+			"transparent": { base: "block/transparent" },
+			"ceramic": { base: "block/clay/pot/{color}", overlays: [ "block/clay/pot/dirty" ] },
+			"liquid": { base: "block/liquid/glue-cold" }
+		}
+	},
+	sounds: {
+		walk: "walk/stone"
+	},
+	sideopaque: {
+		all: false
+	},
+	sidesolid: {
+		all: false
+	},
+	collisionbox: { x1: 0.28, y1: 0, z1: 0.28, x2: 0.72, y2: 0.35, z2: 0.72 },
+	selectionbox: { x1: 0.28, y1: 0, z1: 0.28, x2: 0.72, y2: 0.35, z2: 0.72 },
+	guiTransform: {
+		origin: { x: 0.5, y: 0.2, z: 0.5 },
+		scale: 2
+	},
+	groundTransform: {
+		scale: 3
+	},
+	fpHandTransform: {
+		translation: { x: 0, y: 0.1, z: 0.5 },
+		scale: 2
+	},
+	tpHandTransform: {
+		translation: { x: -0.6799, y: 0.06, z: -0.37 },
+		rotation: { x: -82, y: 19, z: -103 },
+		origin: { x: 0.5, y: 0, z: 0.5 },
+		scale: 0.76
+	}
+}

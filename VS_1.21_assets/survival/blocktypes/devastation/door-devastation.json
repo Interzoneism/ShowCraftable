@@ -1,0 +1,80 @@
+{
+	code: "door",
+	class: "BlockGeneric",
+	entityClass: "Generic",
+	// Lockable behavior first so that it prevents subsequent Door behavior if it is locked
+	behaviors: [
+		{ name: "Lockable" },
+		{ name: "Door" },
+		{ name: "BlockEntityInteract" }
+	],
+	entityBehaviors: [
+        { name: "Door" },
+        { name: "DoorBarLock" }
+    ],
+	variantgroups: [
+		{ code: "place", states: ["devastation"] },
+		{ code: "style", states: ["towergate"] }
+	],
+	attributes: {
+		airtight: true,
+		width: 2,
+		height: 3,
+		openSound: "sounds/block/cokeovendoor-open",
+		closeSound: "sounds/block/cokeovendoor-close",
+		easingSpeed: 0.5
+	},
+	creativeinventory: { "general": ["*"], "decorative": ["*"] },
+	shape: { base: "block/devastation/machinery/{style}" },
+	// Needs to be no cull pass because for double doors we flip x coords, but indices don't change so i believe that inverts the winding order, making the graphics card believe the face is facing the other direction
+	renderPass: "OpaqueNoCull",
+	faceCullMode: "NeverCull",
+	blockmaterial: "Wood",
+	sideAo: { all: false },
+	heldTpIdleAnimation: "holdunderarm",
+	replaceable: 500,
+	resistance: 3.5,
+	lightAbsorption: 0,
+	sidesolid: {
+		all: false
+	},
+	sideopaque: {
+		all: false
+	},
+	guiTransform: {
+		rotation: { x: -12, y: 124, z: 0 },
+		origin: { x: 0.1, y: 1.5, z: 0.55 },
+		scale: 0.68
+	},
+	fpHandTransform: {
+		translation: { x: -0.77, y: 0.18, z: 0.72 },
+		rotation: { x: 98, y: 42, z: 0 },
+		origin: { x: 0.5, y: 0.7, z: 1 },
+		scale: 1.11
+	},
+	tpHandTransform: {
+		translation: { x: -0.74, y: -2.32, z: -1.6 },
+		rotation: { x: 8, y: -3, z: 59 },
+		origin: { x: 0.5, y: 1, z: 1 },
+		scale: 0.61
+	},
+	groundTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: -90, y: 0, z: 0 },
+		origin: { x: 0.5, y: 1, z: 0.85 },
+		scale: 3
+	},
+    collisionSelectionBox:
+        { x1: 0, y1: 0, z1: 0.875, x2: 1, y2: 1, z2: 1 },
+	combustibleProps: {
+		burnTemperature: 600,
+		burnDuration: 25,
+	},
+	sounds: {
+		"place": "block/planks",
+		"hit": "block/planks",
+		"break": "block/planks",
+		"walk": "walk/wood"
+	},
+	materialDensity: 600
+}

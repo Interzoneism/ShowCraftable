@@ -1,0 +1,39 @@
+{
+	code: "acid-full-sulfuric",
+	perishableProps: {
+		type: "None",
+		freshHours: { avg: 48 },
+		transitionHours: { avg: 48 },
+		transitionRatio: 1,
+		transitionedStack: { type: "item", code: "acid-full-sulfuric" }
+	},
+	shape: { base: "block/food/meal/liquid" },
+	ingredients: [
+		{ 
+			code: "water", 
+			validStacks: [ 
+				{ 
+					type: "item", 
+					code: "waterportion", 
+					shapeElement: "bowl/water"
+				}
+			],
+			minQuantity: 1,
+			maxQuantity: 1,
+			portionSizeLitres: 1,
+		},
+		{ 
+			code: "saltpeter", 
+			validStacks: [  { type: "item", code: "saltpeter" } ],
+			minQuantity: 1,
+			maxQuantity: 1
+		},
+		{
+			code: "sulfur", 
+			validStacks: [ { type: "item", code: "powder-sulfur" } ],
+			minQuantity: 2,
+			maxQuantity: 2
+		}
+	],
+	cooksInto: { type: "Item", code: "acid-full-sulfuric", quantity: 100 }
+}

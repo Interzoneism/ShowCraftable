@@ -1,0 +1,26 @@
+{
+	code: "jonas",
+	entityBehaviors: [
+		{ name: "ControlPointAnimatable", properties: { controlpointcode: "jonassteamengine" } }
+	],
+	creativeinventory: { "general": ["*-south"], "clutter": ["*-south"] },
+	shape: { base: "block/machine/jonas/steamengine/gear36" },
+	variantgroups: [
+		{ code: "type", states: ["steamengine-gear36"] },
+		{ code: "side", loadFromProperties: "abstract/horizontalorientation" }
+	],
+	behaviors: [{name: "HorizontalOrientable", properties: {  dropBlockFace: "south" }}],
+	blockmaterial: "Metal",
+	drawtype: "json",
+	faceCullMode: "NeverCull",
+	replaceable: 160,
+	resistance: 4,
+	lightAbsorption: 0,
+	sidesolid: { all: false },
+	sideopaque: { all: false },
+	sounds: {
+		"place": "block/heavymetal-hit",
+		"break": "block/heavymetal-hit",
+		"hit": "block/heavymetal-hit"
+	}
+}

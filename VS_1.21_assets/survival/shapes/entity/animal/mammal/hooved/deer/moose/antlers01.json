@@ -1,0 +1,236 @@
+{
+	"editor": {
+		"backDropShape": "entity/animal/mammal/hooved/deer/moose/adult",
+		"collapsedPaths": "Root/Body/abdomen/L back Thigh,Root/Body/abdomen/R back Thigh",
+		"allAngles": true,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+		"moose-antlers": "entity/animal/mammal/hooved/deer/moose-antlers"
+	},
+	"elements": [
+		{
+			"name": "Horn attachment",
+			"stepParentName": "head",
+			"from": [ 2.0, 5.3, 2.8 ],
+			"to": [ 3.0, 6.3, 3.8 ],
+			"rotationOrigin": [ 2.0, 5.3, 2.8 ],
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "R antler base",
+					"from": [ 0.5, 0.4, -3.2 ],
+					"to": [ 1.5, 1.4, -2.2 ],
+					"rotationOrigin": [ 0.5, 0.4, -2.4 ],
+					"rotationX": -65.0,
+					"rotationZ": -5.0,
+					"faces": {
+						"north": { "texture": "#moose-antlers", "uv": [ 8.5, 1.5, 9.5, 2.5 ] },
+						"east": { "texture": "#moose-antlers", "uv": [ 15.0, 15.0, 16.0, 16.0 ] },
+						"south": { "texture": "#moose-antlers", "uv": [ 14.5, 3.0, 15.5, 4.0 ] },
+						"west": { "texture": "#moose-antlers", "uv": [ 15.0, 15.0, 16.0, 16.0 ], "windMode": [-1,-1,-1,-1], "windData": [0,1,1,1] },
+						"up": { "texture": "#moose-antlers", "uv": [ 15.0, 0.5, 16.0, 1.5 ], "rotation": 90 },
+						"down": { "texture": "#moose-antlers", "uv": [ 5.5, 14.0, 6.5, 15.0 ], "rotation": 90 }
+					},
+					"children": [
+						{
+							"name": "R antler base 2",
+							"from": [ 0.1, 0.9, 0.1 ],
+							"to": [ 0.9, 2.9, 0.9 ],
+							"rotationOrigin": [ 0.1, 0.9, 1.1 ],
+							"rotationX": -7.0,
+							"faces": {
+								"north": { "texture": "#moose-antlers", "uv": [ 2.0, 10.5, 2.5, 12.5 ] },
+								"east": { "texture": "#moose-antlers", "uv": [ 8.5, 12.0, 9.0, 14.0 ] },
+								"south": { "texture": "#moose-antlers", "uv": [ 10.5, 11.5, 11.0, 13.5 ] },
+								"west": { "texture": "#moose-antlers", "uv": [ 5.0, 11.5, 5.5, 13.5 ] },
+								"up": { "texture": "#moose-antlers", "uv": [ 9.0, 5.0, 9.5, 5.5 ], "rotation": 90 },
+								"down": { "texture": "#moose-antlers", "uv": [ 3.0, 4.0, 3.5, 4.5 ], "rotation": 90, "windMode": [-1,-1,-1,-1] }
+							},
+							"children": [
+								{
+									"name": "R antler base 3",
+									"from": [ 0.1, 2.0, 0.0 ],
+									"to": [ 0.8, 4.0, 0.7 ],
+									"rotationOrigin": [ 0.6, 2.0, 0.0 ],
+									"rotationX": 25.0,
+									"rotationY": 1.0,
+									"rotationZ": -30.0,
+									"faces": {
+										"north": { "texture": "#moose-antlers", "uv": [ 3.5, 12.5, 4.0, 14.5 ] },
+										"east": { "texture": "#moose-antlers", "uv": [ 0.0, 10.0, 0.5, 12.0 ] },
+										"south": { "texture": "#moose-antlers", "uv": [ 0.0, 6.0, 0.5, 8.0 ] },
+										"west": { "texture": "#moose-antlers", "uv": [ 8.5, 5.5, 9.0, 7.5 ] },
+										"up": { "texture": "#moose-antlers", "uv": [ 8.0, 15.0, 8.5, 15.5 ], "rotation": 270 },
+										"down": { "texture": "#moose-antlers", "uv": [ 3.0, 9.5, 3.5, 10.0 ], "rotation": 270 }
+									},
+									"children": [
+										{
+											"name": "R antler base 4",
+											"from": [ 0.1, 2.0, 0.0 ],
+											"to": [ 0.7, 4.0, 0.6 ],
+											"rotationOrigin": [ 0.5, 2.0, 0.0 ],
+											"rotationX": 25.0,
+											"rotationZ": 20.0,
+											"faces": {
+												"north": { "texture": "#moose-antlers", "uv": [ 2.0, 8.0, 2.5, 10.0 ] },
+												"east": { "texture": "#moose-antlers", "uv": [ 3.5, 13.5, 4.0, 15.5 ] },
+												"south": { "texture": "#moose-antlers", "uv": [ 3.0, 9.5, 3.5, 11.5 ] },
+												"west": { "texture": "#moose-antlers", "uv": [ 14.5, 3.0, 15.0, 5.0 ] },
+												"up": { "texture": "#moose-antlers", "uv": [ 6.5, 15.0, 7.0, 15.5 ] },
+												"down": { "texture": "#moose-antlers", "uv": [ 0.0, 6.0, 0.5, 6.5 ], "rotation": 180 }
+											}
+										},
+										{
+											"name": "R antler point 2",
+											"from": [ -0.1011, 0.0, 0.2 ],
+											"to": [ 0.4989, 1.5, 0.8 ],
+											"rotationOrigin": [ 0.3, 0.0, 0.2 ],
+											"rotationZ": 90.0,
+											"faces": {
+												"north": { "texture": "#moose-antlers", "uv": [ 11.5, 14.0, 12.0, 15.5 ] },
+												"east": { "texture": "#moose-antlers", "uv": [ 9.0, 0.0, 9.5, 1.5 ] },
+												"south": { "texture": "#moose-antlers", "uv": [ 1.5, 2.0, 2.0, 3.5 ] },
+												"west": { "texture": "#moose-antlers", "uv": [ 0.5, 6.5, 1.0, 8.0 ] },
+												"up": { "texture": "#moose-antlers", "uv": [ 5.0, 5.0, 5.5, 5.5 ], "rotation": 270 },
+												"down": { "texture": "#moose-antlers", "uv": [ 1.5, 11.0, 2.0, 11.5 ], "rotation": 270 }
+											},
+											"children": [
+												{
+													"name": "R antler point 3",
+													"from": [ 0.0, 1.5, 0.0 ],
+													"to": [ 0.6, 3.0, 0.6 ],
+													"rotationOrigin": [ 0.0, 1.5, 0.0 ],
+													"rotationX": 30.0,
+													"rotationY": 1.0,
+													"rotationZ": -20.0,
+													"faces": {
+														"north": { "texture": "#moose-antlers", "uv": [ 1.5, 4.0, 2.0, 5.5 ] },
+														"east": { "texture": "#moose-antlers", "uv": [ 0.5, 14.0, 1.0, 15.5 ] },
+														"south": { "texture": "#moose-antlers", "uv": [ 6.5, 4.5, 7.0, 6.0 ] },
+														"west": { "texture": "#moose-antlers", "uv": [ 6.5, 13.5, 7.0, 15.0 ] },
+														"up": { "texture": "#moose-antlers", "uv": [ 15.0, 2.5, 15.5, 3.0 ], "rotation": 270 },
+														"down": { "texture": "#moose-antlers", "uv": [ 2.5, 11.0, 3.0, 11.5 ], "rotation": 270 }
+													}
+												}
+											]
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "L antler base",
+					"from": [ 0.5, 0.6, 2.3 ],
+					"to": [ 1.5, 1.6, 3.3 ],
+					"rotationOrigin": [ 0.5, 0.6, 2.3 ],
+					"rotationX": 65.0,
+					"rotationZ": -5.0,
+					"faces": {
+						"north": { "texture": "#moose-antlers", "uv": [ 14.5, 15.0, 15.5, 16.0 ] },
+						"east": { "texture": "#moose-antlers", "uv": [ 15.0, 15.0, 16.0, 16.0 ] },
+						"south": { "texture": "#moose-antlers", "uv": [ 15.0, 14.5, 16.0, 15.5 ] },
+						"west": { "texture": "#moose-antlers", "uv": [ 14.5, 15.0, 15.5, 16.0 ], "windMode": [-1,-1,-1,-1], "windData": [0,0,1,1] },
+						"up": { "texture": "#moose-antlers", "uv": [ 8.5, 1.0, 9.5, 2.0 ], "rotation": 90 },
+						"down": { "texture": "#moose-antlers", "uv": [ 14.5, 6.5, 15.5, 7.5 ], "rotation": 90 }
+					},
+					"children": [
+						{
+							"name": "L antler base 2",
+							"from": [ 0.1, 0.9, 0.1 ],
+							"to": [ 0.9, 2.9, 0.9 ],
+							"rotationOrigin": [ 0.1, 0.9, 0.1 ],
+							"rotationX": 7.0,
+							"faces": {
+								"north": { "texture": "#moose-antlers", "uv": [ 5.5, 11.5, 6.0, 13.5 ] },
+								"east": { "texture": "#moose-antlers", "uv": [ 2.5, 13.0, 3.0, 15.0 ] },
+								"south": { "texture": "#moose-antlers", "uv": [ 0.0, 7.0, 0.5, 9.0 ] },
+								"west": { "texture": "#moose-antlers", "uv": [ 11.0, 0.5, 11.5, 2.5 ] },
+								"up": { "texture": "#moose-antlers", "uv": [ 12.5, 1.0, 13.0, 1.5 ], "rotation": 90 },
+								"down": { "texture": "#moose-antlers", "uv": [ 3.5, 6.5, 4.0, 7.0 ], "rotation": 90 }
+							},
+							"children": [
+								{
+									"name": "L antler base 3",
+									"from": [ 0.1, 1.6, 0.2 ],
+									"to": [ 0.8, 3.6, 0.9 ],
+									"rotationOrigin": [ 0.6, 1.7, 0.6 ],
+									"rotationX": -25.0,
+									"rotationY": -1.0,
+									"rotationZ": -30.0,
+									"faces": {
+										"north": { "texture": "#moose-antlers", "uv": [ 15.0, 9.0, 15.5, 11.0 ] },
+										"east": { "texture": "#moose-antlers", "uv": [ 8.0, 7.0, 8.5, 9.0 ] },
+										"south": { "texture": "#moose-antlers", "uv": [ 6.0, 11.0, 6.5, 13.0 ] },
+										"west": { "texture": "#moose-antlers", "uv": [ 13.5, 7.0, 14.0, 9.0 ] },
+										"up": { "texture": "#moose-antlers", "uv": [ 13.5, 9.5, 14.0, 10.0 ], "rotation": 180 },
+										"down": { "texture": "#moose-antlers", "uv": [ 9.0, 9.5, 9.5, 10.0 ] }
+									},
+									"children": [
+										{
+											"name": "L antler base 4",
+											"from": [ 0.1, 2.0, 0.1 ],
+											"to": [ 0.7, 4.0, 0.7 ],
+											"rotationOrigin": [ 0.5, 2.0, 0.5 ],
+											"rotationX": -25.0,
+											"rotationZ": 20.0,
+											"faces": {
+												"north": { "texture": "#moose-antlers", "uv": [ 8.5, 12.0, 9.0, 14.0 ] },
+												"east": { "texture": "#moose-antlers", "uv": [ 6.5, 13.5, 7.0, 15.5 ] },
+												"south": { "texture": "#moose-antlers", "uv": [ 8.0, 2.0, 8.5, 4.0 ] },
+												"west": { "texture": "#moose-antlers", "uv": [ 12.0, 4.0, 12.5, 6.0 ] },
+												"up": { "texture": "#moose-antlers", "uv": [ 12.5, 2.0, 13.0, 2.5 ], "rotation": 180 },
+												"down": { "texture": "#moose-antlers", "uv": [ 6.5, 9.0, 7.0, 9.5 ] }
+											}
+										},
+										{
+											"name": "L antler point 2",
+											"from": [ -0.3, 0.1, 0.1 ],
+											"to": [ 0.3, 1.6, 0.7 ],
+											"rotationOrigin": [ 0.1, 0.1, 0.1 ],
+											"rotationY": -1.0,
+											"rotationZ": 90.0,
+											"faces": {
+												"north": { "texture": "#moose-antlers", "uv": [ 15.0, 6.0, 15.5, 7.5 ] },
+												"east": { "texture": "#moose-antlers", "uv": [ 6.5, 13.5, 7.0, 15.0 ] },
+												"south": { "texture": "#moose-antlers", "uv": [ 10.0, 4.5, 10.5, 6.0 ] },
+												"west": { "texture": "#moose-antlers", "uv": [ 8.0, 2.0, 8.5, 3.5 ] },
+												"up": { "texture": "#moose-antlers", "uv": [ 2.5, 14.5, 3.0, 15.0 ], "rotation": 270 },
+												"down": { "texture": "#moose-antlers", "uv": [ 12.0, 8.5, 12.5, 9.0 ], "rotation": 270 }
+											},
+											"children": [
+												{
+													"name": "L antler point 3",
+													"from": [ 0.0, 1.5, 0.0 ],
+													"to": [ 0.6, 3.0, 0.6 ],
+													"rotationOrigin": [ 0.0, 1.5, 0.4 ],
+													"rotationX": -30.0,
+													"rotationY": 1.0,
+													"rotationZ": -20.0,
+													"faces": {
+														"north": { "texture": "#moose-antlers", "uv": [ 10.0, 6.5, 10.5, 8.0 ] },
+														"east": { "texture": "#moose-antlers", "uv": [ 8.0, 12.5, 8.5, 14.0 ] },
+														"south": { "texture": "#moose-antlers", "uv": [ 6.0, 3.0, 6.5, 4.5 ] },
+														"west": { "texture": "#moose-antlers", "uv": [ 12.5, 7.5, 13.0, 9.0 ] },
+														"up": { "texture": "#moose-antlers", "uv": [ 8.0, 11.0, 8.5, 11.5 ], "rotation": 270 },
+														"down": { "texture": "#moose-antlers", "uv": [ 2.5, 9.5, 3.0, 10.0 ], "rotation": 270 }
+													}
+												}
+											]
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	]}

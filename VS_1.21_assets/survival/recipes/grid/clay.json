@@ -1,0 +1,34 @@
+[
+{
+	ingredientPattern: "CCC	CDC	CCC",
+	ingredients: {
+		"D": { type: "item", code: "powder-flint" },
+		"C": { type: "item", code: "clay-red" }
+	},
+	width: 3,
+	height: 3,
+	output: { type: "item", code: "clay-fire", quantity: 8  }
+},
+{
+	ingredientPattern: "CCC	CDC	CCC",
+	ingredients: {
+		"D": { type: "item", code: "powder-flint" },
+		"C": { type: "item", code: "clay-blue" }
+	},
+	recipegroup: 1,
+	width: 3,
+	height: 3,
+	output: { type: "item", code: "clay-fire", quantity: 8  }
+},
+{
+	ingredientPattern: "CCC	CDC	CCC",
+	ingredients: {
+		"D": { type: "item", code: "powder-flint" },
+		"C": { type: "item", code: "clay-*", allowedVariants: ["blue", "red"] }
+	},
+	recipegroup: 2,
+	width: 3,
+	height: 3,
+	output: { type: "item", code: "clay-fire", quantity: 8  }
+}
+]

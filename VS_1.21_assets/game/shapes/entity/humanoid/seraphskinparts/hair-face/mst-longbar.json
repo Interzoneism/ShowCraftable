@@ -1,0 +1,135 @@
+{
+	"editor": {
+		"backDropShape": "entity/humanoid/seraph-hairless",
+		"allAngles": true,
+		"entityTextureMode": true
+	},
+	"textureWidth": 48,
+	"textureHeight": 48,
+	"textureSizes": {
+		"hair": [48,48],
+		"bands": [16,16]
+	},
+	"textures": {
+		"hair": "entity/humanoid/seraphskinparts/hair/eerieblack"
+	},
+	"elements": [
+		{
+			"name": "hidefacialhair",
+			"stepParentName": "Head",
+			"from": [ 0.0, 0.0, 2.0 ],
+			"to": [ 1.0, 1.0, 3.0 ],
+			"uv": [ 24.0, 2.0 ],
+			"rotationOrigin": [ 0.5, 0.5, 2.5 ],
+			"rotationZ": -1.0,
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "donthideme",
+					"from": [ 0.0, 0.0, 0.5 ],
+					"to": [ 0.0, 0.0, 0.5 ],
+					"uv": [ 0.0, 0.0 ],
+					"rotationOrigin": [ 0.0, 0.0, 0.5 ],
+					"faces": {
+					},
+					"children": [
+						{
+							"name": "StacheL1",
+							"from": [ -0.2, 1.0, 0.1 ],
+							"to": [ 0.3, 1.5, 1.6 ],
+							"uv": [ 34.0, 33.0 ],
+							"rotationOrigin": [ 0.1, 1.0, 0.1 ],
+							"rotationX": 10.0,
+							"faces": {
+								"north": { "texture": "#hair", "uv": [ 34.0, 34.5, 34.5, 35.0 ] },
+								"south": { "texture": "#hair", "uv": [ 34.5, 34.5, 35.0, 35.0 ] },
+								"west": { "texture": "#hair", "uv": [ 35.0, 34.5, 36.5, 35.0 ] },
+								"up": { "texture": "#hair", "uv": [ 34.0, 33.0, 34.5, 34.5 ] },
+								"down": { "texture": "#hair", "uv": [ 34.5, 33.0, 35.0, 34.5 ] }
+							},
+							"children": [
+								{
+									"name": "StacheL2",
+									"from": [ 0.1, 0.0, 1.5 ],
+									"to": [ 0.6, 0.5, 2.5 ],
+									"uv": [ 2.5, 2.0 ],
+									"rotationOrigin": [ 0.1, 0.5, 1.5 ],
+									"rotationX": 10.0,
+									"faces": {
+										"north": { "texture": "#hair", "uv": [ 2.5, 2.5, 3.0, 3.0 ] },
+										"east": { "texture": "#hair", "uv": [ 3.0, 2.5, 4.0, 3.0 ], "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] },
+										"south": { "texture": "#hair", "uv": [ 3.5, 2.5, 4.0, 3.0 ] },
+										"west": { "texture": "#hair", "uv": [ 2.5, 3.0, 3.5, 3.5 ] },
+										"up": { "texture": "#hair", "uv": [ 2.5, 2.0, 3.0, 3.0 ] },
+										"down": { "texture": "#hair", "uv": [ 3.0, 2.0, 3.5, 3.0 ] }
+									}
+								}
+							]
+						},
+						{
+							"name": "StacheR1",
+							"from": [ -0.2, 1.0, -1.6 ],
+							"to": [ 0.3, 1.5, -0.1 ],
+							"uv": [ 31.5, 33.5 ],
+							"rotationOrigin": [ 0.1, 1.0, -0.1 ],
+							"rotationX": -10.0,
+							"faces": {
+								"north": { "texture": "#hair", "uv": [ 31.5, 35.0, 32.0, 35.5 ] },
+								"south": { "texture": "#hair", "uv": [ 32.0, 35.0, 32.5, 35.5 ] },
+								"west": { "texture": "#hair", "uv": [ 32.5, 35.0, 34.0, 35.5 ] },
+								"up": { "texture": "#hair", "uv": [ 31.5, 33.5, 32.0, 35.0 ] },
+								"down": { "texture": "#hair", "uv": [ 32.0, 33.5, 32.5, 35.0 ] }
+							},
+							"children": [
+								{
+									"name": "StacheR2",
+									"from": [ 0.1, 0.0, -1.0 ],
+									"to": [ 0.6, 0.5, 0.0 ],
+									"uv": [ 0.5, 2.0 ],
+									"rotationOrigin": [ 0.1, 0.5, 0.0 ],
+									"rotationX": -15.0,
+									"faces": {
+										"north": { "texture": "#hair", "uv": [ 0.5, 3.0, 1.0, 3.5 ] },
+										"east": { "texture": "#hair", "uv": [ 1.0, 3.0, 2.0, 3.5 ] },
+										"south": { "texture": "#hair", "uv": [ 2.0, 3.0, 2.5, 3.5 ] },
+										"west": { "texture": "#hair", "uv": [ 2.5, 3.0, 3.5, 3.5 ] },
+										"up": { "texture": "#hair", "uv": [ 0.5, 2.0, 1.0, 3.0 ] },
+										"down": { "texture": "#hair", "uv": [ 1.0, 2.0, 1.5, 3.0 ] }
+									}
+								}
+							]
+						},
+						{
+							"name": "StachMid",
+							"from": [ -0.2, 1.0, -0.25 ],
+							"to": [ 0.3, 1.5, 0.25 ],
+							"uv": [ 34.0, 31.0 ],
+							"rotationOrigin": [ -0.2, 1.5, 0.0 ],
+							"rotationZ": -10.0,
+							"faces": {
+								"north": { "texture": "#hair", "uv": [ 34.0, 31.5, 34.5, 32.0 ] },
+								"south": { "texture": "#hair", "uv": [ 34.5, 31.5, 35.0, 32.0 ] },
+								"west": { "texture": "#hair", "uv": [ 35.0, 31.5, 35.5, 32.0 ] },
+								"up": { "texture": "#hair", "uv": [ 34.0, 31.0, 34.5, 31.5 ] },
+								"down": { "texture": "#hair", "uv": [ 34.5, 31.0, 35.0, 31.5 ] }
+							}
+						}
+					]
+				}
+			]
+		}
+	],
+	"animations": [
+		{
+			"name": "Jump",
+			"code": "jump",
+			"quantityframes": 20,
+			"onActivityStopped": "Rewind",
+			"onAnimationEnd": "Repeat",
+			"keyframes": [
+
+			]
+		}
+	]
+}

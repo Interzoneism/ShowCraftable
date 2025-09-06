@@ -1,0 +1,298 @@
+{
+	"editor": {
+		"backDropShape": "entity/animal/mammal/hooved/deer/marsh/adult",
+		"collapsedPaths": "Root/Body/Left Shoulder,Root/Body/Right Shoulder",
+		"allAngles": true,
+		"entityTextureMode": true
+	},
+	"textureWidth": 64,
+	"textureHeight": 84,
+	"textureSizes": {
+		"whitetail-antlers": [64,84]
+	},
+	"textures": {
+		"whitetail-antlers": "entity/animal/mammal/hooved/deer/marsh-adult"
+	},
+	"elements": [
+		{
+			"name": "Horn attachment",
+			"stepParentName": "head",
+			"from": [ 0.0, 3.3, 1.3 ],
+			"to": [ 1.0, 4.3, 2.3 ],
+			"uv": [ 999.0, 999.0 ],
+			"rotationOrigin": [ 0.0, 3.3, 1.3 ],
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "R antler base",
+					"from": [ 0.5, 1.1, -0.9 ],
+					"to": [ 1.3, 2.1, -0.1 ],
+					"unwrapMode": 4,
+					"uv": [ 29.0, 5.0 ],
+					"rotationOrigin": [ 0.5, 1.1, -0.1 ],
+					"rotationX": -30.0,
+					"faces": {
+						"north": { "texture": "#whitetail-antlers", "uv": [ 29.0, 5.5, 29.5, 6.5 ] },
+						"east": { "texture": "#whitetail-antlers", "uv": [ 30.5, 5.5, 31.0, 6.5 ] },
+						"south": { "texture": "#whitetail-antlers", "uv": [ 30.0, 5.5, 30.5, 6.5 ] },
+						"west": { "texture": "#whitetail-antlers", "uv": [ 29.5, 5.5, 30.0, 6.5 ], "windMode": [-1,-1,-1,-1], "windData": [0,1,1,1] },
+						"up": { "texture": "#whitetail-antlers", "uv": [ 29.5, 5.0, 30.0, 5.5 ], "rotation": 90 }
+					},
+					"children": [
+						{
+							"name": "RAntlerBase2",
+							"from": [ 0.1, 0.9, 0.1 ],
+							"to": [ 0.7, 2.9, 0.7 ],
+							"unwrapMode": 4,
+							"uv": [ 40.0, 30.0 ],
+							"rotationOrigin": [ 0.1, 0.9, 1.1 ],
+							"rotationX": -7.0,
+							"faces": {
+								"north": { "texture": "#whitetail-antlers", "uv": [ 40.0, 30.5, 40.5, 32.5 ] },
+								"east": { "texture": "#whitetail-antlers", "uv": [ 41.5, 30.5, 42.0, 32.5 ] },
+								"south": { "texture": "#whitetail-antlers", "uv": [ 41.0, 30.5, 41.5, 32.5 ] },
+								"west": { "texture": "#whitetail-antlers", "uv": [ 40.5, 30.5, 41.0, 32.5 ] },
+								"up": { "texture": "#whitetail-antlers", "uv": [ 40.5, 30.0, 41.0, 30.5 ], "rotation": 90 }
+							},
+							"children": [
+								{
+									"name": "RantlerEY1",
+									"from": [ 0.1, 2.0, 0.0 ],
+									"to": [ 0.6, 4.0, 0.5 ],
+									"unwrapMode": 2,
+									"uv": [ 40.0, 28.0 ],
+									"rotationOrigin": [ 0.1, 2.0, 0.0 ],
+									"rotationX": 10.0,
+									"rotationY": -1.0,
+									"rotationZ": -40.0,
+									"faces": {
+										"north": { "texture": "#whitetail-antlers", "uv": [ 41.0, 28.5, 41.5, 30.5 ] },
+										"east": { "texture": "#whitetail-antlers", "uv": [ 40.5, 28.5, 41.0, 30.5 ] },
+										"south": { "texture": "#whitetail-antlers", "uv": [ 40.0, 28.5, 40.5, 30.5 ] },
+										"west": { "texture": "#whitetail-antlers", "uv": [ 41.5, 28.5, 42.0, 30.5 ] },
+										"up": { "texture": "#whitetail-antlers", "uv": [ 40.5, 28.0, 41.0, 28.5 ], "rotation": 270 }
+									},
+									"children": [
+										{
+											"name": "RAntlerEY2",
+											"from": [ 0.05, 2.0, 0.05 ],
+											"to": [ 0.45, 4.0, 0.45 ],
+											"unwrapMode": 3,
+											"uv": [ 40.0, 23.5 ],
+											"rotationOrigin": [ 0.45, 2.0, 0.05 ],
+											"rotationX": 10.0,
+											"rotationZ": 20.0,
+											"faces": {
+												"north": { "texture": "#whitetail-antlers", "uv": [ 41.5, 24.0, 42.0, 26.0 ] },
+												"east": { "texture": "#whitetail-antlers", "uv": [ 41.0, 24.0, 41.5, 26.0 ] },
+												"south": { "texture": "#whitetail-antlers", "uv": [ 40.5, 24.0, 41.0, 26.0 ] },
+												"west": { "texture": "#whitetail-antlers", "uv": [ 40.0, 24.0, 40.5, 26.0 ] },
+												"up": { "texture": "#whitetail-antlers", "uv": [ 40.5, 23.5, 41.0, 24.0 ] }
+											},
+											"children": [
+												{
+													"name": "Cube2",
+													"from": [ 0.1, 0.0, 0.05 ],
+													"to": [ 0.4, 2.0, 0.35 ],
+													"uv": [ 40.0, 19.5 ],
+													"rotationOrigin": [ 0.1, 0.0, 0.05 ],
+													"rotationX": 5.0,
+													"rotationZ": -45.0,
+													"faces": {
+														"north": { "texture": "#whitetail-antlers", "uv": [ 40.0, 20.0, 40.5, 22.0 ] },
+														"east": { "texture": "#whitetail-antlers", "uv": [ 40.5, 20.0, 41.0, 22.0 ] },
+														"south": { "texture": "#whitetail-antlers", "uv": [ 41.0, 20.0, 41.5, 22.0 ] },
+														"west": { "texture": "#whitetail-antlers", "uv": [ 41.5, 20.0, 42.0, 22.0 ] },
+														"up": { "texture": "#whitetail-antlers", "uv": [ 40.0, 19.5, 40.5, 20.0 ] }
+													}
+												}
+											]
+										}
+									]
+								},
+								{
+									"name": "RantlerWY2",
+									"from": [ 0.1, 2.0, 0.0 ],
+									"to": [ 0.6, 3.5, 0.5 ],
+									"unwrapMode": 2,
+									"uv": [ 40.0, 25.5 ],
+									"rotationOrigin": [ 0.6, 2.0, 0.0 ],
+									"rotationX": 10.0,
+									"rotationZ": 40.0,
+									"faces": {
+										"north": { "texture": "#whitetail-antlers", "uv": [ 41.0, 26.0, 41.5, 27.5 ] },
+										"east": { "texture": "#whitetail-antlers", "uv": [ 40.5, 26.0, 41.0, 27.5 ] },
+										"south": { "texture": "#whitetail-antlers", "uv": [ 40.0, 26.0, 40.5, 27.5 ] },
+										"west": { "texture": "#whitetail-antlers", "uv": [ 41.5, 26.0, 42.0, 27.5 ] },
+										"up": { "texture": "#whitetail-antlers", "uv": [ 40.5, 25.5, 41.0, 26.0 ], "rotation": 270 },
+										"down": { "texture": "#whitetail-antlers", "uv": [ 40.5, 27.5, 41.0, 28.0 ], "rotation": 270, "windMode": [-1,-1,-1,-1] }
+									},
+									"children": [
+										{
+											"name": "RTine05",
+											"from": [ 0.05, 1.5, 0.05 ],
+											"to": [ 0.45, 3.0, 0.45 ],
+											"unwrapMode": 3,
+											"uv": [ 40.0, 21.5 ],
+											"rotationOrigin": [ 0.05, 1.5, 0.05 ],
+											"rotationX": 10.0,
+											"rotationZ": -20.0,
+											"faces": {
+												"north": { "texture": "#whitetail-antlers", "uv": [ 41.5, 22.0, 42.0, 23.5 ] },
+												"east": { "texture": "#whitetail-antlers", "uv": [ 41.0, 22.0, 41.5, 23.5 ] },
+												"south": { "texture": "#whitetail-antlers", "uv": [ 40.5, 22.0, 41.0, 23.5 ] },
+												"west": { "texture": "#whitetail-antlers", "uv": [ 40.0, 22.0, 40.5, 23.5 ] },
+												"up": { "texture": "#whitetail-antlers", "uv": [ 40.5, 21.5, 41.0, 22.0 ] }
+											}
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "L antler base",
+					"from": [ 0.5, 1.2, 1.1 ],
+					"to": [ 1.3, 2.2, 1.9 ],
+					"unwrapMode": 4,
+					"uv": [ 30.5, 5.0 ],
+					"rotationOrigin": [ 0.5, 1.2, 1.1 ],
+					"rotationX": 30.0,
+					"faces": {
+						"north": { "texture": "#whitetail-antlers", "uv": [ 30.5, 5.5, 31.0, 6.5 ] },
+						"east": { "texture": "#whitetail-antlers", "uv": [ 32.0, 5.5, 32.5, 6.5 ] },
+						"south": { "texture": "#whitetail-antlers", "uv": [ 31.5, 5.5, 32.0, 6.5 ] },
+						"west": { "texture": "#whitetail-antlers", "uv": [ 31.0, 5.5, 31.5, 6.5 ], "windMode": [-1,-1,-1,-1], "windData": [0,0,1,1] },
+						"up": { "texture": "#whitetail-antlers", "uv": [ 31.0, 5.0, 31.5, 5.5 ], "rotation": 90 }
+					},
+					"children": [
+						{
+							"name": "L antler base 2",
+							"from": [ 0.1, 0.9, 0.1 ],
+							"to": [ 0.7, 2.9, 0.7 ],
+							"unwrapMode": 4,
+							"uv": [ 35.5, 30.0 ],
+							"rotationOrigin": [ 0.1, 0.9, 0.1 ],
+							"rotationX": 7.0,
+							"faces": {
+								"north": { "texture": "#whitetail-antlers", "uv": [ 35.5, 30.5, 36.0, 32.5 ] },
+								"east": { "texture": "#whitetail-antlers", "uv": [ 37.0, 30.5, 37.5, 32.5 ] },
+								"south": { "texture": "#whitetail-antlers", "uv": [ 36.5, 30.5, 37.0, 32.5 ] },
+								"west": { "texture": "#whitetail-antlers", "uv": [ 36.0, 30.5, 36.5, 32.5 ] },
+								"up": { "texture": "#whitetail-antlers", "uv": [ 36.0, 30.0, 36.5, 30.5 ], "rotation": 90 }
+							},
+							"children": [
+								{
+									"name": "L antler base 3",
+									"from": [ 0.1, 2.0, 0.1 ],
+									"to": [ 0.6, 3.5, 0.6 ],
+									"unwrapMode": 1,
+									"uv": [ 35.5, 25.5 ],
+									"rotationOrigin": [ 0.6, 2.0, 0.6 ],
+									"rotationX": -10.0,
+									"rotationZ": 40.0,
+									"faces": {
+										"north": { "texture": "#whitetail-antlers", "uv": [ 36.0, 26.0, 36.5, 27.5 ] },
+										"east": { "texture": "#whitetail-antlers", "uv": [ 35.5, 26.0, 36.0, 27.5 ] },
+										"south": { "texture": "#whitetail-antlers", "uv": [ 37.0, 26.0, 37.5, 27.5 ] },
+										"west": { "texture": "#whitetail-antlers", "uv": [ 36.5, 26.0, 37.0, 27.5 ] },
+										"up": { "texture": "#whitetail-antlers", "uv": [ 36.0, 25.5, 36.5, 26.0 ], "rotation": 180 }
+									},
+									"children": [
+										{
+											"name": "L antler base 4",
+											"from": [ 0.05, 1.5, 0.05 ],
+											"to": [ 0.45, 3.0, 0.45 ],
+											"unwrapMode": 1,
+											"uv": [ 35.5, 21.5 ],
+											"rotationOrigin": [ 0.05, 1.5, 0.45 ],
+											"rotationX": -10.0,
+											"rotationZ": -20.0,
+											"faces": {
+												"north": { "texture": "#whitetail-antlers", "uv": [ 36.0, 22.0, 36.5, 23.5 ] },
+												"east": { "texture": "#whitetail-antlers", "uv": [ 35.5, 22.0, 36.0, 23.5 ] },
+												"south": { "texture": "#whitetail-antlers", "uv": [ 37.0, 22.0, 37.5, 23.5 ] },
+												"west": { "texture": "#whitetail-antlers", "uv": [ 36.5, 22.0, 37.0, 23.5 ] },
+												"up": { "texture": "#whitetail-antlers", "uv": [ 36.0, 21.5, 36.5, 22.0 ], "rotation": 180 }
+											}
+										}
+									]
+								},
+								{
+									"name": "L antler base 5",
+									"from": [ 0.1, 2.0, 0.1 ],
+									"to": [ 0.6, 4.0, 0.6 ],
+									"unwrapMode": 1,
+									"uv": [ 35.5, 27.5 ],
+									"rotationOrigin": [ 0.6, 2.0, 0.6 ],
+									"rotationX": -10.0,
+									"rotationY": 1.0,
+									"rotationZ": -40.0,
+									"faces": {
+										"north": { "texture": "#whitetail-antlers", "uv": [ 36.0, 28.0, 36.5, 30.0 ] },
+										"east": { "texture": "#whitetail-antlers", "uv": [ 35.5, 28.0, 36.0, 30.0 ] },
+										"south": { "texture": "#whitetail-antlers", "uv": [ 37.0, 28.0, 37.5, 30.0 ] },
+										"west": { "texture": "#whitetail-antlers", "uv": [ 36.5, 28.0, 37.0, 30.0 ] },
+										"up": { "texture": "#whitetail-antlers", "uv": [ 36.0, 27.5, 36.5, 28.0 ], "rotation": 180 }
+									},
+									"children": [
+										{
+											"name": "L antler base 6",
+											"from": [ 0.05, 2.0, 0.05 ],
+											"to": [ 0.45, 4.0, 0.45 ],
+											"unwrapMode": 1,
+											"uv": [ 35.5, 23.5 ],
+											"rotationOrigin": [ 0.45, 2.0, 0.45 ],
+											"rotationX": -10.0,
+											"rotationZ": 20.0,
+											"faces": {
+												"north": { "texture": "#whitetail-antlers", "uv": [ 36.0, 24.0, 36.5, 26.0 ] },
+												"east": { "texture": "#whitetail-antlers", "uv": [ 35.5, 24.0, 36.0, 26.0 ] },
+												"south": { "texture": "#whitetail-antlers", "uv": [ 37.0, 24.0, 37.5, 26.0 ] },
+												"west": { "texture": "#whitetail-antlers", "uv": [ 36.5, 24.0, 37.0, 26.0 ] },
+												"up": { "texture": "#whitetail-antlers", "uv": [ 36.0, 23.5, 36.5, 24.0 ], "rotation": 180 }
+											},
+											"children": [
+												{
+													"name": "L antler base 8",
+													"from": [ 0.1, 0.0, 0.0492 ],
+													"to": [ 0.4, 2.0, 0.3492 ],
+													"unwrapMode": 1,
+													"uv": [ 35.5, 19.5 ],
+													"rotationOrigin": [ 0.1, 0.0, 0.35 ],
+													"rotationX": -5.0,
+													"rotationZ": -45.0,
+													"faces": {
+														"north": { "texture": "#whitetail-antlers", "uv": [ 36.0, 20.0, 36.5, 22.0 ] },
+														"east": { "texture": "#whitetail-antlers", "uv": [ 35.5, 20.0, 36.0, 22.0 ] },
+														"south": { "texture": "#whitetail-antlers", "uv": [ 37.0, 20.0, 37.5, 22.0 ] },
+														"west": { "texture": "#whitetail-antlers", "uv": [ 36.5, 20.0, 37.0, 22.0 ] },
+														"up": { "texture": "#whitetail-antlers", "uv": [ 36.0, 19.5, 36.5, 20.0 ], "rotation": 180 }
+													}
+												}
+											]
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"animations": [
+		{
+			"name": "Walk",
+			"code": "walk",
+			"quantityframes": 30,
+			"onActivityStopped": "Rewind",
+			"onAnimationEnd": "Repeat",
+			"keyframes": [
+
+			]
+		}
+	]
+}

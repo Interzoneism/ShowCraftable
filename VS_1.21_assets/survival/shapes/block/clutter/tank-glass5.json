@@ -1,0 +1,112 @@
+{
+	"editor": {
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+		"vintage": "block/glass/vintage",
+		"brass5": "block/metal/sheet/brass5"
+	},
+	"elements": [
+		{
+			"name": "origin",
+			"from": [ 8.0, 0.0, 8.0 ],
+			"to": [ 8.0, 0.0, 8.0 ],
+			"rotationOrigin": [ 8.0, 0.0, 8.0 ],
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "bottom",
+					"from": [ -4.0, 0.0, -4.0 ],
+					"to": [ 4.0, 1.0, 4.0 ],
+					"faces": {
+						"north": { "texture": "#brass5", "uv": [ 2.0, 15.0, 10.0, 16.0 ] },
+						"east": { "texture": "#brass5", "uv": [ 5.5, 15.0, 13.5, 16.0 ] },
+						"south": { "texture": "#brass5", "uv": [ 5.0, 15.0, 13.0, 16.0 ] },
+						"west": { "texture": "#brass5", "uv": [ 0.5, 15.0, 8.5, 16.0 ] },
+						"up": { "texture": "#brass5", "uv": [ 5.5, 5.0, 13.5, 13.0 ] },
+						"down": { "texture": "#brass5", "uv": [ 3.0, 3.5, 11.0, 11.5 ] }
+					},
+					"children": [
+						{
+							"name": "glass",
+							"from": [ 1.0, 1.0, 1.0 ],
+							"to": [ 7.0, 12.0, 7.0 ],
+							"renderPass": 3,
+							"rotationOrigin": [ 4.0, 1.0, 4.0 ],
+							"faces": {
+								"north": { "texture": "#vintage", "uv": [ 3.0, 1.0, 9.0, 12.0 ] },
+								"east": { "texture": "#vintage", "uv": [ 9.0, 0.0, 15.0, 11.0 ] },
+								"south": { "texture": "#vintage", "uv": [ 6.5, 0.5, 12.5, 11.5 ] },
+								"west": { "texture": "#vintage", "uv": [ 6.5, 0.0, 12.5, 11.0 ] }
+							}
+						},
+						{
+							"name": "top",
+							"from": [ 0.0, 12.0, 0.0 ],
+							"to": [ 8.0, 13.0, 8.0 ],
+							"rotationOrigin": [ 0.0, 12.0, 0.0 ],
+							"faces": {
+								"north": { "texture": "#brass5", "uv": [ 0.0, 0.0, 8.0, 1.0 ] },
+								"east": { "texture": "#brass5", "uv": [ 2.0, 0.0, 10.0, 1.0 ] },
+								"south": { "texture": "#brass5", "uv": [ 8.0, 0.0, 16.0, 1.0 ] },
+								"west": { "texture": "#brass5", "uv": [ 1.0, 0.0, 9.0, 1.0 ] },
+								"up": { "texture": "#brass5", "uv": [ 5.5, 4.0, 13.5, 12.0 ] },
+								"down": { "texture": "#brass5", "uv": [ 4.5, 3.5, 12.5, 11.5 ] }
+							},
+							"children": [
+								{
+									"name": "pipe",
+									"from": [ 2.0, -1.0, 3.0 ],
+									"to": [ 4.0, 3.0, 5.0 ],
+									"rotationOrigin": [ 3.0, -1.0, 4.0 ],
+									"rotationY": -45.0,
+									"faces": {
+										"north": { "texture": "#brass5", "uv": [ 7.0, 5.0, 9.0, 9.0 ] },
+										"east": { "texture": "#brass5", "uv": [ 5.0, 6.0, 7.0, 10.0 ] },
+										"south": { "texture": "#brass5", "uv": [ 4.0, 8.0, 6.0, 12.0 ] },
+										"west": { "texture": "#brass5", "uv": [ 7.5, 5.5, 9.5, 9.5 ] },
+										"down": { "texture": "#brass5", "uv": [ 4.0, 3.5, 6.0, 5.5 ] }
+									},
+									"children": [
+										{
+											"name": "injector",
+											"from": [ 0.5, -3.0, 0.5 ],
+											"to": [ 1.5, 0.0, 1.5 ],
+											"rotationOrigin": [ 1.0, -3.0, 1.0 ],
+											"faces": {
+												"north": { "texture": "#brass5", "uv": [ 4.0, 2.0, 5.0, 5.0 ] },
+												"east": { "texture": "#brass5", "uv": [ 8.0, 6.0, 9.0, 9.0 ] },
+												"south": { "texture": "#brass5", "uv": [ 5.5, 3.5, 6.5, 6.5 ] },
+												"west": { "texture": "#brass5", "uv": [ 4.5, 3.5, 5.5, 6.5 ] },
+												"down": { "texture": "#brass5", "uv": [ 5.5, 4.5, 6.5, 5.5 ] }
+											}
+										},
+										{
+											"name": "cap",
+											"from": [ -0.5, 4.0, -0.5 ],
+											"to": [ 2.5, 4.5, 2.5 ],
+											"rotationOrigin": [ 1.0, 4.0, 1.0 ],
+											"faces": {
+												"north": { "texture": "#brass5", "uv": [ 0.0, 0.0, 3.0, 0.5 ] },
+												"east": { "texture": "#brass5", "uv": [ 0.0, 0.0, 3.0, 0.5 ] },
+												"south": { "texture": "#brass5", "uv": [ 7.0, 0.0, 10.0, 0.5 ] },
+												"west": { "texture": "#brass5", "uv": [ 9.5, 0.0, 12.5, 0.5 ] },
+												"up": { "texture": "#brass5", "uv": [ 2.0, 3.0, 5.0, 6.0 ] },
+												"down": { "texture": "#brass5", "uv": [ 4.5, 3.0, 7.5, 6.0 ] }
+											}
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	]}

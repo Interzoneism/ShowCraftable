@@ -1,0 +1,44 @@
+{
+	"editor": {
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+		"snowcover": "block/liquid/snow/normal1",
+		"material": "block/wood/shingles/oak-top"
+	},
+	"elements": [
+		{
+			"name": "Cube1",
+			"from": [ 0.0, 0.0, 4.0 ],
+			"to": [ 16.0, 4.0, 12.0 ],
+			"rotationOrigin": [ 8.0, 2.0, 8.0 ],
+			"rotationX": 180.0,
+			"faces": {
+				"north": { "texture": "#material", "uv": [ 0.0, 0.0, 4.0, 16.0 ], "rotation": 270 },
+				"east": { "texture": "#material", "uv": [ 2.0, 0.0, 10.0, 4.0 ] },
+				"south": { "texture": "#material", "uv": [ 7.5, 0.0, 11.5, 16.0 ], "rotation": 90 },
+				"west": { "texture": "#material", "uv": [ 0.0, 0.0, 8.0, 4.0 ] },
+				"down": { "texture": "#material", "uv": [ 0.0, 0.0, 8.0, 16.0 ], "rotation": 270 }
+			},
+			"children": [
+				{
+					"name": "Cube2",
+					"from": [ 0.0, 4.0, 0.0 ],
+					"to": [ 16.0, 6.0, 8.0 ],
+					"rotationOrigin": [ 0.0, 4.0, 0.0 ],
+					"faces": {
+						"north": { "texture": "#snowcover", "uv": [ 0.0, 0.0, 16.0, 2.0 ] },
+						"east": { "texture": "#snowcover", "uv": [ 0.0, 0.0, 8.0, 2.0 ] },
+						"south": { "texture": "#snowcover", "uv": [ 0.0, 0.0, 16.0, 2.0 ] },
+						"west": { "texture": "#snowcover", "uv": [ 0.0, 0.0, 8.0, 2.0 ] },
+						"up": { "texture": "#snowcover", "uv": [ 0.0, 0.0, 16.0, 8.0 ] }
+					}
+				}
+			]
+		}
+	]}

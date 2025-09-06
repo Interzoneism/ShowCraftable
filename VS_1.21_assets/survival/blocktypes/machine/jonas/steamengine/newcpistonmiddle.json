@@ -1,0 +1,29 @@
+{
+	code: "jonas",
+	creativeinventory: { "general": ["*-south"], "clutter": ["*-south"] },
+	shape: { base: "block/machine/jonas/steamengine/newcpistonmiddle" },
+	variantgroups: [
+		{ code: "type", states: ["steamengine-pistonmiddle"] },
+		{ code: "side", loadFromProperties: "abstract/horizontalorientation" }
+	],
+	behaviors: [{name: "HorizontalOrientable", properties: {  dropBlockFace: "south" }}],
+	shapebytype: {
+		"*-north": { base: "block/machine/jonas/steamengine/newcpistonmiddle", rotateY: 90 },
+		"*-east": { base: "block/machine/jonas/steamengine/newcpistonmiddle", rotateY: 0 },
+		"*-south": { base: "block/machine/jonas/steamengine/newcpistonmiddle", rotateY: 270 },
+		"*-west": { base: "block/machine/jonas/steamengine/newcpistonmiddle", rotateY: 180 }
+	},	
+	blockmaterial: "Metal",
+	drawtype: "json",
+	faceCullMode: "NeverCull",
+	replaceable: 160,
+	resistance: 4,
+	lightAbsorption: 0,
+	sidesolid: { all: false },
+	sideopaque: { all: false },
+	sounds: {
+		"place": "block/heavymetal-hit",
+		"break": "block/heavymetal-hit",
+		"hit": "block/heavymetal-hit"
+	}
+}

@@ -1,0 +1,158 @@
+[
+	{
+		// Large patches of MIXED coral with EVERYTHING
+		blockCodes: ["coralblock-mixed"],
+		minTemp: 11,
+		maxTemp: 40,
+		minRain: 0,
+		maxRain: 1,
+		quantity: { avg: 1, var: 0 },
+		offsetX: { avg: 0, var: 10 },
+		offsetZ: { avg: 0, var: 10 },
+		chance: 0.01,
+		minWaterDepth: 4,
+		maxWaterDepth: 20,
+		attributes: {
+			"CoralMinSize": 800,
+			"CoralRandomSize": 400,
+			"CoralVerticalGrowChance" : 0.6,
+			"CoralPlantsChance": 0.03,
+			"CoralShelveChance": 0.3,
+			"CoralStructureChance": 0.5,
+			"CoralPlants": {
+				"aquatic-seagrass-*-section": {
+					"Height": { "avg": 2, "var": 2 },
+					"Chance": 0.5
+				},
+				"aquatic-kelp-section": {
+					"Height": { "avg": 3, "var": 1 },
+					"Chance": 0.5
+				}
+			},
+			"CoralBase":["coralblock-pink", "coralblock-purple", "coralblock-tan"],
+			"CoralStructure":["coralstructure-pink", "coralstructure-purple", "coralstructure-tan"],
+			"CoralShelve":["coralledge-pink-north", "coralledge-purple-north", "coralledge-tan-north"],
+			"Coral":["coral-*"],
+			"CoralReplaceOtherPatches": 0.65,
+			"CoralBaseHeight": 2
+		},
+		placement: "UnderSeaWater"
+	},
+	{
+		// Large patches of PINK coral with SHELF, BRAINS, FAN, and ANEMONE
+		blockCodes: ["coralblock-pink"],
+		minTemp: 11,
+		maxTemp: 40,
+		minRain: 0,
+		maxRain: 1,
+		quantity: { avg: 1, var: 0 },
+		offsetX: { avg: 0, var: 10 },
+		offsetZ: { avg: 0, var: 10 },
+		chance: 0.01,
+		minWaterDepth: 4,
+		maxWaterDepth: 20,
+		attributes: {
+			"CoralMinSize": 800,
+			"CoralRandomSize": 400,
+			"CoralVerticalGrowChance" : 0.6,
+			"CoralPlantsChance": 0.03,
+			"CoralShelveChance": 0.3,
+			"CoralStructureChance": 0.5,
+			"CoralPlants": {
+				"aquatic-seagrass-*-section": {
+					"Height": { "avg": 2, "var": 2 },
+					"Chance": 0.5
+				},
+				"aquatic-kelp-section": {
+					"Height": { "avg": 3, "var": 1 },
+					"Chance": 0.5
+				}
+			},
+			"CoralBase":["coralblock-pink"],
+			"CoralStructure":["coralstructure-pink"],
+			"CoralShelve":["coralledge-pink-north"],
+			"Coral":["coral-shelf", "coral-brain", "coral-anemone", "coral-fan"],
+			"CoralReplaceOtherPatches": 0.65,
+			"CoralBaseHeight": 2
+		},
+		placement: "UnderSeaWater"
+	},
+	{
+		// Large patches of TAN coral with SPONGES, FAN, and BRANCHED
+		blockCodes: ["coralblock-tan"],
+		minTemp: 11,
+		maxTemp: 40,
+		minRain: 0,
+		maxRain: 1,
+		quantity: { avg: 1, var: 0 },
+		offsetX: { avg: 0, var: 10 },
+		offsetZ: { avg: 0, var: 10 },
+		chance: 0.01,
+		minWaterDepth: 4,
+		maxWaterDepth: 20,
+		attributes: {
+			"CoralMinSize": 800,
+			"CoralRandomSize": 400,
+			"CoralVerticalGrowChance" : 0.6,
+			"CoralPlantsChance": 0.03,
+			"CoralShelveChance": 0.3,
+			"CoralStructureChance": 0.5,
+			"CoralPlants": {
+				"aquatic-seagrass-*-section": {
+					"Height": { "avg": 2, "var": 2 },
+					"Chance": 0.5
+				},
+				"aquatic-kelp-section": {
+					"Height": { "avg": 3, "var": 1 },
+					"Chance": 0.5
+				}
+			},
+			"CoralBase":["coralblock-tan"],
+			"CoralStructure":["coralstructure-tan"],
+			"CoralShelve":["coralledge-tan-north"],
+			"Coral":["coral-sponge", "coral-fan", "coral-branched"],
+			"CoralReplaceOtherPatches": 0.65,
+			"CoralBaseHeight": 2
+		},
+		placement: "UnderSeaWater"
+	},
+	{
+		// Large patches of TAN coral with SHRUB, BRAIN, SHROOM and TUBE, 5 total patch types distribute into total .05 occurence
+		blockCodes: ["coralblock-tan"],
+		minTemp: 11,
+		maxTemp: 40,
+		minRain: 0,
+		maxRain: 1,
+		quantity: { avg: 1, var: 0 },
+		offsetX: { avg: 0, var: 10 },
+		offsetZ: { avg: 0, var: 10 },
+		chance: 0.01,
+		minWaterDepth: 4,
+		maxWaterDepth: 20,
+		attributes: {
+			"CoralMinSize": 800,
+			"CoralRandomSize": 400,
+			"CoralVerticalGrowChance" : 0.6,
+			"CoralPlantsChance": 0.03,
+			"CoralShelveChance": 0.3,
+			"CoralStructureChance": 0.5,
+			"CoralPlants": {
+				"aquatic-seagrass-*-section": {
+					"Height": { "avg": 2, "var": 2 },
+					"Chance": 0.5
+				},
+				"aquatic-kelp-section": {
+					"Height": { "avg": 3, "var": 1 },
+					"Chance": 0.5
+				}
+			},
+			"CoralBase":["coralblock-tan"],
+			"CoralStructure":["coralstructure-tan"],
+			"CoralShelve":["coralledge-tan-north"],
+			"Coral":["coral-shrub", "coral-brain", "coral-shroom", "coral-tube"],
+			"CoralReplaceOtherPatches": 0.65,
+			"CoralBaseHeight": 2
+		},
+		placement: "UnderSeaWater"
+	},
+]

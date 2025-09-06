@@ -1,0 +1,67 @@
+[
+	{
+		ingredientPattern: "AFC,BGE,DHI",
+		ingredients: {
+			"A": { type: "item", code: "nightvisionupgrades-nightvisionbright", },
+			"B": { type: "item", code: "nightvisionupgrades-nightvisionpower", },
+			"C": { type: "item", code: "nightvisionupgrades-nightvisionlens1", },
+			"D": { type: "item", code: "jonasparts-cylinder01", },
+			"E": { type: "item", code: "jonasframes-gears01", },
+			"F": { type: "item", code: "rod-cupronickel", },
+			"H": { type: "item", code: "metalplate-lead", },
+			"G": { type: "item", code: "metalplate-electrum", },
+			"I": { type: "block", code: "metal-parts", },
+		},
+		width: 3,
+		height: 3,
+		output: { type: "item", code: "nightvisiondevice", quantity: 1  }
+	},
+	{
+		ingredientPattern: "QP,RO",
+		ingredients: {
+			"O": { type: "item", code: "ingot-lead", },
+			"P": { type: "item", code: "jonasparts-tank02", },
+			"Q": { type: "item", code: "rod-cupronickel", },
+			"R": { type: "item", code: "jonasframes-spring01", },
+		},
+		width: 2,
+		height: 2,
+		output: { type: "item", code: "nightvisionupgrades-nightvisionbright", quantity: 1  }
+	},
+	{
+		ingredientPattern: "UV,ST",
+		ingredients: {
+			"U": { type: "item", code: "jonasparts-cylinder02", },
+			"V": { type: "block", code: "metal-parts", },
+			"S": { type: "block", code: "glass-plain", },
+			"T": { type: "item", code: "jonasframes-oscillator01", },
+		},
+		width: 2,
+		height: 2,
+		output: { type: "item", code: "nightvisionupgrades-nightvisionlens1", quantity: 1  }
+	},
+	{
+		ingredientPattern: "ST,UV",
+		ingredients: {
+			"S": { type: "item", code: "jonasframes-gearbox01", },
+			"T": { type: "block", code: "metal-parts", },
+			"U": { type: "block", code: "glass-plain", },
+			"V": { type: "item", code: "jonasparts-valve01", },
+		},
+		width: 2,
+		height: 2,
+		output: { type: "item", code: "nightvisionupgrades-nightvisionlens2", quantity: 1  }
+	},
+	{
+		ingredientPattern: "WX,YZ",
+		ingredients: {
+			"W": { type: "item", code: "jonasparts-tank01", },
+			"X": { type: "item", code: "rod-cupronickel", },
+			"Y": { type: "item", code: "jonasframes-gearbox02", },
+			"Z": { type: "block", code: "metal-parts", },
+		},
+		width: 2,
+		height: 2,
+		output: { type: "item", code: "nightvisionupgrades-nightvisionpower", quantity: 1 }
+	},
+]

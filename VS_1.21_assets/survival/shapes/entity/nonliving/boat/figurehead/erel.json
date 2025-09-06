@@ -1,0 +1,216 @@
+{
+	"editor": {
+		"backDropShape": "entity/nonliving/boat/sailed",
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+		"figureMat": "block/wood/debarked/oak"
+	},
+	"elements": [
+		{
+			"name": "FigureheadORIGIN",
+			"stepParentName": "FigureParent",
+			"from": [ 8.5, 0.0, 8.0 ],
+			"to": [ 8.5, 0.0, 8.0 ],
+			"rotationOrigin": [ 8.0, 0.0, 8.0 ],
+			"rotationY": -90.0,
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "Neck",
+					"from": [ -4.5, 0.0, -2.0 ],
+					"to": [ 2.5, 10.0, 2.0 ],
+					"rotationOrigin": [ -1.5, 0.0, 0.0 ],
+					"faces": {
+						"north": { "texture": "#figureMat", "uv": [ 3.5, 1.0, 13.5, 8.0 ], "rotation": 90 },
+						"east": { "texture": "#figureMat", "uv": [ 1.5, 4.0, 11.5, 8.0 ], "rotation": 90 },
+						"south": { "texture": "#figureMat", "uv": [ 3.5, 5.0, 13.5, 12.0 ], "rotation": 270 },
+						"west": { "texture": "#figureMat", "uv": [ 0.5, 6.5, 10.5, 10.5 ], "rotation": 90 },
+						"up": { "texture": "#figureMat", "uv": [ 8.0, 6.5, 15.0, 10.5 ] },
+						"down": { "texture": "#figureMat", "uv": [ 2.0, 3.0, 9.0, 7.0 ] }
+					},
+					"children": [
+						{
+							"name": "NeckFront",
+							"from": [ 6.0, -1.0, 1.0 ],
+							"to": [ 8.0, 8.0, 3.0 ],
+							"rotationOrigin": [ 7.0, 0.0, 2.0 ],
+							"rotationY": -45.0,
+							"faces": {
+								"north": { "texture": "#figureMat", "uv": [ 6.5, 3.0, 15.5, 5.0 ], "rotation": 90 },
+								"east": { "texture": "#figureMat", "uv": [ 6.5, 2.5, 15.5, 4.5 ], "rotation": 90, "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] },
+								"down": { "texture": "#figureMat", "uv": [ 11.5, 6.0, 13.5, 8.0 ] }
+							}
+						},
+						{
+							"name": "Head",
+							"from": [ 0.0, 9.0, -0.5 ],
+							"to": [ 8.0, 18.0, 4.5 ],
+							"rotationOrigin": [ 4.0, 10.0, 2.0 ],
+							"rotationZ": 22.5,
+							"faces": {
+								"north": { "texture": "#figureMat", "uv": [ 6.5, 6.0, 14.5, 15.0 ] },
+								"east": { "texture": "#figureMat", "uv": [ 2.5, 6.0, 7.5, 15.0 ] },
+								"south": { "texture": "#figureMat", "uv": [ 1.0, 4.0, 9.0, 13.0 ] },
+								"west": { "texture": "#figureMat", "uv": [ 10.0, 4.0, 15.0, 13.0 ] },
+								"up": { "texture": "#figureMat", "uv": [ 2.5, 2.5, 10.5, 7.5 ] },
+								"down": { "texture": "#figureMat", "uv": [ 3.5, 0.5, 11.5, 5.5 ] }
+							},
+							"children": [
+								{
+									"name": "Cheeks",
+									"from": [ 5.0, 1.0, -1.0 ],
+									"to": [ 10.0, 6.0, 6.0 ],
+									"rotationOrigin": [ 7.5, 3.5, 2.5 ],
+									"rotationZ": 45.0,
+									"faces": {
+										"north": { "texture": "#figureMat", "uv": [ 1.5, 10.5, 6.5, 15.5 ] },
+										"east": { "texture": "#figureMat", "uv": [ 4.0, 9.0, 11.0, 14.0 ] },
+										"south": { "texture": "#figureMat", "uv": [ 0.0, 9.5, 5.0, 14.5 ] },
+										"west": { "texture": "#figureMat", "uv": [ 3.0, 2.0, 10.0, 7.0 ] },
+										"up": { "texture": "#figureMat", "uv": [ 2.0, 3.0, 7.0, 10.0 ] },
+										"down": { "texture": "#figureMat", "uv": [ 0.0, 2.0, 5.0, 9.0 ] }
+									}
+								},
+								{
+									"name": "Jaw1",
+									"from": [ 1.0, -2.0, -0.01 ],
+									"to": [ 11.0, 1.0, 5.01 ],
+									"rotationOrigin": [ 4.0, -1.0, 2.5 ],
+									"rotationZ": -45.0,
+									"faces": {
+										"north": { "texture": "#figureMat", "uv": [ 1.5, 0.5, 11.5, 3.5 ] },
+										"east": { "texture": "#figureMat", "uv": [ 5.5, 2.0, 10.5, 5.0 ] },
+										"south": { "texture": "#figureMat", "uv": [ 0.0, 5.0, 10.0, 8.0 ] },
+										"west": { "texture": "#figureMat", "uv": [ 4.0, 9.5, 9.0, 12.5 ] },
+										"up": { "texture": "#figureMat", "uv": [ 1.0, 5.5, 11.0, 10.5 ] },
+										"down": { "texture": "#figureMat", "uv": [ 0.5, 2.0, 10.5, 7.0 ] }
+									},
+									"children": [
+										{
+											"name": "Jaw2",
+											"from": [ 7.0, 0.0, 0.5 ],
+											"to": [ 18.0, 2.0, 4.5 ],
+											"rotationOrigin": [ 10.0, 0.0, 0.5 ],
+											"rotationZ": 45.0,
+											"faces": {
+												"north": { "texture": "#figureMat", "uv": [ 2.5, 1.5, 13.5, 3.5 ] },
+												"east": { "texture": "#figureMat", "uv": [ 0.5, 9.0, 4.5, 11.0 ] },
+												"south": { "texture": "#figureMat", "uv": [ 4.0, 4.5, 15.0, 6.5 ] },
+												"west": { "texture": "#figureMat", "uv": [ 7.0, 1.5, 11.0, 3.5 ] },
+												"up": { "texture": "#figureMat", "uv": [ 3.5, 9.5, 14.5, 13.5 ] },
+												"down": { "texture": "#figureMat", "uv": [ 4.0, 1.5, 15.0, 5.5 ] }
+											},
+											"children": [
+												{
+													"name": "JawTip",
+													"from": [ 11.0, 0.0, 0.5 ],
+													"to": [ 13.0, 2.0, 3.5 ],
+													"rotationOrigin": [ 11.0, 0.0, 2.5 ],
+													"rotationZ": 45.0,
+													"faces": {
+														"north": { "texture": "#figureMat", "uv": [ 4.0, 3.0, 6.0, 5.0 ] },
+														"east": { "texture": "#figureMat", "uv": [ 11.5, 2.5, 14.5, 4.5 ] },
+														"south": { "texture": "#figureMat", "uv": [ 10.5, 4.5, 12.5, 6.5 ] },
+														"up": { "texture": "#figureMat", "uv": [ 4.0, 9.5, 6.0, 12.5 ] },
+														"down": { "texture": "#figureMat", "uv": [ 11.0, 6.5, 13.0, 9.5 ] }
+													}
+												}
+											]
+										}
+									]
+								},
+								{
+									"name": "Beak1",
+									"from": [ -1.0, 5.0, 0.5 ],
+									"to": [ 15.0, 10.0, 4.5 ],
+									"rotationOrigin": [ 8.0, 9.0, 2.5 ],
+									"rotationZ": -15.0,
+									"faces": {
+										"north": { "texture": "#figureMat", "uv": [ 0.0, 5.0, 16.0, 10.0 ] },
+										"east": { "texture": "#figureMat", "uv": [ 7.0, 5.0, 11.0, 10.0 ] },
+										"south": { "texture": "#figureMat", "uv": [ 0.0, 5.5, 16.0, 10.5 ] },
+										"west": { "texture": "#figureMat", "uv": [ 1.5, 2.0, 5.5, 7.0 ] },
+										"up": { "texture": "#figureMat", "uv": [ 0.0, 5.0, 16.0, 9.0 ] },
+										"down": { "texture": "#figureMat", "uv": [ 0.0, 5.0, 16.0, 9.0 ] }
+									},
+									"children": [
+										{
+											"name": "Beak2",
+											"from": [ 16.0, 1.0, 0.5 ],
+											"to": [ 24.0, 5.0, 3.5 ],
+											"rotationOrigin": [ 16.0, 5.0, 2.0 ],
+											"rotationZ": -30.0,
+											"faces": {
+												"north": { "texture": "#figureMat", "uv": [ 2.0, 8.5, 10.0, 12.5 ] },
+												"east": { "texture": "#figureMat", "uv": [ 3.5, 10.5, 6.5, 14.5 ] },
+												"south": { "texture": "#figureMat", "uv": [ 1.5, 4.5, 9.5, 8.5 ] },
+												"up": { "texture": "#figureMat", "uv": [ 7.0, 5.5, 15.0, 8.5 ] },
+												"down": { "texture": "#figureMat", "uv": [ 2.0, 5.0, 10.0, 8.0 ] }
+											},
+											"children": [
+												{
+													"name": "Beak3",
+													"from": [ 8.0, 0.0, 0.5 ],
+													"to": [ 15.0, 4.0, 2.5 ],
+													"rotationOrigin": [ 8.0, 4.0, 1.5 ],
+													"rotationZ": -22.5,
+													"faces": {
+														"north": { "texture": "#figureMat", "uv": [ 4.0, 1.0, 11.0, 5.0 ] },
+														"south": { "texture": "#figureMat", "uv": [ 1.0, 1.0, 8.0, 5.0 ] },
+														"up": { "texture": "#figureMat", "uv": [ 0.5, 3.5, 7.5, 5.5 ] },
+														"down": { "texture": "#figureMat", "uv": [ 1.5, 12.0, 8.5, 14.0 ] }
+													},
+													"children": [
+														{
+															"name": "BeakTip",
+															"from": [ 7.0, 1.0, -0.5 ],
+															"to": [ 10.0, 4.0, 2.5 ],
+															"rotationOrigin": [ 7.0, 4.0, 1.0 ],
+															"rotationZ": -45.0,
+															"faces": {
+																"north": { "texture": "#figureMat", "uv": [ 2.0, 7.0, 5.0, 10.0 ] },
+																"east": { "texture": "#figureMat", "uv": [ 5.5, 3.0, 8.5, 6.0 ] },
+																"south": { "texture": "#figureMat", "uv": [ 11.5, 0.0, 14.5, 3.0 ] },
+																"west": { "texture": "#figureMat", "uv": [ 7.0, 5.0, 10.0, 8.0 ] },
+																"up": { "texture": "#figureMat", "uv": [ 12.0, 12.5, 15.0, 15.5 ] },
+																"down": { "texture": "#figureMat", "uv": [ 5.5, 3.5, 8.5, 6.5 ] }
+															}
+														}
+													]
+												}
+											]
+										}
+									]
+								},
+								{
+									"name": "Eyes",
+									"from": [ 3.0, 6.0, -1.5 ],
+									"to": [ 5.0, 8.0, 6.5 ],
+									"rotationOrigin": [ 4.0, 7.0, 2.5 ],
+									"rotationZ": 45.0,
+									"faces": {
+										"north": { "texture": "#figureMat", "uv": [ 4.5, 13.5, 6.5, 15.5 ] },
+										"east": { "texture": "#figureMat", "uv": [ 7.5, 4.0, 15.5, 6.0 ] },
+										"south": { "texture": "#figureMat", "uv": [ 1.0, 4.5, 3.0, 6.5 ] },
+										"west": { "texture": "#figureMat", "uv": [ 5.5, 10.0, 13.5, 12.0 ] },
+										"up": { "texture": "#figureMat", "uv": [ 7.5, 0.0, 9.5, 8.0 ] },
+										"down": { "texture": "#figureMat", "uv": [ 10.5, 5.0, 12.5, 13.0 ] }
+									}
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"animations": [
+	]
+}

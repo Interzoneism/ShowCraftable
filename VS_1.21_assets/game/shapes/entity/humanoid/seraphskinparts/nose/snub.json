@@ -1,0 +1,59 @@
+{
+	"editor": {
+		"backDropShape": "entity/humanoid/seraph",
+		"allAngles": true,
+		"entityTextureMode": true
+	},
+	"textureWidth": 32,
+	"textureHeight": 76,
+	"textureSizes": {
+		"seraph": [32,76]
+	},
+	"textures": {
+		"seraph": "entity/humanoid/seraph-naked"
+	},
+	"elements": [
+		{
+			"name": "origin",
+			"stepParentName": "Head",
+			"from": [ 0.0, 2.4, 2.5 ],
+			"to": [ 0.0, 2.4, 2.5 ],
+			"uv": [ 0.0, 0.0 ],
+			"rotationOrigin": [ 0.0, 2.4, 2.5 ],
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "nose1",
+					"from": [ 0.0, -0.6, -0.3 ],
+					"to": [ 0.5, 0.0, 0.3 ],
+					"uv": [ 3.5, 12.5 ],
+					"rotationOrigin": [ 0.0, 0.0, 0.0 ],
+					"rotationZ": -20.0,
+					"faces": {
+						"north": { "texture": "#seraph", "uv": [ 3.5, 12.5, 4.0, 13.0 ] },
+						"south": { "texture": "#seraph", "uv": [ 4.0, 12.5, 4.5, 13.0 ] },
+						"west": { "texture": "#seraph", "uv": [ 4.5, 12.5, 5.0, 13.0 ] }
+					},
+					"children": [
+						{
+							"name": "nose2",
+							"from": [ 0.0, -0.5, -0.05 ],
+							"to": [ 0.5, 0.1, 0.65 ],
+							"uv": [ 3.5, 13.5 ],
+							"rotationOrigin": [ 0.0, 0.0, 0.3 ],
+							"rotationZ": -14.0,
+							"faces": {
+								"north": { "texture": "#seraph", "uv": [ 3.5, 14.0, 4.0, 14.5 ] },
+								"east": { "texture": "#seraph", "uv": [ 4.0, 14.0, 4.5, 14.5 ], "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] },
+								"south": { "texture": "#seraph", "uv": [ 4.5, 14.0, 5.0, 14.5 ] },
+								"west": { "texture": "#seraph", "uv": [ 5.0, 14.0, 5.5, 14.5 ] },
+								"up": { "texture": "#seraph", "uv": [ 3.5, 13.5, 4.0, 14.0 ] },
+								"down": { "texture": "#seraph", "uv": [ 4.0, 13.5, 4.5, 14.0 ] }
+							}
+						}
+					]
+				}
+			]
+		}
+	]}

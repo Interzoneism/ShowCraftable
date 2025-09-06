@@ -1,0 +1,47 @@
+{
+	code: "jonas",
+	creativeinventory: { "general": ["*-south"], "clutter": ["*-south"] },
+	shape: { base: "block/machine/jonas/gencore" },
+	variantgroups: [
+		{ code: "type", states: ["poweramplifier-core"] },
+		{ code: "side", loadFromProperties: "abstract/horizontalorientation" }
+	],
+	attributes: {
+		handbook: {
+			exclude: true
+		}
+	},
+	entityBehaviors: [
+		{ name: "ControlPointAnimatable", properties: { controlpointcode: "jonassteamengine", animSpeedMul: 0.333 } }
+	],
+	behaviors: [
+		{ name: "Multiblock", propertiesByType: {
+				"*-east": { sizex:1, sizey: 3, sizez: 3, cposition: { x: 0, y: 1, z: 1 } },
+				"*-west": { sizex:1, sizey: 3, sizez: 3, cposition: { x: 0, y: 1, z: 1 } },
+				
+				"*-north": { sizex:3, sizey: 3, sizez: 1, cposition: { x: 1, y: 1, z: 0 } },
+				"*-south": { sizex:3, sizey: 3, sizez: 1, cposition: { x: 1, y: 1, z: 0 } }
+			}
+		},
+		{ name: "HorizontalOrientable", properties: {  dropBlockFace: "south" } }
+	],
+	shapebytype: {
+		"*-north": { base: "block/machine/jonas/gencore", rotateY: 270 },
+		"*-east": { base: "block/machine/jonas/gencore", rotateY: 180 },
+		"*-south": { base: "block/machine/jonas/gencore", rotateY: 90 },
+		"*-west": { base: "block/machine/jonas/gencore", rotateY: 0 }
+	},	
+	blockmaterial: "Metal",
+	faceCullMode: "NeverCull",
+	drawtype: "json",
+	replaceable: 160,
+	resistance: 4,
+	lightAbsorption: 0,
+	sidesolid: { all: false },
+	sideopaque: { all: false },
+	sounds: {
+		"place": "block/heavymetal-hit",
+		"break": "block/heavymetal-hit",
+		"hit": "block/heavymetal-hit"
+	}
+}

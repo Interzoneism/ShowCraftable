@@ -1,0 +1,73 @@
+{
+	"editor": {
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+		"leaves": "block/plant/leaves/large/greenspirecypress1",
+		"trunk": "block/wood/treetrunk/fruit/cypress"
+	},
+	"elements": [
+		{
+			"name": "trunk",
+			"from": [ 7.5, 0.0, 7.5 ],
+			"to": [ 8.5, 6.0, 8.5 ],
+			"rotationOrigin": [ 0.5, 0.0, 0.5 ],
+			"faces": {
+				"north": { "texture": "#trunk", "uv": [ 3.0, 7.0, 9.0, 8.0 ], "rotation": 90, "windMode": [4,4,4,4] },
+				"east": { "texture": "#trunk", "uv": [ 4.5, 6.0, 10.5, 7.0 ], "rotation": 90, "windMode": [4,4,4,4] },
+				"south": { "texture": "#trunk", "uv": [ 4.0, 6.5, 10.0, 7.5 ], "rotation": 90, "windMode": [4,4,4,4] },
+				"west": { "texture": "#trunk", "uv": [ 7.5, 6.0, 13.5, 7.0 ], "rotation": 90, "windMode": [4,4,4,4] },
+				"up": { "texture": "#trunk", "uv": [ 14.0, 8.5, 15.0, 9.5 ], "windMode": [4,4,4,4] },
+				"down": { "texture": "#trunk", "uv": [ 14.0, 9.0, 15.0, 10.0 ], "windMode": [4,4,4,4] }
+			},
+			"children": [
+				{
+					"name": "leaves",
+					"from": [ -1.5, 3.0, -1.5 ],
+					"to": [ 2.5, 8.0, 2.5 ],
+					"climateColorMap": "climatePlantTint",
+					"seasonColorMap": "seasonalNeedles",
+					"renderPass": 1,
+					"rotationOrigin": [ 1.0, -1.0, 1.5 ],
+					"faces": {
+						"north": { "texture": "#leaves", "uv": [ 4.0, 4.0, 8.0, 9.0 ], "windMode": [7,7,7,7] },
+						"east": { "texture": "#leaves", "uv": [ 5.0, 4.0, 9.0, 9.0 ], "windMode": [7,7,7,7] },
+						"south": { "texture": "#leaves", "uv": [ 1.0, 3.0, 5.0, 8.0 ], "windMode": [7,7,7,7] },
+						"west": { "texture": "#leaves", "uv": [ 3.0, 4.0, 7.0, 9.0 ], "windMode": [7,7,7,7] },
+						"up": { "texture": "#leaves", "uv": [ 3.0, 4.0, 7.0, 8.0 ], "windMode": [7,7,7,7] }
+					}
+				},
+				{
+					"name": "north",
+					"from": [ -3.5, 3.0, 0.5 ],
+					"to": [ 4.5, 9.0, 0.5 ],
+					"climateColorMap": "climatePlantTint",
+					"seasonColorMap": "seasonalNeedles",
+					"renderPass": 1,
+					"rotationOrigin": [ 0.5, 3.0, 0.5 ],
+					"rotationY": -45.0,
+					"faces": {
+						"north": { "texture": "#leaves", "uv": [ 5.5, 0.0, 13.5, 6.0 ], "windMode": [7,7,7,7] }
+					}
+				},
+				{
+					"name": "south",
+					"from": [ -3.5, 3.0, 0.5 ],
+					"to": [ 4.5, 9.0, 0.5 ],
+					"climateColorMap": "climatePlantTint",
+					"seasonColorMap": "seasonalNeedles",
+					"renderPass": 1,
+					"rotationOrigin": [ 0.5, 3.0, 0.5 ],
+					"rotationY": 45.0,
+					"faces": {
+						"north": { "texture": "#leaves", "uv": [ 5.25, 4.0, 13.25, 10.0 ], "windMode": [7,7,7,7] }
+					}
+				}
+			]
+		}
+	]}

@@ -1,0 +1,185 @@
+[
+{
+	ingredientPattern: "DG,WC",
+	ingredients: {
+		"G": { type: "item", code: "drygrass", quantity: 2  },
+		"D": { type: "block", code: "soil-*-none", quantity: 1  },
+		"W": { type: "block", code: "sand-*", name: "rock", allowedVariants: ["andesite"], quantity: 1  },
+		"C": { type: "item", code: "clay-blue", quantity: 1 }
+	},
+	width: 2,
+	height: 2,
+	output: { type: "item", code: "daubraw-ash", quantity: 8  }
+},
+{
+	ingredientPattern: "DG,WC",
+	ingredients: {
+		"G": { type: "item", code: "drygrass", quantity: 2  },
+		"D": { type: "block", code: "soil-*-none", quantity: 1  },
+		"W": { type: "block", code: "sand-*", name: "rock", allowedVariants: ["andesite"], quantity: 1  },
+		"C": { type: "item", code: "clay-fire", quantity: 1 }
+	},
+	recipegroup: 1,
+	width: 2,
+	height: 2,
+	output: { type: "item", code: "daubraw-ash", quantity: 8  }
+},
+{
+	ingredientPattern: "DG,WC",
+	ingredients: {
+		"G": { type: "item", code: "drygrass", quantity: 2  },
+		"D": { type: "block", code: "soil-*-none", quantity: 1  },
+		"W": { type: "block", code: "sand-*", name: "rock", allowedVariants: ["andesite"], quantity: 1  },
+		"C": { type: "item", code: "clay-*", name: "clay", allowedVariants: ["red"], quantity: 1 }
+	},
+	width: 2,
+	height: 2,
+	output: { type: "item", code: "daubraw-browngolden", quantity: 8  }
+},
+{
+	ingredientPattern: "DG,WC",
+	ingredients: {
+		"G": { type: "item", code: "drygrass", quantity: 2  },
+		"D": { type: "block", code: "soil-*-none", quantity: 1  },
+		"W": { type: "block", code: "sand-*", name: "rock", allowedVariants: ["shale", "basalt", "slate"], quantity: 1  },
+		"C": { type: "item", code: "clay-*", quantity: 1 }
+	},
+	width: 2,
+	height: 2,
+	output: { type: "item", code: "daubraw-brown", quantity: 8  }
+},
+{
+	ingredientPattern: "DG,WC",
+	ingredients: {
+		"G": { type: "item", code: "drygrass", quantity: 2  },
+		"D": { type: "block", code: "soil-*-none", quantity: 1  },
+		"W": { type: "block", code: "sand-*", name: "rock", allowedVariants: ["claystone", "conglomerate"], quantity: 1  },
+		"C": { type: "item", code: "clay-*", quantity: 1 }
+	},
+	width: 2,
+	height: 2,
+	output: { type: "item", code: "daubraw-browngolden", quantity: 8  }
+},
+{
+	ingredientPattern: "DG,WC",
+	ingredients: {
+		"G": { type: "item", code: "drygrass", quantity: 2  },
+		"D": { type: "block", code: "soil-*-none", quantity: 1  },
+		"W": { type: "block", code: "sand-*", name: "rock", allowedVariants: ["chalk", "limestone"], quantity: 1  },
+		"C": { type: "item", code: "clay-blue", quantity: 1 }
+	},
+	width: 2,
+	height: 2,
+	output: { type: "item", code: "daubraw-brownlight", quantity: 8  }
+},
+{
+	ingredientPattern: "DG,WC",
+	ingredients: {
+		"G": { type: "item", code: "drygrass", quantity: 2  },
+		"D": { type: "block", code: "soil-*-none", quantity: 1  },
+		"W": { type: "block", code: "sand-*", name: "rock", allowedVariants: ["chalk", "limestone"], quantity: 1  },
+		"C": { type: "item", code: "clay-fire", quantity: 1 }
+	},
+	recipegroup: 1,
+	width: 2,
+	height: 2,
+	output: { type: "item", code: "daubraw-brownlight", quantity: 8  }
+},
+{
+	ingredientPattern: "DG,WC",
+	ingredients: {
+		"G": { type: "item", code: "drygrass", quantity: 2  },
+		"D": { type: "block", code: "soil-*-none", quantity: 1  },
+		"W": { type: "block", code: "sand-*", name: "rock", allowedVariants: ["chalk", "limestone"], quantity: 1  },
+		"C": { type: "item", code: "clay-*", name: "clay", allowedVariants: ["red"], quantity: 1 }
+	},
+	width: 2,
+	height: 2,
+	output: { type: "item", code: "daubraw-browngolden", quantity: 8  }
+},
+{
+	ingredientPattern: "DG,WC",
+	ingredients: {
+		"G": { type: "item", code: "drygrass", quantity: 2  },
+		"D": { type: "block", code: "soil-*-none", quantity: 1  },
+		"W": { type: "block", code: "sand-*", name: "rock", allowedVariants: ["phyllite", "chert"], quantity: 1  },
+		"C": { type: "item", code: "clay-*", quantity: 1 }
+	},
+	width: 2,
+	height: 2,
+	output: { type: "item", code: "daubraw-brownweathered", quantity: 8  }
+},
+{
+	ingredientPattern: "DG,WC",
+	ingredients: {
+		"G": { type: "item", code: "drygrass", quantity: 2  },
+		"D": { type: "block", code: "soil-*-none", quantity: 1  },
+		"W": { type: "block", code: "sand-*", name: "rock", allowedVariants: ["peridotite"], quantity: 1  },
+		"C": { type: "item", code: "clay-*", quantity: 1 }
+	},
+	width: 2,
+	height: 2,
+	output: { type: "item", code: "daubraw-green", quantity: 8  }
+},
+{
+	ingredientPattern: "DG,WC",
+	ingredients: {
+		"G": { type: "item", code: "drygrass", quantity: 2  },
+		"D": { type: "block", code: "soil-*-none", quantity: 1  },
+		"W": { type: "block", code: "sand-*", name: "rock", allowedVariants: ["bauxite"], quantity: 1  },
+		"C": { type: "item", code: "clay-*", quantity: 1 }
+	},
+	width: 2,
+	height: 2,
+	output: { type: "item", code: "daubraw-orange", quantity: 8  }
+},
+{
+	ingredientPattern: "DG,WC",
+	ingredients: {
+		"G": { type: "item", code: "drygrass", quantity: 2  },
+		"D": { type: "block", code: "soil-*-none", quantity: 1  },
+		"W": { type: "block", code: "sand-*", name: "rock", allowedVariants: ["granite"], quantity: 1  },
+		"C": { type: "item", code: "clay-blue", quantity: 1 }
+	},
+	width: 2,
+	height: 2,
+	output: { type: "item", code: "daubraw-tan", quantity: 8  }
+},
+{
+	ingredientPattern: "DG,WC",
+	ingredients: {
+		"G": { type: "item", code: "drygrass", quantity: 2  },
+		"D": { type: "block", code: "soil-*-none", quantity: 1  },
+		"W": { type: "block", code: "sand-*", name: "rock", allowedVariants: ["granite"], quantity: 1  },
+		"C": { type: "item", code: "clay-fire", quantity: 1 }
+	},
+	recipegroup: 1,
+	width: 2,
+	height: 2,
+	output: { type: "item", code: "daubraw-tan", quantity: 8  }
+},
+{
+	ingredientPattern: "DG,WC",
+	ingredients: {
+		"G": { type: "item", code: "drygrass", quantity: 2  },
+		"D": { type: "block", code: "soil-*-none", quantity: 1  },
+		"W": { type: "block", code: "sand-*", name: "rock", allowedVariants: ["granite"], quantity: 1  },
+		"C": { type: "item", code: "clay-*", name: "clay", allowedVariants: ["red"], quantity: 1 }
+	},
+	width: 2,
+	height: 2,
+	output: { type: "item", code: "daubraw-browngolden", quantity: 8  }
+},
+{
+	ingredientPattern: "DG,WC",
+	ingredients: {
+		"G": { type: "item", code: "drygrass", quantity: 2  },
+		"D": { type: "block", code: "soil-*-none", quantity: 1  },
+		"W": { type: "block", code: "sand-*", name: "rock", allowedVariants: ["sandstone"], quantity: 1  },
+		"C": { type: "item", code: "clay-*", quantity: 1 }
+	},
+	width: 2,
+	height: 2,
+	output: { type: "item", code: "daubraw-yellow", quantity: 8  }
+}
+]

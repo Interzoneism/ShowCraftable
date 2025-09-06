@@ -1,0 +1,44 @@
+{
+	"editor": {
+		"backDropShape": "entity/humanoid/seraph-hairless",
+		"allAngles": true,
+		"entityTextureMode": true
+	},
+	"textureWidth": 48,
+	"textureHeight": 48,
+	"textureSizes": {
+		"hair": [48,48],
+		"birch": [16,16]
+	},
+	"textures": {
+		"hair": "entity/humanoid/seraphskinparts/hair/lightgray"
+	},
+	"elements": [
+		{
+			"name": "HairBase",
+			"stepParentName": "Head",
+			"from": [ -0.2, -0.3, -0.1 ],
+			"to": [ 5.6, 5.2, 5.1 ],
+			"autoUnwrap": false,
+			"uv": [ 1.5, 10.5 ],
+			"rotationOrigin": [ 2.8, 2.7, 2.5 ],
+			"faces": {
+				"north": { "texture": "#hair", "uv": [ 7.0, 36.0, 12.5, 41.5 ] },
+				"east": { "texture": "#hair", "uv": [ 0.5, 37.0, 5.5, 42.5 ] },
+				"south": { "texture": "#hair", "uv": [ 17.0, 36.0, 22.5, 41.5 ] },
+				"west": { "texture": "#hair", "uv": [ 12.0, 36.5, 17.0, 42.0 ] },
+				"up": { "texture": "#hair", "uv": [ 0.5, 36.0, 6.0, 41.0 ] }
+			}
+		},
+		{
+			"name": "HairOver",
+			"stepParentName": "Head",
+			"from": [ -0.3, -3.3, -0.2 ],
+			"to": [ 6.2, 5.2, 5.2 ],
+			"autoUnwrap": false,
+			"uv": [ 32.5, 22.0 ],
+			"rotationOrigin": [ 2.7, 2.7, 2.5 ],
+			"faces": {
+			}
+		}
+	]}

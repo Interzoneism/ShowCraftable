@@ -1,0 +1,36 @@
+{
+	code: "timeswitch",
+	storageFlags: 1024,
+	class: "ItemSkillTimeswitch",
+	attributes: {
+		iconPath: "icons/timeswitch.svg"
+	},
+	maxstacksize: 1,
+	texture: { base: "item/skill/timeswitch" },
+	creativeinventory: { "general": [""], "meta": [""] },
+	materialDensity: 600,
+	guiTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: 4, y: -32, z: -180 },
+		origin: { x: 0.7, y: 0.35, z: 0.3 },
+		scale: 2.46
+	},
+	fpHandTransform: {
+		translation: { x: 0.1, y: 0, z: 0 },
+		rotation: { x: 98, y: 90, z: -30 },
+		origin: { x: 0.6, y: 0.5, z: 0.8 },
+		scale: 1.38
+	},
+	tpHandTransform: {
+		translation: { x: -1, y: -0.1, z: -1 },
+		rotation: { x: 0, y: 0, z: -90 },
+		origin: { x: 0.5, y: 0, z: 0.5 },
+		scale: 0.49
+	},
+	groundTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: 90, y: 0, z: 0 },
+		origin: { x: 0.5, y: 0.5, z: 0.5299 },
+		scale: 2
+	}	
+}

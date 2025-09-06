@@ -1,0 +1,60 @@
+{
+	code: "jonas",
+	creativeinventory: { "general": ["*-south"], "clutter": ["*-south"] },
+	shape: { base: "block/machine/jonas/pumphead1" },
+	variantgroups: [
+		{ code: "type", states: ["hydraulicsystem"] },
+		{ code: "variant", states: ["pumphead1"] },
+		{ code: "side", loadFromProperties: "abstract/horizontalorientation" }
+	],
+	attributes: {
+		handbook: {
+			exclude: true
+		}
+	},
+	entityClass: "Commands",
+	behaviors: [
+		{ name: "JonasHydraulicPump" },
+		{ name: "HorizontalOrientable", properties: {  dropBlockFace: "south" }}
+	],
+	entityBehaviors: [
+		{ name: "JonasHydraulicPump", properties: { 
+			controlpointcode: "jonassteamengine",
+			activeSound: "block/pump"
+		} }
+	],
+	shapeInventory: { base: "block/machine/jonas/pumphead1-complete" },
+	shapebytype: {
+		"*-north": { base: "block/machine/jonas/{variant}", rotateY: 90 },
+		"*-east": { base: "block/machine/jonas/{variant}", rotateY: 0 },
+		"*-south": { base: "block/machine/jonas/{variant}", rotateY: 270 },
+		"*-west": { base: "block/machine/jonas/{variant}", rotateY: 180 }
+	},
+	textures: {
+		"temporalgear":  { base: "item/resource/temporalgear" },
+		"gold": { base: "block/metal/tarnished/gold" },
+		"quartzglass": { base: "block/glass/quartzglass" },
+		"bituminous": { base: "block/coal/bituminous" },
+		"rustyglow": { base: "block/machine/statictranslocator/rustyglow" },
+		"lead": { base: "block/metal/tarnished/lead" }
+	},
+	blockmaterial: "Metal",
+	drawtype: "json",
+	faceCullMode: "NeverCull",
+	replaceable: 160,
+	resistance: 4,
+	lightAbsorption: 0,
+	sidesolid: { all: false },
+	sideopaque: { all: false },
+	sounds: {
+		"place": "block/heavymetal-hit",
+		"break": "block/heavymetal-hit",
+		"hit": "block/heavymetal-hit"
+	},
+	guiTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: 155, y: -154, z: 2 },
+		origin: { x: 0.5, y: 0.39, z: 0.54 },
+		scale: 2.01
+	}
+}

@@ -1,0 +1,58 @@
+{
+	code: "glueportion",
+	class: "ItemLiquidPortion",
+	variantgroups: [
+		{ code:"type", states: ["pitch"] },
+		{ code:"state", states: ["hot", "cold"] }
+	],
+	matterState: "liquid",
+	attributes: {
+		handbook: {
+			ignoreCreativeInvStacks: true,
+			groupBy: ["glueportion-{type}-*"]
+		},
+		repairgainByType: {
+		   "*-hot": 0.33334,
+		   "*-cold": 0.00001,
+		},
+		inContainerTexture: { base: "block/liquid/glue-{state}" },
+		inBowlShape: { base: "block/food/meal/liquid" },
+		waterTightContainerProps: {
+			containable: true,
+			itemsPerLitre: 100,
+			texture: { base: "block/liquid/glue-{state}" },
+			allowSpill: true,
+			whenSpilled: { 
+				action: "DropContents",
+				stack: { type: "item", code: "glueportion-{type}-{state}" } 
+			}
+		}
+	},
+	shape: { base: "item/liquid" },
+	texture: { base: "block/liquid/glue-{state}" },
+	creativeinventoryStacks: [ { tabs: ["general", "liquids"], stacks: [ { type: "block", code: "woodbucket", attributes: { ucontents: [ { type:"item", code: "glueportion-{type}-{state}", makefull: true } ] } } ] } ],
+	maxstacksize: 5000,
+	materialDensity: 250,
+	guiTransform: {
+		translation: { x: 0, y: 1, z: 0 },
+		rotation: { x: 123, y: -33, z: -13 },
+		origin: { x: 0.5, y: 0, z: 0.5 },
+		scale: 1.4
+	},
+	fpHandTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: 25, y: 157, z: -5 }
+	},
+	tpHandTransform: {
+		translation: { x: -1.5, y: -1, z: -1.4 }
+	},
+	transitionablePropsByType: {
+		"*-hot": [{
+			type: "Harden",
+			freshHours: { avg: 4 },
+			transitionHours: { avg: 0.01 },
+			transitionedStack: { type: "item", code: "glueportion-{type}-cold" },
+			transitionRatio: 1
+		}]
+	}
+}

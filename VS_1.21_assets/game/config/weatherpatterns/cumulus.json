@@ -1,0 +1,46 @@
+[
+	{
+		code: "cumulus",
+		name: "Cumulus clouds and clear sky",
+		description: "Many small-ish medium tall clouds",
+		weight: 2,
+		durationHours: { avg: 6, var: 72, dist: "invexp" },
+		clouds: {
+			baseThickness: { avg: 0, var: 0 },
+			locationalThickness: { amplitudes: [ 1 ], frequencies: [ 3 ] },
+			opaqueness: { avg: 0.75, var: 0.5 },
+			thinCloudMode: { avg: 0 },
+			brightness: { avg: 1 },
+			heightMul: { avg: 1.3 }
+		},
+		fog: {
+			density: { avg: 1, var: 3, dist: "strongerinvexp" },
+		},
+		precipitation: {
+			type: "auto",
+			baseIntensity: { avg: 0 }
+		}
+	},
+	{
+		code: "scumulus",
+		name: "Small cumulus clouds and clear sky",
+		description: "Many small medium tall clouds",
+		weight: 0.5,
+		durationHours: { avg: 6, var: 72, dist: "invexp" },
+		clouds: {
+			baseThickness: { avg: 0, var: 0 },
+			locationalThickness: { amplitudes: [ 1 ], frequencies: [ 6 ] },
+			opaqueness: { avg: 0.75, var: 0.5 },
+			thinCloudMode: { avg: 0 },
+			brightness: { avg: 1 },
+			heightMul: { avg: 1.3 }
+		},
+		fog: {
+			density: { avg: 1, var: 3, dist: "strongerinvexp" },
+		},
+		precipitation: {
+			type: "auto",
+			baseIntensity: { avg: 0 }
+		}
+	}
+]

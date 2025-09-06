@@ -1,0 +1,108 @@
+{
+	"editor": {
+		"allAngles": true,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+		"plain": [16,16]
+	},
+	"textures": {
+		"plain": "block/leather/plain",
+		"tinbronze1": "block/metal/sheet-plain/tinbronze1"
+	},
+	"elements": [
+		{
+			"name": "origin",
+			"stepParentName": "Nose",
+			"from": [ 8.0, 0.0, 8.0 ],
+			"to": [ 8.0, 0.0, 8.0 ],
+			"rotationOrigin": [ 8.0, 0.0, 8.0 ],
+			"faces": {
+				"north": { "texture": "#plain", "uv": [ 0.0, 0.0, 0.5, 0.5 ] },
+				"east": { "texture": "#plain", "uv": [ 0.0, 0.0, 0.5, 0.5 ] },
+				"south": { "texture": "#plain", "uv": [ 0.0, 0.0, 0.5, 0.5 ] },
+				"west": { "texture": "#plain", "uv": [ 0.0, 0.0, 0.5, 0.5 ] },
+				"up": { "texture": "#plain", "uv": [ 0.0, 0.0, 0.5, 0.5 ] },
+				"down": { "texture": "#plain", "uv": [ 0.0, 0.0, 0.5, 0.5 ] }
+			},
+			"children": [
+				{
+					"name": "Medallion",
+					"from": [ -0.6, 0.0, -0.6 ],
+					"to": [ 0.6, 0.2, 0.6 ],
+					"faces": {
+						"north": { "texture": "#tinbronze1", "uv": [ 8.0, 8.0, 9.0, 8.5 ] },
+						"east": { "texture": "#tinbronze1", "uv": [ 9.5, 15.0, 10.5, 15.5 ] },
+						"south": { "texture": "#tinbronze1", "uv": [ 4.5, 5.0, 5.5, 5.5 ] },
+						"west": { "texture": "#tinbronze1", "uv": [ 8.0, 14.0, 9.0, 14.5 ] },
+						"up": { "texture": "#tinbronze1", "uv": [ 11.5, 6.0, 12.5, 7.0 ] },
+						"down": { "texture": "#tinbronze1", "uv": [ 0.0, 0.0, 1.0, 1.0 ], "windMode": [-1,-1,-1,-1] }
+					},
+					"children": [
+						{
+							"name": "strap",
+							"from": [ 1.1, 0.01, 0.3 ],
+							"to": [ 2.6, 0.11, 0.9 ],
+							"rotationOrigin": [ 1.1, 0.1, 0.6 ],
+							"faces": {
+								"north": { "texture": "#plain", "uv": [ 2.0, 3.0, 3.5, 3.5 ] },
+								"east": { "texture": "#plain", "uv": [ 0.0, 0.0, 0.5, 0.5 ], "windMode": [-1,-1,-1,-1] },
+								"south": { "texture": "#plain", "uv": [ 11.5, 2.0, 13.0, 2.5 ] },
+								"up": { "texture": "#plain", "uv": [ 5.5, 4.0, 7.0, 4.5 ] },
+								"down": { "texture": "#plain", "uv": [ 2.5, 15.0, 4.0, 15.5 ] }
+							},
+							"children": [
+								{
+									"name": "strap2",
+									"from": [ 0.0, -0.01, 0.0 ],
+									"to": [ 1.5, 0.09, 0.6 ],
+									"rotationOrigin": [ 1.5, -0.1, 0.0 ],
+									"rotationY": -52.0,
+									"faces": {
+										"north": { "texture": "#plain", "uv": [ 0.0, 0.0, 1.5, 0.5 ] },
+										"south": { "texture": "#plain", "uv": [ 0.0, 0.0, 1.5, 0.5 ] },
+										"west": { "texture": "#plain", "uv": [ 0.0, 0.0, 0.5, 0.5 ] },
+										"up": { "texture": "#plain", "uv": [ 0.0, 0.0, 1.5, 0.5 ] },
+										"down": { "texture": "#plain", "uv": [ 0.0, 0.0, 1.5, 0.5 ] }
+									},
+									"children": [
+										{
+											"name": "strap3",
+											"from": [ -2.5, -0.01, 0.0 ],
+											"to": [ 0.0, 0.09, 0.6 ],
+											"rotationOrigin": [ 0.0, -0.1, 0.0 ],
+											"rotationY": 39.0,
+											"faces": {
+												"north": { "texture": "#plain", "uv": [ 0.0, 0.0, 2.5, 0.5 ] },
+												"south": { "texture": "#plain", "uv": [ 0.0, 0.0, 2.5, 0.5 ] },
+												"west": { "texture": "#plain", "uv": [ 0.0, 0.0, 0.5, 0.5 ] },
+												"up": { "texture": "#plain", "uv": [ 0.0, 0.0, 2.5, 0.5 ] },
+												"down": { "texture": "#plain", "uv": [ 0.0, 0.0, 2.5, 0.5 ] }
+											}
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "Cube2",
+							"from": [ 0.0, -0.01, 0.0 ],
+							"to": [ 1.2, 0.14, 1.2 ],
+							"rotationOrigin": [ 0.6, -0.1, 0.6 ],
+							"rotationY": 45.0,
+							"faces": {
+								"north": { "texture": "#tinbronze1", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+								"east": { "texture": "#tinbronze1", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+								"south": { "texture": "#tinbronze1", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+								"west": { "texture": "#tinbronze1", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+								"up": { "texture": "#tinbronze1", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+								"down": { "texture": "#tinbronze1", "uv": [ 0.0, 0.0, 1.0, 1.0 ], "windMode": [-1,-1,-1,-1] }
+							}
+						}
+					]
+				}
+			]
+		}
+	]}

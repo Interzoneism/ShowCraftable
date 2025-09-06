@@ -1,0 +1,212 @@
+{
+	code: "tallplant",
+	class: "BlockReeds",
+	entityClassByType: {
+		"*-harvested-*": "Transient"
+	},
+	attributes: {
+		climateColorMapForMap: "climatePlantTint", 
+		seasonColorMapForMap: "seasonalFoliage",
+		transientPropsByType: {
+			"tallplant-coopersreed-*": {
+				convertFrom: "*-harvested-{cover}", 
+				convertTo: "tallplant-coopersreed-land-normal-{cover}", 
+				inGameHours: "168",
+				resetBelowTemperature: -4,
+				stopBelowTemperature: 2
+			},
+			"tallplant-papyrus-*": {
+				convertFrom: "*-harvested-{cover}", 
+				convertTo: "tallplant-papyrus-land-normal-{cover}", 
+				inGameHours: "132",
+				resetBelowTemperature: 4,
+				stopBelowTemperature: 6
+			},
+			"tallplant-tule-*": {
+				convertFrom: "*-harvested-{cover}", 
+				convertTo: "tallplant-tule-land-normal-{cover}", 
+				inGameHours: "168",
+				resetBelowTemperature: 0,
+				stopBelowTemperature: 4
+			},
+			"tallplant-brownsedge-*": {
+				convertFrom: "*-harvested-{cover}", 
+				convertTo: "tallplant-brownsedge-land-normal-{cover}", 
+				inGameHours: "132",
+				resetBelowTemperature: -4,
+				stopBelowTemperature: 2
+			}
+
+		},
+		maxWaterDepthByType: {
+			"tallplant-coopersreed-*": 1,
+			"tallplant-papyrus-*": 1,
+			"tallplant-tule-*": 1,
+			"tallplant-brownsedge-*": 0,
+		}
+	},
+	allowedVariants: [ 
+		"*-land-*", 
+		"tallplant-coopersreed-water-normal-free",
+		"tallplant-coopersreed-water-harvested-free",
+		"tallplant-coopersreed-ice-normal-free",
+		"tallplant-coopersreed-ice-harvested-free",
+		"tallplant-papyrus-water-normal-free",
+		"tallplant-papyrus-water-harvested-free",
+		"tallplant-papyrus-ice-normal-free",
+		"tallplant-papyrus-ice-harvested-free",
+	],
+	variantgroups: [
+		{ code: "type", states: ["coopersreed", "papyrus", "tule", "brownsedge" ] },
+		{ code: "habitat", states: ["land", "water", "ice"] },
+		{ code: "state", states: ["normal", "harvested"] },
+		{ code: "cover", states: ["free", "snow"] },
+	],
+	creativeinventory: { 
+		"general": ["*-land-normal-free"], 
+		"flora": ["*-land-normal-free"] 
+	},
+	shapeByType: {
+		"tallplant-papyrus-*-harvested-*": { base: "block/plant/reedpapyrus/papyrus-harvested" },		
+		"tallplant-papyrus-*": { base: "block/plant/reedpapyrus/papyrus-medium", alternates: [ { base: "block/plant/reedpapyrus/papyrus-tall" } ] },
+		"tallplant-coopersreed-*": { base: "block/plant/reedpapyrus/coopersreed-{state}*" },
+		"tallplant-tule-land-normal-*": { base: "block/plant/reedpapyrus/tule", alternates: [ { base: "block/plant/reedpapyrus/tule-tufts", rotateY: 15 }, { base: "block/plant/reedpapyrus/tule-tufts" } ] },
+		"tallplant-tule-land-harvested-*": { base: "block/plant/reedpapyrus/tule", alternates: [ { base: "block/plant/reedpapyrus/tule", rotateY: 15 }, { base: "block/plant/reedpapyrus/tule" } ] },
+		"tallplant-brownsedge-*": { base: "block/plant/reedpapyrus/sedge" }
+	},
+	lod2shapeByType: {
+		"tallplant-coopersreed-*": { base: "block/plant/reedpapyrus/coopersreed-lod2-{state}*" },
+		"tallplant-tule-*": { base: "block/plant/reedpapyrus/tule-lod2" },
+		"tallplant-brownsedge-*": { base: "block/basic/cross" }
+	},
+	drawtypeByType: {
+		"*-snow": "JSONAndSnowLayer",
+		"*": "JSON"
+	},
+	renderpass: "OpaqueNoCull",
+	matterstate: "solid",
+	blockmaterial: "plant",
+	faceCullMode: "NeverCull",
+	randomDrawOffset: true,
+	randomizeRotations: true,
+	texturesByType: {
+		"tallplant-papyrus-*": {
+		},
+		"tallplant-coopersreed-*": { 
+			"cobs1": { base: "block/plant/reeds/lod2-1" },
+			"cobs2": { base: "block/plant/reeds/lod2-2" }
+		},
+		"tallplant-tule-land-harvested-*": {
+	    		"leaves": { "base": "block/plant/reeds/tule-harvested" }
+		},
+		"tallplant-brownsedge-land-normal-*": {
+			"all": { "base": "block/plant/reeds/{type}" },
+			"north": { "base": "block/plant/reeds/{type}" },
+			"south": { "base": "block/plant/reeds/{type}" },
+		},
+		"tallplant-brownsedge-land-harvested-*": {
+			"all": { "base": "block/plant/reeds/{type}-harvested" },
+			"north": { "base": "block/plant/reeds/{type}-harvested" },
+			"south": { "base": "block/plant/reeds/{type}-harvested" },
+		}
+	},
+	climateColorMapByType: {
+		"tallplant-brownsedge-land-*": "climateDarkerPlantTint",
+	},
+	seasonColorMapByType: {
+		"tallplant-brownsedge-land-*": "seasonalFoliage",
+	},
+	sideopaqueByType: {
+		"*-snow": { all: false, down: true },
+		"*": { all: false }
+	},
+	sidesolid: { all : false },
+	emitsideao: { all: false },
+	sideao: { all: true },
+	replaceable: 3000,
+	lightAbsorption: 0,
+	resistance: 1,
+	collisionbox: null,
+	selectionboxByType: {
+		"tallplant-brownsedge-land-normal-*":  { x1:0, y1:0, z1:0, x2:1, y2:1, z2:1 },
+		"tallplant-brownsedge-land-harvested-*":  { x1:0.25, y1:0, z1:0.25, x2:0.75, y2:0.25, z2:0.75 },
+		"*": { x1: 0, y1: 0, z1: 0, x2: 1, y2: 1.125, z2: 1 }
+	},
+	guitransform: {
+		rotation: { x: 0, y: 0, z: 0 }
+	},
+	sounds: {
+		place: "block/plant",
+		break: "block/plant",
+		hit: "block/plant"
+	},
+	rainPermeableByType: {
+		"*-land-*": true
+	},
+	materialDensity: 200,
+	frostable: true,
+	combustibleProps: {
+		burnTemperature: 600,
+		burnDuration: 10,
+	},
+	guiTransform: {
+		translation: { x: 0, y: -1.5, z: 0 },
+		rotation: { x: 0, y: 0, z: 0 },
+		origin: { x: 0.5, y: 1.2, z: 0.5 },
+		scale: 0.65
+	},
+	dropsByType: {
+		"*coopersreed-*-normal-*": [ { type: "item", code: "cattailtops" } ],
+		"*coopersreed-*-harvested-*":  [ { type: "item", code: "cattailroot" } ],
+		"*papyrus-*-normal-*":  [ { type: "item", code: "papyrustops" } ],
+		"*papyrus-*-harvested-*":  [ { type: "item", code: "papyrusroot" } ],
+		"tallplant-tule-land-normal-*": [ { type: "item", code: "thatch" } ],
+		"tallplant-tule-land-harvested-*":  [ { type: "item", code: "tuleroot" } ],
+		"tallplant-brownsedge-land-normal-*":  [ { type: "item", code: "drygrass" } ],
+		"tallplant-brownsedge-land-harvested-*":  [ { type: "block", code: "tallplant-brownsedge-land-harvested-free" } ]
+	},
+	guiTransformByType: {
+		"tallplant-brownsedge-*": {
+			rotate: true,
+			translation: { x: 0, y: 2.8, z: 0 },
+			rotation: { x: 0, y: 0, z: 0 },
+			origin: { x: 0.5, y: 0.3, z: 0.5 },
+			scale: 2.08
+		},
+		"*": {
+			rotate: true,
+			translation: { x: 0, y: -1.5, z: 0 },
+			rotation: { x: 0, y: 0, z: 0 },
+			origin: { x: 0.5, y: 1.2, z: 0.5 },
+			scale: 0.65
+		}
+	},
+	tpHandTransformByType: {
+		"tallplant-tule-*-harvested-free": {
+			translation: { x: -1, y: -0.2, z: -0.6 },
+			rotation: { x: 17, y: -173, z: 68 },
+			origin: { x: 0.5, y: 0.2, z: 0.5 },
+			scale: 0.61
+		},
+		"tallplant-brownsedge-*-harvested-free": {
+			translation: { x: -1, y: -0.2, z: -0.6 },
+			rotation: { x: 17, y: -173, z: 68 },
+			origin: { x: 0.5, y: 0.2, z: 0.5 },
+			scale: 0.61
+		}
+	},
+	groundTransformByType: {
+		"tallplant-tule-*-harvested-free": {
+			translation: { x: -1, y: 0.1, z: -0.6 },
+			rotation: { x: 0, y: 0, z: 0 },
+			origin: { x: 0.5, y: 0.2, z: 0.5 },
+			scale: 3
+		},
+		"tallplant-brownsedge-*-harvested-free": {
+			translation: { x: -1, y: 0.15, z: -0.6 },
+			rotation: { x: 0, y: 0, z: 0 },
+			origin: { x: 0.5, y: 0.2, z: 0.5 },
+			scale: 4
+		}
+	}
+}

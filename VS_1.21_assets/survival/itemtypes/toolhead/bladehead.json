@@ -1,0 +1,68 @@
+{
+	code: "bladehead",
+	variantgroups: [
+		{ code: "type", states: [ "falx", "short" ] },
+		{ code: "metal", states: ["copper", "tinbronze", "bismuthbronze", "blackbronze", "iron", "meteoriciron", "steel" ] }
+	],
+	allowedVariants: [
+		"bladehead-falx-*",
+		"bladehead-short-iron"
+	],
+	heldTpUseAnimation: "interactstatic", maxstacksize: 4,
+	shapeByType: {
+		"bladehead-falx-*": { base: "item/tool/blade/falx/{metal}" },
+		"bladehead-short-iron": { base: "item/tool/blade/blackguard" },
+	},
+	texturesByType: {
+		"bladehead-falx-*": {
+			"handguard": { base: "block/transparent" },
+			"handle": { base: "block/transparent" },
+			"rivet": { base: "block/transparent" },
+			"cloth": { base: "block/transparent" },
+			"string": { base: "block/transparent" },
+			"longstiches": { base: "block/transparent" },
+		},
+		"bladehead-short-iron": {
+			"handle": { base: "block/transparent" },
+			"metal": { base: "block/metal/ingot/{metal}" }
+		}
+	},
+	attributes: {
+		onTongTransform: {
+			translation: { x: -0.91, y: -0.9, z: -0.1 },
+			rotation: { x: 114, y: 111, z: -4 }
+		}
+	},
+	creativeinventory: { "general": ["*"], "items": ["*"] },
+	guiTransformByType: {
+		"bladehead-short-iron": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: -89, y: 47, z: 34 },
+			origin: { x: 0.72, y: 0, z: 0.43 },
+			scale: 2.27
+		},
+		"bladehead-falx-*": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: -89, y: 47, z: 34 },
+			origin: { x: 0.82, y: 0, z: 0.33 },
+			scale: 1.63
+		}
+	},
+	fpHandTransform: {
+		translation: { x: -0.2, y: -0.3, z: 0.4 },
+		rotation: { x: -59, y: 15, z: 90 },
+		scale: 2.84
+	},
+	groundTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: 0, y: 0, z: 0 },
+		origin: { x: 0.5, y: 0, z: 0.5 },
+		scale: 3.4
+	},
+	tpHandTransform: {
+		translation: { x: -0.67, y: 0, z: -0.69 },
+		rotation: { x: 90, y: 0, z: 0 },
+		origin: { x: 0.5, y: 0, z: 0.5 },
+		scale: 0.8
+	}
+}

@@ -1,0 +1,929 @@
+{
+	code: "antler",
+	maxstacksize: 4,
+	variantgroups: [
+		{ code: "type", states: ["whitetail", "redbrocket", "marsh", "water", "caribou", "pudu", "elk", "taruca", "guemal", "chital", "pampas", "fallow", "moose", "angora", "ibexalp", "ibexnub", "markhor", "mountain", "muskox", "nubian", "sirohi", "takingold", "turdag", "valais" ] },
+		{ code: "size", states: ["01", "02", "03", "04", "05", "06", "07", "08", "09" ] }
+	],
+	skipVariants: [
+		"antler-whitetail-07", "antler-whitetail-08", "antler-whitetail-09",
+		"antler-redbrocket-05", "antler-redbrocket-06", "antler-redbrocket-07", "antler-redbrocket-08", "antler-redbrocket-09",
+		"antler-marsh-08", "antler-marsh-09",
+		"antler-water-02", "antler-water-03", "antler-water-04", "antler-water-05", "antler-water-06", "antler-water-07", "antler-water-08", "antler-water-09",
+		"antler-pudu-05", "antler-pudu-06", "antler-pudu-07", "antler-pudu-08", "antler-pudu-09",
+		"antler-taruca-06", "antler-taruca-07", "antler-taruca-08", "antler-taruca-09",
+		"antler-guemal-06", "antler-guemal-07", "antler-guemal-08", "antler-guemal-09",
+		"antler-pampas-08", "antler-pampas-09",
+		"antler-caribou-09",
+		"antler-chital-09",
+		"antler-fallow-09",
+		"antler-elk-09",
+		"antler-ibexalp-08", "antler-ibexalp-09",
+		"antler-mountain-07", "antler-mountain-08", "antler-mountain-09",
+		"antler-muskox-06", "antler-muskox-07", "antler-muskox-08",	"antler-muskox-09", 
+		"antler-nubian-05",	"antler-nubian-06",	"antler-nubian-07",	"antler-nubian-08",	"antler-nubian-09",
+		"antler-sirohi-05",	"antler-sirohi-06",	"antler-sirohi-07",	"antler-sirohi-08",	"antler-sirohi-09",
+		"antler-takingold-06",	"antler-takingold-07", "antler-takingold-08",	"antler-takingold-09",
+		"antler-turdag-08", "antler-turdag-09",
+		"antler-valais-09"
+	],
+	
+	attributes: {
+		wearableAttachment: true,
+		antlerMountableByType: {
+			"*": true
+		},
+		onAntlerMountTransformByType: {
+			"antler-whitetail-01": {
+				translation: { x: -0.16, y: 0.36, z: 0.4 },
+				rotation: { x: -180, y: -2, z: -96 },
+				origin: { x: 0.1, y: 0.1, z: 0.1 }
+			},
+			"antler-whitetail-02": {
+				translation: { x: -0.16, y: 0.36, z: 0.403 },
+				rotation: { x: -180, y: -2, z: -96 },
+				origin: { x: 0.1, y: 0.1, z: 0.1 }
+			},
+			"antler-whitetail-03": {
+				translation: { x: -0.16, y: 0.36, z: 0.408 },
+				rotation: { x: -180, y: -2, z: -96 },
+				origin: { x: 0.1, y: 0.1, z: 0.1 }
+			},
+			"antler-whitetail-*": {
+				translation: { x: -0.16, y: 0.36, z: 0.412 },
+				rotation: { x: -180, y: -2, z: -96 },
+				origin: { x: 0.1, y: 0.1, z: 0.1 }
+			},
+			"antler-redbrocket-*": {
+				translation: { x: -0.01, y: 0.38, z: 0.36 },
+				rotation: { x: -180, y: 0, z: -121 },
+				origin: { x: 0.1, y: 0.2, z: 0.1 }
+			},
+			"antler-marsh-*": {
+				translation: { x: -0.23, y: 0.4, z: 0.207 },
+				rotation: { x: 179, y: 0, z: -110 },
+				origin: { x: 0.2, y: 0.2, z: 0.2 }
+			},
+			"antler-caribou-*": {
+				translation: { x: -0.14, y: 0.35, z: 0.216 },
+				rotation: { x: -180, y: 0, z: -93 },
+				origin: { x: 0.2, y: 0.2, z: 0.2 }
+			},
+			"antler-pudu-*": {
+				translation: { x: 0.01, y: 0.4, z: 0.363 },
+				rotation: { x: -179, y: -2, z: -104 },
+				origin: { x: 0.1, y: 0.2, z: 0.1 }
+			},
+			"antler-elk-*": {
+				translation: { x: -0.35, y: 0.4, z: -0.363 },
+				rotation: { x: -180, y: 0, z: -105 }
+			},
+			"antler-taruca-01": {
+				translation: { x: -0.13, y: 0.35, z: 0.369 },
+				rotation: { x: -180, y: 1, z: -119 },
+				origin: { x: 0.1, y: 0.1, z: 0.1 }
+			},
+			"antler-taruca-02": {
+				translation: { x: -0.13, y: 0.35, z: 0.369 },
+				rotation: { x: -180, y: 1, z: -119 },
+				origin: { x: 0.1, y: 0.1, z: 0.1 }
+			},
+			"antler-taruca-*": {
+				translation: { x: -0.13, y: 0.35, z: 0.373 },
+				rotation: { x: -180, y: 1, z: -119 },
+				origin: { x: 0.1, y: 0.1, z: 0.1 }
+			},
+			"antler-guemal-01": {
+				translation: { x: -0.12, y: 0.38, z: 0.371 },
+				rotation: { x: 178, y: 1, z: -119 },
+				origin: { x: 0.1, y: 0.1, z: 0.1 }
+			},
+			"antler-guemal-02": {
+				translation: { x: -0.12, y: 0.38, z: 0.371 },
+				rotation: { x: 178, y: 1, z: -119 },
+				origin: { x: 0.1, y: 0.1, z: 0.1 }
+			},
+			"antler-guemal-*": {
+				translation: { x: -0.12, y: 0.38, z: 0.375 },
+				rotation: { x: 178, y: 1, z: -119 },
+				origin: { x: 0.1, y: 0.1, z: 0.1 }
+			},
+			"antler-chital-01": {
+				translation: { x: 0.34, y: 0.06, z: 0.577 },
+				rotation: { x: 180, y: 0, z: -108 },
+				origin: { x: 0.02, y: 0.5, z: 0 }
+			},
+			"antler-chital-02": {
+				translation: { x: 0.34, y: 0.06, z: 0.577 },
+				rotation: { x: 180, y: 0, z: -108 },
+				origin: { x: 0.02, y: 0.5, z: 0 }
+			},
+			"antler-chital-*": {
+				translation: { x: 0.34, y: 0.06, z: 0.575 },
+				rotation: { x: 180, y: 0, z: -108 },
+				origin: { x: 0.02, y: 0.5, z: 0 }
+			},
+			"antler-pampas-*": {
+				translation: { x: -0.13, y: 0.44, z: 0.159 },
+				rotation: { x: -180, y: 0, z: -112 },
+				origin: { x: 0.2, y: 0.2, z: 0.2 }
+			},
+			"antler-fallow-*": {
+				translation: { x: -0.21, y: 0.433, z: 0.175 },
+				rotation: { x: -180, y: 0, z: -115 },
+				origin: { x: 0.2, y: 0.2, z: 0.2 }
+			},
+			"antler-moose-*": {
+				translation: { x: -0.2, y: 0.2, z: -0.325 },
+				rotation: { x: 180, y: 1, z: -73 },
+				origin: { x: 0.52, y: 0.5, z: 0.5 }
+			},
+			"antler-angora-*": {
+				translation: { x: -0.119, y: 0.433, z: 0.176 },
+				rotation: { x: -180, y: 0, z: -90 },
+				origin: { x: 0.2, y: 0.2, z: 0.2 }
+			},
+			"antler-ibexalp-*": {
+				translation: { x: -0.17, y: 0.44, z: 0.19 },
+				rotation: { x: -180, y: 0, z: -100 },
+				origin: { x: 0.2, y: 0.2, z: 0.2 }
+			},
+			"antler-ibexnub-04": {
+				translation: { x: -0.17, y: 0.35, z: 0.174 },
+				rotation: { x: -180, y: 0, z: -112 },
+				origin: { x: 0.2, y: 0.2, z: 0.2 }
+			},
+			"antler-ibexnub-05": {
+				translation: { x: -0.12, y: 0.35, z: 0.174 },
+				rotation: { x: -180, y: 0, z: -98 },
+				origin: { x: 0.2, y: 0.2, z: 0.2 }
+			},
+			"antler-ibexnub-06": {
+				translation: { x: -0.08, y: 0.35, z: 0.174 },
+				rotation: { x: -180, y: 0, z: -81 },
+				origin: { x: 0.2, y: 0.2, z: 0.2 }
+			},
+			"antler-ibexnub-07": {
+				translation: { x: -0.05, y: 0.35, z: 0.174 },
+				rotation: { x: -180, y: 0, z: -69 },
+				origin: { x: 0.2, y: 0.2, z: 0.2 }
+			},
+			"antler-ibexnub-08": {
+				translation: { x: -0.04, y: 0.35, z: 0.174 },
+				rotation: { x: -180, y: 0, z: -63 },
+				origin: { x: 0.2, y: 0.2, z: 0.2 }
+			},
+			"antler-ibexnub-09": {
+				translation: { x: -0.03, y: 0.35, z: 0.174 },
+				rotation: { x: -180, y: 0, z: -61 },
+				origin: { x: 0.2, y: 0.2, z: 0.2 }
+			},
+			"antler-ibexnub-*": {
+				translation: { x: -0.21, y: 0.35, z: 0.174 },
+				rotation: { x: -180, y: 0, z: -125 },
+				origin: { x: 0.2, y: 0.2, z: 0.2 }
+			},
+			"antler-markhor-01": {
+				translation: { x: -0.18, y: 0.38, z: 0.174 },
+				rotation: { x: -180, y: 0, z: -119 },
+				origin: { x: 0.2, y: 0.2, z: 0.2 }
+			},
+			"antler-markhor-02": {
+				translation: { x: -0.18, y: 0.38, z: 0.174 },
+				rotation: { x: -180, y: 0, z: -119 },
+				origin: { x: 0.2, y: 0.2, z: 0.2 }
+			},
+			"antler-markhor-03": {
+				translation: { x: -0.18, y: 0.38, z: 0.175 },
+				rotation: { x: -180, y: 0, z: -119 },
+				origin: { x: 0.2, y: 0.2, z: 0.2 }
+			},
+			"antler-markhor-04": {
+				translation: { x: -0.18, y: 0.38, z: 0.175 },
+				rotation: { x: -180, y: 0, z: -119 },
+				origin: { x: 0.2, y: 0.2, z: 0.2 }
+			},
+			"antler-markhor-*": {
+				translation: { x: -0.18, y: 0.38, z: 0.172 },
+				rotation: { x: -180, y: 0, z: -119 },
+				origin: { x: 0.2, y: 0.2, z: 0.2 }
+			},
+			"antler-mountain-*": {
+				translation: { x: -0.105, y: 0.46, z: 0.175 },
+				rotation: { x: -180, y: 0, z: -85 },
+				origin: { x: 0.2, y: 0.2, z: 0.2 }
+			},
+			"antler-muskox-*": {
+				translation: { x: -0.15, y: 0.16, z: 0.197 },
+				rotation: { x: -180, y: 0, z: -175 },
+				origin: { x: 0.2, y: 0.2, z: 0.2 }
+			},
+			"antler-nubian-*": {
+				translation: { x: -0.119, y: 0.433, z: 0.175 },
+				rotation: { x: -180, y: 0, z: -90 },
+				origin: { x: 0.2, y: 0.2, z: 0.2 }
+			},
+			"antler-sirohi-*": {
+				translation: { x: -0.119, y: 0.433, z: 0.175 },
+				rotation: { x: -180, y: 0, z: -90 },
+				origin: { x: 0.2, y: 0.2, z: 0.2 }
+			},
+			"antler-takingold-*": {
+				translation: { x: -0.23, y: 0.36, z: 0.195 },
+				rotation: { x: -180, y: 0, z: -109 },
+				origin: { x: 0.2, y: 0.2, z: 0.2 }
+			},
+			"antler-turdag-*": {
+				translation: { x: -0.1, y: 0.433, z: 0.19 },
+				rotation: { x: -180, y: 0, z: -93 },
+				origin: { x: 0.2, y: 0.2, z: 0.2 }
+			},
+			"antler-valais-*": {
+				translation: { x: -0.15, y: 0.433, z: 0.179 },
+				rotation: { x: 180, y: 0, z: -104 },
+				origin: { x: 0.2, y: 0.2, z: 0.2 }
+			},
+			"*": {
+				translation: { x: -0.1, y: 0.133, z: 0.42 },
+				rotation: { x: -180, y: 0, z: -63 },
+				origin: { x: 0.2, y: 0.2, z: 0.2 }
+			}			
+		},
+		handbook: {
+			groupBy: ["antler-{type}-*"]
+		}
+	},
+	"shapeByType": { 
+		"antler-angora-*": { "base": "entity/animal/mammal/hooved/goat/{type}/antlers{size}" },
+		"antler-ibexalp-*": { "base": "entity/animal/mammal/hooved/goat/{type}/antlers{size}" },
+		"antler-ibexnub-*": { "base": "entity/animal/mammal/hooved/goat/{type}/antlers{size}" },
+		"antler-markhor-*": { "base": "entity/animal/mammal/hooved/goat/{type}/antlers{size}" },
+		"antler-mountain-*": { "base": "entity/animal/mammal/hooved/goat/{type}/antlers{size}" },
+		"antler-muskox-*": { "base": "entity/animal/mammal/hooved/goat/{type}/antlers{size}" },
+		"antler-nubian-*": { "base": "entity/animal/mammal/hooved/goat/{type}/antlers{size}" },
+		"antler-sirohi-*": { "base": "entity/animal/mammal/hooved/goat/{type}/antlers{size}" },
+		"antler-takingold-*": { "base": "entity/animal/mammal/hooved/goat/{type}/antlers{size}" },
+		"antler-turdag-*": { "base": "entity/animal/mammal/hooved/goat/{type}/antlers{size}" },
+		"antler-valais-*": { "base": "entity/animal/mammal/hooved/goat/{type}/antlers{size}" },
+		"*": { "base": "entity/animal/mammal/hooved/deer/{type}/antlers{size}" }
+	},
+	grindingProps: {
+		groundStack: { 
+			type: "item", code: "bonemeal", quantityByType: { 
+				"*-09": 4,
+				"*-08": 3, 
+				"*-07": 2, 
+				"*-06": 2, 
+				"*-05": 2, 
+				"*": 1 
+			}
+		}
+	},
+	creativeinventory: { "general": ["*"], "items": ["*"] },
+	guiTransformByType: {
+		"antler-whitetail-*": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 152, y: -46, z: 18 },
+			origin: { x: 0.2, y: 0.1, z: 0.48 },
+			scale: 2.03
+		},
+		"antler-redbrocket-*": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 140, y: -49, z: -1 },
+			origin: { x: 0.26, y: 0, z: 0.28 },
+			scale: 6
+		},
+		"antler-marsh-*": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 152, y: -46, z: -1 },
+			origin: { x: 0.16, y: 0.51, z: 0.23 },
+			scale: 2.2
+		},
+		"antler-water-*": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 140, y: -49, z: -1 },
+			origin: { x: 0.26, y: -0.24, z: 0.38 },
+			scale: 9
+		},
+		"antler-caribou-*": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 171, y: -33, z: 9 },
+			origin: { x: 0.22, y: 0.6, z: 0.3 },
+			scale: 1.63
+		},
+		"antler-pudu-*": {
+			translation: { x: 0, y: 0, z: 1 },
+			rotation: { x: 140, y: -49, z: -1 },
+			origin: { x: -0.02, y: 0.26, z: 0.04 },
+			scale: 6
+		},
+		"antler-elk-*": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 166, y: -14, z: 2 },
+			origin: { x: 0.28, y: 0.8, z: 0.2 },
+			scale: 1.35
+		},
+		"antler-taruca-*": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 140, y: -46, z: -11 },
+			origin: { x: 0, y: 0.42, z: 0.07 },
+			scale: 3.6
+		},
+		"antler-guemal-*": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 140, y: -37, z: 4 },
+			origin: { x: 0.2, y: 0.17, z: 0.3 },
+			scale: 3.99
+		},
+		"antler-chital-*": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 152, y: -46, z: -1 },
+			origin: { x: 0.25, y: 0.4, z: 0.3 },
+			scale: 2.24
+		},
+		"antler-pampas-*": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 160, y: -35, z: -3 },
+			origin: { x: 0.22, y: 0.22, z: 0.28 },
+			scale: 4.33
+		},
+		"antler-fallow-*": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 165, y: -28, z: -13 },
+			origin: { x: 0.24, y: 0.56, z: 0.35 },
+			scale: 2.17
+		},
+		"antler-moose-*": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 164, y: -29, z: 21 },
+			origin: { x: 0.4, y: 0.7, z: 0.5 },
+			scale: 1.34
+		},
+		"antler-angora-*": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 154, y: -24, z: 9 },
+			origin: { x: 0.2, y: 0.15, z: 0.28 },
+			scale: 3.24
+		},
+		"antler-ibexalp-*": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 140, y: -51, z: 23 },
+			origin: { x: 0.5, y: 0.2, z: 0.2 },
+			scale: 1.71
+		},
+		"antler-ibexnub-*": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 140, y: -30, z: -1 },
+			origin: { x: 0.39, y: 0.25, z: 0.2 },
+			scale: 2.18
+		},
+		"antler-markhor-*": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 140, y: -37, z: -31 },
+			origin: { x: 0.36, y: 0.44, z: 0.28 },
+			scale: 2.35
+		},
+		"antler-mountain-*": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 140, y: -51, z: -16 },
+			origin: { x: 0.4, y: 0.17, z: 0.28 },
+			scale: 4.36
+		},
+		"antler-muskox-*": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 140, y: -41, z: -10 },
+			origin: { x: 0.23, y: 0.09, z: 0.28 },
+			scale: 3.17
+		},
+		"antler-nubian-*": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 152, y: -24, z: 9 },
+			origin: { x: 0.22, y: 0.18, z: 0.27 },
+			scale: 4.63
+		},
+		"antler-sirohi-*": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 152, y: -24, z: 9 },
+			origin: { x: 0.22, y: 0.18, z: 0.27 },
+			scale: 4.63
+		},
+		"antler-takingold-*": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 139, y: -35, z: 14 },
+			origin: { x: 0.2, y: 0.18, z: 0.28 },
+			scale: 3.03
+		},
+		"antler-turdag-*": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 140, y: -51, z: 23 },
+			origin: { x: 0.33, y: 0.16, z: 0.28 },
+			scale: 2.16
+		},
+		"antler-valais-*": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 140, y: -40, z: 4 },
+			origin: { x: 0.25, y: 0.26, z: 0.28 },
+			scale: 2.4
+		}
+	},
+	fpHandTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: 180, y: 63, z: 20 },
+		origin: { x: 0.5, y: 0.38, z: 0.5 },
+		scale: 1.47
+	},
+	tpHandTransformByType: {
+		"antler-redbrocket-*": {
+			translation: { x: -0.93, y: -0.4, z: -1.08 },
+			rotation: { x: -121, y: 154, z: 82 },
+			origin: { x: 0.5, y: 0.41, z: 0.5 },
+			scale: 1
+		},
+		"antler-pudu-*": {
+			translation: { x: -0.93, y: -0.4, z: -1.08 },
+			rotation: { x: -121, y: 154, z: 82 },
+			origin: { x: 0.5, y: 0.39, z: 0.5 },
+			scale: 1
+		},
+		"antler-caribou-*": {
+			translation: { x: -0.15, y: -0.9, z: -0.33 },
+			rotation: { x: 0, y: -94, z: -144 },
+			scale: 1
+		},
+		"antler-taruca-*": {
+			translation: { x: -0.93, y: -0.4, z: -1.08 },
+			rotation: { x: -121, y: 154, z: 82 },
+			origin: { x: 0.54, y: 0.42, z: 0.5 },
+			scale: 1
+		},
+		"antler-guemal-*": {
+			translation: { x: -0.93, y: -0.4, z: -1.08 },
+			rotation: { x: -121, y: 154, z: 82 },
+			origin: { x: 0.54, y: 0.42, z: 0.5 },
+			scale: 1
+		},
+		"antler-chital-*": {
+			translation: { x: -0.15, y: -0.97, z: -0.26 },
+			rotation: { x: 0, y: -94, z: -144 },
+			scale: 1
+		},
+		"antler-pampas-*": {
+			translation: { x: -0.93, y: -0.4, z: -1.08 },
+			rotation: { x: -121, y: 154, z: 82 },
+			origin: { x: 0.47, y: 0.42, z: 0.5 },
+			scale: 1
+		},
+		"antler-fallow-*": {
+			translation: { x: -0.15, y: -0.98, z: -0.26 },
+			rotation: { x: 0, y: -94, z: -144 },
+			scale: 1
+		},
+		"antler-moose-*": {
+			translation: { x: -0.1, y: -0.4, z: -0.5 },
+			rotation: { x: -74, y: -36, z: -48 },
+			origin: { x: 0.12, y: 0.33, z: 0.28 },
+			scale: 0.71
+		},
+		"antler-muskox-*": {
+			translation: { x: 0.06, y: -0.36, z: -0.2 },
+			rotation: { x: 139, y: -107, z: -144 },
+			origin: { x: 0.02, y: 0, z: 0.3 },
+			scale: 1
+		},
+		"antler-takingold-*": {
+			translation: { x: -0.25, y: -0.9, z: -0.28 },
+			rotation: { x: 24, y: -100, z: -143 },
+			origin: { x: 0.55, y: 0.4, z: 0.55 },
+			scale: 1
+		},
+		"*": {
+			translation: { x: -0.15, y: -0.9, z: -0.26 },
+			rotation: { x: 0, y: -94, z: -144 },
+			origin: { x: 0.53, y: 0.42, z: 0.52 },
+			scale: 1
+		}
+	},
+	groundTransformByType: {
+		"antler-whitetail-01": {
+			translation: { x: 0, y: -0.2, z: 0 },
+			rotation: { x: 0, y: 0, z: -62 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-whitetail-02": {
+			translation: { x: 0, y: -0.19, z: 0 },
+			rotation: { x: 0, y: 0, z: -62 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-whitetail-03": {
+			translation: { x: 0, y: -0.18, z: 0 },
+			rotation: { x: 0, y: 0, z: -63 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-whitetail-04": {
+			translation: { x: 0, y: -0.02, z: 0 },
+			rotation: { x: 0, y: 0, z: -46 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-whitetail-05": {
+			translation: { x: 0, y: -0.02, z: 0 },
+			rotation: { x: 0, y: 0, z: -46 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-whitetail-06": {
+			translation: { x: 0, y: 0.51, z: 0 },
+			rotation: { x: 0, y: 0, z: 19 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-redbrocket-*": {
+			translation: { x: 0, y: -0.39, z: 0 },
+			rotation: { x: 0, y: 0, z: -83 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-marsh-01": {
+			translation: { x: 0, y: -0.43, z: 0 },
+			rotation: { x: 0, y: 0, z: -93 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-marsh-02": {
+			translation: { x: 0, y: -0.28, z: 0 },
+			rotation: { x: 0, y: 0, z: -70 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-marsh-03": {
+			translation: { x: 0, y: -0.16, z: 0 },
+			rotation: { x: 0, y: 0, z: -56 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-marsh-04": {
+			translation: { x: 0, y: -0.19, z: 0 },
+			rotation: { x: 0, y: 0, z: -58 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-marsh-05": {
+			translation: { x: 0, y: -0.17, z: 0 },
+			rotation: { x: 0, y: 0, z: -57 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-marsh-06": {
+			translation: { x: 0, y: -0.18, z: 0 },
+			rotation: { x: 0, y: 0, z: -58 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-marsh-07": {
+			translation: { x: 0, y: -0.1, z: 0 },
+			rotation: { x: 0, y: 0, z: -50 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-caribou-01": {
+			translation: { x: 0, y: -0.02, z: 0 },
+			rotation: { x: 0, y: 0, z: -50 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-caribou-02": {
+			translation: { x: 0, y: -0.05, z: 0 },
+			rotation: { x: 0, y: 0, z: -53 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-caribou-03": {
+			translation: { x: 0, y: -0.01, z: 0 },
+			rotation: { x: 0, y: 0, z: -49 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-caribou-04": {
+			translation: { x: 0, y: 0.05, z: 0 },
+			rotation: { x: 0, y: 0, z: -43 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-caribou-05": {
+			translation: { x: 0, y: 0.06, z: 0 },
+			rotation: { x: 0, y: 0, z: -42 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-caribou-06": {
+			translation: { x: 0, y: 0.09, z: 0 },
+			rotation: { x: 0, y: 0, z: -38 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-caribou-07": {
+			translation: { x: 0, y: 0.09, z: 0 },
+			rotation: { x: 0, y: 0, z: -38 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-caribou-08": {
+			translation: { x: 0, y: 0.12, z: 0 },
+			rotation: { x: 0, y: 0, z: -35 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-pudu-*": {
+			translation: { x: 0, y: -0.3, z: 0 },
+			rotation: { x: 0, y: 0, z: -71 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-elk-01": {
+			translation: { x: 0, y: -0.33, z: 0 },
+			rotation: { x: 0, y: 0, z: -79 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-elk-02": {
+			translation: { x: 0, y: -0.32, z: 0 },
+			rotation: { x: 0, y: 0, z: -77 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-elk-03": {
+			translation: { x: 0, y: -0.12, z: 0 },
+			rotation: { x: 0, y: 0, z: -55 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-elk-04": {
+			translation: { x: 0, y: -0.1, z: 0 },
+			rotation: { x: 0, y: 0, z: -51 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-elk-05": {
+			translation: { x: 0, y: -0.12, z: 0 },
+			rotation: { x: 0, y: 0, z: -55 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-elk-06": {
+			translation: { x: 0, y: -0.05, z: 0 },
+			rotation: { x: 0, y: 0, z: -45 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-elk-07": {
+			translation: { x: 0, y: -0.02, z: 0 },
+			rotation: { x: 0, y: 0, z: -42 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-elk-08": {
+			translation: { x: 0, y: -0.02, z: 0 },
+			rotation: { x: 0, y: 0, z: -42 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-taruca-*": {
+			translation: { x: 0, y: -0.39, z: 0 },
+			rotation: { x: 0, y: 0, z: -81 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-guemal-*": {
+			translation: { x: 0, y: -0.39, z: 0 },
+			rotation: { x: 0, y: 0, z: -81 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-chital-*": {
+			translation: { x: 0, y: -0.19, z: 0 },
+			rotation: { x: 0, y: 0, z: -59 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-pampas-01": {
+			translation: { x: 0, y: -0.31, z: 0 },
+			rotation: { x: 0, y: 0, z: -73 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-pampas-02": {
+			translation: { x: 0, y: -0.29, z: 0 },
+			rotation: { x: 0, y: 0, z: -72 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-pampas-03": {
+			translation: { x: 0, y: -0.2, z: 0 },
+			rotation: { x: 0, y: 0, z: -62 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-pampas-04": {
+			translation: { x: 0, y: -0.21, z: 0 },
+			rotation: { x: 0, y: 0, z: -63 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-pampas-05": {
+			translation: { x: 0, y: -0.19, z: 0 },
+			rotation: { x: 0, y: 0, z: -62 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-pampas-06": {
+			translation: { x: 0, y: -0.18, z: 0 },
+			rotation: { x: 0, y: 0, z: -61 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-pampas-07": {
+			translation: { x: 0, y: -0.16, z: 0 },
+			rotation: { x: 0, y: 0, z: -59 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-fallow-01": {
+			translation: { x: 0, y: -0.28, z: 0 },
+			rotation: { x: 0, y: 0, z: -70 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},	
+		"antler-fallow-02": {
+			translation: { x: 0, y: -0.29, z: 0 },
+			rotation: { x: 0, y: 0, z: -71 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},	
+		"antler-fallow-03": {
+			translation: { x: 0, y: -0.2, z: 0 },
+			rotation: { x: 0, y: 0, z: -60 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},	
+		"antler-fallow-04": {
+			translation: { x: 0, y: -0.14, z: 0 },
+			rotation: { x: 0, y: 0, z: -55 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},	
+		"antler-fallow-05": {
+			translation: { x: 0, y: -0.14, z: 0 },
+			rotation: { x: 0, y: 0, z: -54 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},		
+		"antler-fallow-06": {
+			translation: { x: 0, y: -0.14, z: 0 },
+			rotation: { x: 0, y: 0, z: -55 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},		
+		"antler-fallow-07": {
+			translation: { x: 0, y: -0.16, z: 0 },
+			rotation: { x: 0, y: 0, z: -55 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-fallow-08": {
+			translation: { x: 0, y: -0.16, z: 0 },
+			rotation: { x: 0, y: 0, z: -55 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-moose-01": {
+			translation: { x: 0, y: -0.06, z: 0 },
+			rotation: { x: 0, y: 0, z: -51 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-moose-02": {
+			translation: { x: 0, y: 0.05, z: 0 },
+			rotation: { x: 0, y: 0, z: -36 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-moose-03": {
+			translation: { x: 0, y: -0.03, z: 0 },
+			rotation: { x: 0, y: 0, z: -46 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-moose-04": {
+			translation: { x: 0, y: 0.02, z: 0 },
+			rotation: { x: 0, y: 0, z: -41 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-moose-05": {
+			translation: { x: 0, y: 0.01, z: 0 },
+			rotation: { x: 0, y: 0, z: -44 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-moose-06": {
+			translation: { x: 0, y: 0.02, z: 0 },
+			rotation: { x: 0, y: 0, z: -41 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-moose-07": {
+			translation: { x: 0, y: 0.02, z: 0 },
+			rotation: { x: 0, y: 0, z: -40 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-moose-08": {
+			translation: { x: 0, y: 0.03, z: 0 },
+			rotation: { x: 0, y: 0, z: -42 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-moose-09": {
+			translation: { x: 0, y: 0.04, z: 0 },
+			rotation: { x: 0, y: 0, z: -41 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		
+		"antler-angora-*": {
+			translation: { x: 0, y: 0.075, z: 0 },
+			rotation: { x: 0, y: 0, z: -38 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-ibexalp-*": {
+			translation: { x: 0, y: 0.09, z: 0 },
+			rotation: { x: 0, y: 0, z: -35 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-ibexnub-*": {
+			translation: { x: 0, y: 0.5, z: 0 },
+			rotation: { x: 0, y: 0, z: 14 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-markhor-*": {
+			translation: { x: 0, y: -0.28, z: 0 },
+			rotation: { x: 0, y: 0, z: -80 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-mountain-*": {
+			translation: { x: 0, y: -0.26, z: 0 },
+			rotation: { x: 0, y: 0, z: -68 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-muskox-*": {
+			translation: { x: 0, y: 0.04, z: 0 },
+			rotation: { x: 0, y: 0, z: -41 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-nubian-*": {
+			translation: { x: 0, y: 0.075, z: 0 },
+			rotation: { x: 0, y: 0, z: -38 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-sirohi-*": {
+			translation: { x: 0, y: 0.075, z: 0 },
+			rotation: { x: 0, y: 0, z: -38 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-takingold-*": {
+			translation: { x: 0, y: 0.3, z: 0 },
+			rotation: { x: 0, y: 0, z: 0 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-turdag-*": {
+			translation: { x: 0, y: 0.055, z: 0 },
+			rotation: { x: 0, y: 0, z: -41 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"antler-valais-*": {
+			translation: { x: 0, y: -0.33, z: 0 },
+			rotation: { x: -2, y: 0, z: -84 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		},
+		"*": {
+			translation: { x: 0, y: 0.04, z: 0 },
+			rotation: { x: 0, y: 0, z: 0 },
+			origin: { x: 0.5, y: 0.6, z: 0.5 },
+			scale: 5
+		}
+	}
+}

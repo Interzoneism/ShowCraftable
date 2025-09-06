@@ -1,0 +1,44 @@
+{
+	code: "creature-butterfly",
+	class: "ItemCreature",
+	maxstacksize: 64,
+	variantgroups: [
+		{ code: "type", states: [
+			"acmonbluefemale", "acmonbluemale", "aegamorphobluefemale", "aegamorphobrownfemale", "aegamorphomale", "africancloudedyellowmale", "africanmapwing", "amberphantom", "apollobutterflyfemale", "apollobutterflymale", "arcticwhitefemale", "arcticwhitemale", "atlasmothfemale", "atlasmothmale", "bloodredglidermale", "bloodredgliderpalefemale", "bloodredgliderredfemale", "blueadmiral", "bluepansyfemale", "borderedrusticfemale", "brownhairstreakfemale", "brownhairstreakmale", "cardinalapollofemale", "cardinalapollomale", "checkeredwhitefemale", "checkeredwhitemale", "chestnuttiger", "chocolatealbatrossdryseasonmale", "chocolatealbatrosswetseasonfemale", "chocolatealbatrosswetseasonmale", "cleopatrafemale", "cleopatramale", "cloudedapollofemale", "cloudedapollomale", "comma", "commaabdilutus", "commonbrimstonefemale", "commonbrimstonemale", "commongreenbirdwingfemale", "commongreenbirdwingmale", "commongreencharaxes", "commonmestra", "commonwhitegliderfemale", "commonyellowswallowtailfemale", "commonyellowswallowtailmale", "cynthiasfritillarymale", "darkbluepansy", "dawncloudedbutterflymale", "dawncloudedbutterflywhitefemale", "dawncloudedbutterflyyellowfemale", "dottedglory", "easterncommasummerform", "easterntigerswallowtaildarkfemale", "easterntigerswallowtailmale", "edwardsforesterfemale", "edwardsforestermale", "emeraldswallowtail", "eroessachiliensisfemale", "eroessachiliensismale", "falsecomma", "freyerspurpleemperormale", "gardentigermothmale", "giantnorthernsulfurfemale", "giantnorthernsulfurmale", "godartsnumberwing", "goldbandedforester", "goldenbirdwingfemale", "goldenbirdwingmale", "goldenjezebelfemale", "goldenjezebelmale", "goliathbirdwingmale", "grapevineepimenis", "grayhairstreak", "graypansy", "greenhairstreakmale", "greenveinedwhitefemale", "greenveinedwhitemale", "ireniametalmark", "juttaarctic", "largebluefemale", "largeorangesulphurfemale", "largeorangesulphurmale", "largeorangesulphurwhitefemale", "largewhitefemale", "largewhitemale", "lemonemigrantalcmeoneformmale", "lemonemigrantfemale", "lemonemigranthilariaformmale", "limehawkmoth", "macrocosmamoth", "madagascansunsetmoth", "malachitebutterfly", "mapbutterflymalespringform", "mapbutterflymalesummerform", "meadowbluemale", "meadowbrownfemale", "meadowbrownmale", "mexicanmarbledwhitefemale", "mexicanmarbledwhitemale", "milbertstortoiseshellfemale", "milbertstortoiseshellmale", "monarch", "morphoportis", "mountainapollofemale", "mourningcloak", "nessusleafwingfemale", "nessusleafwingmale", "northernbrownargusfemale", "northernbrownargusmale", "nyctemerakinabaluensis", "oleanderhawkmothmale", "orangebarredsulphurmale", "orangebarredsulphurthalestrisredfemale", "orangebarredsulphurthalestrisyellowfemale", "orangeemigrantfemale", "orangeemigrantmale", "orangetiger", "orangetipfemale", "orangetipmale", "orangetippedanglesulfur", "ornithopterapriamuseuphorionabgoldenmale", "ornithopterapriamusmiokensismale", "paintedbeauty", "peacock", "peacockpansy", "pearlcharaxesfemale", "pearlcharaxesmale", "purpleedgedcoppermale", "purpleemperorfemale", "purpleemperormale", "purplespottedswallowtail", "purplishcopperfemale", "purplishcoppermale", "queenvictoriasbirdwingmale", "redadmiral", "rockgraylingmale", "rustic", "sagebrushgirdlemoth", "scarletmormonfemale", "scarletmormonmale", "silkyowl", "silverybluemale", "smallcoppermale", "smallcopperabschmidtiifemale", "smallheathfemale", "smallheathmale", "smalltortoiseshell", "smallwhitefemale", "smallwhitemale", "southerndogfacemale", "southerndogfacewhitefemale", "southerndogfaceyellowfemale", "stichelseyemarkfemale", "stichelseyemarkmale", "tawnycoster", "thalainachionoptila", "theanoalpinemale", "tropicalwhitedryseasonfemale", "tropicalwhitemale", "tropicalwhitewetseasonfemale", "twobarredflasher", "wallacesgoldenbirdwingmale", "westernbluecharaxesfemale", "westernbluecharaxesmale", "whiteangledsulphurmale", "woodwhitefemale", "woodwhitemale", "yellowpansyfemale", "yellowpansymale"
+		] },
+	],
+	shapeByType: {
+		"*": {
+			"base": "entity/animal/invertebrate/butterfly-inventory"
+		},
+	},
+	texturesByType: {
+		"*": {
+			"wingandbody": { "base": "entity/animal/invertebrate/butterfly/{type}" }
+		}
+	},
+	creativeinventory: { "general": ["*"], "items": ["*"], "creatures": ["*"] },
+	materialDensity: 600,
+	guiTransform: {
+		translation: { x: 0, y: 0, z: 50 },
+		rotation: { x: 0, y: -114, z: 127 },
+		origin: { x: 0.34, y: 0, z: 0.47 },
+		scale: 2.3
+	},
+	tpHandTransformByType: {
+		"creature-butterfly-*": {
+			translation: { x: -1.38, y: -1.26, z: -1.39 },
+			rotation: { x: 0, y: 17, z: 82 },
+			origin: { x: 0.9, y: 0.8, z: 0.6 },
+			scale: 0.46
+		},
+	},
+	fpHandTransformByType: {
+		"creature-butterfly-*": {
+			translation: { x: 0.42, y: 0.15, z: 0 },
+			rotation: { x: 0, y: -75, z: -25 },
+			origin: { x: 0.5, y: 1, z: 0.5 },
+			scale: 1.81
+		},
+	}
+}

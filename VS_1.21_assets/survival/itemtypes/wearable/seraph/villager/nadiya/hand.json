@@ -1,0 +1,68 @@
+{
+	code: "clothes",
+	class: "ItemWearable",
+	variantgroups: [
+		{ code: "village",  states: ["nadiya"] },
+		{ code: "category",  states: ["hand"] },
+		{ code: "hand", combine: "SelectiveMultiply", onVariant: "category", states: [
+			"alchemist", "barber", "beekeeper", "blacksmith", "fisher", "gloves", "hunter", "miner", 
+			"miner-clean", "peasant1", "peasant2", "shepherd", "winter1", "winter2"
+		] }
+	],
+	shapeByType: {
+		"@.*-(alchemist|beekeeper|blacksmith|fisher|winter1|winter2)": {	base: "entity/humanoid/villageraccessories/hand/{hand}"	},
+		"*": {	base: "entity/humanoid/villageraccessories/hand/gloves"	}
+	},
+	storageFlags: 128,
+	attributes: {
+		clothescategory: "hand",
+		wearableAttachment: true,
+		handbook: {
+			groupBy: ["clothes-{village}-{category}-*"]
+		}
+	},
+	attributesByType: {
+		"*-winter1": { warmth: 1.5 },
+		"*-winter2": { warmth: 1.5 },
+		"*": {	warmth: 0.5	}
+	},
+	texturesByType: {
+		"*": {
+			"seraph": { base: "block/transparent" },
+			"gloves": { base: "entity/humanoid/villagerclothes/hand/{hand}" }
+		}
+	},
+	creativeinventory: { "general": ["*"], "items": ["*"], "clothing": ["*"] },
+	renderAlphaTest: 0.25,
+	fpHandTransform: {
+		translation: { x: 0.6, y: 0, z: -0.5 },
+		rotation: { x: 180, y: 42, z: -29 },
+		scale: 2.5
+	},
+	tpHandTransform: {
+		translation: { x: -0.9, y: -1, z: -1 },
+		rotation: { x: -13, y: -64, z: 49 },
+		scale: 0.55
+	},
+	guiTransformByType: {
+		"@.*-(alchemist|shepherd|beekeeper)": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 19 },
+			rotation: { x: 174, y: -30, z: 23 },
+			origin: { x: 0.5, y: 0.78, z: 0.5 },
+			scale: 2.5
+		},
+		"*": {
+			translation: { x: 0, y: 0, z: 19 },
+			rotation: { x: 174, y: -30, z: 23 },
+			origin: { x: 0.52, y: 0.85, z: 0.5 },
+			scale: 2.5
+		}
+	},
+	groundTransform: {
+		translation: { x: 0, y: 0.05, z: 0 },
+		rotation: { x: 0, y: 0, z: 90 },
+		origin: { x: 0.5, y: 0.5, z: 0.5299 },
+		scale: 5
+	}
+}

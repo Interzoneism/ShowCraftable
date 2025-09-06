@@ -1,0 +1,109 @@
+{
+	code: "crucible",
+	behaviors: [
+		{ name: "GroundStorable", properties: { layout: 'Quadrants', placeRemoveSound: 'sounds/player/build',	collisionBox: { x1: 0, y1: 0, z1: 0, x2: 1, y2: 0.4375, z2: 1 } } },
+		{ name: "Unplaceable", }, // The ground storable obsoletes this being a block. Should be an item, but is kept a block for backwards compatibility
+		{ name: "RightClickPickup"}
+	],
+	variantgroups: [
+		{ code: "color", states: ["blue", "fire", "red" ] },
+		{ code:"type", states: ["raw"] }
+	],
+	shape: { base: "block/clay/crucible" },
+	textures: { 
+		all: { base: "block/clay/{color}clay" }
+	},
+	attributes: {
+		tempGlowMode: 1,
+		shelvable: true,
+		handbook: {
+			groupBy: ["crucible-*-{type}"]
+		}
+	},
+	attributesByType:{
+		"crucible-red-raw":{
+			beehivekiln:{
+				"0": { "type": "block", "code": "crucible-tan-fired" },
+				"1": { "type": "block", "code": "crucible-orange-fired" },
+				"2": { "type": "block", "code": "crucible-red-fired" },
+				"3": { "type": "block", "code": "crucible-brown-fired" }
+			}
+		},
+		"crucible-blue-raw":{
+			beehivekiln:{
+				"0": { "type": "block", "code": "crucible-cream-fired"},
+				"1": { "type": "block", "code": "crucible-gray-fired"},
+				"2": { "type": "block", "code": "crucible-black-fired"},
+				"3": { "type": "block", "code": "crucible-black-fired"}
+			}
+		},
+		"crucible-fire-raw":{
+			beehivekiln:{
+				"0": { "type": "block", "code": "crucible-fire-fired"},
+				"1": { "type": "block", "code": "crucible-fire-fired"},
+				"2": { "type": "block", "code": "crucible-fire-fired"},
+				"3": { "type": "block", "code": "crucible-fire-fired"}
+			}
+		}
+	},
+	heldTpIdleAnimation: "holdbothhands",
+	combustiblePropsByType: {
+		"crucible-fire-raw": {
+			meltingPoint: 600,
+			meltingDuration: 45,
+			smeltedRatio: 1,
+			smeltingType: "fire",
+			smeltedStack: { "type": "block", "code": "crucible-fire-fired" },
+			requiresContainer: false
+		},
+		"crucible-*-raw": {
+			meltingPoint: 600,
+			meltingDuration: 45,
+			smeltedRatio: 1,
+			smeltingType: "fire",
+			smeltedStack: { "type": "block", "code": "crucible-blue-fired" },
+			requiresContainer: false
+		}
+	},
+	doNotRenderAtLod2: true,
+	blockmaterial: "Ceramic",
+	creativeinventory: { "general": ["crucible-{color}-raw"], "decorative": ["crucible-{color}-raw"] },
+	replaceable: 300,
+	resistance: 2,
+	maxStackSize: 4,
+	lightAbsorption: 0,
+	sounds: {
+		walk: "walk/stone",
+	},
+	sideopaque: {
+		all: false
+	},
+	sidesolid: {
+		all: false
+	},
+	emitsideao: {
+		all: false
+	},
+	collisionbox: { x1: 0.3125, y1: 0, z1: 0.3125, x2: 0.6875, y2: 0.4375, z2: 0.6875 },
+	selectionbox: { x1: 0.3125, y1: 0, z1: 0.3125, x2: 0.6875, y2: 0.4375, z2: 0.6875 },
+	guiTransform: {
+		origin: { x: 0.5, y: 0.2, z: 0.5 },
+		scale: 2.4
+	},
+	groundTransform: {
+		origin: { x: 0.5, y: 0, z: 0.5 },
+		scale: 3
+	},
+	fpHandTransform: {
+		translation: { x: 0, y: 0.4, z: 0.5 },
+		scale: 2
+	},
+	tpHandTransform: {
+		translation: { x: -0.5, y: 0.05, z: -0.6 },
+		rotation: { x: 0, y: 22, z: -100 },
+		origin: { x: 0.5, y: 0, z: 0.5 },
+		scale: 0.76
+	}
+	
+	
+}

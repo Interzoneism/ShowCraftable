@@ -1,0 +1,24 @@
+[
+	{
+		code: "altocumulus",
+		name: "Altocumulus clouds",
+		description: "Many medium sized clouds",
+		weight: 1.5,
+		durationHours: { avg: 6, var: 48, dist: "invexp" },
+		clouds: {
+			baseThickness: { avg: 0, var: 0 },
+			locationalThickness: { amplitudes: [ 0.5, 0.4 ], frequencies: [ 3, 6 ] },
+			opaqueness: { avg: 1, var: 0.1 },
+			thinCloudMode: { avg: 0 },
+			brightness: { avg: 1 },
+			heightMul: { avg: 1 }
+		},
+		fog: {
+			density: { avg: 1, var: 8, dist: "strongerinvexp" },
+		},
+		precipitation: {
+			type: "auto",
+			baseIntensity: { avg: 0 }
+		}
+	}
+]

@@ -1,0 +1,79 @@
+{
+	code: "aquatic",
+	class: "BlockSeaweed",
+	variantgroups: [
+		{ code: "type", states: ["hornwort", "milfoilnorthern", "milfoilspiked", "muskgrass", "kelp"] },
+		{ code: "part", states: ["top", "section"] }
+	],
+	skipVariants: [
+		"aquatic-seagrass-top"
+	],
+	creativeinventory: { "general": ["*"], "aquatic": ["*"] },
+	shapeByType: {
+		"*-kelp-top":  { base: "block/aquatic/plant/seaweed" },
+		"*-kelp-section":  { base: "block/aquatic/plant/seaweed" },
+		"*-top":  { base: "block/aquatic/plant/waterweed-top*" },
+		"*-section":  { base: "block/aquatic/plant/waterweed-stem*" }
+	},
+	textureByType: {
+		"*-hornwort-section":  { base: "block/plant/aquatic/hornwort" },
+		"*-hornwort-top":  { base: "block/plant/aquatic/hornwort-top" },
+		"*-kelp-section":  { base: "block/plant/aquatic/giantkelp*" },
+		"*-kelp-top":  { base: "block/plant/aquatic/giantkelp*" },
+		"*-milfoilnorthern-section":  { base: "block/plant/aquatic/milfoil-northern" },
+		"*-milfoilnorthern-top":  { base: "block/plant/aquatic/milfoil-northern-top" },
+		"*-milfoilspiked-section":  { base: "block/plant/aquatic/milfoil-spiked" },
+		"*-milfoilspiked-top":  { base: "block/plant/aquatic/milfoil-spiked-top" },
+		"*-muskgrass-section":  { base: "block/plant/aquatic/muskgrass" },
+		"*-muskgrass-top":  { base: "block/plant/aquatic/muskgrass-top" },
+		"*":  { base: "block/plant/aquatic/hornwort" }
+	},
+	drawtypeByType: {
+		"*-kelp-section": "JSONAndWater",
+		"*-kelp-top": "JSONAndWater",
+		"*": "JSON"
+	},
+	renderpassByType: {
+		"*-kelp-section": "liquid",
+		"*-kelp-top": "liquid",
+		"*": "OpaqueNoCull"
+	},
+	blockmaterial: "Plant",
+	faceCullMode: "liquid",
+	doNotRenderAtLod2: true,
+	emitSideAo: { all: false },
+	vertexFlags: {
+		windMode: "WaterPlant"
+	},
+	randomizeAxes: "xz",
+	randomizeRotations: true,
+	randomDrawOffset: true,
+	snowCoverage: false,
+	sideopaque: {
+		all: false
+	},
+	sidesolid: {
+		all: false
+	},
+	replaceable: 3000,
+	lightAbsorption: 1,
+	resistance: 0.5,
+	collisionbox: null,
+	selectionbox: {
+		x1: 0, y1: 0, z1: 0,
+		x2: 1, y2: 1, z2: 1
+	},
+	guiTransform: {
+		rotation: { x: 0, y: 0, z: 0 },
+		origin: { x: 0.5, y: 0.68, z: 0.5 }
+	},
+	sounds: {
+		place: "block/plant",
+		break: "block/plant",
+		hit: "block/plant",
+		inside: "walk/water"
+	},
+	rainPermeable: true,
+	materialDensity: 200,
+	drops: []
+}

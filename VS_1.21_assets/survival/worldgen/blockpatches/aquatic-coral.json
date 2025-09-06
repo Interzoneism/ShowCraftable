@@ -1,0 +1,268 @@
+[
+	{
+		// Large patches of MIXED coral with EVERYTHING for TROPICAL climates
+		blockCodes: ["reefblock-red"],
+		chance: 0.02,
+		minTemp: 25,
+		maxTemp: 40,
+		minRain: 0,
+		maxRain: 1,
+		quantity: { avg: 1, var: 0 },
+		offsetX: { avg: 0, var: 10 },
+		offsetZ: { avg: 0, var: 10 },
+		minWaterDepth: 4,
+		maxWaterDepth: 20,
+		attributes: {
+			"CoralMinSize": 800,
+			"CoralRandomSize": 400,
+			"CoralVerticalGrowChance" : 0.7,
+			"CoralPlantsChance": 0.03,
+			"CoralPlants": {
+				"aquatic-seagrass-*-section": {
+					"Height": { "avg": 2, "var": 2 },
+					"Chance": 0.5
+				},
+				"aquatic-kelp-section": {
+					"Height": { "avg": 3, "var": 1 },
+					"Chance": 0.5
+				}
+			},
+			"CoralBase":["reefblock-*"],
+			"Coralstructure":["reefstructure-*"],
+			"CoralShelveChance": 0.3,
+			"CoralShelve":["reefledge-*-north"],
+			"CoralDecorChance": 0.3,
+			"CoralDecor": ["aquatic-decor-barnacles-*", "aquatic-decor-ribbon-*", "aquatic-decor-crust-*", "aquatic-decor-fringe-*", "aquatic-decor-shroom-*" ],
+			"CoralstructureChance": 0.5,
+			"StructureDecor": ["aquatic-decor-crust-smooth-*", "aquatic-decor-fringe-*", "aquatic-decor-shroom-*"],
+			"Coral":["coral-anemone-*", "coral-brain-*", "coral-branched-*", "coral-fan-*", "coral-shelf-short-*", "coral-shelf-tall-*", "coral-tube-*", "coral-sponge-*"],
+			"CoralReplaceOtherPatches": 0.65,
+			"CoralBaseHeight": 2
+		},
+		placement: "UnderSeaWater"
+	},
+	{
+		// Large patches of BROWN & GREEN coral with ... for TEMPERATE climates
+		blockCodes: ["reefblock-brown", "reefblock-green"],
+		chance: 0.01,
+		minTemp: 5,
+		maxTemp: 30,
+		minRain: 0,
+		maxRain: 1,
+		quantity: { avg: 1, var: 0 },
+		offsetX: { avg: 0, var: 10 },
+		offsetZ: { avg: 0, var: 10 },
+		minWaterDepth: 4,
+		maxWaterDepth: 20,
+		attributes: {
+			"CoralMinSize": 800,
+			"CoralRandomSize": 400,
+			"CoralVerticalGrowChance" : 0.7,
+			"CoralPlantsChance": 0.05,
+			"CoralShelveChance": 0.3,
+			"CoralDecorChance": 0.3,
+			"CoralstructureChance": 0.5,
+			"CoralPlants": {
+				"aquatic-seagrass-*-section": {
+					"Height": { "avg": 2, "var": 2 },
+					"Chance": 0.5
+				},
+				"aquatic-kelp-section": {
+					"Height": { "avg": 3, "var": 1 },
+					"Chance": 0.5
+				}
+			},
+			"CoralBase":["reefblock-brown", "reefblock-green", "reefblock-tan"],
+			"Coralstructure":["reefstructure-brown", "reefstructure-green", "reefstructure-tan"],
+			"CoralShelve":["reefledge-tan-north"],
+			"StructureDecor": ["aquatic-decor-crust-red", "aquatic-decor-crust-tan", 
+							"aquatic-decor-fringe-green", "aquatic-decor-fringe-white", "aquatic-decor-fringe-yellow", 
+							"aquatic-decor-shroom-blue", "aquatic-decor-shroom-brown"
+			],
+			"CoralDecor": ["aquatic-decor-barnacles-*", 
+							"aquatic-decor-ribbon-orange",
+							"aquatic-decor-crust-red", "aquatic-decor-crust-tan", 
+							"aquatic-decor-fringe-green", "aquatic-decor-fringe-white", "aquatic-decor-fringe-yellow", 
+							"aquatic-decor-shroom-blue", "aquatic-decor-shroom-brown" 
+			],
+			"Coral":["coral-brain-brown*", "coral-brain-red*", "coral-brain-tan*", 
+					"coral-fan-dead-*", "coral-fan-orange-*", 
+					"coral-branched-brown-*", "coral-branched-tan-*", "coral-branched-yellow-*", 
+					"coral-shelf-short-tan-*", "coral-shelf-short-brown-*",
+					"coral-tube-brown-*", "coral-tube-green-*", "coral-tube-yellow-*", 
+					"coral-sponge-smooth-brown-*", "coral-sponge-smooth-dead-*", "coral-sponge-smooth-yellow-*", 
+					"coral-sponge-vase-brown*" 
+			],
+			"CoralReplaceOtherPatches": 0.65,
+			"CoralBaseHeight": 2
+		},
+		placement: "UnderSeaWater"
+	},
+	{
+		// Large patches of BROWN & GREEN coral with mostly SHELVES, drab colors
+		blockCodes: ["reefblock-brown", "reefblock-green"],
+		chance: 0.01,
+		minTemp: 5,
+		maxTemp: 25,
+		minRain: 0,
+		maxRain: 1,
+		quantity: { avg: 1, var: 0 },
+		offsetX: { avg: 0, var: 10 },
+		offsetZ: { avg: 0, var: 10 },
+		minWaterDepth: 4,
+		maxWaterDepth: 20,
+		attributes: {
+			"CoralMinSize": 800,
+			"CoralRandomSize": 400,
+			"CoralVerticalGrowChance" : 0.7,
+			"CoralBase":["reefblock-brown", "reefblock-green", "reefblock-tan"],
+			"CoralstructureChance": 0.5,
+			"Coralstructure":["reefstructure-brown", "reefstructure-green", "reefstructure-tan"],
+			"CoralPlantsChance": 0.05,
+			"CoralPlants": {
+				"aquatic-seagrass-green-section": {
+					"Height": { "avg": 2, "var": 2 },
+					"Chance": 0.5
+				},
+				"aquatic-kelp-section": {
+					"Height": { "avg": 3, "var": 1 },
+					"Chance": 0.5
+				}
+			},
+			"CoralShelveChance": 0.3,
+			"CoralShelve":["reefledge-tan-north"],
+			"CoralDecorChance": 0.4,
+			"CoralDecor": ["aquatic-decor-barnacles-*", "aquatic-decor-barnacles-*", 
+							"aquatic-decor-crust-tan", 
+							"aquatic-decor-shroom-brown" 
+			],
+			"StructureDecor": ["aquatic-decor-crust-tan", 
+							"aquatic-decor-shroom-brown"
+			],
+			"CoralChance": 0.95,
+			"Coral":["coral-branched-brown-*", "coral-branched-tan-*", 
+					"coral-shelf-short-tan-*", "coral-shelf-short-brown-*", "coral-shelf-short-tan-*", "coral-shelf-short-brown-*", "coral-shelf-short-tan-*", "coral-shelf-short-brown-*", "coral-shelf-short-tan-*", "coral-shelf-short-brown-*", "coral-shelf-short-tan-*", "coral-shelf-short-brown-*", "coral-shelf-short-tan-*", "coral-shelf-short-brown-*",
+					"coral-tube-brown-*", "coral-tube-green-*",
+					"coral-sponge-smooth-brown-*",
+			],
+			"CoralReplaceOtherPatches": 0.85,
+			"CoralBaseHeight": 2
+		},
+		placement: "UnderSeaWater"
+	},
+	{
+		// Large patches of RED & YELLOW coral with ... for DRY TROPICAL climates
+		blockCodes: ["reefblock-red", "reefblock-tan", "reefblock-yellow"],
+		chance: 0.02,
+		minTemp: 25,
+		maxTemp: 40,
+		minRain: 0,
+		maxRain: 1,
+		quantity: { avg: 1, var: 0 },
+		offsetX: { avg: 0, var: 10 },
+		offsetZ: { avg: 0, var: 10 },
+		minWaterDepth: 4,
+		maxWaterDepth: 20,
+		attributes: {
+			"CoralMinSize": 800,
+			"CoralRandomSize": 400,
+			"CoralVerticalGrowChance" : 0.7,
+			"CoralPlantsChance": 0.05,
+			"CoralShelveChance": 0.3,
+			"CoralDecorChance": 0.5,
+			"CoralstructureChance": 0.5,
+			"CoralPlants": {
+				"aquatic-seagrass-*-section": {
+					"Height": { "avg": 2, "var": 2 },
+					"Chance": 0.5
+				},
+				"aquatic-kelp-section": {
+					"Height": { "avg": 3, "var": 1 },
+					"Chance": 0.5
+				}
+			},
+			"CoralBase":["reefblock-red", "reefblock-tan", "reefblock-yellow" ],
+			"Coralstructure":["reefstructure-red", "reefstructure-tan", "reefstructure-yellow"],
+			"CoralShelve":["reefledge-red-north", "reefledge-tan-north"],
+			"CoralDecor": ["aquatic-decor-barnacles-*",
+							"aquatic-decor-ribbon-red", "aquatic-decor-ribbon-yellow", 
+							"aquatic-decor-crust-brown", "aquatic-decor-crust-orange", "aquatic-decor-crust-tan", 							
+							"aquatic-decor-fringe-red", "aquatic-decor-fringe-white", "aquatic-decor-fringe-yellow", 
+							"aquatic-decor-shroom-brown", "aquatic-decor-shroom-red"
+			], 
+			"StructureDecor": ["aquatic-decor-crust-brown", "aquatic-decor-crust-orange", "aquatic-decor-crust-tan", 
+							"aquatic-decor-fringe-red", "aquatic-decor-fringe-white", "aquatic-decor-fringe-yellow", 
+							"aquatic-decor-shroom-brown", "aquatic-decor-shroom-red"
+			], 
+			"Coral":["coral-brain-yellow-*", "coral-brain-red-*", "coral-brain-tan-*", 
+					"coral-fan-red-*", "coral-fan-yellow-*", 
+					"coral-shrub-orange-*", 
+					"coral-branched-red-*", "coral-branched-tan-*", "coral-branched-yellow-*", 
+					"coral-shelf-short-tan*",
+					"coral-tube-pink-*", "coral-tube-red-*", "coral-tube-orange-*", 
+					"coral-sponge-smooth-dead-*", "coral-sponge-smooth-red-*", "coral-sponge-smooth-yellow-*", 
+					"coral-sponge-lumpy-dead-*", "coral-sponge-lumpy-red-*", "coral-sponge-lumpy-yellow-*"
+			],
+			"CoralReplaceOtherPatches": 0.65,
+			"CoralBaseHeight": 2
+		},
+		placement: "UnderSeaWater"
+	},
+	{
+		// Large patches of RED & YELLOW coral with FIRE REEF theme
+		blockCodes: ["reefblock-red", "reefblock-yellow"],
+		chance: 0.02,
+		minTemp: 25,
+		maxTemp: 40,
+		minRain: 0,
+		maxRain: 1,
+		quantity: { avg: 1, var: 0 },
+		offsetX: { avg: 0, var: 10 },
+		offsetZ: { avg: 0, var: 10 },
+		minWaterDepth: 4,
+		maxWaterDepth: 18,
+		attributes: {
+			"CoralMinSize": 800,
+			"CoralRandomSize": 400,
+			"CoralVerticalGrowChance" : 0.7,
+			"CoralPlantsChance": 0.05,
+			"CoralShelveChance": 0.3,
+			"CoralDecorChance": 0.5,
+			"CoralstructureChance": 0.5,
+			"CoralPlants": {
+				"aquatic-seagrass-orange-section": {
+					"Height": { "avg": 2, "var": 2 },
+					"Chance": 0.5
+				},
+				"aquatic-seagrass-red-section": {
+					"Height": { "avg": 2, "var": 2 },
+					"Chance": 0.5
+				},
+				"aquatic-seagrass-yellow-section": {
+					"Height": { "avg": 2, "var": 2 },
+					"Chance": 0.5
+				}
+			},
+			"CoralBase":["reefblock-red", "reefblock-yellow" ],
+			"Coralstructure":["reefstructure-red", "reefstructure-yellow"],
+			"CoralShelve":["reefledge-red-north"],
+			"CoralDecor": ["aquatic-decor-barnacles-*",
+							"aquatic-decor-ribbon-red", "aquatic-decor-ribbon-yellow", 
+							"aquatic-decor-crust-orange", "aquatic-decor-crust-red",
+							"aquatic-decor-fringe-red", "aquatic-decor-fringe-yellow", 
+							"aquatic-decor-shroom-orange", "aquatic-decor-shroom-red", "aquatic-decor-shroom-yellow"
+			], 
+			"StructureDecor": [	"aquatic-decor-fringe-red", "aquatic-decor-fringe-yellow", 
+			], 
+			"Coral":["coral-fan-orange-*", "coral-fan-red-*", "coral-fan-yellow-*", 
+					"coral-shrub-orange-*", "coral-shrub-red-*", "coral-shrub-yellow-*", 
+					"coral-branched-red-*", "coral-branched-yellow-*", 
+					"coral-tube-orange-*", "coral-tube-pink-*", "coral-tube-red-*", "coral-tube-yellow-*", 
+					"coral-sponge-vase-dead-*", "coral-sponge-vase-red-*", "coral-sponge-vase-yellow-*"
+			],
+			"CoralReplaceOtherPatches": 0.65,
+			"CoralBaseHeight": 2
+		},
+		placement: "UnderSeaWater"
+	}
+]

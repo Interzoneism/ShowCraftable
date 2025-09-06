@@ -1,0 +1,39 @@
+[
+	{
+		ingredientPattern: "LPL,PCP",
+		recipeGroup: 1,
+		ingredients: {
+			"P": { type: "item", code: "metalplate-*", name: "metal", allowedVariants: ["copper", "tinbronze", "bismuthbronze", "blackbronze", "iron", "meteoriciron", "steel", "gold", "silver"] },
+			"C": { type: "item", code: "armor-head-chain-*", name: "metal", allowedVariants: ["copper", "tinbronze", "bismuthbronze", "blackbronze", "iron", "meteoriciron", "steel", "gold", "silver"], recipeAttributes: { repairMat: { type:"item", code: "metalchain-{metal}", stacksize: 4 } } },
+			"L": { type: "item", code: "leather-normal-plain" }
+		},
+		width: 3,
+		height: 2,
+		name: "plate helmet",
+		output: { type: "item", code: "armor-head-plate-{metal}"  }
+	},
+	{
+		ingredientPattern: "PCP,PPP,PPP",
+		recipeGroup: 1,
+		ingredients: {
+			"P": { type: "item", code: "metalplate-*", name: "metal", allowedVariants: ["copper", "tinbronze", "bismuthbronze", "blackbronze", "iron", "meteoriciron", "steel", "gold", "silver"] },
+			"C": { type: "item", code: "armor-body-chain-*", name: "metal", allowedVariants: ["copper", "tinbronze", "bismuthbronze", "blackbronze", "iron", "meteoriciron", "steel", "gold", "silver"], recipeAttributes: { repairMat: { type:"item", code: "metalchain-{metal}", stacksize: 12 } } },
+		},
+		width: 3,
+		height: 3,
+		name: "plate body armor",
+		output: { type: "item", code: "armor-body-plate-{metal}"  }
+	},
+	{
+		ingredientPattern: "PPP,PCP",
+		recipeGroup: 1,
+		ingredients: {
+			"P": { type: "item", code: "metalplate-*", name: "metal", allowedVariants: ["copper", "tinbronze", "bismuthbronze", "blackbronze", "iron", "meteoriciron", "steel", "gold", "silver"] },
+			"C": { type: "item", code: "armor-legs-chain-*", name: "metal", allowedVariants: ["copper", "tinbronze", "bismuthbronze", "blackbronze", "iron", "meteoriciron", "steel", "gold", "silver"], recipeAttributes: { repairMat: { type:"item", code: "metalchain-{metal}", stacksize: 6 } } },
+		},
+		width: 3,
+		height: 2,
+		name: "plate leg armor",
+		output: { type: "item", code: "armor-legs-plate-{metal}"  }
+	}
+]

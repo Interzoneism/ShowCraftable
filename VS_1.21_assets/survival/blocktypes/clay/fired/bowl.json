@@ -1,0 +1,90 @@
+{
+	code: "bowl",
+	classByType: {
+		"*-fired": "BlockLiquidContainerTopOpened"
+	},
+	behaviors: [
+		{ name: "GroundStorable", properties: { layout: 'Quadrants', collisionBox: { x1: 0, y1: 0, z1: 0, x2: 1, y2: 0.125, z2: 1 } } },
+		{ name: "Unplaceable", }, // The ground storable obsoletes this being a block. Should be an item, but is kept a block for backwards compatibility
+		{ name: "RightClickPickup"} 
+	],
+	variantgroups: [
+		{ code: "color", states: ["blue", "fire", "black", "brown", "cream", "gray", "orange", "red", "tan", ] },
+		{ code: "type", states: ["fired"] }
+	],
+	shape: {
+		base: "block/clay/bowl-empty-ground"
+	},
+	textures: {
+		mat: { base: "block/clay/hardened/{color}" },
+		floor: { base: "block/clay/hardened/{color}" }
+	},
+	attributes: {
+		handbook: {
+			ignoreCreativeInvStacks: true,
+			groupBy: ["bowl-*-{type}"]
+		},
+		liquidContainerProps: {
+			capacityLitres: 1,
+			transferSizeLitres: 0.1,
+			emptyShapeLoc: "shapes/block/clay/bowl-empty-ground",
+			opaqueContentShapeLoc: "shapes/block/clay/bowl-contents",
+			liquidContentShapeLoc: "shapes/block/clay/bowl-liquidcontents",
+			liquidMaxYTranslate: 0.05
+		},
+		mealContainer: true,
+		mealBlockCode: "bowl-{color}-meal",
+		servingCapacity: 1,
+		bowlContents: null,
+		shelvable: true,
+		onTongTransform: {
+			translation: { x: -1.2, y: -0.87, z: -0.2 },
+			rotation: { x: 30, y: 90, z: -67 },
+			scale: 0.9
+		}
+	},
+	creativeinventoryStacksByType: {
+		"bowl-blue-fired": [
+			{
+				tabs: ["general", "decorative"],
+				stacks: [
+					{ type: "block", code: "bowl-blue-fired", attributes: { ucontents: [{ type: "item", code: "waterportion", makefull: true }] } },
+					{ type: "block", code: "bowl-blue-fired", attributes: { ucontents: [{ type: "item", code: "honeyportion", makefull: true }] } }
+				]
+			}
+		],
+	},
+	creativeinventory: { "general": ["*-fired"], "decorative": ["*-fired"] },
+	heldTpIdleAnimation: "holdbothhandslarge",
+	doNotRenderAtLod2: true,
+	blockmaterial: "Ceramic",
+	replaceable: 300,
+	liquidSelectable: 1,
+	resistance: 0.75,
+	maxStackSize: 8,
+	lightAbsorption: 0,
+	sounds: {
+		walk: "walk/stone",
+	},
+	sideopaque: {
+		all: false
+	},
+	sidesolid: {
+		all: false
+	},
+	collisionbox: { x1: 0.3125, y1: 0, z1: 0.3125, x2: 0.6875, y2: 0.125, z2: 0.6875 },
+	selectionbox: { x1: 0.3125, y1: 0, z1: 0.3125, x2: 0.6875, y2: 0.125, z2: 0.6875 },
+	guiTransform: {
+		translation: { x: 0, y: 3, z: 0 },
+		origin: { x: 0.5, y: 0.0625, z: 0.5 },
+		scale: 3
+	},
+	groundTransform: {
+		scale: 3.5
+	},
+	tpHandTransform: {
+		translation: { x: -1, y: -0.44, z: -0.2 },
+		rotation: { x: -80, y: 15, z: -103 },
+		scale: 0.9
+	}
+}

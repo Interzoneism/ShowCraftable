@@ -1,0 +1,28 @@
+{
+	"editor": {
+		"allAngles": true,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+		"ember": "block/coal/ember"
+	},
+	"elements": [
+		{
+			"name": "coal",
+			"from": [ 4.0, 1.0, 1.0 ], 
+			"to": [ 15.0, 8.0, 15.0 ], 
+			"rotationOrigin": [ 4.0, 1.0, 1.0 ],
+			"faces": {
+				"north": { "texture": "#ember", "uv": [ 0.0, 0.0, 11.0, 7.0 ] },
+				"east": { "texture": "#ember", "uv": [ 0.0, 0.0, 14.0, 7.0 ] },
+				"south": { "texture": "#ember", "uv": [ 0.0, 0.0, 11.0, 7.0 ] },
+				"west": { "texture": "#ember", "uv": [ 0.0, 0.0, 14.0, 7.0 ] },
+				"up": { "texture": "#ember", "uv": [ 0.0, 0.0, 11.0, 14.0 ] },
+				"down": { "texture": "#ember", "uv": [ 0.0, 0.0, 11.0, 14.0 ] }
+			}
+		}
+	]}

@@ -1,0 +1,116 @@
+{
+	code: "clothes",
+	class: "ItemWearable",
+	variantgroups: [
+		{ code: "village",  states: ["nadiya"] },
+		{ code: "category",  states: ["head"] },
+		{ code: "head", states: [
+			"alchemist", "barber", "beekeeper", "blacksmith", "fisher", "guard", "hunter", "innkeeper", "miner", "musician", 
+			"peasanttan", "peasantblue", "peasantbeige", "peasantred", "peasantbrown", "peasantwhite", "shepherd", 
+			"tailor", "winter1", "winter2"
+		  ] }
+	],
+	shapeByType: { 
+		"@.*-(peasantblue|peasanttan|peasantbeige)": {	base: "entity/humanoid/villageraccessories/head/peasant1" },
+		"@.*-(peasantred|peasantbrown|peasantwhite)": {	base: "entity/humanoid/villageraccessories/head/peasant2" },
+		"*": {	base: "entity/humanoid/villageraccessories/head/{head}" }
+	},
+	storageFlags: 128,
+	attributes: {
+		clothescategory: "head",
+		wearableAttachment: true,
+		rainProtectionPercByType: {
+			"@.*-(fisher|hunter|guard|winter1|winter2)": 0.85,
+			"@.*-(alchemist|beekeeper|blacksmith|miner|shepherd)": 0.7,
+			"@.*-(peasanttan|peasantblue|peasantbeige|peasantred|peasantbrown|peasantwhite)": 0.5
+		},
+		handbook: {
+			groupBy: ["clothes-{village}-{category}-*"]
+		}
+	},
+	// 'keepElements names must also be added to game/entities/humanoid/player file, under the 'disableElements' attribute.
+	attributesByType: {
+		"@.*-(blacksmith|beekeeper)": { disableElements: ["Hair tile upper part", "ponytailhigh", "ponytaillow",  "hair-uncovered", "Hair", "hidefacialhair", "sidehigh", "sidelow", "bangs", "hoodup" ], keepElements: ["hair-covered", "hoodtight"]	},
+		"@.*-(winter1|winter2)": { disableElements: ["Hair tile upper part", "ponytailhigh", "ponytaillow",  "hair-uncovered", "sidehigh", "sidelow"], keepElements: ["hair-covered"], warmth: 1.5 },
+		"*": { disableElements: ["Hair tile upper part", "ponytailhigh", "ponytaillow",  "hair-uncovered", "sidehigh", "sidelow"], keepElements: ["hair-covered"], warmth: 1 },
+	},
+	textures: {
+		"seraph": { base: "block/transparent" },
+		"headtexture": { base: "entity/humanoid/villagerclothes/head/{head}" }
+	},
+	creativeinventory: { "general": ["*"], "items": ["*"], "clothing": ["*"] },
+	guiTransformByType: {
+		"clothes-nadiya-head-beekeeper": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 180, y: -59, z: 8 },
+			origin: { x: 0.45, y: 1.65, z: 0.5 },
+			scale: 2.35
+		},
+		"clothes-nadiya-head-blacksmith": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 180, y: -59, z: 8 },
+			origin: { x: 0.45, y: 1.65, z: 0.5 },
+			scale: 2.35
+		},
+		"*-hunter": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 180, y: -45, z: 8 },
+			origin: { x: 0.45, y: 1.75, z: 0.5 },
+			scale: 2.35
+		},
+		"@.*-(winter1|guard|innkeeper)": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 180, y: -45, z: 8 },
+			origin: { x: 0.45, y: 1.85, z: 0.5 },
+			scale: 2.35
+		},
+		"@.*-(shepherd|tailor|musician|barber)": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 180, y: -45, z: 8 },
+			origin: { x: 0.45, y: 1.97, z: 0.5 },
+			scale: 2.35
+		},
+		"*-winter2": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 180, y: -45, z: 8 },
+			origin: { x: 0.45, y: 1.85, z: 0.5 },
+			scale: 2.22
+		},
+		"*": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 180, y: -45, z: 8 },
+			origin: { x: 0.45, y: 1.9, z: 0.5 },
+			scale: 2.35
+		}
+	},
+	fpHandTransformByType: {
+		"*": {
+			translation: { x: 0.6, y: -1.6, z: -0.5 },
+			rotation: { x: 180, y: -108, z: -180 },
+			origin: { x: 0.5, y: 1.6, z: 0.5 },
+			scale: 2.15
+		}
+	},
+	tpHandTransformByType: {
+		"*": {
+			translation: { x: -0.97, y: -3, z: -1 },
+			rotation: { x: -13, y: -80, z: 12 },
+			origin: { x: 0.5, y: 1.5, z: 0.5 },
+			scale: 0.55
+		}
+	},
+	groundTransformByType: {
+		"*": {
+			translation: { x: 0.05, y: -0.3, z: 0 },
+			rotation: { x: 0, y: 0, z: 0 },
+			scale: 2
+		}
+	}
+}

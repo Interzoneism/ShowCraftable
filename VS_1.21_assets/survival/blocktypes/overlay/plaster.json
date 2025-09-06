@@ -1,0 +1,50 @@
+{
+	code: "overlay-plaster",
+	behaviors: [ {name: "Decor", properties: {sides: ["north", "east", "south", "west", "up", "down"], notFullFace:true, thickness: 0.0 }} ],
+	attributes: {
+		handbook: {
+			exclude: true
+		},
+		ignoreSounds: true
+	},
+	variantgroups: [
+		{ code: "color", states: ["white", "yellow", "yellowwhite"] },
+		{ code: "variant", states: ["normal", "bottom-rim", "top-rim", "zigzag", "cracked", "crumbled", "damaged"] }
+	],
+	allowedVariants: [
+		"overlay-plaster-white-*",
+		"overlay-plaster-yellow-*",
+		"overlay-plaster-yellowwhite-bottom-rim*",
+		"overlay-plaster-yellowwhite-zigzag*",
+	],
+	skipVariants: [
+		"overlay-plaster-yellow-cracked*",
+		"overlay-plaster-yellow-crumbled*",
+		"overlay-plaster-yellow-damaged*"
+	],
+	renderPass: "Transparent",
+	drawtype: "surfacelayer",
+	doNotRenderAtLod2: true,
+	randomizeRotations: false,
+	shapeInventory: {
+		base: "block/basic/layers/0voxel", rotateX: 90
+	},
+	sidesolid: { all: false },
+	sideopaque: { all: false },
+	blockmaterial: "Stone",
+	creativeinventory: { "general": ["*"], "clutter": ["*"] },
+	replaceable: 5500,
+	resistance: 0,
+	lightAbsorption: 0,
+	texturesByType: {
+		"*": { all: {  base: "block/overlay/plaster/{color}/{variant}*" } },
+	},
+	vertexflags: {
+		zOffset: 1
+	},
+	drops: [],
+	guiTransform: {
+		origin: { x: 0.5, y: 0.5, z: 0 }
+	},
+	materialDensity: 400
+}

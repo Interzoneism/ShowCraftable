@@ -1,0 +1,41 @@
+{
+	code: "precipitate",
+	behaviors: [ {name: "Decor", properties: {sides: ["north", "east", "south", "west", "up", "down"], notFullFace:true, thickness: 0.0 }} ],
+	attributes: {
+		handbook: {
+			exclude: true
+		}
+	},
+	variantgroups: [
+		{ code:"type", states: ["dust-heavy", "dust-light", "dust-sparse"] }
+	],
+	renderPass: "Transparent",
+	drawtype: "surfacelayer",
+	randomizeRotations: true,
+	shapeInventory: {
+		base: "block/basic/layers/0voxel", rotateX: 90
+	},
+	doNotRenderAtLod2: true,
+	sidesolid: { all: false },
+	sideopaque: { all: false },
+	blockmaterial: "Plant",
+	creativeinventory: { "general": ["*"], "decorative": ["*"] },
+	replaceable: 5500,
+	resistance: 0,
+	lightAbsorption: 0,
+	textures: {
+		all: {  base: "block/overlay/{type}" }
+	},
+	vertexflags: {
+		zOffset: 1
+	},
+	drops: [],
+	combustibleProps: {
+		burnTemperature: 150,
+		burnDuration: 2,
+	},
+	guiTransform: {
+		origin: { x: 0.5, y: 0.5, z: 0 }
+	},
+	materialDensity: 400
+}

@@ -1,0 +1,75 @@
+{
+	code: "plaster",
+	behaviors: [
+		{ name: "Pillar"},
+		{ name: "WrenchOrientable", properties: { baseCode: "plaster-{type}"  } }
+	],
+	variantgroups: [
+		{ code: "type", states: ["diagonal", "stripes"] },
+		{ code: "orientation", states: ["ns", "we", "ud"] },
+	],
+	attributes: {
+		mapColorCode: "settlement",
+		canChisel: true,
+	},
+	shape: { base: "block/stone/plaster" },
+	drawtype: "cube",	
+	blockmaterial: "Stone",
+	creativeinventory: { "general": ["*-ud"], "construction": ["*-ud"] },
+	replaceable: 200,
+	resistance: 2.5,
+	lightAbsorption: 99,
+	heldTpIdleAnimation: "holdbothhandslarge", heldRightReadyAnimation: "heldblockready", heldTpUseAnimation: "twohandplaceblock",
+	dropsByType: {
+		"plaster-diagonal-*": [ { type: "block", code: "plaster-diagonal-ud" } ],
+		"plaster-stripes-*": [ { type: "block", code: "plaster-stripes-ud" } ],
+	},
+	texturesByType: {
+		"plaster-stripes-ud": {
+			"all": { base: "block/stone/plaster/stripes", rotation: 0 },
+			"up": { base: "block/stone/plaster/square", rotation: 0 },
+			"down": { base: "block/stone/plaster/square", rotation: 0 }
+		},
+		"plaster-stripes-we": {
+			"all": { base: "block/stone/plaster/{type}", rotation: 90 },
+			"east" : { base: "block/stone/plaster/square", rotation: 0 },
+			"west" : { base: "block/stone/plaster/square", rotation: 0 }
+		},
+		"plaster-stripes-ns": {
+			"all": { base: "block/stone/plaster/{type}", rotation: 0 },
+			"north" : { base: "block/stone/plaster/square", rotation: 0 },
+			"south" : { base: "block/stone/plaster/square", rotation: 0 },
+			"east" : { base: "block/stone/plaster/{type}", rotation: 90 },
+			"west" : { base: "block/stone/plaster/{type}", rotation: 90 }
+		},
+		"plaster-diagonal-ud": {
+			"all": { base: "block/stone/plaster/{type}", rotation: 0 },
+			"up": { base: "block/stone/plaster/square", rotation: 0 },
+			"down": { base: "block/stone/plaster/square", rotation: 0 },
+			"north": { base: "block/stone/plaster/{type}", rotation: 90 },
+			"east": { base: "block/stone/plaster/{type}", rotation: 90 }
+		},
+		"plaster-diagonal-we": {
+			"all": { base: "block/stone/plaster/{type}", rotation: 90 },
+			"north": { base: "block/stone/plaster/{type}", rotation: 0 },
+			"down": { base: "block/stone/plaster/{type}", rotation: 180 },
+			"east": { base: "block/stone/plaster/square", rotation: 0 },
+			"west": { base: "block/stone/plaster/square", rotation: 0 }
+		},
+		"plaster-diagonal-ns": {
+			"all": { base: "block/stone/plaster/{type}", rotation: 0 },
+			"down": { base: "block/stone/plaster/{type}", rotation: 270 },
+			"north": { base: "block/stone/plaster/square", rotation: 0 },
+			"south": { base: "block/stone/plaster/square", rotation: 0 },
+			"west": { base: "block/stone/plaster/{type}", rotation: 90 }
+		},
+	},
+	sounds: {
+		walk: "walk/stone",
+	},
+	tpHandTransform: {
+		translation: { x: -1.23, y: -0.91, z: -0.8 },
+		rotation: { x: -2, y: 25, z: -78 },
+		scale: 0.4
+	}
+}

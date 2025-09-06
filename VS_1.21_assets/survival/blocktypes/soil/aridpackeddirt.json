@@ -1,0 +1,29 @@
+{
+	code: "drypackeddirt",
+	creativeinventory: { "general": ["*"], "construction": ["*"], "terrain": ["*"] },
+	shape: { base: "block/basic/cube" },
+	drawtype: "cube",
+	blockmaterial: "Soil",
+	textures: {
+		all: {base: "block/soil/flooring/drypackeddirt1*"},
+	},
+	attributes: {
+		mapColorCode: "settlement",
+		preventsDecay: true
+	},
+	replaceable: 400,
+	fertility: 0,
+	resistance: 2.2,
+	sounds: {
+		place: "block/dirt",
+		break: "block/dirt",
+		hit: "block/dirt",
+		walk: "walk/grass"
+	},
+	heldTpIdleAnimation: "holdbothhandslarge", heldRightReadyAnimation: "heldblockready", heldTpUseAnimation: "twohandplaceblock",
+	tpHandTransform: {
+		translation: { x: -1.23, y: -0.91, z: -0.8 },
+		rotation: { x: -2, y: 25, z: -78 },
+		scale: 0.4
+	}
+}

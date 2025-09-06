@@ -1,0 +1,129 @@
+{
+	code: "clothes",
+	class: "ItemWearable",
+	"variantgroups": [
+		{ code: "village",  states: ["nadiya"] },
+		{ code: "category",  states: ["arm"] },
+		{ code: "arm", states: [
+			"armlet-teeth", "barber-pouch", "bronze-lapis-bracelet", "copper-armlet", "copper-lapis-bracelet", "coral-bracelet",
+			"guard-bracers", "musician-bangles", "peasant-bracersbrown", "peasant-bracerswhite", "seashell-bracelet"
+		] }
+	],
+	storageFlags: 128,
+	"attributes": {
+		clothescategory: "arm",
+		wearableAttachment: true,
+		warmth: 0,
+		handbook: {
+			groupBy: ["clothes-{village}-{category}-*"]
+		}
+	},
+	"shapeByType": {
+		"@.*-(peasant-bracerswhite|peasant-bracersbrown)": { base: "entity/humanoid/villageraccessories/arm/peasant-bracer" },
+		"*": { base: "entity/humanoid/villageraccessories/arm/{arm}" },
+	},
+	texturesByType: {
+		"*-peasant-bracersbrown": {
+			"peasant-bracer1": { base: "entity/humanoid/villagerclothes/arm/peasant-bracer1" },
+			"seraph": { base: "block/transparent" }
+		},
+		"*-peasant-bracerswhite": {
+			"peasant-bracer1": { base: "entity/humanoid/villagerclothes/arm/peasant-bracer2" },
+			"seraph": { base: "block/transparent" }
+		},
+		"*": {
+			"seraph": { base: "block/transparent" }
+		}
+	},
+	creativeinventory: { "general": ["*"], "items": ["*"], "clothing": ["*"] },
+	renderAlphaTest: 0.25,
+	fpHandTransformByType: {
+		"*": {
+			translation: { x: 0.6, y: 0, z: -0.5 },
+			rotation: { x: 180, y: 42, z: -29 },
+			scale: 2.5
+		}
+	},
+	tpHandTransformByType: {
+		"*": {
+			translation: { x: -1.6, y: -1.2, z: -0.9 },
+			rotation: { x: -13, y: -64, z: 49 },
+			scale: 0.55
+		}
+	},
+	guiTransformByType: {
+		"*-armlet-teeth": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 129, y: 150, z: 7 },
+			origin: { x: 0.5, y: 1.27, z: 0.65 },
+			scale: 5.55
+		},
+		"*-barber-pouch": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 129, y: 150, z: 7 },
+			origin: { x: 0.49, y: 1.13, z: 0.65 },
+			scale: 5.55
+		},
+		"@.*-(peasant-bracersbrown|peasant-bracerswhite)": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 174, y: -49, z: 23 },
+			origin: { x: 0.4, y: 0.93, z: 0.65 },
+			scale: 4.29
+		},
+		"*-copper-armlet": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 174, y: -49, z: 23 },
+			origin: { x: 0.42, y: 1.33, z: 0.65 },
+			scale: 4.29
+		},
+		"*-copper-lapis-bracelet": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 174, y: -49, z: 23 },
+			origin: { x: 0.55, y: 0.82, z: 0.25 },
+			scale: 5.31
+		},
+		"*-coral-bracelet": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 174, y: -49, z: 23 },
+			origin: { x: 0.42, y: 0.9, z: 0.65 },
+			scale: 4.71
+		},
+		"*-guard-bracers": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 174, y: -49, z: 23 },
+			origin: { x: 0.38, y: 1, z: 0.65 },
+			scale: 4
+		},
+		"*-musician-bangles": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 126, y: 142, z: 33 },
+			origin: { x: 0.38, y: 0.72, z: 0.65 },
+			scale: 5.7
+		},
+		"*-seashell-bracelet": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 174, y: -49, z: 23 },
+			origin: { x: 0.65, y: 0.72, z: 0.35 },
+			scale: 6
+		},
+		"*": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 174, y: -49, z: 23 },
+			origin: { x: 0.42, y: 1.05, z: 0.65 },
+			scale: 4.71
+		}
+	},
+	groundTransformByType: {
+		"*": {
+			translation: { x: 0.05, y: -0.18, z: 0 },
+			rotation: { x: 0, y: 0, z: 0 },
+			scale: 4
+		}
+	}
+}

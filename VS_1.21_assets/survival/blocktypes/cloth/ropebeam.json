@@ -1,0 +1,59 @@
+{
+	code: "supportrope",
+	class: "BlockSupportBeam",
+	entityClass: "Generic",
+	attributes: {
+		unstableRockStabilization: 3,
+		partialEnds: true,
+		handbook: {
+			exclude: true
+		}
+	},
+	entityBehaviors: [ { name: "SupportBeam" } ],
+	variantgroups: [
+		{ code: "diameter", states: ["one", "two", "three"] },
+		{ code: "age", states: ["new", "old"] },
+	],
+	creativeinventory: { "general": ["*"], "construction": ["*"] },
+	shape: { base: "block/rope/beamrope{diameter}/16" },
+	texturesByType: {
+		"*-new": {
+			"rope": { base: "item/resource/rope" }
+		},
+		"*-old": {
+			"rope": { base: "item/resource/ropeold" }
+		}
+	},
+	blockmaterial: "Wood",
+	drawtype: "json",
+	faceCullMode: "NeverCull",
+	sideOpaque: { all: false },
+	emitSideAo: { all: false },
+	sideSolid: { all: false },
+	lightAbsorption: 0,
+	rainPermeable: true,
+	resistance: 3.5,
+	sounds: {
+		"hit": "block/planks",
+		"break": "block/planks",
+		"place": "block/planks",
+		"walk": "walk/wood"
+	},
+	combustibleProps: {
+		burnTemperature: 600,
+		burnDuration: 20,
+	},
+	maxStackSize: 32,
+	materialDensity: 600,
+	tpHandTransform: {
+		translation: { x: -1.13, y: -0.81, z: -1.2 },
+		rotation: { x: -95, y: 29, z: 3 },
+		scale: 0.55
+	},
+	guiTransform: {
+		rotation: { x: -22.6, y: -64, z: 0 },
+		origin: { x: 0.5, y: 0.1, z: 0.5 },
+		scale: 2.24
+	},
+	drops: []
+}

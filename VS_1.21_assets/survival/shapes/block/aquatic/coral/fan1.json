@@ -1,0 +1,34 @@
+{
+	"editor": {
+		"allAngles": true,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+	},
+	"elements": [
+		{
+			"name": "origin",
+			"from": [ 8.0, 0.0, 8.0 ],
+			"to": [ 8.0, 0.0, 8.0 ],
+			"rotationOrigin": [ 8.0, 0.0, 8.0 ],
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "NS",
+					"from": [ -8.0, 0.0, 0.0 ],
+					"to": [ 8.0, 16.0, 0.0 ],
+					"renderPass": 1,
+					"rotationOrigin": [ 0.0, 0.0, 0.0 ],
+					"rotationY": -45.0,
+					"faces": {
+						"south": { "texture": "#fan1", "uv": [ 0.0, 0.0, 16.0, 16.0 ], "windMode": [0,0,-1,-1], "windData": [0,0,1,1] }
+					}
+				}
+			]
+		}
+	]}

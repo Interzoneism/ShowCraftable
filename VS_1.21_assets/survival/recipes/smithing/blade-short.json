@@ -1,0 +1,10 @@
+{
+	ingredient: { type: "item", code: "ingot-*", name: "metal", allowedVariants: [ "iron" ] },
+	pattern: [[
+		"____########__",
+		"_#############",
+		"____########__",
+	]],
+	name: "Shortsword",
+	output: { type: "item", code: "bladehead-short-{metal}"  }
+}

@@ -1,0 +1,98 @@
+{
+	"editor": {
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+		"charred": "block/wood/charred",
+		"cloth-stitched": "block/cloth/bed/stitched/mattress"
+	},
+	"elements": [
+		{
+			"name": "origin",
+			"from": [ 0.0, 0.0, 8.0 ],
+			"to": [ 0.0, 0.0, 8.0 ],
+			"rotationOrigin": [ 0.0, 0.0, 8.0 ],
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "end",
+					"from": [ 0.0, 0.0, -8.0 ],
+					"to": [ 15.0, 3.0, 8.0 ],
+					"rotationOrigin": [ 1.0, 0.0, 0.0 ],
+					"faces": {
+						"north": { "texture": "#charred", "uv": [ 0.0, 8.5, 15.0, 11.5 ] },
+						"east": { "texture": "#charred", "uv": [ 0.0, 0.0, 16.0, 3.0 ] },
+						"south": { "texture": "#charred", "uv": [ 0.5, 8.5, 15.5, 11.5 ] },
+						"up": { "texture": "#charred", "uv": [ 0.5, 0.0, 15.5, 16.0 ], "windMode": [-1,-1,-1,-1] },
+						"down": { "texture": "#charred", "uv": [ 0.0, 0.0, 15.0, 16.0 ] }
+					},
+					"children": [
+						{
+							"name": "legSE",
+							"from": [ 13.1, -1.5, 16.1 ],
+							"to": [ 16.1, 7.5, 19.1 ],
+							"rotationOrigin": [ 14.6, 1.5, 17.6 ],
+							"rotationX": 90.0,
+							"rotationZ": 45.0,
+							"faces": {
+								"north": { "texture": "#charred", "uv": [ 0.0, 11.5, 9.0, 14.5 ], "rotation": 90 },
+								"east": { "texture": "#charred", "uv": [ 0.0, 8.0, 9.0, 11.0 ], "rotation": 90 },
+								"south": { "texture": "#charred", "uv": [ 0.0, 9.5, 9.0, 12.5 ], "rotation": 90 },
+								"west": { "texture": "#charred", "uv": [ 0.0, 4.0, 9.0, 7.0 ], "rotation": 90 },
+								"up": { "texture": "#charred", "uv": [ 10.5, 10.0, 13.5, 13.0 ], "windMode": [-1,-1,-1,-1] },
+								"down": { "texture": "#charred", "uv": [ 3.0, 7.5, 6.0, 10.5 ] }
+							}
+						},
+						{
+							"name": "mattress-end",
+							"from": [ 0.0, 3.0, 0.0 ],
+							"to": [ 14.0, 5.0, 16.0 ],
+							"rotationOrigin": [ 0.0, 3.0, 8.0 ],
+							"rotationY": -22.5,
+							"faces": {
+								"north": { "texture": "#cloth-stitched", "uv": [ 0.5, 14.0, 14.5, 16.0 ] },
+								"east": { "texture": "#cloth-stitched", "uv": [ 0.0, 14.0, 16.0, 16.0 ], "windMode": [-1,-1,-1,-1] },
+								"south": { "texture": "#cloth-stitched", "uv": [ 1.5, 14.0, 15.5, 16.0 ] },
+								"up": { "texture": "#cloth-stitched", "uv": [ 1.0, 0.0, 15.0, 16.0 ] },
+								"down": { "texture": "#cloth-stitched", "uv": [ 0.5, 0.0, 14.5, 16.0 ], "windMode": [-1,-1,-1,-1] }
+							},
+							"children": [
+								{
+									"name": "mattress-head",
+									"from": [ -16.0, 0.0, 0.0 ],
+									"to": [ 0.0, 2.0, 16.0 ],
+									"rotationOrigin": [ 0.0, 0.0, 8.0 ],
+									"faces": {
+										"north": { "texture": "#cloth-stitched", "uv": [ 0.0, 14.0, 16.0, 16.0 ] },
+										"south": { "texture": "#cloth-stitched", "uv": [ 0.0, 14.0, 16.0, 16.0 ] },
+										"west": { "texture": "#cloth-stitched", "uv": [ 0.0, 14.0, 16.0, 16.0 ], "windMode": [-1,-1,-1,-1] },
+										"up": { "texture": "#cloth-stitched", "uv": [ 0.0, 0.0, 16.0, 16.0 ] },
+										"down": { "texture": "#cloth-stitched", "uv": [ 0.0, 0.0, 16.0, 16.0 ], "windMode": [-1,-1,-1,-1] }
+									}
+								}
+							]
+						},
+						{
+							"name": "head",
+							"from": [ -16.0, 0.0, 0.0 ],
+							"to": [ 0.0, 3.0, 16.0 ],
+							"rotationOrigin": [ 0.0, 0.0, 8.0 ],
+							"faces": {
+								"north": { "texture": "#charred", "uv": [ 0.0, 8.5, 16.0, 11.5 ] },
+								"south": { "texture": "#charred", "uv": [ 0.0, 0.0, 16.0, 3.0 ] },
+								"west": { "texture": "#charred", "uv": [ 0.0, 8.5, 16.0, 11.5 ] },
+								"up": { "texture": "#charred", "uv": [ 0.0, 0.0, 16.0, 16.0 ], "windMode": [-1,-1,-1,-1] },
+								"down": { "texture": "#charred", "uv": [ 0.0, 0.0, 16.0, 16.0 ] }
+							}
+						}
+					]
+				}
+			]
+		}
+	]}

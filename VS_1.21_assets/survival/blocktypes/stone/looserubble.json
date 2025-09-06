@@ -1,0 +1,111 @@
+{
+	code: "rocktyped",
+	class: "BlockRockTyped",
+	entityBehaviors: [ { name: "RockRubbleFromAttributes" } ],
+	behaviors: [
+		{ name: "UnstableFalling"},
+		{ name: "WrenchOrientable", properties: { "hideInteractionHelpInSurvival": true } }
+	],
+	variantgroups: [
+		{ code: "type", states: ["rubble"] },
+		{ code: "cover", states: ["free", "snow"] }
+	],
+	creativeinventory: { "general": [""] },
+	attributes: {
+		canChisel: false,
+		types: [
+			{ code: "rubble-ashlar1",
+				drops: [ { type: "item",  code: "stone-{rock}",  quantity: { avg: 7, var: 3 }  } ],
+				shapePathByType: {
+					"*-snow": "block/clutter/rubble-stone1-snow",
+					"*": "block/clutter/rubble-stone1"
+				},
+				colSelBoxes: [{ x1: 0, y1: 0, z1: 0, x2: 1, y2: 0.3687, z2: 1 }],
+				tpTf: { translation: { x: -1.9, y: -1.6, z: -1.6 }, rotation: { y: -45, z: -25 }, scale: 0.3 },
+				textures: {
+					rubble: {
+						base: "block/stone/agedbrick/{rock}1",
+						overlays: [ "block/overlay/damagedstone1" ],
+						alternates: [
+							{ base: "block/stone/agedbrick/{rock}1", overlays: [ "block/overlay/damagedstone2" ] },
+							{ base: "block/stone/agedbrick/{rock}1", overlays: [ "block/overlay/damagedstone3" ] }
+						]
+					}
+				}
+			},
+			{ code: "rubble-ashlar2",
+				drops: [ { type: "item",  code: "stone-{rock}",  quantity: { avg: 7, var: 3 }  } ],
+				shapePathByType: {
+					"*-snow": "block/clutter/rubble-stone2-snow",
+					"*": "block/clutter/rubble-stone2"
+				},
+				colSelBoxes: [{ x1: 0, y1: 0, z1: 0, x2: 1, y2: 0.25, z2: 1 }, { x1: 0, y1: 0, z1: 0, x2: 0.7873, y2: 0.4496, z2: 0.6061 }],
+				tpTf: { translation: { x: -1.9, y: -1.6, z: -1.6 }, rotation: { y: -45, z: -25 }, scale: 0.3 },
+				textures: {
+					rubble: {
+						base: "block/stone/agedbrick/{rock}1",
+						overlays: [ "block/overlay/damagedstone1" ],
+						alternates: [
+							{ base: "block/stone/agedbrick/{rock}1", overlays: [ "block/overlay/damagedstone2" ] },
+							{ base: "block/stone/agedbrick/{rock}1", overlays: [ "block/overlay/damagedstone3" ] }
+						]
+					}
+				}
+			},
+			{ code: "rubble-ashlar3",
+				drops: [ { type: "item",  code: "stone-{rock}",  quantity: { avg: 7, var: 3 }  } ],
+				shapePathByType: {
+					"*-snow": "block/clutter/rubble-stone3-snow",
+					"*": "block/clutter/rubble-stone3"
+				},
+				colSelBoxes: [{ x1: 0, y1: 0, z1: 0, x2: 1, y2: 0.3314, z2: 1 }],
+				tpTf: { translation: { x: -1.9, y: -1.6, z: -1.6 }, rotation: { y: -45, z: -25 }, scale: 0.3 },
+				textures: {
+					rubble: {
+						base: "block/stone/agedbrick/{rock}1",
+						overlays: [ "block/overlay/damagedstone1" ],
+						alternates: [
+							{ base: "block/stone/agedbrick/{rock}1", overlays: [ "block/overlay/damagedstone2" ] },
+							{ base: "block/stone/agedbrick/{rock}1", overlays: [ "block/overlay/damagedstone3" ] }
+						]
+					}
+				}
+			},
+			{ code: "rubble-ashlar4",
+				drops: [ { type: "item",  code: "stone-{rock}",  quantity: { avg: 7, var: 3 }  } ],
+				shapePathByType: {
+					"*-snow": "block/clutter/rubble-stone4-snow",
+					"*": "block/clutter/rubble-stone4"
+				},
+				colSelBoxes: [{ x1: 0, y1: 0, z1: 0, x2: 1, y2: 0.3687, z2: 1 }],
+				tpTf: { translation: { x: -1.9, y: -1.6, z: -1.6 }, rotation: { y: -45, z: -25 }, scale: 0.3 },
+				textures: {
+					rubble: {
+						base: "block/stone/agedbrick/{rock}1",
+						overlays: [ "block/overlay/damagedstone1" ],
+						alternates: [
+							{ base: "block/stone/agedbrick/{rock}1", overlays: [ "block/overlay/damagedstone2" ] },
+							{ base: "block/stone/agedbrick/{rock}1", overlays: [ "block/overlay/damagedstone3" ] }
+						]
+					}
+				}
+			}
+		],
+	},
+	resistance: 0.6,
+	drawtypeByType: {
+		"*-free": "JSON",
+		"*-snow": "JSONAndSnowLayer",
+	},
+	sounds: {
+		"walk": "walk/stone"
+	},
+	faceCullMode: "NeverCull",
+	shape: { base: "game:block/basic/cube" },
+	replaceable: 90,
+	sidesolid: { all: false },
+	sideopaque: { all: false },
+	sideao: { all: true },
+	emitsideao: { all: false },
+	lightAbsorption: 1
+}

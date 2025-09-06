@@ -1,0 +1,25 @@
+{
+	"editor": {
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+		"rug": [16,16]
+	},
+	"textures": {
+		"rug": "block/cloth/rug/blue/diamond-center"
+	},
+	"elements": [
+		{
+			"name": "rug",
+			"from": [ 0.0, 0.0, 0.0 ],
+			"to": [ 16.0, 16.0, 0.2 ],
+			"rotationOrigin": [ 8.0, 8.0, 8.0 ],
+			"faces": {
+				"north": { "texture": "#rug", "uv": [ 0.0, 0.0, 16.0, 16.0 ] },
+				"south": { "texture": "#rug", "uv": [ 0.0, 0.0, 16.0, 16.0 ] }
+			}
+		}
+	]}

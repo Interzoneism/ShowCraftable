@@ -1,0 +1,75 @@
+{
+	code: "nightvisionupgrades",
+	variantgroups: [
+		{ code: "type", states: ["nightvisionbright", "nightvisionlens1", "nightvisionlens2", "nightvisionpower"] },
+	],
+	shape: { base: "item/jonas/upgrades/{type}" },
+	behaviors: [{ 
+		name: "GroundStorable",
+		properties: {
+			layout: 'Quadrants',
+			placeRemoveSound: 'sounds/block/ingot',
+			collisionBox: { x1: 0, y1: 0, z1: 0, x2: 1, y2: 0.25, z2: 1 }
+		}
+	}],		
+	creativeinventory: { "general": ["*"], "items": ["*"] },
+	maxstacksize: 32,
+	attributes: {
+		displaycaseable: true, 
+		shelvable: true,
+		onDisplayTransform: {
+			translation: { x: 0, y: -0.2, z: 0 },
+			rotation: { x: 0, y: 94, z: 90 },
+			origin: { x: 0.5, y: 0.25, z: 0.5 },
+			scale: 0.95
+		},
+		handbook: {
+			groupBy: ["nightvisionupgrades-*"]
+		}
+	},
+	materialDensity: 900,
+	heldTpHitAnimation: "breaktool",
+	fpHandTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: 1, y: 90, z: 0 },
+		scale: 2
+	},
+	guiTransformByType: {
+		"*-nightvisionbright": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 155, y: -152, z: 30 },
+			origin: { x: 0.56, y: 0.1, z: 0.5 },
+			scale: 2.65
+		},
+		"*-nightvisionpower": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 145, y: -140, z: 23 },
+			origin: { x: 0.5, y: 0.11, z: 0.5 },
+			scale: 4.09
+		},
+		"*-nightvisionlens1": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 155, y: -154, z: -30 },
+			origin: { x: 0.5, y: 0.07, z: 0.5 },
+			scale: 6
+		},
+		"*-nightvisionlens2": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 155, y: -57, z: 7 },
+			origin: { x: 0.5, y: 0.06, z: 0.51 },
+			scale: 6
+		}
+	},
+	tpHandTransform: {
+		translation: { x: -0.55, y: -0.1, z: -0.47 },
+		rotation: { x: 25, y: -174, z: 41 },
+		origin: { x: 0.5, y: 0.02, z: 0.7 },
+		scale: 1
+	},
+	groundTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: 90, y: 0, z: 0 },
+		origin: { x: 0.5, y: 0.22, z: 0.54 },
+		scale: 5
+	}
+}

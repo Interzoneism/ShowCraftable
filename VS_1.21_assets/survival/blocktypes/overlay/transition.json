@@ -1,0 +1,43 @@
+{
+	code: "transition",
+	behaviors: [ {name: "Decor", properties: {sides: ["north", "east", "south", "west", "up", "down"], notFullFace:true, thickness: 0.0 }} ],
+	attributes: {
+		handbook: {
+			exclude: true
+		},
+		ignoreSounds: true
+	},
+	variantgroups: [
+		{ code: "type", states: ["dirtygravel"] },
+		{ code: "variant", states: ["dry", "wet", "darkwet"] }
+	],
+	renderPass: "Transparent",
+	drawtype: "surfacelayer",
+	doNotRenderAtLod2: true,
+	randomizeRotations: false,
+	shapeInventory: {
+		base: "block/basic/layers/0voxel", rotateX: 90
+	},
+	sidesolid: { all: false },
+	sideopaque: { all: false },
+	blockmaterial: "Stone",
+	creativeinventory: { "general": ["*"], "clutter": ["*"] },
+	replaceable: 5500,
+	resistance: 0,
+	lightAbsorption: 0,
+	textures: {
+		all: {  base: "block/overlay/{type}/{variant}*" }
+	},
+	vertexflags: {
+		zOffset: 1
+	},
+	drops: [],
+	combustibleProps: {
+		burnTemperature: 150,
+		burnDuration: 2,
+	},
+	guiTransform: {
+		origin: { x: 0.5, y: 0.5, z: 0 }
+	},
+	materialDensity: 400
+}

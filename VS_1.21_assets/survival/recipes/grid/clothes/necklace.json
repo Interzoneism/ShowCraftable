@@ -1,0 +1,250 @@
+[
+	{
+		ingredientPattern: "R,S",
+		ingredients: {
+			"R": { type: "item", code: "rope" },
+			"S": { type: "item", code: "treeseed-walnut" }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "clothes-neck-walnut-amulet"  }
+	},
+	{
+		ingredientPattern: "R,S",
+		ingredients: {
+			"R": { type: "item", code: "rope" },
+			"S": { type: "item", code: "treeseed-redwood" }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "clothes-neck-redwood-amulet"  }
+	},
+	{
+		ingredientPattern: "R,S",
+		ingredients: {
+			"R": { type: "item", code: "rope" },
+			"S": { type: "item", code: "treeseed-pine" }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "clothes-neck-pinecone-amulet"  }
+	},
+	{
+		ingredientPattern: "R,S",
+		ingredients: {
+			"R": { type: "item", code: "rope" },
+			"S": { type: "item", code: "treeseed-darkpine" }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "clothes-neck-pinecone-amulet"  }
+	},
+	{
+		ingredientPattern: "R,S",
+		ingredients: {
+			"R": { type: "item", code: "rope" },
+			"S": { type: "item", code: "treeseed-larch" }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "clothes-neck-larch-seed-amulet"  }
+	},
+	{
+		ingredientPattern: "R,S",
+		ingredients: {
+			"R": { type: "item", code: "rope" },
+			"S": { type: "item", code: "treeseed-baldcypress" }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "clothes-neck-cypress-seed-amulet"  }
+	},
+	{
+		ingredientPattern: "R,S",
+		ingredients: {
+			"R": { type: "item", code: "rope" },
+			"S": { type: "item", code: "treeseed-greenspirecypress" }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "clothes-neck-cypress-seed-amulet"  }
+	},
+	{
+		ingredientPattern: "R,S",
+		ingredients: {
+			"R": { type: "item", code: "rope" },
+			"S": { type: "item", code: "treeseed-oak" }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "clothes-neck-acorn-amulet"  }
+	},
+	{
+		ingredientPattern: "R,S",
+		ingredients: {
+			"R": { type: "item", code: "rope" },
+			"S": { type: "item", code: "treeseed-acacia" }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "clothes-nadiya-neck-acacia-amulet"  }
+	},
+	{
+		ingredientPattern: "R,S",
+		ingredients: {
+			"R": { type: "item", code: "rope" },
+			"S": { type: "item", code: "treeseed-acacia" }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "clothes-nadiya-neck-acacia-amulet"  }
+	},
+	{
+		ingredientPattern: "R,S",
+		ingredients: {
+			"R": { type: "item", code: "rope" },
+			"S": { type: "item", code: "treeseed-birch" }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "clothes-nadiya-neck-birch-amulet"  }
+	},
+	{
+		ingredientPattern: "R,S",
+		ingredients: {
+			"R": { type: "item", code: "rope" },
+			"S": { type: "item", code: "cattailroot" }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "clothes-nadiya-neck-cattail-root-amulet"  }
+	},
+	{
+		ingredientPattern: "R,S",
+		ingredients: {
+			"R": { type: "item", code: "rope" },
+			"S": { type: "item", code: "treeseed-ebony" }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "clothes-nadiya-neck-ebony-amulet"  }
+	},
+		{
+		ingredientPattern: "R,S",
+		ingredients: {
+			"R": { type: "item", code: "rope" },
+			"S": { type: "item", code: "treeseed-kapok" }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "clothes-nadiya-neck-kapok-amulet"  }
+	},
+	{
+		ingredientPattern: "R,S",
+		ingredients: {
+			"R": { type: "item", code: "rope" },
+			"S": { type: "item", code: "treeseed-maple" }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "clothes-nadiya-neck-maple-amulet"  }
+	},
+	{
+		ingredientPattern: "R,S",
+		ingredients: {
+			"R": { type: "item", code: "rope" },
+			"S": { type: "item", code: "treeseed-crimsonkingmaple" }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "clothes-nadiya-neck-maple-red-amulet"  }
+	},
+	{
+		ingredientPattern: "R,S",
+		ingredients: {
+			"R": { type: "item", code: "rope" },
+			"S": { type: "item", code: "papyrusroot" }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "clothes-nadiya-neck-papyrus-root-amulet"  }
+	},
+	{
+		ingredientPattern: "R,S",
+		ingredients: {
+			"R": { type: "item", code: "rope" },
+			"S": { type: "item", code: "treeseed-purpleheart" }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "clothes-nadiya-neck-purpleheart-amulet"  }
+	},
+	{
+		ingredientPattern: "R,S",
+		ingredients: {
+			"R": { type: "item", code: "rope" },
+			"S": { type: "item", code: "tuleroot" }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "clothes-nadiya-neck-tule-root-amulet"  }
+	},
+	{
+		ingredientPattern: "R,S",
+		ingredients: {
+			"R": { type: "item", code: "rope" },
+			"S": { type: "block", code: "sapling-*bambooshoots-free" }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "clothes-nadiya-neck-bamboo-seed-amulet"  }
+	},
+	{
+		ingredientPattern: "R,S",
+		ingredients: {
+			"R": { type: "item", code: "rope" },
+			"S": { type: "item", code: "gear-temporal" }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "clothes-neck-gear-amulet-temporal"  }
+	},
+	{
+		ingredientPattern: "R,S",
+		ingredients: {
+			"R": { type: "item", code: "rope" },
+			"S": { type: "item", code: "gear-rusty" }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "clothes-neck-gear-amulet-rusty"  }
+	},
+	{
+		ingredientPattern: "S",
+		ingredients: {
+			"S": { type: "item", code: "clothes-neck-gear-amulet-temporal" }
+		},
+		width: 1,
+		height: 1,
+		output: { type: "item", code: "gear-temporal"  }
+	},
+	{
+		ingredientPattern: "S",
+		ingredients: {
+			"S": { type: "item", code: "clothes-neck-gear-amulet-rusty" }
+		},
+		width: 1,
+		height: 1,
+		output: { type: "item", code: "gear-rusty"  }
+	},
+	{
+		ingredientPattern: "R,S",
+		ingredients: {
+			"R": { type: "item", code: "rope" },
+			"S": { type: "block", code: "seashell-*" }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "clothes-neck-necklace-seashell1"  }
+	},
+]

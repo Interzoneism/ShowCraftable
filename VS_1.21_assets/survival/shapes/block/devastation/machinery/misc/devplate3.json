@@ -1,0 +1,43 @@
+{
+	"editor": {
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+		"iron-sheet1": "block/metal/tarnished/iron-sheet1"
+	},
+	"elements": [
+		{
+			"name": "Cube2",
+			"from": [ -5.0, 16.0, 0.0 ],
+			"to": [ 7.0, 16.4, 6.0 ],
+			"rotationOrigin": [ -5.0, 16.0, 0.0 ],
+			"rotationX": -0.1,
+			"rotationY": 19.0,
+			"rotationZ": -0.1,
+			"faces": {
+				"north": { "texture": "#iron-sheet1", "uv": [ 0.0, 0.0, 12.0, 0.5 ] },
+				"east": { "texture": "#iron-sheet1", "uv": [ 0.0, 0.0, 6.0, 0.5 ] },
+				"south": { "texture": "#iron-sheet1", "uv": [ 0.0, 0.0, 12.0, 0.5 ] },
+				"west": { "texture": "#iron-sheet1", "uv": [ 0.0, 0.0, 6.0, 0.5 ] },
+				"up": { "texture": "#iron-sheet1", "uv": [ 0.0, 0.0, 12.0, 6.0 ] }
+			}
+		},
+		{
+			"name": "Cube3",
+			"from": [ 0.0, 0.0, 0.0 ],
+			"to": [ 16.0, 16.0, 16.0 ],
+			"faces": {
+				"north": { "texture": "#iron-sheet1", "uv": [ 0.0, 0.0, 16.0, 16.0 ] },
+				"east": { "texture": "#iron-sheet1", "uv": [ 0.0, 0.0, 16.0, 16.0 ] },
+				"south": { "texture": "#iron-sheet1", "uv": [ 0.0, 0.0, 16.0, 16.0 ] },
+				"west": { "texture": "#iron-sheet1", "uv": [ 0.0, 0.0, 16.0, 16.0 ] },
+				"up": { "texture": "#iron-sheet1", "uv": [ 0.0, 0.0, 16.0, 16.0 ] },
+				"down": { "texture": "#iron-sheet1", "uv": [ 0.0, 0.0, 16.0, 16.0 ] }
+			}
+		}
+	]}

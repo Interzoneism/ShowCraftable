@@ -1,0 +1,48 @@
+[
+	{
+		code: "clearsky",
+		name: "Clear sky",
+		weight: 2,
+		durationHours: { avg: 6, var: 72, dist: "invexp" },
+		clouds: {
+			baseThickness: { avg: 0 },
+			locationalThickness: null,
+			brightness: { avg: 1 }
+		},
+		fog: {
+			density: { avg: 1, var: 0.5 },
+		}
+	},
+	{
+		code: "clearsky",
+		name: "Clear sky extra chance in dry areas",
+		weight: 8,
+		maxRain: 0.4,
+		rainRange: 0.4,
+		durationHours: { avg: 6, var: 72, dist: "invexp" },
+		clouds: {
+			baseThickness: { avg: 0 },
+			locationalThickness: null,
+			brightness: { avg: 1 }
+		},
+		fog: {
+			density: { avg: 1, var: 0.5 },
+		}
+	},
+	{
+		code: "clearskym",
+		name: "Clear sky with light sealevel mist",
+		weight: 0.5,
+		durationHours: { avg: 6, var: 72, dist: "invexp" },
+		clouds: {
+			baseThickness: { avg: 0 },
+			locationalThickness: null,
+			brightness: { avg: 1 }
+		},
+		fog: {
+			density: { avg: 1, var: 0.5 },
+			mistDensity: { avg: -60, var: 20 },
+			mistYPos: { avg: 1, var: 5, dist: "invexp" },
+		}
+	},
+]

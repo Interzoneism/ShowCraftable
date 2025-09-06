@@ -1,0 +1,104 @@
+{
+	"constraints": {
+		"hairbase": {
+			"bald": {
+				"hairextra": { allow: ["none", "braidedup", "thicklongfrenchbraid", "vikingtopbraid"] }
+			},
+			"balding": {
+				"hairextra": { allow: ["none"] }
+			},
+			"afro": {
+				"hairextra": { allow: ["none", "braidedup", "thicklongfrenchbraid", "tieddreads", "topknot", "unkempt", "vikingtopbraid"] }
+			},
+			"combed": {
+				"hairextra": { disallow: ["braidedup", "tiedtopknot", "unkempt"] },
+				"mustache": { allow: ["none"] },
+				"beard": { allow: ["none"] }
+			},
+			"classic": {
+				"hairextra": { disallow: ["siderolls" ] }
+			},
+			"dreadlocks": {
+				"hairextra": { disallow: ["braidedup", "tiedtopknot", "unkempt" ] }
+			},
+			"indigenousbalding": {
+				"hairextra": { allow: ["none"] }
+			},
+			"iroquois": {
+				"hairextra": { allow: ["none", "thicklongfrenchbraid", "tiedback", "tieddreads", "vikingtopbraid"] }
+			},
+			"kniaz": {
+				"hairextra": { allow: ["none", "braidedup", "ponytail",  "thicklongfrenchbraid", "tiedback", "tieddreads", "topknot", "vikingtopbraid"] }
+			},
+			"layered": {
+				"hairextra": { disallow: ["tiedtopknot", "siderolls" ] }
+			},
+			"longflowing": {
+				"hairextra": { disallow: ["braidedup", "tiedtopknot", "unkempt" ]},
+				"mustache": { allow: ["none"] },
+				"beard": { allow: ["none"] }
+			},
+			"longwithstrands": {
+				"hairextra": { disallow: ["braidedup", "tiedtopknot", "rolledbraidwithbun", "unkempt" ] },
+				"mustache": { allow: ["none"] },
+				"beard": { allow: ["none"] }
+			},
+			"mediumlength-bangs": {
+				"hairextra": { allow: ["none", "backbun", "elaboratestickbun", "largestickbun", "classicponytail", "ponytail", "thicklongfrenchbraid", "tiedback", "tieddreads", "topknot", "vikingtopbraid"] }
+			},
+			"messy": {
+				"hairextra": { disallow: ["tiedtopknot"] }
+			},
+			"messy2": {
+				"hairextra": { disallow: ["tiedtopknot", "siderolls"] }
+			},
+			"short": {
+				"hairextra": { allow: ["none", "backbun", "elaboratestickbun", "largestickbun", "classicponytail", "ponytail", "thicklongfrenchbraid", "tieddreads", "topknot" ] }
+			},
+			"short-parted": {
+				"hairextra": { allow: ["none", "backbun", "elaboratestickbun", "largestickbun", "classicponytail", "ponytail", "thicklongfrenchbraid", "tieddreads", "topknot" ] }
+			},
+			"shortspiky": {
+				"hairextra": { allow: ["none", "braidedup", "thicklongfrenchbraid", "tiedback", "tieddreads", "topknot" ] }
+			},
+			"short-trimmed": {
+				"hairextra": { allow: ["none", "braidedup", "thicklongfrenchbraid", "tieddreads", "topknot" ] }
+			},
+			"tonsure": {
+				"hairextra": { allow: ["none" ] }
+			}
+		},
+		"hairextra": {
+			"elaboratestickbun": {
+				"mustache": { allow: ["none"] },
+				"beard": { allow: ["none"] }
+			},
+			"sidebuns": {
+				"mustache": { allow: ["none"] },
+				"beard": { allow: ["none"] }
+			},
+			"sidebraids": {
+				"mustache": { allow: ["none"] },
+				"beard": { allow: ["none"] }
+			},
+			"siderolls": {
+				"mustache": { allow: ["none"] },
+				"beard": { allow: ["none"] }
+			},
+			"snood": {
+				"mustache": { allow: ["none"] },
+				"beard": { allow: ["none"] }
+			},
+			"topbun": {
+				"mustache": { allow: ["none"] },
+				"beard": { allow: ["none"] }
+			},
+			"backbun": {
+				"mustache": { allow: ["none"] },
+				"beard": { allow: ["none"] }
+			}
+		},
+		"mustache": {},
+		"beard": { }
+	}
+}

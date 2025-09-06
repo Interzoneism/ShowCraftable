@@ -1,0 +1,64 @@
+{
+	"editor": {
+		"backDropShape": "entity/humanoid/seraph-hairless",
+		"allAngles": true,
+		"entityTextureMode": true
+	},
+	"textureWidth": 48,
+	"textureHeight": 48,
+	"textureSizes": {
+		"hair": [48,48],
+		"birch": [16,16]
+	},
+	"textures": {
+		"hair": "entity/humanoid/seraphskinparts/hair/lightgray"
+	},
+	"elements": [
+		{
+			"name": "hair-uncovered",
+			"stepParentName": "Head",
+			"from": [ 0.0, 0.0, 0.0 ],
+			"to": [ 1.0, 1.0, 1.0 ],
+			"uv": [ 0.0, 0.0 ],
+			"faces": {
+				"east": { "texture": "#hair", "uv": [ 1.0, 1.0, 2.0, 2.0 ] },
+				"south": { "texture": "#hair", "uv": [ 2.0, 1.0, 3.0, 2.0 ] },
+				"west": { "texture": "#hair", "uv": [ 3.0, 1.0, 4.0, 2.0 ] },
+				"up": { "texture": "#hair", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+				"down": { "texture": "#hair", "uv": [ 1.0, 0.0, 2.0, 1.0 ] }
+			},
+			"children": [
+				{
+					"name": "MohawkTop",
+					"from": [ -0.5, 4.0, 1.8 ],
+					"to": [ 6.0, 5.5, 3.3 ],
+					"autoUnwrap": false,
+					"uv": [ 16.0, 31.5 ],
+					"rotationOrigin": [ -0.5, 4.5, 2.5 ],
+					"faces": {
+						"north": { "texture": "#hair", "uv": [ 16.0, 33.0, 22.5, 34.5 ] },
+						"east": { "texture": "#hair", "uv": [ 23.0, 33.0, 24.5, 34.5 ] },
+						"south": { "texture": "#hair", "uv": [ 18.0, 35.0, 24.5, 36.5 ] },
+						"west": { "texture": "#hair", "uv": [ 25.5, 34.5, 27.0, 36.0 ] },
+						"up": { "texture": "#hair", "uv": [ 16.0, 31.5, 22.5, 33.0 ] },
+						"down": { "texture": "#hair", "uv": [ 18.0, 33.5, 24.5, 35.0 ] }
+					},
+					"children": [
+						{
+							"name": "MohawkBack",
+							"from": [ 5.5, -3.0, 0.0 ],
+							"to": [ 6.5, 0.0, 1.5 ],
+							"uv": [ 21.0, 31.0 ],
+							"rotationOrigin": [ 6.0, -3.0, 0.7 ],
+							"faces": {
+								"north": { "texture": "#hair", "uv": [ 21.0, 32.5, 22.0, 35.5 ] },
+								"east": { "texture": "#hair", "uv": [ 22.0, 32.5, 23.5, 35.5 ] },
+								"south": { "texture": "#hair", "uv": [ 23.5, 32.5, 24.5, 35.5 ] },
+								"down": { "texture": "#hair", "uv": [ 21.0, 31.0, 22.0, 32.5 ] }
+							}
+						}
+					]
+				}
+			]
+		}
+	]}

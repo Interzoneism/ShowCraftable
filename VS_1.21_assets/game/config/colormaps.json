@@ -1,0 +1,14 @@
+[
+	{
+		code: "climatePlantTint",
+		texture: { base: "environment/planttint" },
+		padding: 4,
+		loadIntoBlockTextureAtlas: true
+	},
+	{
+		code: "climateWaterTint",
+		texture: { base: "environment/watertint" },
+		padding: 4,
+		loadIntoBlockTextureAtlas: true
+	}
+]

@@ -1,0 +1,10 @@
+{
+	ingredients: [
+		{ type: "item", code: "ingot-silver", minratio: 0.40, maxratio: 0.60  },
+		{ type: "item", code: "ingot-gold", minratio: 0.40, maxratio: 0.60  },
+	],
+	output: {
+		type: "item",
+		code: "ingot-electrum"
+	}
+}

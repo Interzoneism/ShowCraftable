@@ -1,0 +1,819 @@
+{
+	code: "stackrandomizer",
+	class: "ItemStackRandomizer",
+	variantgroups: [
+		{ code: "type", states: [
+			"cloth-lowstatus",
+			"cloth-mediumstatus",
+			"cloth-highstatus",
+			"accessory-lowstatus",
+			"accessory-mediumstatus",
+			"accessory-highstatus",
+			"lore-villager",
+			"lore-tobias",
+			"lore-research",
+			"lore-diaries",
+			"lore-jonas",
+			"ore",
+			"fuel",
+			"ingot",
+			"seed",
+			"coppertool",
+			"copperweapon",
+			"ruinedweapon",
+			"resource",
+			"tuningcylinder",
+			"lantern",
+			"painting",
+			"gear",
+			"jonasparts",
+			"jonasframes",
+			"alljonas",
+			"materials-building",
+			"materials-mining",
+			"kitchen",
+			"armor",
+			"lazaret",
+			"butterfly"
+		  ] }
+	],
+	attributesByType: {
+		"*-cloth-lowstatus": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "item", code: "clothes-upperbody-peasent-shirt", chance: 2 },
+				{ type: "item", code: "clothes-upperbody-shepherd-tunic", chance: 1 },
+				{ type: "item", code: "clothes-upperbody-hunter-shirt", chance: 1 },
+				{ type: "item", code: "clothes-upperbody-great-steppe-shirt", chance: 0.1 },
+				{ type: "item", code: "clothes-upperbody-pearl-shirt", chance: 0.1 },
+				{ type: "item", code: "clothes-upperbody-tattered-crimson-tunic", chance: 2 },
+				{ type: "item", code: "clothes-upperbody-tattered-linen-shirt", chance: 3 },
+				{ type: "item", code: "clothes-upperbody-woolen-shirt", chance: 0.1 },
+				{ type: "item", code: "clothes-upperbody-linen-tunic", chance: 0.5 },
+				{ type: "item", code: "clothes-upperbody-great-steppe-shirt", chance: 0.4 },
+				{ type: "item", code: "clothes-upperbody-reindeer-herder-collared-shirt", chance: 0.3 },
+				{ type: "item", code: "clothes-upperbody-raw-hide-mantle", chance: 1 },
+				{ type: "item", code: "clothes-upperbody-marketeer", chance: 0.6 },
+				{ type: "item", code: "clothes-upperbody-miner", chance: 0.5 },
+				{ type: "item", code: "clothes-upperbody-survivor", chance: 0.5 },
+				{ type: "item", code: "clothes-upperbody-hunters-green", chance: 0.5 },
+
+				{ type: "item", code: "clothes-lowerbody-tattered-peasent-gown", chance: 3 },
+				{ type: "item", code: "clothes-lowerbody-shepherd-pants", chance: 1 },
+				{ type: "item", code: "clothes-lowerbody-raw-hide-trousers", chance: 0.5 },
+				{ type: "item", code: "clothes-lowerbody-dirty-linen-trousers", chance: 2},
+				{ type: "item", code: "clothes-lowerbody-torn-riding-pants", chance: 1 },
+				{ type: "item", code: "clothes-lowerbody-warm-woolen-pants", chance: 0.1 },
+				{ type: "item", code: "clothes-lowerbody-workmans-gown", chance: 0.5 },
+				{ type: "item", code: "clothes-lowerbody-nomad-trousers", chance: 0.5 },
+				{ type: "item", code: "clothes-lowerbody-reindeer-herder-trousers", chance: 0.3 },
+				{ type: "item", code: "clothes-lowerbody-marketeer", chance: 0.6 },
+				{ type: "item", code: "clothes-lowerbody-rotwalker", chance: 0.2 },
+				{ type: "item", code: "clothes-lowerbody-miner", chance: 0.5 },
+				{ type: "item", code: "clothes-lowerbody-survivor", chance: 0.5 },
+
+				{ type: "item", code: "clothes-hand-fur-gloves", chance: 0.5 },
+				{ type: "item", code: "clothes-hand-miner", chance: 0.5 },
+				{ type: "item", code: "clothes-hand-survivor", chance: 0.5 },
+
+				{ type: "item", code: "clothes-foot-peasent-slippers", chance: 1 },
+				{ type: "item", code: "clothes-foot-shepherd-sandals", chance: 2 },
+				{ type: "item", code: "clothes-foot-knee-high-fur-boots", chance: 0.5 },
+				{ type: "item", code: "clothes-foot-prisoner-binds", chance: 0.5 },
+				{ type: "item", code: "clothes-foot-worn-leather-boots", chance: 2 },
+				{ type: "item", code: "clothes-foot-wool-lined-knee-high-boots", chance: 1 },
+				{ type: "item", code: "clothes-foot-metalcap-boots", chance: 0.1 },
+				{ type: "item", code: "clothes-foot-nomad-boots", chance: 0.5 },
+				{ type: "item", code: "clothes-foot-great-steppe-boots", chance: 0.4 },
+				{ type: "item", code: "clothes-foot-fur-lined-reindeer-herder-shoes", chance: 0.3 },
+				{ type: "item", code: "clothes-foot-marketeer", chance: 0.6 },
+				{ type: "item", code: "clothes-foot-rotwalker", chance: 0.2 },
+				{ type: "item", code: "clothes-foot-miner", chance: 0.5 },
+				{ type: "item", code: "clothes-foot-survivor", chance: 0.5 },
+
+				{ type: "item", code: "clothes-shoulder-embroidered-collar", chance: 0.2 },
+				{ type: "item", code: "clothes-shoulder-blacksmith-apron", chance: 1 },
+				{ type: "item", code: "clothes-shoulder-peasent-kaftan", chance: 0.5 },
+				{ type: "item", code: "clothes-shoulder-artisans-scarf", chance: 2 },
+				{ type: "item", code: "clothes-shoulder-jord-robe", chance: 1 },
+				{ type: "item", code: "clothes-shoulder-hunter-poncho", chance: 1 },
+				{ type: "item", code: "clothes-shoulder-stained-leather-poncho", chance: 0.1 },
+				{ type: "item", code: "clothes-shoulder-marketeer", chance: 0.6 },
+				{ type: "item", code: "clothes-shoulder-rotwalker", chance: 0.2 },
+				{ type: "item", code: "clothes-shoulder-miner", chance: 0.5 },
+				{ type: "item", code: "clothes-shoulder-survivor", chance: 0.5 },
+
+				{ type: "item", code: "clothes-waist-peasant-strap", chance: 1 },
+				{ type: "item", code: "clothes-waist-fortune-teller-hip-scarf", chance: 0.5 },
+				{ type: "item", code: "clothes-waist-heavy-belt", chance: 0.5 },
+				{ type: "item", code: "clothes-waist-linen-rope", chance: 0.5 },
+				{ type: "item", code: "clothes-waist-sturdy-leather-belt", chance: 0.3 },
+				{ type: "item", code: "clothes-waist-reindeer-herder-waistband", chance: 0.3 },
+				{ type: "item", code: "clothes-waist-cerise-embroidered-reindeer-herder-waistband", chance: 0.2 },
+				{ type: "item", code: "clothes-waist-marketeer", chance: 0.6 },
+				{ type: "item", code: "clothes-waist-miner", chance: 0.5 },
+
+				{ type: "item", code: "clothes-upperbodyover-huntsmans-tunic", chance: 2 },
+				{ type: "item", code: "clothes-upperbodyover-fur-coat", chance: 0.5 },
+				{ type: "item", code: "clothes-upperbodyover-great-steppe-mantle", chance: 0.4 },
+				{ type: "item", code: "clothes-upperbodyover-cerise-embroidered-reindeer-herder-coat", chance: 0.2 },
+				{ type: "item", code: "clothes-upperbodyover-marketeer", chance: 0.6 },
+				{ type: "item", code: "clothes-upperbodyover-rotwalker", chance: 0.2 },
+				{ type: "item", code: "clothes-upperbodyover-miner", chance: 0.5 },
+
+				{ type: "item", code: "clothes-head-shepherds-cowl", chance: 0.5 },
+				{ type: "item", code: "clothes-face-snow-goggles", chance: 1 },
+				{ type: "item", code: "clothes-head-peasent-head-scarf", chance: 1 },
+				{ type: "item", code: "clothes-head-fortune-tellers-scarf", chance: 0.5 },
+				{ type: "item", code: "clothes-head-embroidered-coif", chance: 0.2 },
+				{ type: "item", code: "clothes-head-marketeer", chance: 0.6 },
+				{ type: "item", code: "clothes-head-rotwalker", chance: 0.2 },
+
+				{ type: "item", code: "hoovedwearables-blanket-survivor", chance: 0.5 }
+			]
+		},
+		"*-cloth-mediumstatus": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "item", code: "clothes-upperbody-jailor-tunic", chance: 1 },
+				{ type: "item", code: "clothes-upperbody-lackey-shirt", chance: 0.5 },
+				{ type: "item", code: "clothes-upperbody-merchant-shirt", chance: 1 },
+				{ type: "item", code: "clothes-upperbody-minstrel-shirt", chance: 0.2 },
+				{ type: "item", code: "clothes-upperbody-squire-shirt", chance: 0.3 },
+				{ type: "item", code: "clothes-upperbody-earth-toned-robe", chance: 0.1 },
+				{ type: "item", code: "clothes-upperbody-surgeon", chance: 0.5 },
+				{ type: "item", code: "clothes-upperbody-alchemist", chance: 0.5 },
+				{ type: "item", code: "clothes-upperbody-scribe", chance: 0.5 },
+
+				{ type: "item", code: "clothes-lowerbody-jailor-pants", chance: 1 },
+				{ type: "item", code: "clothes-lowerbody-lackey-breeches", chance: 0.5 },
+				{ type: "item", code: "clothes-lowerbody-merchant-pants", chance: 0.5 },
+				{ type: "item", code: "clothes-lowerbody-minstrel-pants", chance: 0.2 },
+				{ type: "item", code: "clothes-lowerbody-squire-pants", chance: 0.5 },
+				{ type: "item", code: "clothes-lowerbody-woolen-leggings", chance: 0.1 },
+				{ type: "item", code: "clothes-lowerbody-surgeon", chance: 0.5 },
+				{ type: "item", code: "clothes-lowerbody-alchemist", chance: 0.5 },
+				{ type: "item", code: "clothes-lowerbody-scribe", chance: 0.5 },
+
+				{ type: "item", code: "clothes-hand-minstrel-gloves", chance: 1 },
+				{ type: "item", code: "clothes-hand-lackey-gloves", chance: 0.5 },
+				{ type: "item", code: "clothes-hand-heavy-leather-gloves", chance: 0.2 },
+				{ type: "item", code: "clothes-hand-surgeon", chance: 0.5 },
+				{ type: "item", code: "clothes-hand-scribe", chance: 0.5 },
+
+				{ type: "item", code: "clothes-foot-jailor-boots", chance: 1 },
+				{ type: "item", code: "clothes-foot-lackey-shoes", chance: 1 },
+				{ type: "item", code: "clothes-foot-high-leather-boots", chance: 0.5 },
+				{ type: "item", code: "clothes-foot-merchant-shoes", chance: 0.05 },
+				{ type: "item", code: "clothes-foot-minstrel-boots", chance: 0.2 },
+				{ type: "item", code: "clothes-foot-squire-boots", chance: 0.3 },
+				{ type: "item", code: "clothes-foot-soldier-boots", chance: 0.2 },
+				{ type: "item", code: "clothes-foot-surgeon", chance: 0.5 },
+				{ type: "item", code: "clothes-foot-alchemist", chance: 0.5 },
+				{ type: "item", code: "clothes-foot-scribe", chance: 0.5 },
+
+				{ type: "item", code: "clothes-shoulder-woolen-scarf", chance: 0.5 },
+				{ type: "item", code: "clothes-shoulder-minstrel-coat", chance: 1 },
+				{ type: "item", code: "clothes-shoulder-hooded-cape", chance: 0.5 },
+				{ type: "item", code: "clothes-shoulder-squire-tunic", chance: 0.2 },
+				{ type: "item", code: "clothes-shoulder-surgeon", chance: 0.5 },
+				{ type: "item", code: "clothes-shoulder-alchemist", chance: 0.5 },
+				{ type: "item", code: "clothes-shoulder-scribe", chance: 0.5 },
+
+				{ type: "item", code: "clothes-waist-jailor-belt", chance: 1 },
+				{ type: "item", code: "clothes-waist-merchant-belt", chance: 0.3 },
+				{ type: "item", code: "clothes-waist-squire-belt", chance: 0.2 },
+				{ type: "item", code: "clothes-waist-sturdy-belt", chance: 1 },
+				{ type: "item", code: "clothes-waist-heavy-tool-belt", chance: 0.5 },
+				{ type: "item", code: "clothes-waist-alchemist", chance: 0.5 },
+				{ type: "item", code: "clothes-waist-scribe", chance: 0.5 },
+
+				{ type: "item", code: "clothes-head-jailors-hat", chance: 1 },
+				{ type: "item", code: "clothes-head-lackey-hat", chance: 1 },
+				{ type: "item", code: "clothes-head-fancy-head-dress", chance: 0.5 },
+				{ type: "item", code: "clothes-head-merchant-hat", chance: 0.3 },
+				{ type: "item", code: "clothes-head-minstrel-hat", chance: 0.2 },
+				{ type: "item", code: "clothes-head-squire-hood", chance: 0.2 },
+				{ type: "item", code: "clothes-face-surgeonhood", chance: 0.5 },
+				{ type: "item", code: "clothes-head-alchemist", chance: 0.5 },
+
+				{ type: "item", code: "clothes-upperbodyover-warm-robe", chance: 1 },
+				{ type: "item", code: "clothes-upperbodyover-surgeon", chance: 0.5 },
+
+				{ type: "item", code: "hoovedwearables-blanket-alchemist", chance: 0.5 }
+			]
+		},
+
+		"*-cloth-highstatus": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "item", code: "clothes-upperbody-aristocrat-shirt", chance: 0.2 },
+				{ type: "item", code: "clothes-upperbody-messenger-shirt", chance: 0.5 },
+				{ type: "item", code: "clothes-upperbody-prince-tunic", chance: 0.2 },
+				{ type: "item", code: "clothes-upperbody-noble-shirt", chance: 2 },
+				{ type: "item", code: "clothes-upperbody-temptress-velvet-shirt", chance: 1 },
+				{ type: "item", code: "clothes-upperbody-rottenking", chance: 0.2 },
+				{ type: "item", code: "clothes-upperbody-forlorn-tunic", chance: 0.5 },
+				{ type: "item", code: "clothes-upperbody-forgotten", chance: 0.5 },
+
+				{ type: "item", code: "clothes-lowerbody-aristocrat-leggings", chance: 0.2 },
+				{ type: "item", code: "clothes-lowerbody-messenger-trousers", chance: 0.5 },
+				{ type: "item", code: "clothes-lowerbody-prince-breeches", chance: 0.2 },
+				{ type: "item", code: "clothes-lowerbody-noble-pants", chance: 1 },
+				{ type: "item", code: "clothes-lowerbody-fine-trousers", chance: 2 },
+				{ type: "item", code: "clothes-lowerbody-rottenking", chance: 0.2 },
+				{ type: "item", code: "clothes-lowerbody-forlorn-pants", chance: 0.5 },
+				{ type: "item", code: "clothes-lowerbody-forgotten", chance: 0.5 },
+
+				{ type: "item", code: "clothes-hand-prince-gloves", chance: 0.2 },
+				{ type: "item", code: "clothes-hand-noble-riding-gloves", chance: 0.3 },
+				{ type: "item", code: "clothes-hand-laced-handsome-gloves", chance: 1 },
+				{ type: "item", code: "clothes-hand-rottenking", chance: 0.2 },
+				{ type: "item", code: "clothes-hand-forlorn-bracer", chance: 0.5 },
+				{ type: "item", code: "clothes-hand-forgotten", chance: 0.5 },
+
+				{ type: "item", code: "clothes-foot-aristocrat-shoes", chance: 1 },
+				{ type: "item", code: "clothes-foot-messenger-shoes", chance: 0.2 },
+				{ type: "item", code: "clothes-foot-prince-boots", chance: 0.2 },
+				{ type: "item", code: "clothes-foot-tigh-high-boots", chance: 0.5 },
+				{ type: "item", code: "clothes-foot-noble-shoes", chance: 0.5 },
+				{ type: "item", code: "clothes-foot-temptress-velvet-shoes", chance: 0.5 },
+				{ type: "item", code: "clothes-foot-rottenking", chance: 0.2 },
+				{ type: "item", code: "clothes-foot-forlorn-shoes", chance: 0.5 },
+				{ type: "item", code: "clothes-foot-forgotten", chance: 0.5 },
+
+				{ type: "item", code: "clothes-shoulder-aristocrat-mantle", chance: 1 },
+				{ type: "item", code: "clothes-shoulder-royal-fur", chance: 1 },
+				{ type: "item", code: "clothes-shoulder-noble-fur-collar", chance: 0.3 },
+				{ type: "item", code: "clothes-shoulder-forlorn-sash", chance: 0.5 },
+
+				{ type: "item", code: "clothes-waist-aristocrat-belt", chance: 0.2 },
+				{ type: "item", code: "clothes-waist-messenger-belt", chance: 0.5 },
+				{ type: "item", code: "clothes-waist-prince-waistband", chance: 0.2 },
+				{ type: "item", code: "clothes-waist-fancy-royal-belt", chance: 0.3 },
+				{ type: "item", code: "clothes-waist-noble-sash", chance: 0.5 },
+				{ type: "item", code: "clothes-waist-rottenking", chance: 0.2 },
+				{ type: "item", code: "clothes-waist-forlorn-belt", chance: 0.5 },
+
+				{ type: "item", code: "clothes-upperbodyover-forgotten", chance: 0.5 },
+
+				{ type: "item", code: "clothes-head-messengers-hat", chance: 0.5 },
+				{ type: "item", code: "clothes-head-roll-hat", chance: 0.5 },
+				{ type: "item", code: "clothes-head-noble-fillet", chance: 1 },
+				{ type: "item", code: "clothes-head-rottenking", chance: 0.2 },
+				
+				{ type: "item", code: "clothes-arm-long-gem-studded-bracelet", chance: 0.1 },
+
+				{ type: "item", code: "hoovedwearables-blanket-prince", chance: 0.5 }
+			]
+		},
+
+
+		"*-accessory-lowstatus": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "item", code: "clothes-arm-copper-bracelet", chance: 2 },
+				{ type: "item", code: "clothes-arm-rosary", chance: 1 },
+				{ type: "item", code: "clothes-arm-leather-bracers", chance: 2 },
+				{ type: "item", code: "clothes-arm-prisoner-binds", chance: 0.5 },
+				{ type: "item", code: "clothes-arm-japamala", chance: 0.1 },
+				{ type: "item", code: "clothes-arm-rusty-wrist-manacles", chance: 0.1 },
+
+				{ type: "item", code: "clothes-emblem-blue-seal", chance: 0.5 },
+
+				{ type: "item", code: "clothes-neck-pearl-necklace", chance: 1 },
+				{ type: "item", code: "clothes-neck-copper-torc", chance: 2 },
+				{ type: "item", code: "clothes-neck-japamala", chance: 0.2 },
+				{ type: "item", code: "clothes-neck-pillory", chance: 0.1 },
+
+				{ type: "item", code: "clothes-foot-rusty-ankle-manacles", chance: 0.1 },
+
+				{ type: "item", code: "clothes-face-hummingbird", chance: 0.2 },
+				{ type: "item", code: "clothes-face-corroded", chance: 0.2 },
+				{ type: "item", code: "clothes-face-cat", chance: 0.2 },
+				{ type: "item", code: "clothes-face-sheepskull", chance: 0.2 },
+				{ type: "item", code: "clothes-face-crow", chance: 0.2 },
+				{ type: "item", code: "clothes-face-marketeer", chance: 0.3 },
+				{ type: "item", code: "clothes-face-rotwalker", chance: 0.05 },
+				{ type: "item", code: "clothes-face-miner", chance: 0.2 },
+				{ type: "item", code: "clothes-face-survivor", chance: 0.2 },
+
+				
+				{ type: "item", code: "hoovedwearables-face-face16", chance: 0.2 },
+			]
+		},
+
+		"*-accessory-mediumstatus": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "item", code: "clothes-arm-bronze-armlet", chance: 0.2 },
+				{ type: "item", code: "clothes-arm-bronze-bracelet", chance: 2 },
+				{ type: "item", code: "clothes-arm-merchant-bracelet", chance: 0.5 },
+				{ type: "item", code: "clothes-arm-squire-bracers", chance: 0.5 },
+
+				{ type: "item", code: "clothes-emblem-squire-emblem", chance: 0.5 },
+				{ type: "item", code: "clothes-emblem-messenger-pin", chance: 0.2 },
+				{ type: "item", code: "clothes-emblem-fibula", chance: 0.2 },
+				{ type: "item", code: "clothes-emblem-lily", chance: 0.2 },
+
+				{ type: "item", code: "clothes-neck-merchant-amulet", chance: 1 },
+				{ type: "item", code: "clothes-neck-bronze-gem-necklace", chance: 0.5 },
+				{ type: "item", code: "clothes-neck-simple-cross", chance: 0.5 },
+				{ type: "item", code: "clothes-neck-nazar1", chance: 0.1 },
+				{ type: "item", code: "clothes-neck-nazar2", chance: 0.1 },
+				{ type: "item", code: "clothes-neck-nazar3", chance: 0.1 },
+				
+				{ type: "item", code: "clothes-face-glasses-clockmaker", chance: 0.1 },
+				{ type: "item", code: "clothes-face-festivecat", chance: 0.2 },
+				{ type: "item", code: "clothes-face-surgeon", chance: 0.2 },
+
+				{ type: "item", code: "clothes-face-glasses", chance: 0.5 },
+
+				{ type: "item", code: "hoovedwearables-face-face6", chance: 0.5 },
+				{ type: "item", code: "hoovedwearables-face-face14", chance: 0.1 },
+				{ type: "item", code: "hoovedwearables-face-face15", chance: 0.5 },
+
+			]
+		},
+
+		"*-accessory-highstatus": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "item", code: "clothes-arm-silver-bracelet", chance: 1 },
+				{ type: "item", code: "clothes-arm-silver-chain", chance: 1 },
+				{ type: "item", code: "clothes-arm-silver-chain", chance: 1 },
+				{ type: "item", code: "clothes-arm-gem-studded-bracelet", chance: 1 },
+				{ type: "item", code: "clothes-arm-large-silver-bracelets", chance: 1 },
+
+				{ type: "item", code: "clothes-emblem-royal-pin", chance: 0.2 },
+				{ type: "item", code: "clothes-emblem-silver-pin", chance: 0.2 },
+				{ type: "item", code: "clothes-emblem-silver-star", chance: 0.5 },
+				{ type: "item", code: "clothes-emblem-brass-ruby-brooch", chance: 0.5 },
+				{ type: "item", code: "clothes-emblem-silver-brooch", chance: 0.5 },
+				{ type: "item", code: "clothes-emblem-falcon", chance: 0.1 },
+
+				{ type: "item", code: "clothes-waist-gold-waist-chain", chance: 0.2 },
+				{ type: "item", code: "clothes-waist-jambiya-belt", chance: 0.1 },
+
+				{ type: "item", code: "clothes-head-gem-encrusted-fur-hat", chance: 0.5 },
+				{ type: "item", code: "clothes-head-gold-coronet", chance: 0.5 },
+				{ type: "item", code: "clothes-head-silver-diadem", chance: 0.3 },
+				{ type: "item", code: "clothes-head-crown-byzantine", chance: 0.1 },
+
+				{ type: "item", code: "clothes-neck-golden-necklace", chance: 0.3 },
+				{ type: "item", code: "clothes-neck-fancy-royal-collar", chance: 0.1 },
+				{ type: "item", code: "clothes-neck-noble-necklace", chance: 0.5 },
+				{ type: "item", code: "clothes-neck-forlorn-talisman", chance: 0.5 },
+				{ type: "item", code: "clothes-neck-forgotten", chance: 0.5 },
+				{ type: "item", code: "clothes-neck-lunula", chance: 0.5 },
+				{ type: "item", code: "clothes-neck-teardrop-amulet", chance: 0.5 },
+				{ type: "item", code: "clothes-neck-fancy-cross", chance: 0.1 },
+				{ type: "item", code: "clothes-neck-gear-amulet-gold", chance: 0.1 },
+				{ type: "item", code: "clothes-neck-gear-amulet-temporal", chance: 0.1 },
+				{ type: "item", code: "clothes-neck-gorget", chance: 0.1 },
+				{ type: "item", code: "clothes-neck-gorget-vulture", chance: 0.1 },
+				{ type: "item", code: "clothes-neck-jade-amulet", chance: 0.1 },
+
+				{ type: "item", code: "clothes-face-forlorn-veil", chance: 0.5 },
+				{ type: "item", code: "clothes-face-rottenking", chance: 0.2 },
+				{ type: "item", code: "clothes-face-forgotten", chance: 0.5 },
+
+				{ type: "item", code: "hoovedwearables-face-face8", chance: 0.5 },
+				{ type: "item", code: "hoovedwearables-face-face9", chance: 0.5 },
+				{ type: "item", code: "hoovedwearables-face-face10", chance: 0.5 },
+				{ type: "item", code: "hoovedwearables-face-face11", chance: 0.5 },
+
+			]
+		},
+
+		"*-lore-villager": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "item", code: "lore-scroll", chance: 1, attributes: { category: "villager" } }
+			]
+		},
+		"*-lore-tobias": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "item", code: "lore-paper", chance: 1, attributes: { category: "tobias" } }
+			]
+		},
+		"*-lore-research": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "item", code: "lore-book-aged-orangebrown", chance: 1, attributes: { category: "research" } }
+			]
+		},
+		"*-lore-diaries": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "item", code: "lore-scroll", chance: 1, attributes: { category: "diaries" } }
+			]
+		},
+		"*-lore-jonas": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "item", code: "lore-book-aged-orangebrown", chance: 1, attributes: { category: "jonas" } }
+			]
+		},
+
+		"*-gear": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "item", code: "gear-rusty", quantity: { avg: 2, var: 1 }, chance: 100 },
+				{ type: "item", code: "gear-rusty", quantity: { avg: 3, var: 2 }, chance: 80 },
+				{ type: "item", code: "gear-rusty", quantity: { avg: 4, var: 3 }, chance: 60 },
+				{ type: "item", code: "gear-rusty", quantity: { avg: 5, var: 4 }, chance: 40 },
+				{ type: "item", code: "gear-rusty", quantity: { avg: 7, var: 5 }, chance: 20 },
+				{ type: "item", code: "gear-rusty", quantity: { avg: 10, var: 5 }, chance: 5 },
+				{ type: "block", code: "metal-parts", quantity: { avg: 10, var: 5 }, chance: 2 },
+				{ type: "item", code: "gear-temporal", quantity: { avg: 2, var: 1 }, chance: 1 }
+			]
+		},
+		"*-ore": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "item", code: "ore-quartz", quantity: { avg: 8, var: 2 }, chance: 80 },
+				{ type: "item", code: "ore-lignite", quantity: { avg: 5, var: 4 }, chance: 80 },
+				{ type: "item", code: "ore-poor-malachite-limestone", quantity: { avg: 6, var: 3 }, chance: 80 },
+				{ type: "item", code: "ore-medium-nativecopper-andesite", quantity: { avg: 6, var: 3 }, chance: 80 },
+				{ type: "item", code: "ore-poor-limonite-shale", quantity: { avg: 4, var: 3 }, chance: 60 },
+				{ type: "item", code: "ore-poor-hematite-granite", quantity: { avg: 4, var: 3 }, chance: 50 },
+				{ type: "item", code: "ore-poor-magnetite-andesite", quantity: { avg: 4, var: 3 }, chance: 50 },
+				{ type: "item", code: "ore-medium-galena-claystone", quantity: { avg: 6, var: 2 }, chance: 50 },
+				{ type: "item", code: "ore-medium-sphalerite-andesite", quantity: { avg: 6, var: 2 }, chance: 40 },
+				{ type: "item", code: "ore-medium-quartz_nativegold-andesite", quantity: { avg: 8, var: 6 }, chance: 1 },
+				{ type: "item", code: "ore-medium-quartz_nativesilver-andesite", quantity: { avg: 6, var: 4 }, chance: 1 }
+			]
+		},
+		"*-fuel": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "item", code: "drygrass", quantity: { avg: 12, var: 8 }, chance: 203 },
+				{ type: "item", code: "stick", quantity: { avg: 10, var: 8 }, chance: 183 },
+				{ type: "item", code: "thatch", quantity: { avg: 10, var: 6 }, chance: 183 },
+				{ type: "item", code: "firewood", quantity: { avg: 8, var: 4 }, chance: 164 },
+				{ type: "block", code: "peatbrick", quantity: { avg: 6, var: 2 }, chance: 159 },
+				{ type: "item", code: "ore-lignite", quantity: { avg: 6, var: 4 }, chance: 58 },
+				{ type: "item", code: "ore-bituminouscoal", quantity: { avg: 6, var: 3 }, chance: 29 },
+				{ type: "item", code: "charcoal", quantity: { avg: 6, var: 4 }, chance: 14 },
+				{ type: "item", code: "ore-anthracite", quantity: { avg: 5, var: 3 }, chance: 4 },
+				{ type: "item", code: "coke", quantity: { avg: 5, var: 3 }, chance: 3 }
+			]
+		},
+		"*-ingot": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "item", code: "ingot-lead", quantity: { avg: 1.5, var: 0.5 }, chance: 55 },
+				{ type: "item", code: "ingot-tin", quantity: { avg: 1.5, var: 0.5 }, chance: 46 },
+				{ type: "item", code: "ingot-zinc", quantity: { avg: 1.5, var: 0.5 }, chance: 38 },
+				{ type: "item", code: "ingot-copper", quantity: { avg: 2.5, var: 1.5 }, chance: 32 },
+				{ type: "item", code: "ingot-molybdochalkos", quantity: { avg: 2, var: 1 }, chance: 8 },
+				{ type: "item", code: "ingot-brass", quantity: { avg: 1.5, var: 0.5 }, chance: 7 },
+				{ type: "item", code: "ingot-bismuth", quantity: { avg: 2, var: 1 }, chance: 2 },
+				{ type: "item", code: "ingot-bismuthbronze", quantity: { avg: 1.5, var: 0.5 }, chance: 1 },
+				{ type: "item", code: "ingot-blackbronze", quantity: { avg: 1.5, var: 0.5 }, chance: 1 },
+				{ type: "item", code: "ingot-tinbronze", quantity: { avg: 1.5, var: 0.5 }, chance: 1 },
+				{ type: "item", code: "ingot-silver", quantity: { avg: 2, var: 1 }, chance: 0.5 },
+				{ type: "item", code: "ingot-gold", quantity: { avg: 1.5, var: 0.5 }, chance: 0.5 }
+			]
+		},
+		"*-seed": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "item", code: "seeds-spelt", quantity: { avg: 2.5, var: 1 }, chance: 40 },
+				{ type: "item", code: "seeds-rye", quantity: { avg: 2.5, var: 1 }, chance: 32 },
+				{ type: "item", code: "seeds-carrot", quantity: { avg: 2.5, var: 1 }, chance: 30 },
+				{ type: "item", code: "seeds-turnip", quantity: { avg: 2.5, var: 1 }, chance: 25 },
+				{ type: "item", code: "seeds-parsnip", quantity: { avg: 2.5, var: 1 }, chance: 10 },
+				{ type: "item", code: "seeds-onion", quantity: { avg: 2.5, var: 1 }, chance: 6 },
+				{ type: "item", code: "seeds-flax", quantity: { avg: 2.5, var: 1 }, chance: 4 },
+				{ type: "item", code: "seeds-rice", quantity: { avg: 2.5, var: 1 }, chance: 1 },
+				{ type: "item", code: "seeds-soybean", quantity: { avg: 2.5, var: 1 }, chance: 1 },
+				{ type: "item", code: "seeds-pumpkin", quantity: { avg: 2.5, var: 1 }, chance: 1 },
+				{ type: "item", code: "seeds-cabbage", quantity: { avg: 2.5, var: 1 }, chance: 1 }
+			]
+		},
+		"*-coppertool": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "item", code: "stick", quantity: { avg: 12, var: 6 }, chance: 45 },
+				{ type: "item", code: "shovel-copper", chance: 40 },
+				{ type: "item", code: "axe-felling-copper", chance: 25 },
+				{ type: "item", code: "hoe-copper", chance: 15 },
+				{ type: "item", code: "hammer-copper", chance: 12 },
+				{ type: "item", code: "scythe-copper", chance: 5 },
+				{ type: "item", code: "prospectingpick-copper", chance: 4 },
+				{ type: "item", code: "shears-copper", chance: 3 },
+				{ type: "item", code: "pickaxe-copper", chance: 1 },
+				{ type: "item", code: "saw-copper", chance: 0.5 }
+			]
+		},
+		"*-copperweapon": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "item", code: "stick", quantity: { avg: 12, var: 6 }, chance: 30 },
+				{ type: "item", code: "spear-generic-copper", chance: 25 },
+				{ type: "item", code: "arrow-copper", quantity: { avg: 8, var: 6 }, chance: 8 },
+				{ type: "item", code: "axe-felling-copper", chance: 5 },
+				{ type: "item", code: "bow-simple", chance: 3 },
+				{ type: "item", code: "blade-falx-copper", chance: 2 },
+			]
+		},
+		"*-ruinedweapon": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "item", code: "stick", quantity: { avg: 12, var: 6 }, chance: 10 },
+				{ type: "item", code: "axe-bearded-ruined", chance: 1 },
+				{ type: "item", code: "axe-battle-ruined", chance: 1 },
+				{ type: "item", code: "axe-bardiche-ruined", chance: 1 },
+				{ type: "item", code: "axe-double-ruined", chance: 1 },
+				{ type: "item", code: "blade-gladius-ruined", chance: 1 },
+				{ type: "item", code: "blade-arming-ruined", chance: 1 },
+				{ type: "item", code: "blade-claymore-ruined", chance: 1 },
+				{ type: "item", code: "blade-sabre-ruined", chance: 1 },
+				{ type: "item", code: "club-flanged-ruined", chance: 1 },
+				{ type: "item", code: "club-morningstar-ruined", chance: 1 },
+				{ type: "item", code: "club-spiked-ruined", chance: 1 },
+				{ type: "item", code: "club-warhammer-ruined", chance: 1 },
+				{ type: "item", code: "knife-dagger-ruined", chance: 1 },
+				{ type: "item", code: "knife-stiletto-ruined", chance: 1 },
+				{ type: "item", code: "knife-khanjar-ruined", chance: 1 },
+				{ type: "item", code: "knife-baselard-ruined", chance: 1 },
+				{ type: "item", code: "spear-boar-ruined", chance: 1 },
+				{ type: "item", code: "spear-voulge-ruined", chance: 1 },
+				{ type: "item", code: "spear-fork-ruined", chance: 1 },
+				{ type: "item", code: "spear-ranseur-ruined", chance: 1 }
+			]
+		},
+		"*-resource": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "item", code: "stick", quantity: { avg: 12, var: 6 }, chance: 18.4 },
+				{ type: "block", code: "torch-basic-extinct-up", quantity: { avg: 8, var: 6 }, chance: 14.1 },
+				{ type: "item", code: "lime", quantity: { avg: 16, var: 8 }, chance: 12.3 },
+				{ type: "item", code: "flint", quantity: { avg: 6, var: 4 }, chance: 10.5 },
+				{ type: "item", code: "rope", quantity: { avg: 3, var: 2 }, chance: 10.4 },
+				{ type: "item", code: "saltpeter", quantity: { avg: 13, var: 7 }, chance: 9.2 },
+				{ type: "block", code: "metal-scraps", quantity: { avg: 13, var: 7 }, chance: 8.0 },
+				{ type: "item", code: "flaxtwine", quantity: { avg: 4, var: 3 }, chance: 5.5 },
+				{ type: "item", code: "bandage-clean", quantity: { avg: 3, var: 2 }, chance: 4.3 },
+				{ type: "item", code: "beeswax", quantity: { avg: 3, var: 1 }, chance: 3.7 },
+				{ type: "item", code: "beenade-closed", quantity: { avg: 1.5, var: 0.5 }, chance: 1.8 },
+				{ type: "item", code: "candle", quantity: { avg: 3, var: 1 }, chance: 1 },
+				{ type: "item", code: "leather-normal-plain", quantity: { avg: 2, var: 1 }, chance: 0.8 }
+			]
+		},
+		"*-tuningcylinder": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "item", code: "tuningcylinder-1", quantity: { avg: 1, var: 0 }, chance: 1 },
+				{ type: "item", code: "tuningcylinder-2", quantity: { avg: 1, var: 0 }, chance: 1 },
+				{ type: "item", code: "tuningcylinder-3", quantity: { avg: 1, var: 0 }, chance: 1 },
+				{ type: "item", code: "tuningcylinder-4", quantity: { avg: 1, var: 0 }, chance: 1 },
+				{ type: "item", code: "tuningcylinder-5", quantity: { avg: 1, var: 0 }, chance: 1 },
+				{ type: "item", code: "tuningcylinder-6", quantity: { avg: 1, var: 0 }, chance: 1 },
+				{ type: "item", code: "tuningcylinder-7", quantity: { avg: 1, var: 0 }, chance: 1 },
+				{ type: "item", code: "tuningcylinder-8", quantity: { avg: 1, var: 0 }, chance: 1 },
+				{ type: "item", code: "tuningcylinder-9", quantity: { avg: 1, var: 0 }, chance: 1 },
+				{ type: "item", code: "tuningcylinder-10", quantity: { avg: 1, var: 0 }, chance: 1 }
+			]
+		},
+		"*-lantern": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "item", code: "ore-quartz", quantity: { avg: 15, var: 5 }, chance: 70 },
+				{ type: "block", code: "lantern-up", attributes: { material: "brass", lining: "plain" }, quantity: { avg: 1, var: 0 }, chance: 35 },
+				{ type: "block", code: "lantern-up", attributes: { material: "copper", lining: "plain" }, quantity: { avg: 1, var: 0 }, chance: 20 },
+				{ type: "block", code: "lantern-up", attributes: { material: "molybdochalkos", lining: "plain" }, quantity: { avg: 1, var: 0 }, chance: 15 },
+				{ type: "block", code: "lantern-up", attributes: { material: "bismuthbronze", lining: "plain" }, quantity: { avg: 1, var: 0 }, chance: 5 },
+				{ type: "block", code: "lantern-up", attributes: { material: "tinbronze", lining: "plain" }, quantity: { avg: 1, var: 0 }, chance: 4 },
+				{ type: "block", code: "lantern-up", attributes: { material: "bismuth", lining: "plain" }, quantity: { avg: 1, var: 0 }, chance: 2 },
+				{ type: "block", code: "lantern-up", attributes: { material: "blackbronze", lining: "plain" }, quantity: { avg: 1, var: 0 }, chance: 1 },
+				{ type: "block", code: "lantern-up", attributes: { material: "iron", lining: "plain" }, quantity: { avg: 1, var: 0 }, chance: 1 },
+				{ type: "block", code: "lantern-up", attributes: { material: "silver", lining: "plain" }, quantity: { avg: 1, var: 0 }, chance: 0.5 },
+				{ type: "block", code: "lantern-up", attributes: { material: "gold", lining: "plain" }, quantity: { avg: 1, var: 0 }, chance: 0.5 },
+				{ type: "block", code: "chandelier-candle0", quantity: { avg: 1, var: 0 }, chance: 0.1 }
+			]
+		},
+		"*-painting": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "item", code: "ore-quartz", quantity: { avg: 15, var: 5 }, chance: 100 },
+				{ type: "block", code: "painting-elk-north", quantity: { avg: 1, var: 0 }, chance: 60 },
+				{ type: "block", code: "painting-howl-north", quantity: { avg: 1, var: 0 }, chance: 45 },
+				{ type: "block", code: "painting-forestdawn-north", quantity: { avg: 1, var: 0 }, chance: 30 },
+				{ type: "block", code: "painting-prey-north", quantity: { avg: 1, var: 0 }, chance: 20 },
+				{ type: "block", code: "painting-underwater-north", quantity: { avg: 1, var: 0 }, chance: 15 },
+				{ type: "block", code: "painting-sleepingwolf-north", quantity: { avg: 1, var: 0 }, chance: 8 },
+				{ type: "block", code: "painting-fishandtherain-north", quantity: { avg: 1, var: 0 }, chance: 5 },
+				{ type: "block", code: "painting-oldvillage-north", quantity: { avg: 1, var: 0 }, chance: 12 },
+				{ type: "block", code: "painting-lastday-north", quantity: { avg: 1, var: 0 }, chance: 10 }
+			]
+		},
+		"*-jonasparts": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "item", code: "jonasparts-connector01", quantity: { avg: 1, var: 0 }, chance: 10 },
+				{ type: "item", code: "jonasparts-cylinder01", quantity: { avg: 1, var: 0 }, chance: 10 },
+				{ type: "item", code: "jonasparts-cylinder02", quantity: { avg: 1, var: 0 }, chance: 10 },
+				{ type: "item", code: "jonasparts-tank01", quantity: { avg: 1, var: 0 }, chance: 10 },
+				{ type: "item", code: "jonasparts-tank02", quantity: { avg: 1, var: 0 }, chance: 10 },
+				{ type: "item", code: "jonasparts-valve01", quantity: { avg: 1, var: 0 }, chance: 10 }
+			]
+		},
+		"*-jonasframes": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "item", code: "jonasframes-gearbox01", quantity: { avg: 1, var: 0 }, chance: 10 },
+				{ type: "item", code: "jonasframes-gearbox02", quantity: { avg: 1, var: 0 }, chance: 10 },
+				{ type: "item", code: "jonasframes-oscillator01", quantity: { avg: 1, var: 0 }, chance: 10 },
+				{ type: "item", code: "jonasframes-spring01", quantity: { avg: 1, var: 0 }, chance: 10 },
+				{ type: "item", code: "jonasframes-joint01", quantity: { avg: 1, var: 0 }, chance: 10 },
+				{ type: "item", code: "jonasframes-gears01", quantity: { avg: 1, var: 0 }, chance: 10 },
+				{ type: "item", code: "jonasframes-gears02", quantity: { avg: 1, var: 0 }, chance: 10 }
+			]
+		},
+		"*-alljonas": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "item", code: "jonasparts-connector01", quantity: { avg: 1, var: 0 }, chance: 10 },
+				{ type: "item", code: "jonasparts-cylinder01", quantity: { avg: 1, var: 0 }, chance: 10 },
+				{ type: "item", code: "jonasparts-cylinder02", quantity: { avg: 1, var: 0 }, chance: 10 },
+				{ type: "item", code: "jonasparts-tank01", quantity: { avg: 1, var: 0 }, chance: 10 },
+				{ type: "item", code: "jonasparts-tank02", quantity: { avg: 1, var: 0 }, chance: 10 },
+				{ type: "item", code: "jonasparts-valve01", quantity: { avg: 1, var: 0 }, chance: 10 },
+				{ type: "item", code: "jonasframes-gearbox01", quantity: { avg: 1, var: 0 }, chance: 10 },
+				{ type: "item", code: "jonasframes-gearbox02", quantity: { avg: 1, var: 0 }, chance: 10 },
+				{ type: "item", code: "jonasframes-oscillator01", quantity: { avg: 1, var: 0 }, chance: 10 },
+				{ type: "item", code: "jonasframes-spring01", quantity: { avg: 1, var: 0 }, chance: 10 },
+				{ type: "item", code: "jonasframes-joint01", quantity: { avg: 1, var: 0 }, chance: 10 },
+				{ type: "item", code: "jonasframes-gears01", quantity: { avg: 1, var: 0 }, chance: 10 },
+				{ type: "item", code: "jonasframes-gears02", quantity: { avg: 1, var: 0 }, chance: 10 }
+			]
+		},
+		"*-materials-building": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "item", code: "stone-chalk", quantity: { avg: 16, var: 8 }, chance: 16.5 },
+				{ type: "item", code: "stone-limestone", quantity: { avg: 16, var: 8 }, chance: 16.5 },
+				{ type: "block", code: "planks-aged-ud", quantity: { avg: 10, var: 4 }, chance: 14.8 },
+				{ type: "block", code: "log-placed-aged-ud", quantity: { avg: 7, var: 3 }, chance: 13.6 },
+				{ type: "item", code: "clay-blue", quantity: { avg: 12, var: 6 }, chance: 7.8 },
+				{ type: "item", code: "clay-fire", quantity: { avg: 12, var: 6 }, chance: 6.7 },
+				{ type: "block", code: "stonebricks-bauxite", quantity: { avg: 12, var: 4 }, chance: 0.5 },
+				{ type: "block", code: "stonebricks-basalt", quantity: { avg: 12, var: 4 }, chance: 0.5 },
+				{ type: "block", code: "stonebricks-andesite", quantity: { avg: 12, var: 4 }, chance: 0.5 },
+				{ type: "block", code: "stonebricks-chalk", quantity: { avg: 12, var: 4 }, chance: 0.5 },
+				{ type: "block", code: "stonebricks-claystone", quantity: { avg: 12, var: 4 }, chance: 0.5 },
+				{ type: "block", code: "stonebricks-granite", quantity: { avg: 12, var: 4 }, chance: 0.5 },
+				{ type: "block", code: "stonebricks-sandstone", quantity: { avg: 12, var: 4 }, chance: 0.5 },
+				{ type: "block", code: "stonebricks-shale", quantity: { avg: 12, var: 4 }, chance: 0.5 },
+				{ type: "block", code: "stonebricks-chert", quantity: { avg: 12, var: 4 }, chance: 0.5 },
+				{ type: "block", code: "stonebricks-conglomerate", quantity: { avg: 12, var: 4 }, chance: 0.5 },
+				{ type: "block", code: "stonebricks-limestone", quantity: { avg: 12, var: 4 }, chance: 0.5 },
+				{ type: "block", code: "stonebricks-peridotite", quantity: { avg: 12, var: 4 }, chance: 0.5 },
+				{ type: "block", code: "stonebricks-phyllite", quantity: { avg: 12, var: 4 }, chance: 0.5 },
+				{ type: "block", code: "stonebricks-slate", quantity: { avg: 12, var: 4 }, chance: 0.5 },
+				{ type: "item", code: "metalnailsandstrips-copper", quantity: { avg: 2, var: 1 }, chance: 4.7 },
+				{ type: "block", code: "metal-parts", quantity: { avg: 3, var: 1 }, chance: 3.5 },
+				{ type: "item", code: "quicklime", quantity: { avg: 8, var: 4 }, chance: 2.9 },
+				{ type: "block", code: "claybricks-good-fire", quantity: { avg: 12, var: 4 }, chance: 1.6 },
+				{ type: "item", code: "padlock-tinbronze", quantity: { avg: 1.5, var: 0.5 }, chance: 0.2 },
+				{ type: "item", code: "padlock-bismuthbronze", quantity: { avg: 1.5, var: 0.5 }, chance: 0.2 },
+				{ type: "item", code: "padlock-blackbronze", quantity: { avg: 1.5, var: 0.5 }, chance: 0.2 }
+			]
+		},
+		"*-materials-mining": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "block", code: "torch-basic-extinct-up", quantity: { avg: 7, var: 5 }, chance: 18.8 },
+				{ type: "item", code: "ore-quartz", quantity: { avg: 11, var: 7 }, chance: 17.5 },
+				{ type: "item", code: "stone-chalk", quantity: { avg: 16, var: 8 }, chance: 11 },
+				{ type: "item", code: "stone-limestone", quantity: { avg: 16, var: 8 }, chance: 11 },
+				{ type: "block", code: "metal-scraps", quantity: { avg: 13, var: 7 }, chance: 10 },
+				{ type: "item", code: "blastingpowder", quantity: { avg: 6, var: 5 }, chance: 8.8 },
+				{ type: "item", code: "stone-halite", quantity: { avg: 16, var: 8 }, chance: 5.3 },
+				{ type: "item", code: "ore-olivine", quantity: { avg: 13, var: 7 }, chance: 4 },
+				{ type: "item", code: "ore-borax", quantity: { avg: 8, var: 4 }, chance: 4 },
+				{ type: "item", code: "ore-cinnabar", quantity: { avg: 5, var: 3 }, chance: 2.8 },
+				{ type: "item", code: "ore-lapislazuli", quantity: { avg: 5, var: 3 }, chance: 2.8 },
+				{ type: "item", code: "clearquartz", quantity: { avg: 4, var: 2 }, chance: 2.8 },
+				{ type: "item", code: "ore-sulfur", quantity: { avg: 5, var: 3 }, chance: 0.9 },
+				{ type: "item", code: "ore-sylvite", quantity: { avg: 3, var: 1 }, chance: 0.3 }
+			]
+		},
+		"*-kitchen": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "item", code: "rot", quantity: { avg: 11, var: 7 }, chance: 26.1 },
+				{ type: "item", code: "bone", quantity: { avg: 9, var: 7 }, chance: 21.7 },
+				{ type: "block", code: "torch-basic-extinct-up", quantity: { avg: 6, var: 4 }, chance: 15.7 },
+				{ type: "item", code: "flaxfibers", quantity: { avg: 5, var: 3 }, chance: 12.2 },
+				{ type: "block", code: "metal-scraps", quantity: { avg: 13, var: 7 }, chance: 10.4 },
+				{ type: "block", code: "bowl-blue-fired", quantity: { avg: 2, var: 1 }, chance: 7.0 },
+				{ type: "block", code: "crock-blue-fired", quantity: { avg: 1.5, var: 0.5 }, chance: 3.5 },
+				{ type: "block", code: "jug-gray-fired", quantity: { avg: 1.5, var: 0.5 }, chance: 2.6 },
+				{ type: "item", code: "redmeat-vintage", quantity: { avg: 2, var: 1 }, chance: 0.8 }
+			]
+		},
+		"*-armor": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "item", code: "armor-head-antique-forlorn-broken", chance: 1 },
+				{ type: "item", code: "armor-body-antique-forlorn-broken", chance: 1 },
+				{ type: "item", code: "armor-legs-antique-forlorn-broken", chance: 1 },
+				{ type: "item", code: "blade-forlorn-iron", chance: 0.5 },
+				{ type: "item", code: "armor-head-antique-blackguard-broken", chance: 2 },
+				{ type: "item", code: "armor-body-antique-blackguard-broken", chance: 2 },
+				{ type: "item", code: "armor-legs-antique-blackguard-broken", chance: 2 }
+			]
+		},
+		"*-lazaret": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "item", code: "clothes-arm-rosary", chance: 3 },
+				{ type: "item", code: "clothes-arm-japamala", chance: 3 },
+				{ type: "item", code: "clothes-arm-long-gem-studded-bracelet", chance: 1 },
+				{ type: "item", code: "clothes-arm-rusty-wrist-manacles", chance: 3 },
+				{ type: "item", code: "clothes-emblem-falcon", chance: 1 },
+				{ type: "item", code: "clothes-face-glasses-clockmaker", chance: 1 },
+				{ type: "item", code: "clothes-foot-rusty-ankle-manacles", chance: 3 },
+				{ type: "item", code: "clothes-head-crown-byzantine", chance: 0.5 },
+				{ type: "item", code: "clothes-neck-fancy-cross", chance: 1 },
+				{ type: "item", code: "clothes-neck-gear-amulet-gold", chance: 1 },
+				{ type: "item", code: "clothes-neck-gear-amulet-temporal", chance: 0.5 },
+				{ type: "item", code: "clothes-neck-gorget", chance: 1 },
+				{ type: "item", code: "clothes-neck-gorget-vulture", chance: 1 },
+				{ type: "item", code: "clothes-neck-jade-amulet", chance: 1 },
+				{ type: "item", code: "clothes-neck-japamala", chance: 3 },
+				{ type: "item", code: "clothes-neck-nazar1", chance: 2 },
+				{ type: "item", code: "clothes-neck-nazar2", chance: 2 },
+				{ type: "item", code: "clothes-neck-nazar3", chance: 2 },
+				{ type: "item", code: "clothes-neck-pillory", chance: 3 },
+				{ type: "item", code: "clothes-waist-jambiya-belt", chance: 1 },
+				{ type: "item", code: "hoovedwearables-face-face14", chance: 1 },
+				{ type: "item", code: "hoovedwearables-face-face16", chance: 1 },
+			]
+		},
+		"*-butterfly": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "item", code: "clothes-butterflypin-acadianhairstreak", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-alchemical", chance: 0.5 },
+				{ type: "item", code: "clothes-butterflypin-bandedpeacock", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-bluekallima", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-bluemorpho", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-bluepansy", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-bogcopper", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-bronzecopper", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-cabbagewhite", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-clipper", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-coloradohairstreak", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-comma", chance: 2 },
+				{ type: "item", code: "clothes-butterflypin-commonbrimstone", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-darkbluepansy", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-desertorangetip", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-easterntigerswallowtail", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-godartsnumberwing", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-goldbandedforester", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-greatpurplehairstreak", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-greencharaxes", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-largewhite", chance: 3 },
+				{ type: "item", code: "clothes-butterflypin-littlemetalmark", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-littlewoodsatyr", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-malachite", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-marbledwhite", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-milbertstortoiseshell", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-mourningcloak", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-oakblue", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-paintedbeauty", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-pallidnawab", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-peacock", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-pipevineswallowtail", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-purpleemperor", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-redadmiral", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-redglider", chance: 0.2 },
+				{ type: "item", code: "clothes-butterflypin-redpostman", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-resplendantforester", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-ringlet", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-rot", chance: 0.3 },
+				{ type: "item", code: "clothes-butterflypin-rust", chance: 0.3 },
+				{ type: "item", code: "clothes-butterflypin-rustytippedpage", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-silveryblue", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-smallheath", chance: 2 },
+				{ type: "item", code: "clothes-butterflypin-speckledwood", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-temporal", chance: 0.2 },
+				{ type: "item", code: "clothes-butterflypin-whiteadmiral", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-whitepeacock", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-zebraheliconan", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-zebraswallowtail", chance: 1 },
+				{ type: "item", code: "clothes-butterflypin-zeredaskipper", chance: 1 },
+			]
+		}
+	},
+	maxstacksize: 1,
+	texture: { base: "item/meta/randomizer/{type}" },
+	creativeinventory: { "meta": ["*"] },
+	materialDensity: 600
+}

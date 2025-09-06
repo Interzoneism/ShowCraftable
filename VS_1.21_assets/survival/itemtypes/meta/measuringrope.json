@@ -1,0 +1,40 @@
+{
+	code: "measuringrope",
+	class: "ItemMeasuringRope",
+	shape: { base: "item/resource/rope" },
+	textures: {
+		"rope": { base: "item/resource/measuringrope" }
+	},
+	attributes: {
+		handbook: {
+			exclude: true,
+		}
+	},
+	creativeinventory: { "general": ["*"], "meta": ["*"] },
+	maxstacksize: 16,
+	materialDensity: 510,
+	guiTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: -32, y: 36, z: -180 },
+		origin: { x: 0.53, y: 0.125, z: 0.5 },
+		scale: 2.1
+	},
+	fpHandTransform: {
+		translation: { x: 0, y: 0.1, z: 0 },
+		rotation: { x: 19, y: 180, z: -30 },
+		origin: { x: 0.5, y: 0.125, z: 0.5 },
+		scale: 2.11
+	},
+	groundTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: 0, y: 0, z: 0 },
+		origin: { x: 0.5, y: 0, z: 0.5 },
+		scale: 2.8
+	},
+	tpHandTransform: {
+		translation: { x: -0.7, y: -0.28, z: -0.8 },
+		rotation: { x: -78, y: 7, z: 8 },
+		origin: { x: 0.5, y: 0.125, z: 0.5 },
+		scale: 0.7
+	}
+}

@@ -1,0 +1,17 @@
+{
+	ingredientPattern: "AFB,IGE,CHD",
+	ingredients: {
+		"A": { type: "item", code: "metalnailsandstrips-copper", quantity: 4 },
+		"B": { type: "item", code: "metalnailsandstrips-copper", quantity: 4 },
+		"C": { type: "item", code: "jonasparts-connector01", },
+		"D": { type: "item", code: "jonasparts-tank02", },
+		"E": { type: "item", code: "ingot-electrum", },
+		"F": { type: "item", code: "clearquartz", quantity: 4 },
+		"G": { type: "item", code: "jonasframes-oscillator01", },
+		"H": { type: "item", code: "metalplate-iron", },
+		"I": { type: "block", code: "metal-parts", quantity: 2 },
+	},
+	width: 3,
+	height: 3,
+	output: { type: "block", code: "riftward", quantity: 1  }
+}

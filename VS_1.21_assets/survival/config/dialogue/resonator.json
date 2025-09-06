@@ -1,0 +1,257 @@
+{
+	components: [
+		{
+			code: "intro",
+			owner: "resonator",
+			type: "talk",
+			text: [
+				{ value: "dialogue-resonator-humsquietly" }
+			],
+		},
+		{
+			code: "main",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-resonator-searchforrecent", jumpTo: "startup" },
+				{ value: "dialogue-resonator-searchforold", condition: { variable: "player.heardalchemist", isValue: "true" }, jumpTo: "engineer" },
+				{ value: "dialogue-resonator-listentoalchemist", condition: { variable: "player.heardalchemist", isValue: "true" }, jumpTo: "alchemist2" },
+			],
+		},
+		{
+			code: "startup",
+			owner: "resonator",
+			type: "talk",
+			text: [
+				{ value: "dialogue-resonator-softwhirring" }
+			],
+		},
+		{
+			code: "continue",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-continue", jumpTo: "first" }
+			],
+		},
+		{
+			code: "first",
+			owner: "resonator",
+			type: "talk",
+			text: [
+				{ value: "dialogue-resonator-voicewhispers" }
+			],
+		},
+		{
+			code: "search1",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-resonator-searchfordifferent", jumpTo: "second" }
+			],
+		},
+		{
+			code: "second",
+			owner: "resonator",
+			type: "talk",
+			text: [
+				{ value: "dialogue-resonator-silence" },
+			],
+		},
+		{
+			code: "search2",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-resonator-keepsearching", jumpTo: "third" }
+			],
+		},
+		{
+			code: "third",
+			owner: "resonator",
+			type: "talk",
+			text: [
+				{ value: "dialogue-resonator-oldmansvoice", setVariables: { "player.heardalchemist": "true" } },
+			],
+		},
+		{
+			code: "search3",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-resonator-searchformore", jumpTo: "alchemist2" }
+			],
+		},
+		{
+			code: "alchemist2",
+			owner: "resonator",
+			type: "talk",
+			setVariables: { "player.heardalchemist": "true" },
+			text: [
+				{ value: "dialogue-resonator-arentyoulistening" }
+			],
+		},
+		{
+			code: "continue2",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-resonator-searchforrelated", jumpTo: "alchemist3" }
+			],
+		},
+		{
+			code: "alchemist3",
+			owner: "resonator",
+			type: "talk",
+			text: [
+				{ value: "dialogue-resonator-theyhardlyknowanything" }
+			],
+		},
+		{
+			code: "continue3",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-resonator-continuesearching", jumpTo: "alchemist4" }
+			],
+		},
+		{
+			code: "alchemist4",
+			owner: "resonator",
+			type: "talk",
+			text: [
+				{ value: "dialogue-resonator-forgiveme" }
+			],
+		},
+		{
+			code: "continue4",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-continue", jumpTo: "alchemist5" }
+			]
+		},
+		{
+			code: "alchemist5",
+			owner: "resonator",
+			type: "talk",
+			text: [
+				{ value: "dialogue-resonator-worldhasshifted" }
+			],
+		},
+		{
+			code: "continue11",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-continue", jumpTo: "alchemist6" }
+			]
+		},
+		{
+			code: "alchemist6",
+			owner: "resonator",
+			type: "talk",
+			setVariables: { "player.heardalchemistlocations": "true" },
+			text: [
+				{ value: "dialogue-resonator-ifyoudonotknow" }
+			],
+			jumpTo: "main"
+		},
+		{
+			code: "engineer",
+			owner: "resonator",
+			type: "talk",
+			text: [
+				{ value: "dialogue-resonator-confidentvoice" }
+			],
+		},
+		{
+			code: "continue5",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-resonator-continuelistening", jumpTo: "engineer2" }
+			]
+		},
+		{
+			code: "engineer2",
+			owner: "resonator",
+			type: "talk",
+			text: [
+				{ value: "dialogue-resonator-understandable" }
+			],
+		},
+		{
+			code: "continue6",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-resonator-continuelistening", jumpTo: "engineer3" }
+			]
+		},
+		{
+			code: "engineer3",
+			owner: "resonator",
+			type: "talk",
+			text: [
+				{ value: "dialogue-resonator-letmeclarify" }
+			],
+		},
+		{
+			code: "continue7",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-resonator-continuelistening", jumpTo: "engineer4" }
+			]
+		},
+		{
+			code: "engineer4",
+			owner: "resonator",
+			type: "talk",
+			text: [
+				{ value: "dialogue-resonator-anincrediblefeat" }
+			],
+		},
+		{
+			code: "continue8",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-resonator-continuelistening", jumpTo: "engineer5" }
+			]
+		},
+		{
+			code: "engineer5",
+			owner: "resonator",
+			type: "talk",
+			text: [
+				{ value: "dialogue-resonator-secondvoice" }
+			],
+		},
+		{
+			code: "continue9",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-resonator-continuelistening", jumpTo: "engineer6" }
+			]
+		},
+		{
+			code: "engineer6",
+			owner: "resonator",
+			type: "talk",
+			text: [
+				{ value: "dialogue-resonator-firstvoice" }
+			],
+		},
+		{
+			code: "continue10",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-resonator-nothing", jumpTo: "main" }
+			]
+		},
+	]
+}

@@ -1,0 +1,61 @@
+{
+	code: "trapcrate",
+	class: "BlockBasketTrap",
+	entityclass: "BasketTrap",
+	behaviors: [
+		{name: "Lockable" },
+		{name: "CreatureContainer" }, 
+	],
+	entityBehaviors: [{ name: "Animatable" }],
+	attributes: {
+		traptype: "large",
+		foodTagMinWeight: 0.6,
+		baitTransform: {
+			translation: { y: 0 },
+			scale: 1
+		},	
+		destroyedShape: { base: "block/wood/trap/trapcrate-broke" },
+		trappedShape: { base: "block/wood/trap/trapcrate-trapped" },
+		creatureContainer: { type: "block", code: "trapcrate-wood" },
+		excludeFoodTags: ["grain", "nibbleCrop", "sweetBerryBush"]
+	},
+	variantgroups: [
+		{ code: "type", states: ["wood"] }
+	],
+	creativeinventory: { "general": ["*"], "decorative": ["*"] },
+	heldTpIdleAnimation: "holdbothhandslarge", heldRightReadyAnimation: "heldblockready", heldTpUseAnimation: "twohandplaceblock",
+	shape: { "base": "block/wood/trap/trapcrate" },
+	shapeinventory: { base: "block/wood/trap/trapcrate-trapped" },
+	replaceable: 900,
+	resistance: 2,
+	lightAbsorption: 0,
+	sideAo: { all: false },
+	sidesolid: {
+		all: false
+	},
+	sideopaque: {
+		all: false
+	},
+	collisionbox: { x1: 0, y1: 0, z1: 0, x2: 1, y2: 1, z2: 1 },
+	selectionbox: { x1: 0, y1: 0, z1: 0, x2: 1, y2: 1, z2: 1 },
+	sounds: {
+		"place": "block/planks",
+		"walk": "walk/wood"
+	},
+	materialDensity: 600,
+	tpHandTransform: {
+		translation: { x: -1.2, y: -0.6, z: -0.6 },
+		rotation: { x: 0, y: 90, z: -102 },
+		scale: 0.46
+	},
+	guiTransform: {
+		origin: { x: 0.5, y: 0.5, z: 0.5 },
+		scale: 1.1
+	},
+	groundTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: 0, y: -45, z: 0 },
+		origin: { x: 0.5, y: 0, z: 0.5 },
+		scale: 3.1
+	}
+}

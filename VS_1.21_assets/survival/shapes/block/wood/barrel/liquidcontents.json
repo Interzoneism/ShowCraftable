@@ -1,0 +1,67 @@
+{
+	"editor": {
+		"collapsedPaths": "Root/Origin lid/origin handle,Root/origin lower ring,Root/origin barrel/Origin lid,Root/Origin lid/Cube14",
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+		"raw-onion": "block/wood/barrel/raw-onion"
+	},
+	"elements": [
+		{
+			"name": "food",
+			"from": [ 3.25, 1.0, 1.75 ],
+			"to": [ 12.75, 2.0, 14.25 ],
+			"renderPass": 4,
+			"rotationOrigin": [ 1.2, 0.0, -0.3 ],
+			"faces": {
+				"up": { "texture": "#raw-onion", "uv": [ 1.5, 0.0, 11.0, 12.5 ] }
+			},
+			"children": [
+				{
+					"name": "food2",
+					"from": [ 9.5, 0.0, 0.5 ],
+					"to": [ 10.5, 1.0, 12.0 ],
+					"renderPass": 4,
+					"rotationOrigin": [ 7.45, -1.0, -1.55 ],
+					"faces": {
+						"up": { "texture": "#raw-onion", "uv": [ 11.0, 0.5, 12.0, 12.0 ] }
+					}
+				},
+				{
+					"name": "food3",
+					"from": [ 10.5, 0.0, 1.5 ],
+					"to": [ 11.0, 1.0, 11.0 ],
+					"renderPass": 4,
+					"rotationOrigin": [ 8.45, -1.0, -0.55 ],
+					"faces": {
+						"up": { "texture": "#raw-onion", "uv": [ 12.0, 1.5, 12.5, 11.0 ] }
+					}
+				},
+				{
+					"name": "food4",
+					"from": [ -1.0, 0.0, 0.5 ],
+					"to": [ 0.0, 1.0, 12.0 ],
+					"renderPass": 4,
+					"rotationOrigin": [ -3.05, -1.0, -1.55 ],
+					"faces": {
+						"up": { "texture": "#raw-onion", "uv": [ 0.5, 0.5, 1.5, 12.0 ] }
+					}
+				},
+				{
+					"name": "food5",
+					"from": [ -1.5, 0.0, 1.5 ],
+					"to": [ -1.0, 1.0, 11.0 ],
+					"renderPass": 4,
+					"rotationOrigin": [ -3.55, -1.0, -0.55 ],
+					"faces": {
+						"up": { "texture": "#raw-onion", "uv": [ 0.0, 1.5, 0.5, 11.0 ] }
+					}
+				}
+			]
+		}
+	]}

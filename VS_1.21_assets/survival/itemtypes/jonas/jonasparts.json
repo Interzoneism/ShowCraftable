@@ -1,0 +1,63 @@
+{
+	code: "jonasparts",
+	variantgroups: [
+		{ code: "type", states: ["connector01", "cylinder01", "cylinder02", "tank01", "tank02", "valve01", "pumphead"] },
+	],
+	shape: { base: "item/jonas/parts/{type}" },
+	behaviors: [{ 
+		name: "GroundStorable",
+		properties: {
+			layout: 'Quadrants',
+			placeRemoveSound: 'sounds/block/ingot',
+			collisionBox: { x1: 0, y1: 0, z1: 0, x2: 1, y2: 0.25, z2: 1 }
+		}
+	}],		
+	creativeinventory: { "general": ["*"], "items": ["*"] },
+	maxstacksize: 32,
+	attributes: {
+		displaycaseable: true, 
+		shelvable: true,
+		onDisplayTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: 0, y: 0, z: 0 },
+		origin: { x: 0.5, y: 0.22, z: 0.54 },
+		scale: 1
+		},
+		handbook: {
+			groupBy: ["jonasparts-*"]
+		}
+	},
+	materialDensity: 900,
+	heldTpHitAnimation: "breaktool",
+	fpHandTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: 1, y: 90, z: 0 },
+		scale: 2
+	},
+	guiTransformByType: {
+		"*": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 155, y: -154, z: 23 },
+			origin: { x: 0.5, y: 0.09, z: 0.54 },
+			scale: 2.7
+		},
+		"*-pumphead": {
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 155, y: -154, z: 23 },
+			origin: { x: 0.5, y: 0.39, z: 0.54 },
+			scale: 2.5
+		}
+	},
+	tpHandTransform: {
+		translation: { x: -0.55, y: -0.1, z: -0.47 },
+		rotation: { x: 25, y: -174, z: 95 },
+		origin: { x: 0.5, y: 0.12, z: 0.5 },
+		scale: 1
+	},
+	groundTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: 90, y: 0, z: 0 },
+		origin: { x: 0.5, y: 0.22, z: 0.54 },
+		scale: 5
+	}
+}

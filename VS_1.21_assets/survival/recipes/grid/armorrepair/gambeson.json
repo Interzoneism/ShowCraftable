@@ -1,0 +1,47 @@
+[
+	{
+		ingredientPattern: "G,L",
+		recipeGroup: 2,
+		ingredients: {
+			"G": { type: "item", code: "armor-head-sewn-linen" },
+			"L": { type: "block", code: "linen-*" }
+		},
+		width: 1,
+		height: 2,
+		shapeless: true,
+		averageDurability: false,
+		copyAttributesFrom: 'G',
+		name: "gambeson helmet repair",
+		output: { type: "item", code: "armor-head-sewn-linen"  }
+	},
+	{
+		ingredientPattern: "G,L",
+		recipeGroup: 2,
+		ingredients: {
+			"G": { type: "item", code: "armor-body-sewn-linen" },
+			"L": { type: "block", code: "linen-*" }
+		},
+		width: 1,
+		height: 2,
+		shapeless: true,
+		copyAttributesFrom: 'G',
+		averageDurability: false,
+		name: "gambeson body armor repair",
+		output: { type: "item", code: "armor-body-sewn-linen"  }
+	},
+	{
+		ingredientPattern: "G,L",
+		recipeGroup: 2,
+		ingredients: {
+			"G": { type: "item", code: "armor-legs-sewn-linen" },
+			"L": { type: "block", code: "linen-*" }
+		},
+		width: 1,
+		height: 2,
+		shapeless: true,
+		copyAttributesFrom: 'G',
+		averageDurability: false,
+		name: "gambeson leg armor repair",
+		output: { type: "item", code: "armor-legs-sewn-linen"  }
+	}
+]

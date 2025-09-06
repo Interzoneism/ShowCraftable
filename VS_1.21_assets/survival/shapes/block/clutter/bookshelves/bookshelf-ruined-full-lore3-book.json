@@ -1,0 +1,80 @@
+{
+	"editor": {
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+		"lore-marked": "item/lore/lore-marked",
+		"rotten5": "item/lore/rotten-green"
+	},
+	"elements": [
+		{
+			"name": "book 7",
+			"from": [ 4.5, 1.3, 12.0 ],
+			"to": [ 4.5, 1.3, 12.0 ],
+			"rotationOrigin": [ 7.0, 1.0, 12.0 ],
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "pages56",
+					"from": [ 2.0, -0.1, -2.0 ],
+					"to": [ 3.1, 5.5, 2.0 ],
+					"rotationOrigin": [ 2.5, -0.1, 0.0 ],
+					"faces": {
+						"up": { "texture": "#rotten5", "uv": [ 5.0, 0.0, 6.0, 4.0 ], "rotation": 180 }
+					}
+				},
+				{
+					"name": "cover front57",
+					"from": [ 1.6, -0.3, -2.2 ],
+					"to": [ 2.0, 5.7, 2.3 ],
+					"rotationOrigin": [ 1.6, -0.3, -2.2 ],
+					"faces": {
+						"east": { "texture": "#rotten5", "uv": [ 11.5, 0.0, 16.0, 6.0 ] },
+						"south": { "texture": "#rotten5", "uv": [ 0.0, 0.0, 0.5, 6.0 ] },
+						"west": { "texture": "#rotten5", "uv": [ 7.0, 0.0, 11.5, 6.0 ] },
+						"up": { "texture": "#rotten5", "uv": [ 3.5, 0.0, 4.0, 4.5 ] }
+					}
+				},
+				{
+					"name": "cover back58",
+					"from": [ 3.1, -0.3, -2.2 ],
+					"to": [ 3.5, 5.7, 2.3 ],
+					"rotationOrigin": [ 3.1, -0.3, -2.2 ],
+					"faces": {
+						"east": { "texture": "#rotten5", "uv": [ 11.5, 0.0, 16.0, 6.0 ] },
+						"south": { "texture": "#rotten5", "uv": [ 3.0, 0.0, 3.5, 6.0 ] },
+						"west": { "texture": "#rotten5", "uv": [ 7.0, 0.0, 11.5, 6.0 ] },
+						"up": { "texture": "#rotten5", "uv": [ 4.0, 0.0, 4.5, 4.5 ] }
+					}
+				},
+				{
+					"name": "back59",
+					"from": [ 2.0, -0.3, 2.0 ],
+					"to": [ 3.1, 5.7, 2.3 ],
+					"rotationOrigin": [ 2.0, -0.3, 2.0 ],
+					"faces": {
+						"up": { "texture": "#rotten5", "uv": [ 4.0, 0.0, 5.0, 0.5 ] }
+					}
+				},
+				{
+					"name": "back end60",
+					"from": [ 1.8, -0.3, 2.3 ],
+					"to": [ 3.3, 5.7, 2.6 ],
+					"rotationOrigin": [ 1.8, -0.3, 2.3 ],
+					"faces": {
+						"east": { "texture": "#rotten5", "uv": [ 2.5, 0.0, 3.0, 6.0 ] },
+						"south": { "texture": "#lore-marked", "uv": [ 1.5, 0.0, 3.0, 6.0 ] },
+						"west": { "texture": "#rotten5", "uv": [ 0.5, 0.0, 1.0, 6.0 ] },
+						"up": { "texture": "#rotten5", "uv": [ 1.0, 0.0, 2.5, 0.5 ] },
+						"down": { "texture": "#rotten5", "uv": [ 1.0, 5.5, 2.5, 6.0 ] }
+					}
+				}
+			]
+		}
+	]}

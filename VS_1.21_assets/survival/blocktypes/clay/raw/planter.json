@@ -1,0 +1,109 @@
+{
+	code: "clayplanter",
+	class: "Block",
+	behaviors: [
+		{ name: "GroundStorable" },
+		{ name: "Unplaceable", }, // The ground storable obsoletes this being a block. Should be an item, but is kept a block for backwards compatibility
+		{ name: "RightClickPickup"} 
+	],
+	variantgroups: [
+		{ code: "color", states: ["blue", "fire", "red" ] },
+		{ code: "state", states: ["raw"] }
+	],
+	shape: { base: "block/clay/planter/raw" },
+	textures: { all: {  base: "block/clay/{color}clay" }  },
+	attributes: {
+		tempGlowMode: 1,
+		onTongTransform: {
+			translation: { x: -1.8, y: -1.25, z: -0.52 },
+			rotation: { x: 9, y: 7, z: 68 },
+			scale: 0.6
+		},
+		handbook: {
+			groupBy: ["clayplanter-*-{type}"]
+		}
+	},
+	attributesByType:{
+		"clayplanter-red-raw":{
+			beehivekiln:{
+				"0": { "type": "block", "code": "clayplanter-tan-fired" },
+				"1": { "type": "block", "code": "clayplanter-orange-fired" },
+				"2": { "type": "block", "code": "clayplanter-red-fired" },
+				"3": { "type": "block", "code": "clayplanter-brown-fired" }
+			}
+		},
+		"clayplanter-blue-raw":{
+			beehivekiln:{
+				"0": { "type": "block", "code": "clayplanter-cream-fired"},
+				"1": { "type": "block", "code": "clayplanter-gray-fired"},
+				"2": { "type": "block", "code": "clayplanter-black-fired"},
+				"3": { "type": "block", "code": "clayplanter-black-fired"}
+			}
+		},
+		"clayplanter-fire-raw":{
+			beehivekiln:{
+				"0": { "type": "block", "code": "clayplanter-fire-fired"},
+				"1": { "type": "block", "code": "clayplanter-fire-fired"},
+				"2": { "type": "block", "code": "clayplanter-fire-fired"},
+				"3": { "type": "block", "code": "clayplanter-fire-fired"}
+			}
+		}
+	},
+	creativeinventory: { "general": ["*"], "decorative": ["*"] },
+	heldTpIdleAnimation: "holdunderarm",
+	blockmaterial: "Ceramic",
+	replaceable: 900,
+	resistance: 1.5,
+	lightAbsorption: 1,
+	maxStackSize: 8,
+	sidesolid: {
+		all: false
+	},	
+	sideopaque: {
+		all: false
+	},
+	emitsideao: {
+		all: false
+	},
+	sounds: {
+		"walk": "walk/stone",
+		"break": "block/ceramicplace",
+		"hit": "block/ceramichit",
+		"place": "block/ceramicplace"
+	},
+	combustiblePropsByType: {
+		"clayplanter-fire-raw": {
+			meltingPoint: 600,
+			meltingDuration: 30,
+			smeltedRatio: 1,
+			smeltingType: "fire",
+			smeltedStack: { type: "block", code: "clayplanter-fire-fired" },
+			requiresContainer: false
+		},
+		"clayplanter-*-raw": {
+			meltingPoint: 600,
+			meltingDuration: 30,
+			smeltedRatio: 1,
+			smeltingType: "fire",
+			smeltedStack: { type: "block", code: "clayplanter-blue-fired" },
+			requiresContainer: false
+		}
+	},
+	collisionbox: {
+		x1: 0.125, y1: 0, z1: 0.125,
+		x2: 0.875, y2: 0.5625, z2: 0.875
+	},
+	selectionbox: {
+		x1: 0.125, y1: 0, z1: 0.125,
+		x2: 0.875, y2: 0.5625, z2: 0.875
+	},
+	guiTransform: {
+		origin: { x: 0.5, y: 0.4, z: 0.5 },
+		scale: 1.42
+	},
+	tpHandTransform: {
+		translation: { x: -1.1, y: -0.5, z: -1 },
+		rotation: { x: 0, y: -86, z: -84 },
+		scale: 0.47
+	}
+}

@@ -1,0 +1,10 @@
+{
+	ingredient: { type: "item", code: "ingot-*", name: "metal", allowedVariants: ["copper", "tinbronze", "bismuthbronze", "blackbronze", "silver", "gold", "iron", "meteoriciron", "steel"] },
+	pattern: [[
+		"______###",
+		"#######__",
+		"______###",
+	]],
+	name: "Wrench",
+	output: { type: "item", code: "wrench-{metal}"  }
+}

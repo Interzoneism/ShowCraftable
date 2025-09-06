@@ -1,0 +1,56 @@
+{
+	"editor": {
+		"collapsedPaths": "Root/origin spine 2/Cervical vertebrae/Cube3,Root/origin spine 2/Cervical vertebrae/Throracic vertebrae 1/Cube27,Root/origin spine 2/Cervical vertebrae/Throracic vertebrae 1/Throracic vertebrae 2,Root/Forearm,Root/hideme,Root/origin spine 2/Cervical vertebrae/Throracic vertebrae 1/rib1,Root/origin spine 2/Cervical vertebrae/Cube8,Root/origin spine 2/Cervical vertebrae/Throracic vertebrae 1/rib2,Root/origin spine 2/Cervical vertebrae/Throracic vertebrae 1/Cube32,Root/origin spine 2/Cervical vertebrae/Throracic vertebrae 1/Throracic vertebrae 2/Throracic vertebrae 3,Root/origin spine 2/Cervical vertebrae/Throracic vertebrae 1/Cube26,Root/skull,Root/origin spine 2/Cervical vertebrae/Cube16,Root/Spine,Root/Femur1,Root/Shoulder,Root/Femur,Root/Femur2,Root/Armbone",
+		"allAngles": true,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+		"insideskull-small": "block/creature/insideskull-small",
+		"skullhumaniod-small": "block/creature/skullhumaniod-small"
+	},
+	"elements": [
+		{
+			"name": "origin",
+			"from": [ 0.0, 0.0, 0.0 ],
+			"to": [ 0.0, 0.0, 0.0 ],
+			"rotationOrigin": [ 8.0, 0.0, 8.0 ],
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "skull",
+					"from": [ 5.0, 0.0, 5.5 ],
+					"to": [ 9.52, 4.52, 10.02 ],
+					"renderPass": 1,
+					"rotationOrigin": [ 7.5, 2.0, 8.0 ],
+					"faces": {
+						"north": { "texture": "#skullhumaniod-small", "uv": [ 3.5, 11.0, 8.0, 15.5 ] },
+						"east": { "texture": "#skullhumaniod-small", "uv": [ 5.5, 11.0, 10.0, 15.5 ] },
+						"south": { "texture": "#skullhumaniod-small", "uv": [ 7.5, 11.0, 12.0, 15.5 ] },
+						"west": { "texture": "#skullhumaniod-small", "uv": [ 2.5, 2.5, 7.0, 7.0 ] },
+						"up": { "texture": "#skullhumaniod-small", "uv": [ 11.0, 0.0, 15.5, 4.5 ], "rotation": 90 }
+					},
+					"children": [
+						{
+							"name": "inside skull",
+							"from": [ 0.01, -0.01, 0.01 ],
+							"to": [ 4.51, 4.49, 4.51 ],
+							"renderPass": 1,
+							"rotationOrigin": [ 0.0, -0.5, -0.2 ],
+							"faces": {
+								"north": { "texture": "#insideskull-small", "uv": [ 3.5, 11.5, 8.0, 16.0 ] },
+								"east": { "texture": "#insideskull-small", "uv": [ 5.5, 11.5, 10.0, 16.0 ] },
+								"south": { "texture": "#insideskull-small", "uv": [ 7.5, 11.5, 12.0, 16.0 ] },
+								"west": { "texture": "#insideskull-small", "uv": [ 2.5, 2.5, 7.0, 7.0 ], "windMode": [-1,-1,-1,-1] },
+								"up": { "texture": "#insideskull-small", "uv": [ 10.0, 3.5, 14.5, 8.0 ] }
+							}
+						}
+					]
+				}
+			]
+		}
+	]}

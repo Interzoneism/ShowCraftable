@@ -1,0 +1,33 @@
+{
+	code: "potash",
+	perishableProps: {
+		type: "None",
+		freshHours: { avg: 36 },
+		transitionHours: { avg: 36 },
+		transitionRatio: 1,
+		transitionedStack: { type: "item", code: "powder-sylvite" }
+	},
+	shape: { base: "block/food/meal/liquid" },
+	ingredients: [
+		{ 
+			code: "water", 
+			validStacks: [ 
+				{ 
+					type: "item", 
+					code: "waterportion", 
+					shapeElement: "bowl/water"
+				}
+			],
+			minQuantity: 2,
+			maxQuantity: 2,
+			portionSizeLitres: 1,
+		},
+		{
+			code: "powder-sylvite", 
+			validStacks: [ { type: "item", code: "powder-sylvite" } ],
+			minQuantity: 2,
+			maxQuantity: 2
+		}
+	],
+	cooksInto: { type: "Item", code: "potash", quantity: 2 }
+}

@@ -1,0 +1,26 @@
+{
+	code: "randomizer",
+	class: "BlockRandomizer",
+	entityClass: "BlockRandomizer",
+	attributes: {
+		handbook: {
+			exclude: true
+		}
+	},
+	variantgroups: [
+		{ code: "type", states: ["normal"] },
+	],
+	drawtype: "cube",
+	textures: {
+		all: { base: "block/fire-pink" },
+	},
+	sidesolid: {
+		all: true,
+		down: false
+	},
+	creativeinventory: { "general": ["*"], "meta": ["*"] },
+	blockmaterial: "Stone",
+	replaceable: 900,
+	lightAbsorption: 0,
+	resistance: 1
+}

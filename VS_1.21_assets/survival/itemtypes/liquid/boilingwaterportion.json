@@ -1,0 +1,49 @@
+{
+	code: "boilingwaterportion",
+	class: "ItemLiquidPortion",
+	matterState: "liquid",
+	attributes: {
+		handbook: {
+			ignoreCreativeInvStacks: true
+		},
+		waterTightContainerProps: {
+			containable: true,
+			itemsPerLitre: 100,
+			texture: { base: "block/liquid/waterportion" },
+			tintIndex: 2,
+			whenSpilled: { 
+				action: "PlaceBlock",
+				stack: { type: "block", code: "boilingwater-still-3" },
+				stackByFillLevel: {
+					"1": { type: "block", code: "boilingwater-still-1" },
+					"2": { type: "block", code: "boilingwater-still-2" },
+					"3": { type: "block", code: "boilingwater-still-2" },
+					"4": { type: "block", code: "boilingwater-still-3" },
+					"6": { type: "block", code: "boilingwater-still-4" },
+					"7": { type: "block", code: "boilingwater-still-5" },
+					"8": { type: "block", code: "boilingwater-still-5" },
+					"9": { type: "block", code: "boilingwater-still-6" },
+					"10": { type: "block", code: "boilingwater-still-7" } 
+				}
+			}
+		}
+	},
+	shape: { base: "item/liquid" },
+	texture: { base: "block/liquid/waterportion" },
+	creativeinventoryStacks: [ { tabs: ["general", "liquids"], stacks: [ { type: "block", code: "woodbucket", attributes: { ucontents: [ { type:"item", code: "boilingwaterportion", makefull: true } ] } } ] } ],
+	maxstacksize: 5000,
+	materialDensity: 200,
+	guiTransform: {
+		translation: { x: 0, y: 1, z: 0 },
+		rotation: { x: 123, y: -33, z: -13 },
+		origin: { x: 0.5, y: 0, z: 0.5 },
+		scale: 1.4
+	},
+	fpHandTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: 25, y: 157, z: -5 }
+	},
+	tpHandTransform: {
+		translation: { x: -1.5, y: -1, z: -1.4 }
+	}
+}

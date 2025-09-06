@@ -1,0 +1,107 @@
+{
+	code: "rawbrick",
+	maxstacksize: 64,
+	variantgroups: [
+		{ code: "type", states: ["blue", "fire", "red" ] },
+	],
+	behaviors: [{
+		name: "GroundStorable",
+		properties: {
+			layout: 'Stacking',
+			placeRemoveSound: 'sounds/block/dirt1',
+			stackingModel: 'block/clay/brickpile',
+			modelItemsToStackSizeRatio: 1,
+			upSolid: true,
+			stackingCapacity: 24,
+			transferQuantity: 1,
+			bulkTransferQuantity: 4,
+			collisionBox: { x1: 0, y1: 0, z1: 0, x2: 1, y2: 0.25, z2: 1 },
+			cbScaleYByLayer: 0.1666666666666667,
+			maxFireable: 12
+		}
+	}],
+	shape: { base: "item/brick" },
+	textures: {
+		"material": { base: "block/clay/brickpile/raw/{type}-raw1" },
+		"top": { base: "block/clay/brickpile/raw/{type}-raw1" }
+	},
+	attributes: {
+		tempGlowMode: 1,
+		displaycaseable: true,
+		shelvable: true,
+		onDisplayTransform: {
+			origin: { x: 0.5, y: 0, z: 0.5 },
+			scale: 0.8
+		},
+		onTongTransform: {
+			translation: { x: -0.77, y: -0.74, z: -0.665 },
+			rotation: { x: 96, y: 19, z: 96 },
+			scale: 0.79
+		},
+		handbook: {
+			groupBy: ["rawbrick-*"]
+		}
+	},
+	creativeinventory: { "general": ["*"], "items": ["*"] },
+	combustibleProps: {
+		meltingPoint: 850,
+		meltingDuration: 15,
+		smeltingType: "fire",
+		smeltedStackByType: {
+			"*-blue": { type: "item", code: "burnedbrick-gray" },
+			"*": { type: "item", code: "burnedbrick-{type}" }
+		},
+		requiresContainer: false
+	},
+	attributesByType:{
+		"*-red":{
+			beehivekiln:{
+				"0": { "type": "item", "code": "burnedbrick-tan" },
+				"1": { "type": "item", "code": "burnedbrick-orange" },
+				"2": { "type": "item", "code": "burnedbrick-red" },
+				"3": { "type": "item", "code": "burnedbrick-brown" }
+			}
+		},
+		"*-blue":{
+			beehivekiln:{
+				"0": { "type": "item", "code": "burnedbrick-cream" },
+				"1": { "type": "item", "code": "burnedbrick-gray" },
+				"2": { "type": "item", "code": "burnedbrick-black" },
+				"3": { "type": "item", "code": "burnedbrick-clinker" }
+			}
+		},
+		"*-fire":{
+			beehivekiln:{
+				"0": { "type": "item", "code": "burnedbrick-fire" },
+				"1": { "type": "item", "code": "burnedbrick-fire" },
+				"2": { "type": "item", "code": "burnedbrick-fire" },
+				"3": { "type": "item", "code": "burnedbrick-fire" }
+			}
+		},
+	},
+	materialDensity: 2600,
+	guiTransform: {
+		translation: { x: 2, y: 0, z: 0 },
+		rotation: { x: 164, y: -37, z: 1 },
+		origin: { x: 0.5, y: 0.2, z: 0.5 },
+		scale: 2.78
+	},
+	fpHandTransform: {
+		translation: { x: 0, y: 0.1, z: 0 },
+		rotation: { x: 111, y: 69, z: -57 },
+		origin: { x: 0.5, y: 0.1, z: 0.5 },
+		scale: 1.57
+	},
+	tpHandTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: -17, y: 8, z: -19 },
+		origin: { x: 0.14, y: 0.04, z: 0.18 },
+		scale: 0.46
+	},
+	groundTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: 0, y: 0, z: 0 },
+		origin: { x: 0.5, y: 0, z: 0.5 },
+		scale: 3
+	}
+}

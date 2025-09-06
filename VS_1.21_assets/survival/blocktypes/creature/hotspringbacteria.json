@@ -1,0 +1,58 @@
+{
+	code: "hotspringbacteria",
+	behaviors: [ {name: "Decor", properties: {sides: ["north", "east", "south", "west", "up"], notFullFace: true, removable:true }} ],
+	variantgroups: [
+		{ code: "species", states: ["87deg"] }
+	],
+	renderPass: "BlendNoCull",
+	drawtype: "surfacelayer",
+	shape: {
+		base: "block/basic/layers/1voxel", offsetY: 0.01, rotateX: 0
+	},
+	sidesolidByType: {
+		"*-down": { all: false, down: true },
+		"*-up": { all: false, up: true },
+		"*-north": { all: false, north: true },
+		"*-east": { all: false, east: true },
+		"*-west": { all: false, west: true },
+		"*-south": { all: false, south: true },
+	},
+	sideopaqueByType: {
+		"*-down": { all: false, down: true },
+		"*-up": { all: false, up: true },
+		"*-north": { all: false, north: true },
+		"*-east": { all: false, east: true },
+		"*-west": { all: false, west: true },
+		"*-south": { all: false, south: true },
+	},
+	blockmaterial: "Plant",
+	creativeinventory: { "general": ["*"], "decorative": ["*"] },
+	replaceable: 5500,
+	resistance: 0,
+	lightAbsorption: 0,
+	textures: {
+		"verticals": { base: "block/creature/hotspringbacteria/{species}*" },
+		"horizontals": { base: "block/creature/hotspringbacteria/{species}*" }
+	},
+	drops: [],
+	combustibleProps: {
+		burnTemperature: 150,
+		burnDuration: 2,
+	},
+	guiTransform: {
+		origin: { x: 0.5, y: 0.25, z: 0.5 }
+	},
+	sounds: {
+		place: "walk/sludge*",
+		break: "walk/sludge*",
+		hit: "effect/squish*",
+		walk: "walk/sludge*"
+	},
+	materialDensity: 400,
+	vertexFlags: {
+		zOffsetByType: {
+			"*-87deg": 1,
+			"*": 2
+		}
+	},
+}

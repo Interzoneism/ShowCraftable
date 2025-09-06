@@ -1,0 +1,27 @@
+{
+	code: "thrownsnownade",
+	class: "EntityThrownBeenade",
+	tags: ["inanimate", "projectile"],
+	hitboxSize: { x: 0.25, y: 0.25 },
+	deadHitboxSize: { x: 0.25, y: 0.125 },
+	client: {
+		renderer: "Shape",
+		textures: {
+			"normal2": { base: "block/reed/beehive/beenade" },
+		},
+		shape: { base: "item/snowball" },
+		size: 1,
+		behaviors: [{ code: "passivephysics" }, { code: "interpolateposition" }],
+	},
+	server: {
+		behaviors: [{ code: "passivephysics" }, { code: "despawn", minSeconds: 100 }, { code: "entitystatetags" }],
+	},
+	sounds: {
+	},
+	attributes: {
+		physics: {
+			groundDragFactor: 1,
+			airDragFactor: 0.25
+		}
+	},
+}

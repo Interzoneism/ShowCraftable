@@ -1,0 +1,46 @@
+[
+	{
+		ingredientPattern: "T	S",
+		ingredients: {
+			"T": { type: "item", code: "bladehead-falx-*", name: "metal", allowedVariants: ["copper", "tinbronze", "bismuthbronze", "blackbronze", "iron", "meteoriciron", "steel"]  },
+			"S": { type: "item", code: "stick" }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "blade-falx-{metal}", quantity: 1  }
+	},
+	{
+		ingredientPattern: "TC,S_",
+		requiresTrait: "merciless",
+		ingredients: {
+			"T": { type: "item", code: "bladehead-short-iron"  },
+			"S": { type: "item", code: "stick" },
+			"C": { type: "item", code: "charcoal" }
+		},
+		width: 2,
+		height: 2,
+		output: { type: "item", code: "blade-blackguard-iron", quantity: 1  }
+	},
+	{
+		ingredientPattern: "T,P,S",
+		ingredients: {
+			"T": { type: "item", code: "bladehead-falx-steel" },
+			"S": { type: "item", code: "stick" },
+			"P": { type: "item", code: "metalplate-gold", quantity: 1 },
+		},
+		width: 1,
+		height: 3,
+		output: { type: "item", code: "blade-falx-gold", quantity: 1  }
+	},	
+	{
+		ingredientPattern: "T,P,S",
+		ingredients: {
+			"T": { type: "item", code: "bladehead-falx-steel" },
+			"S": { type: "item", code: "stick" },
+			"P": { type: "item", code: "metalplate-silver", quantity: 1 },
+		},
+		width: 1,
+		height: 3,
+		output: { type: "item", code: "blade-falx-silver", quantity: 1  }
+	}
+]

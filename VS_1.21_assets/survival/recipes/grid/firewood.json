@@ -1,0 +1,77 @@
+[
+	{
+		ingredientPattern: "A	L",
+		ingredients: {
+			"A": { type: "item", code: "axe-*", isTool: true  },
+			"L": { type: "block", code: "log-*", allowedVariants: ["placed-birch-ud", "placed-oak-ud", "placed-maple-ud", "placed-pine-ud", "placed-acacia-ud", "placed-redwood-ud", "placed-larch-ud", "placed-baldcypress-ud", "placed-walnut-ud"] }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "firewood", quantity: 4  }
+	},
+	{
+		ingredientPattern: "A	L",
+		ingredients: {
+			"A": { type: "item", code: "axe-*", isTool: true  },
+			"L": { type: "block", code: "log-placed-aged-ud" }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "agedfirewood", quantity: 4  }
+	},
+	{
+		ingredientPattern: "A	L",
+		ingredients: {
+			"A": { type: "item", code: "axe-*", isTool: true  },
+			"L": { type: "block", code: "logsection-placed-*" }
+		},
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "firewood", quantity: 4  }
+	},
+	{
+		ingredientPattern: "A	L",
+		ingredients: {
+			"A": { type: "item", code: "axe-*", isTool: true  },
+			"L": { type: "block", code: "log-*", allowedVariants: ["placed-kapok-ud", "placed-purpleheart-ud", "placed-ebony-ud"] }
+		},
+		recipeGroup: 1,
+		width: 1,
+		height: 2,
+		name: "Kapok Firewood",
+		output: { type: "item", code: "firewood", quantity: 3  }
+	},
+	{
+		ingredientPattern: "A	L",
+		ingredients: {
+			"A": { type: "item", code: "axe-*", isTool: true  },
+			"L": { type: "block", code: "flotsam-driftwood-1" }
+		},
+		recipeGroup: 2,
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "firewood", quantity: 1  }
+	},
+	{
+		ingredientPattern: "A	L",
+		ingredients: {
+			"A": { type: "item", code: "axe-*", isTool: true  },
+			"L": { type: "block", code: "flotsam-driftwood-2" }
+		},
+		recipeGroup: 2,
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "firewood", quantity: 1  }
+	},
+	{
+		ingredientPattern: "A	L",
+		ingredients: {
+			"A": { type: "item", code: "axe-*", isTool: true  },
+			"L": { type: "block", code: "flotsam-driftwood-3" }
+		},
+		recipeGroup: 2,
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "firewood", quantity: 3  }
+	}
+]

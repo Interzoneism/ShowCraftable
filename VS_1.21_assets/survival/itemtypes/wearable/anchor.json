@@ -1,0 +1,52 @@
+{
+	code: "anchor",
+	class: "ItemAnchor",
+	behaviors: [
+		{ name: "GroundStorable", properties: { layout: 'SingleCenter', collisionBox: { x1: 0.1, y1: 0, z1: 0.2, x2: 0.9, y2: 0.75, z2: 0.8 } } }
+	],
+	"variantgroups": [
+		{ code: "type", states: [ "stone" ] }
+	],
+	attributes: {
+		loweredAnchorShape: { base: "entity/nonliving/boat/sailed-anchorstone-lowered" },
+		attachableToEntity: {
+			categoryCode: "anchor",
+			attachedShapeBySlotCode: {
+				"Left Prow Storage": { base: "entity/nonliving/boat/sailed-anchorstone" }
+			}
+		}
+	},
+	shape: { base: "entity/nonliving/boat/sailed-anchorstone" },
+	texturesByType: {
+		"*": {
+			"granitegradient": { base: "block/stone/rock/granite1", blendedOverlays: [{ base: "block/stone/quern/baseside", blendMode: "Overlay" }] }
+		},
+	},
+	creativeinventory: { "general": ["*"], "items": ["*"] },
+	maxstacksize: 1,
+	materialDensity: 4000,
+	guiTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: -32, y: 16, z: -180 },
+		origin: { x: 0.5299, y: 0.425, z: 0.5 },
+		scale: 1.51
+	},
+	fpHandTransform: {
+		translation: { x: 0, y: 0.1, z: 0 },
+		rotation: { x: 19, y: 180, z: -30 },
+		origin: { x: 0.5, y: 0.125, z: 0.5 },
+		scale: 2.11
+	},
+	groundTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: 0, y: 0, z: 0 },
+		origin: { x: 0.5, y: 0, z: 0.5 },
+		scale: 2.8
+	},
+	tpHandTransform: {
+		translation: { x: -0.7, y: -0.28, z: -0.8 },
+		rotation: { x: -78, y: 7, z: 8 },
+		origin: { x: 0.5, y: 0.125, z: 0.5 },
+		scale: 0.7
+	}
+}

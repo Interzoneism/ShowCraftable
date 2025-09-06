@@ -1,0 +1,223 @@
+{
+	code: "worldedit-tooloptions-select",
+	padding: 5,
+	posX: 330,
+	disableWorldInteract: false,
+	alignment: "FixedTop",
+	rows: [
+		{ elements: [
+			{
+				code: "std.selectmagicSelect",
+				width: 240,
+				height: 30,
+				type: "select",
+				mode: "dropdown",
+				label: "we-selectmagicSelect-label",
+				values: ["0", "1"],
+				names: [
+					"we-selectmagicSelect-1",
+					"we-selectmagicSelect-2"
+				],
+				param: "/we magic",
+				tooltip: "we-selectmagicSelect-tooltip"
+			},
+			{
+				width: 30,
+				code: "grownorth",
+				type: "button",
+				tooltip: "we-grownorth-tooltip",
+				text: "we-grownorth-text",
+				param: "/we g n 1",
+				fontSize: 16,
+				paddingLeft: 10
+			},
+			{
+				width: 30,
+				code: "shrinknorth",
+				type: "button",
+				tooltip: "we-shrinknorth-tooltip",
+				text: "we-shrinknorth-text",
+				param: "/we g n -1",
+				fontSize: 16
+			},
+			{
+				width: 30,
+				code: "groweast",
+				type: "button",
+				tooltip: "we-groweast-tooltip",
+				text: "we-groweast-text",
+				param: "/we g e 1",
+				fontSize: 16,
+				paddingLeft: 10
+			},
+			{
+				width: 30,
+				code: "shrinkeast",
+				type: "button",
+				tooltip: "we-shrinkeast-tooltip",
+				text: "we-shrinkeast-text",
+				param: "/we g e -1",
+				fontSize: 16
+			},
+			{
+				width: 30,
+				code: "growsouth",
+				type: "button",
+				tooltip: "we-growsouth-tooltip",
+				text: "we-growsouth-text",
+				param: "/we g s 1",
+				fontSize: 16,
+				paddingLeft: 10
+			},
+			{
+				width: 30,
+				code: "shrinksouth",
+				type: "button",
+				tooltip: "we-shrinksouth-tooltip",
+				text: "we-shrinksouth-text",
+				param: "/we g s -1",
+				fontSize: 16
+			},
+			{
+				width: 30,
+				code: "growwest",
+				type: "button",
+				tooltip: "we-growwest-tooltip",
+				text: "we-growwest-text",
+				param: "/we g w 1",
+				fontSize: 16,
+				paddingLeft: 10
+			},
+			{
+				width: 30,
+				code: "shrinkwest",
+				type: "button",
+				tooltip: "we-shrinkwest-tooltip",
+				text: "we-shrinkwest-text",
+				param: "/we g w -1",
+				fontSize: 16
+			},
+			{
+				width: 30,
+				code: "growup",
+				type: "button",
+				tooltip: "we-growup-tooltip",
+				text: "we-growup-text",
+				param: "/we g u 1",
+				fontSize: 16,
+				paddingLeft: 10
+			},
+			{
+				width: 30,
+				code: "shrinkup",
+				type: "button",
+				tooltip: "we-shrinkup-tooltip",
+				text: "we-shrinkup-text",
+				param: "/we g u -1",
+				fontSize: 16
+			},
+			{
+				width: 30,
+				code: "growdown",
+				type: "button",
+				tooltip: "we-growdown-tooltip",
+				text: "we-growdown-text",
+				param: "/we g d 1",
+				fontSize: 16,
+				paddingLeft: 10
+			},
+			{
+				width: 30,
+				code: "shrinkdown",
+				type: "button",
+				tooltip: "we-shrinkdown-tooltip",
+				text: "we-shrinkdown-text",
+				param: "/we g d -1",
+				fontSize: 16
+			},
+			{
+				width: 50,
+				code: "shrinklook",
+				type: "button",
+				tooltip: "we-shrinklook-tooltip",
+				text: "we-shrinklook-text",
+				param: "/we g l 1",
+				fontSize: 16,
+				paddingLeft: 10
+			},
+			{
+				width: 50,
+				code: "growlook",
+				type: "button",
+				tooltip: "we-growlook-tooltip",
+				text: "we-growlook-text",
+				param: "/we g l -1",
+				fontSize: 16
+			}
+		]
+		},
+		{
+			elements: [
+				{
+					width: 75,
+					code: "copy",
+					type: "button",
+					tooltip: "we-copy-tooltip",
+					text: "we-copy-text",
+					param: "/we copy",
+					fontSize: 16
+				},
+				{
+					width: 75,
+					code: "clear",
+					type: "button",
+					tooltip: "we-clear-tooltip",
+					text: "we-clear-text",
+					param: "/we clear",
+					fontSize: 16,
+					paddingLeft: 20
+				},
+				{
+					width: 75,
+					code: "removecontents",
+					type: "button",
+					tooltip: "we-removecontents-tooltip",
+					text: "we-removecontents-text",
+					param: "/we delete",
+					fontSize: 16,
+					paddingLeft: 20
+				},
+				{
+					width: 75,
+					code: "fill",
+					type: "button",
+					tooltip: "we-fill-tooltip",
+					text: "we-fill-text",
+					param: "/we fill",
+					fontSize: 16,
+					paddingLeft: 20
+				},
+				{
+					width: 75,
+					code: "relight",
+					type: "button",
+					tooltip: "we-relight-tooltip",
+					text: "we-relight-text",
+					param: "/we rls",
+					fontSize: 16,
+					paddingLeft: 20
+				},
+				{
+					width: 75,
+					code: "fix",
+					type: "button",
+					tooltip: "we-fix-tooltip",
+					text: "we-fix-text",
+					param: "/we normalize",
+					fontSize: 16,
+					paddingLeft: 20
+				}
+			]
+		}
+	]
+}

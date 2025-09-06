@@ -1,0 +1,56 @@
+{
+	code: "cattailtops",
+	behaviors: [
+		{ name: "GroundStorable", 
+			properties: {
+				layout: 'Stacking',
+				placeRemoveSound: 'sounds/block/plant',
+				stackingModel: 'item/resource/cattailtops-pile',
+				upSolid: false,
+				modelItemsToStackSizeRatio: 32,
+				stackingCapacity: 10,
+				transferQuantity: 1,
+				bulkTransferQuantity: 5,
+				collisionBox: { x1: 0, y1: 0, z1: 0, x2: 1, y2: 0.2, z2: 1 },
+				cbScaleYByLayer: 0.2
+			}
+		}
+	],
+	attributes: {
+		groundStorageTransform: {
+			translation: { x: 0, y: 0.05, z: 0 },
+			rotation: { x: 0, y: 22, z: 0 }
+		}
+	},
+	shape: { base: "item/resource/cattails-bundle" },
+	texture: { base: "item/resource/reeds" },
+	creativeinventory: { "general": ["*"], "items": ["*"] },
+	maxstacksize: 64,
+	guiTransform: {
+		rotation: { x: -105, y: 40, z: 18 },
+		origin: { x: 0.5, y: 0, z: 0.5 },
+		scale: 1.27
+	},
+	fpHandTransform: {
+		translation: { x: 0.25, y: -0.4, z: 0 },
+		rotation: { x: -3, y: 65, z: 88 },
+		scale: 1.28
+	},
+	tpHandTransform: {
+		translation: { x: -0.7, y: 0, z: -0.7 },
+		rotation: { x: -31, y: 3, z: 3 },
+		origin: { x: 0.5, y: 0, z: 0.5 },
+		scale: 0.68
+	},
+	groundTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: -9, y: 0, z: 0 },
+		origin: { x: 0.5, y: -0.1, z: 0.5 },
+		scale: 4
+	},
+	combustibleProps: {
+		burnTemperature: 600,
+		burnDuration: 4,
+	},
+	materialDensity: 100,
+}

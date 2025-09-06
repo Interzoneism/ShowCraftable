@@ -1,0 +1,13 @@
+[
+	{
+		ingredientPattern: "A	L",
+		ingredients: {
+			"A": { type: "item", code: "knife-*", isTool: true  },
+			"L": { type: "item", code: "bone" }
+		},
+		shapeless: true,
+		width: 1,
+		height: 2,
+		output: { type: "item", code: "instrument-flute1", quantity: 1  }
+	}
+]

@@ -1,0 +1,109 @@
+{
+	code: "clothes",
+	class: "ItemWearable",
+	variantgroups: [
+		{ code: "village",  states: ["nadiya"] },
+		{ code: "category",  states: ["upperbodyover"] },
+		{ code: "upperbodyover", combine: "SelectiveMultiply", onVariant: "category", states: [
+			"coat-long", "beekeeper", "coat-verylong", "musician", "coat-short", "miner", "miner-clean", "tailor", "winter1", "winter2"
+		] },
+	],
+	storageFlags: 128,
+	shapeByType: {
+		"*-coat-long": { 
+			base: "entity/humanoid/seraph/clothing/upperbodyover/longsleeve"
+		},
+		"@*-(beekeeper|coat-verylong|musician)": { 
+			base: "entity/humanoid/seraph/clothing/upperbodyover/longsleeve-extended"
+		},
+		"*": {
+			base: "entity/humanoid/seraph/clothing/upperbodyover/shortsleeve" 
+		}
+	},
+	texturesByType: {
+		"*-coat-long": {
+			"seraph": { base: "block/transparent" },
+			"coat": { base: "entity/humanoid/villagerclothes/upperbodyover/longsleeve/{upperbodyover}" }
+		},
+		"@*-(beekeeper|coat-verylong|musician)": {
+			"seraph": { base: "block/transparent" },
+			"coat": { base: "entity/humanoid/villagerclothes/upperbodyover/longsleeve-extended/{upperbodyover}" }
+		},
+		"*": {
+			"seraph": { base: "block/transparent" },
+			"coat": { base: "entity/humanoid/villagerclothes/upperbodyover/shortsleeve/{upperbodyover}" }
+		}
+	},
+	attributes: {
+		clothescategory: "upperbodyover",
+		wearableAttachment: true,
+		wearableTexturePrefixCode: null,
+		handbook: {
+			groupBy: ["clothes-{village}-{category}-*"]
+		}
+	},
+	attributesByType: {
+		"*-winter1": {
+			warmth: 4
+		},
+		"*-winter2": {
+			warmth: 4
+		},
+		"*": {
+			warmth: 2
+		}
+	},
+	creativeinventory: { "general": ["*"], "items": ["*"], "clothing": ["*"] },
+	renderAlphaTest: 0.25,
+	fpHandTransform: {
+		translation: { x: 0.05, y: -0.6, z: 0.3 },
+		rotation: { x: 180, y: 150, z: 180 },
+		scale: 2
+	},
+	tpHandTransform: {
+		translation: { x: -0.3, y: -0.9, z: -0.7 },
+		rotation: { x: -71, y: 180, z: 83 },
+		scale: 0.55
+	},
+	guiTransformByType: {
+		"*-beekeeper": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: -180, y: -66, z: 18 },
+			origin: { x: 0.2, y: 1.18, z: 0.4 },
+			scale: 1.35
+		},
+		"@.*-(miner|miner-clean)": {
+			rotate: false,
+			rotation: { x: -180, y: -66, z: 18 },
+			origin: { x: 0.2, y: 1.46, z: 0.4 },
+			scale: 1.98
+		},
+		"@.*-(coat-short|tailor)": {
+			rotate: false,
+			rotation: { x: -180, y: -66, z: 18 },
+			origin: { x: 0.29, y: 1.28, z: 0.4 },
+			scale: 2.07
+		},
+		"@.*-(musician|verylong)": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: -180, y: -66, z: 18 },
+			origin: { x: 0.2, y: 1.09, z: 0.4 },
+			scale: 1.35
+		},
+		"*": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: -180, y: -66, z: 18 },
+			origin: { x: 0.2, y: 1.36, z: 0.4 },
+			scale: 1.35
+		}
+	},
+	groundTransform: {
+		translation: { x: 0.05, y: 0.05, z: 0 },
+		rotation: { x: 0, y: 0, z: -87 },
+		origin: { x: 0.5, y: 0.5, z: 0.5299 },
+		scale: 2.19
+	}
+}

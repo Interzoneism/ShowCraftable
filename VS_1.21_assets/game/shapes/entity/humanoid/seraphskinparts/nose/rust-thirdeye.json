@@ -1,0 +1,73 @@
+{
+	"editor": {
+		"backDropShape": "F:/Games/VSDEV/assets/game/shapes/entity/humanoid/seraph-hairless",
+		"allAngles": true,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+		"steel": [16,16],
+		"jonas": [8,8]
+	},
+	"textures": {
+		"jonas": "entity/humanoid/seraphskinparts/eyes/jonas",
+		"steel": "block/metal/tarnished/steel"
+	},
+	"elements": [
+		{
+			"name": "hair-uncovered",
+			"stepParentName": "Head",
+			"from": [ 0.0, 2.5, 2.5 ],
+			"to": [ 0.0, 2.5, 2.5 ],
+			"rotationOrigin": [ 0.0, 2.5, 2.5 ],
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "metal1",
+					"from": [ -0.02, 0.7, -0.5 ],
+					"to": [ 0.18, 1.7, 0.5 ],
+					"rotationOrigin": [ 0.0, 1.2, 0.0 ],
+					"rotationX": -45.0,
+					"faces": {
+						"north": { "texture": "#steel", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+						"south": { "texture": "#steel", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+						"west": { "texture": "#steel", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+						"up": { "texture": "#steel", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+						"down": { "texture": "#steel", "uv": [ 0.0, 0.0, 0.5, 1.0 ] }
+					},
+					"children": [
+						{
+							"name": "metal2",
+							"from": [ -0.05, 0.0, 0.0 ],
+							"to": [ 0.05, 1.0, 1.0 ],
+							"rotationOrigin": [ 0.0, 0.5, 0.5 ],
+							"rotationX": 45.0,
+							"faces": {
+								"north": { "texture": "#steel", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+								"south": { "texture": "#steel", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+								"west": { "texture": "#steel", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+								"up": { "texture": "#steel", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+								"down": { "texture": "#steel", "uv": [ 0.0, 0.0, 0.5, 1.0 ] }
+							}
+						},
+						{
+							"name": "gem",
+							"from": [ -0.1, 0.2, 0.2 ],
+							"to": [ 0.0, 0.8, 0.8 ],
+							"rotationOrigin": [ 0.0, 0.5, 0.5 ],
+							"rotationX": 45.0,
+							"faces": {
+								"north": { "texture": "#jonas", "uv": [ 6.0, 0.0, 7.0, 1.0 ], "glow": 100 },
+								"south": { "texture": "#jonas", "uv": [ 4.0, 3.0, 5.0, 4.0 ], "glow": 100 },
+								"west": { "texture": "#jonas", "uv": [ 6.0, 6.0, 7.0, 7.0 ], "glow": 200 },
+								"up": { "texture": "#jonas", "uv": [ 1.0, 5.0, 2.0, 6.0 ], "glow": 100 },
+								"down": { "texture": "#jonas", "uv": [ 1.0, 3.0, 2.0, 4.0 ], "glow": 100 }
+							}
+						}
+					]
+				}
+			]
+		}
+	]}

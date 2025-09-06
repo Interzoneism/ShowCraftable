@@ -1,0 +1,88 @@
+{
+	"editor": {
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+	},
+	"elements": [
+		{
+			"name": "fold_up",
+			"from": [ 0.0, 0.0, -6.9 ],
+			"to": [ 0.0, 0.0, -6.9 ],
+			"rotationOrigin": [ 8.0, 8.0, 8.0 ],
+			"rotationX": -90.0,
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "cube0",
+					"from": [ 0.0, 6.0, 7.0 ],
+					"to": [ 16.0, 16.0, 7.0 ],
+					"renderPass": 1,
+					"rotationOrigin": [ 1.0, 6.0, 8.0 ],
+					"faces": {
+						"south": { "texture": "#design", "uv": [ 0.0, 0.0, 16.0, 10.0 ], "autoUv": false, "windMode": [-1,-1,-1,-1], "windData": [0,0,1,1] }
+					}
+				},
+				{
+					"name": "cube1",
+					"from": [ 0.0, 3.0037, 7.1 ],
+					"to": [ 8.0, 6.0037, 7.1 ],
+					"renderPass": 1,
+					"rotationOrigin": [ 8.0, 4.5037, 7.1046 ],
+					"rotationX": -4.0,
+					"faces": {
+						"south": { "texture": "#design", "uv": [ 0.0, 10.0, 8.0, 13.0 ] }
+					}
+				},
+				{
+					"name": "cube2",
+					"from": [ 0.0, 1.0743, 7.4593 ],
+					"to": [ 8.0, 3.0743, 7.4593 ],
+					"renderPass": 1,
+					"rotationOrigin": [ 8.0, 2.5743, 7.4593 ],
+					"rotationX": -30.0,
+					"faces": {
+						"south": { "texture": "#design", "uv": [ 0.0, 13.0, 8.0, 15.0 ] }
+					}
+				},
+				{
+					"name": "cube3",
+					"from": [ 0.0, -0.1735, 7.7119 ],
+					"to": [ 8.0, 0.8265, 7.7119 ],
+					"renderPass": 1,
+					"rotationOrigin": [ 8.0, 1.3265, 7.7119 ],
+					"rotationX": -84.0,
+					"faces": {
+						"south": { "texture": "#design", "uv": [ 0.0, 14.5, 8.0, 15.5 ] }
+					}
+				},
+				{
+					"name": "cube4",
+					"from": [ 0.0, 0.9698, 9.9538 ],
+					"to": [ 8.0, 1.9698, 9.9538 ],
+					"renderPass": 1,
+					"rotationOrigin": [ 8.0, 2.4698, 9.9538 ],
+					"rotationX": 30.0,
+					"faces": {
+						"south": { "texture": "#design", "uv": [ 0.0, 16.0, 8.0, 15.0 ], "autoUv": false }
+					}
+				},
+				{
+					"name": "cube8",
+					"from": [ 8.0, 0.0, 7.0 ],
+					"to": [ 16.0, 6.0, 7.0 ],
+					"renderPass": 1,
+					"rotationOrigin": [ 9.0, 0.0, 8.0 ],
+					"faces": {
+						"south": { "texture": "#design", "uv": [ 8.0, 10.0, 16.0, 16.0 ] }
+					}
+				}
+			]
+		}
+	]}

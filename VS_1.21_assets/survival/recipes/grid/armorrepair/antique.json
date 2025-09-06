@@ -1,0 +1,188 @@
+[
+	{
+		ingredientPattern: "H,C",
+		recipeGroup: 2,
+		ingredients: {
+			"C": { type: "item", code: "metalchain-iron" },
+			"H": { type: "item", code: "armor-head-antique-blackguard-damaged" }
+		},
+		width: 1,
+		height: 2,
+		shapeless: true,
+		copyAttributesFrom: 'H',
+		averageDurability: false,
+		name: "damaged blackguard helmet repair",
+		output: { type: "item", code: "armor-head-antique-blackguard-damaged"  }
+	},
+	{
+		ingredientPattern: "H,C,P",
+		recipeGroup: 2,
+		ingredients: {
+			"P": { type: "item", code: "metalplate-iron" },
+			"H": { type: "item", code: "armor-head-antique-blackguard-pristine" },
+			"C": { type: "item", code: "metalchain-iron" },
+		},
+		width: 1,
+		height: 3,
+		shapeless: true,
+		copyAttributesFrom: 'H',
+		averageDurability: false,
+		name: "pristine blackguard helmet repair",
+		output: { type: "item", code: "armor-head-antique-blackguard-pristine"  }
+	},
+	{
+		ingredientPattern: "H,C",
+		recipeGroup: 2,
+		ingredients: {
+			"C": { type: "item", code: "metalchain-iron" },
+			"H": { type: "item", code: "armor-body-antique-blackguard-damaged" }
+		},
+		width: 1,
+		height: 2,
+		shapeless: true,
+		copyAttributesFrom: 'H',
+		averageDurability: false,
+		name: "damaged blackguard body armor repair",
+		output: { type: "item", code: "armor-body-antique-blackguard-damaged"  }
+	},
+	{
+		ingredientPattern: "H,C,P",
+		recipeGroup: 2,
+		ingredients: {
+			"P": { type: "item", code: "metalplate-iron" },
+			"C": { type: "item", code: "metalchain-iron" },
+			"H": { type: "item", code: "armor-body-antique-blackguard-pristine" }
+		},
+		width: 1,
+		height: 3,
+		shapeless: true,
+		copyAttributesFrom: 'H',
+		averageDurability: false,
+		name: "pristine blackguard body armor repair",
+		output: { type: "item", code: "armor-body-antique-blackguard-pristine"  }
+	},
+	{
+		ingredientPattern: "H,C",
+		recipeGroup: 2,
+		ingredients: {
+			"C": { type: "item", code: "metalchain-iron" },
+			"H": { type: "item", code: "armor-legs-antique-blackguard-damaged" }
+		},
+		width: 1,
+		height: 2,
+		shapeless: true,
+		copyAttributesFrom: 'H',
+		averageDurability: false,
+		name: "damaged blackguard leg armor repair",
+		output: { type: "item", code: "armor-legs-antique-blackguard-damaged"  }
+	},
+	{
+		ingredientPattern: "H,C,P",
+		recipeGroup: 2,
+		ingredients: {
+			"P": { type: "item", code: "metalplate-iron" },
+			"C": { type: "item", code: "metalchain-iron" },
+			"H": { type: "item", code: "armor-legs-antique-blackguard-pristine" }
+		},
+		width: 1,
+		height: 3,
+		copyAttributesFrom: 'H',
+		shapeless: true,
+		averageDurability: false,
+		name: "pristine blackguard leg armor repair",
+		output: { type: "item", code: "armor-legs-antique-blackguard-pristine"  }
+	},
+	{
+		ingredientPattern: "H,C",
+		recipeGroup: 2,
+		ingredients: {
+			"C": { type: "item", code: "metalchain-iron" },
+			"H": { type: "item", code: "armor-head-antique-forlorn-damaged" }
+		},
+		width: 1,
+		height: 2,
+		shapeless: true,
+		copyAttributesFrom: 'H',
+		averageDurability: false,
+		name: "damaged forlorn helmet repair",
+		output: { type: "item", code: "armor-head-antique-forlorn-damaged"  }
+	},
+	{
+		ingredientPattern: "H,C,P",
+		recipeGroup: 2,
+		ingredients: {
+			"P": { type: "item", code: "metalplate-iron" },
+			"C": { type: "item", code: "metalchain-iron" },
+			"H": { type: "item", code: "armor-head-antique-forlorn-pristine" }
+		},
+		width: 1,
+		height: 3,
+		shapeless: true,
+		copyAttributesFrom: 'H',
+		averageDurability: false,
+		name: "pristine forlorn helmet repair",
+		output: { type: "item", code: "armor-head-antique-forlorn-pristine"  }
+	},
+	{
+		ingredientPattern: "H,C",
+		recipeGroup: 2,
+		ingredients: {
+			"C": { type: "item", code: "metalchain-iron" },
+			"H": { type: "item", code: "armor-body-antique-forlorn-damaged" }
+		},
+		width: 1,
+		height: 2,
+		shapeless: true,
+		copyAttributesFrom: 'H',
+		averageDurability: false,
+		name: "damaged forlorn body armor repair",
+		output: { type: "item", code: "armor-body-antique-forlorn-damaged"  }
+	},
+	{
+		ingredientPattern: "H,C,P",
+		recipeGroup: 2,
+		ingredients: {
+			"P": { type: "item", code: "metalplate-iron" },
+			"C": { type: "item", code: "metalchain-iron" },
+			"H": { type: "item", code: "armor-body-antique-forlorn-pristine" }
+		},
+		width: 1,
+		height: 3,
+		shapeless: true,
+		copyAttributesFrom: 'H',
+		averageDurability: false,
+		name: "pristine forlorn body armor repair",
+		output: { type: "item", code: "armor-body-antique-forlorn-pristine"  }
+	},
+	{
+		ingredientPattern: "H,C",
+		recipeGroup: 2,
+		ingredients: {
+			"C": { type: "item", code: "metalchain-iron" },
+			"H": { type: "item", code: "armor-legs-antique-forlorn-damaged" }
+		},
+		width: 1,
+		height: 2,
+		shapeless: true,
+		copyAttributesFrom: 'H',
+		averageDurability: false,
+		name: "damaged forlorn leg armor repair",
+		output: { type: "item", code: "armor-legs-antique-forlorn-damaged"  }
+	},
+	{
+		ingredientPattern: "H,C,P",
+		recipeGroup: 2,
+		ingredients: {
+			"P": { type: "item", code: "metalplate-iron" },
+			"C": { type: "item", code: "metalchain-iron" },
+			"H": { type: "item", code: "armor-legs-antique-forlorn-pristine" }
+		},
+		width: 1,
+		height: 3,
+		shapeless: true,
+		copyAttributesFrom: 'H',
+		averageDurability: false,
+		name: "pristine forlorn leg armor repair",
+		output: { type: "item", code: "armor-legs-antique-forlorn-pristine"  }
+	}
+]

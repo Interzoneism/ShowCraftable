@@ -1,0 +1,124 @@
+{
+	code: "clothes",
+	class: "ItemWearable",
+	variantgroups: [
+		{ code: "category",  states: ["emblem"] },
+		{ code: "emblem", combine: "SelectiveMultiply", onVariant: "category", states: [
+			"blue-seal", "brass-ruby-brooch", "messenger-pin", "royal-pin", "silver-pin", "silver-star", "squire-emblem", "blackguard-pin",
+			"fibula", "lily", "silver-brooch", "falcon"
+		  ] },
+	],
+	storageFlags: 128,
+	attributes: {
+		clothescategory: "emblem",
+		wearableAttachment: true,
+		warmth: 0,
+		handbook: {
+			groupBy: ["clothes-{category}-*"]
+		}
+	},
+	shape: { base: "entity/humanoid/seraph/clothing/emblem/{emblem}" },
+	texturesByType: {
+		"*": {
+			"seraph": { base: "block/transparent" }
+		}
+	},
+	creativeinventory: { "general": ["*"], "items": ["*"], "clothing": ["*"] },
+	renderAlphaTest: 0.25,
+	fpHandTransformByType: {
+		"*-brass-ruby-brooch": {
+			translation: { x: 0.9, y: -0.4, z: -0.3 },
+			rotation: { x: 180, y: 42, z: -29 },
+			scale: 2.5
+		},
+		"*": {
+			translation: { x: 0.6, y: 0, z: -0.5 },
+			rotation: { x: 180, y: 42, z: -29 },
+			scale: 2.5
+		}
+	},
+	tpHandTransformByType: {
+		"*-brass-ruby-brooch": {
+			translation: { x: 0.13, y: -0.6, z: -0.5 },
+			rotation: { x: 0, y: 0, z: -90 },
+			scale: 1
+		},
+		"*": {
+			translation: { x: 0.23, y: -0.65, z: -0.6 },
+			rotation: { x: 0, y: 0, z: -90 },
+			scale: 1
+		}
+	},
+	guiTransformByType: {
+		"*-brass-ruby-brooch": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: -1, y: -90, z: 0 },
+			origin: { x: 0.18, y: 1.31, z: 0.53 },
+			scale: 4.04
+		},
+		"*-squire-emblem": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 174, y: -90, z: 5 },
+			origin: { x: 0.6, y: 1.31, z: 0.42 },
+			scale: 4.65
+		},
+		"*-blue-seal": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 174, y: -90, z: 5 },
+			origin: { x: 0.5, y: 1.3, z: 0.41 },
+			scale: 4.65
+		},
+		"*-falcon": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 174, y: -90, z: 5 },
+			origin: { x: 0.2, y: 1.4, z: 0.53 },
+			scale: 5
+		},
+		"*-silver-brooch": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 174, y: -90, z: 5 },
+			origin: { x: 0.42, y: 1.39, z: 0.45 },
+			scale: 6
+		},
+		"*-lily": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 174, y: -90, z: 5 },
+			origin: { x: 0.73, y: 1.34, z: 0.61 },
+			scale: 6
+		},
+		"*-fibula": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 174, y: -90, z: 5 },
+			origin: { x: 0.71, y: 1.37, z: 0.41 },
+			scale: 6
+		},
+		"*": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: 174, y: -90, z: 5 },
+			origin: { x: 0.73, y: 1.3, z: 0.41 },
+			scale: 5
+		}
+	},
+	groundTransformByType: {
+		"*-brass-ruby-brooch": {
+			translation: { x: 0.05, y: -0.12, z: 0 },
+			rotation: { x: 0, y: 0, z: -90 },
+			origin: { x: 0.5, y: 0.5, z: 0.5299 },
+			scale: 5
+		},
+		"*": {
+			translation: { x: 0.05, y: -0.13, z: 0 },
+			rotation: { x: 0, y: 0, z: -90 },
+			origin: { x: 0.5, y: 0.5, z: 0.5299 },
+			scale: 5
+		}
+	}
+}

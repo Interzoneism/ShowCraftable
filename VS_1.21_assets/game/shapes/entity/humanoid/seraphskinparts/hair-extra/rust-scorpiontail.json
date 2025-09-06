@@ -1,0 +1,125 @@
+{
+	"editor": {
+		"backDropShape": "entity/humanoid/seraph-hairless",
+		"allAngles": true,
+		"entityTextureMode": true
+	},
+	"textureWidth": 48,
+	"textureHeight": 48,
+	"textureSizes": {
+		"hair": [48,48],
+		"birch": [16,16],
+		"bush-base": [16,16]
+	},
+	"textures": {
+		"bush-base": "block/devastation/bush-base"
+	},
+	"elements": [
+		{
+			"name": "ponytaillow",
+			"stepParentName": "Head",
+			"from": [ 0.0, 0.0, 0.0 ],
+			"to": [ 1.0, 1.0, 1.0 ],
+			"uv": [ 0.0, 0.0 ],
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "BraidBack",
+					"from": [ 4.9, -0.3, 1.9 ],
+					"to": [ 5.9, 2.7, 2.9 ],
+					"uv": [ 3.5, 5.0 ],
+					"rotationOrigin": [ 5.4, 2.7, 2.4 ],
+					"rotationZ": 25.0,
+					"faces": {
+						"north": { "texture": "#bush-base", "uv": [ 3.5, 5.0, 4.5, 8.0 ] },
+						"east": { "texture": "#bush-base", "uv": [ 4.5, 5.0, 5.5, 8.0 ] },
+						"south": { "texture": "#bush-base", "uv": [ 5.5, 5.0, 6.5, 8.0 ] },
+						"west": { "texture": "#bush-base", "uv": [ 6.5, 5.0, 7.5, 8.0 ] }
+					},
+					"children": [
+						{
+							"name": "Braid2",
+							"from": [ 0.0, -2.5, 0.0 ],
+							"to": [ 1.0, 0.5, 1.0 ],
+							"autoUnwrap": false,
+							"uv": [ 22.5, 38.0 ],
+							"rotationOrigin": [ 0.5, 0.5, 0.5 ],
+							"rotationY": 2.0,
+							"rotationZ": 72.0,
+							"faces": {
+								"north": { "texture": "#bush-base", "uv": [ 11.0, 9.0, 12.0, 12.0 ] },
+								"east": { "texture": "#bush-base", "uv": [ 11.0, 2.0, 12.0, 5.0 ] },
+								"south": { "texture": "#bush-base", "uv": [ 11.5, 10.0, 12.5, 13.0 ] },
+								"west": { "texture": "#bush-base", "uv": [ 9.5, 2.0, 10.5, 5.0 ] }
+							},
+							"children": [
+								{
+									"name": "braid3",
+									"from": [ 0.2, 0.1, 0.0 ],
+									"to": [ 3.2, 1.1, 1.0 ],
+									"uv": [ 6.0, 10.0 ],
+									"rotationOrigin": [ 0.2, 0.6, 0.5 ],
+									"rotationX": -3.0,
+									"rotationZ": -25.0,
+									"faces": {
+										"north": { "texture": "#bush-base", "uv": [ 6.0, 11.0, 9.0, 12.0 ] },
+										"south": { "texture": "#bush-base", "uv": [ 9.0, 11.0, 12.0, 12.0 ] },
+										"up": { "texture": "#bush-base", "uv": [ 6.0, 10.0, 9.0, 11.0 ] },
+										"down": { "texture": "#bush-base", "uv": [ 9.0, 10.0, 12.0, 11.0 ] }
+									},
+									"children": [
+										{
+											"name": "braid4",
+											"from": [ 2.5, 0.0, 0.0 ],
+											"to": [ 3.5, 4.0, 1.0 ],
+											"uv": [ 8.0, 9.5 ],
+											"rotationOrigin": [ 3.0, 0.5, 0.5 ],
+											"rotationY": 11.0,
+											"rotationZ": -39.0,
+											"faces": {
+												"north": { "texture": "#bush-base", "uv": [ 8.0, 9.5, 9.0, 13.5 ] },
+												"east": { "texture": "#bush-base", "uv": [ 9.0, 9.5, 10.0, 13.5 ] },
+												"south": { "texture": "#bush-base", "uv": [ 10.0, 9.5, 11.0, 13.5 ] },
+												"west": { "texture": "#bush-base", "uv": [ 11.0, 9.5, 12.0, 13.5 ] }
+											},
+											"children": [
+												{
+													"name": "braid5",
+													"from": [ 0.1, 3.5, 0.0 ],
+													"to": [ 1.1, 6.5, 1.0 ],
+													"uv": [ 6.5, 2.5 ],
+													"rotationOrigin": [ 0.6, 3.5, 0.5 ],
+													"rotationX": 11.0,
+													"rotationZ": 36.0,
+													"faces": {
+														"north": { "texture": "#bush-base", "uv": [ 6.5, 2.5, 7.5, 5.5 ] },
+														"east": { "texture": "#bush-base", "uv": [ 7.5, 2.5, 8.5, 5.5 ] },
+														"south": { "texture": "#bush-base", "uv": [ 8.5, 2.5, 9.5, 5.5 ] },
+														"west": { "texture": "#bush-base", "uv": [ 9.5, 2.5, 10.5, 5.5 ] }
+													}
+												}
+											]
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "ponytailhigh",
+							"from": [ -1.0, 1.0, -0.5 ],
+							"to": [ 1.0, 3.0, 1.5 ],
+							"uv": [ 8.5, 0.5 ],
+							"rotationOrigin": [ 0.0, 3.0, 0.5 ],
+							"rotationZ": 42.0,
+							"faces": {
+								"north": { "texture": "#bush-base", "uv": [ 8.5, 0.5, 10.5, 2.5 ] },
+								"east": { "texture": "#bush-base", "uv": [ 10.5, 0.5, 12.5, 2.5 ] },
+								"south": { "texture": "#bush-base", "uv": [ 12.5, 0.5, 14.5, 2.5 ] }
+							}
+						}
+					]
+				}
+			]
+		}
+	]}

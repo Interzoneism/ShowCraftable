@@ -1,0 +1,113 @@
+{
+	code: "coral",
+	class: "BlockCoral",
+	behaviors: [{name: "Unstable"}],
+	variantgroups: [
+		{ code: "type", states: ["anemone"] },
+		{ code: "color", states: ["blue", "green", "red", "yellow", "mix1", "mix2", "mix3", "mix4", "stripe1", "stripe2", "stripe3"] }
+	],
+	shape:  { base: "block/aquatic/coral/anemone*" },
+	texturesByType: {
+        "coral-anemone-stripe1": {
+            base: { base: "block/creature/aquatic/coral/anemone/base-stripe1" },
+            top: { "base": "block/creature/aquatic/coral/anemone/top-mix2" },
+            small: { "base": "block/creature/aquatic/coral/anemone/tentacle-small-mix*" },
+            large: { "base": "block/creature/aquatic/coral/anemone/tentacle-large-mix*" }
+        },
+        "coral-anemone-stripe2": {
+            base: { base: "block/creature/aquatic/coral/anemone/base-stripe2" },
+            top: { "base": "block/creature/aquatic/coral/anemone/top-mix2" },
+            small: { "base": "block/creature/aquatic/coral/anemone/tentacle-small-mix*" },
+            large: { "base": "block/creature/aquatic/coral/anemone/tentacle-large-mix*" }
+        },
+        "coral-anemone-stripe3": {
+            base: { base: "block/creature/aquatic/coral/anemone/base-stripe3" },
+            top: { "base": "block/creature/aquatic/coral/anemone/top-mix4" },
+            small: { "base": "block/creature/aquatic/coral/anemone/tentacle-small-mix*" },
+            large: { "base": "block/creature/aquatic/coral/anemone/tentacle-large-mix*" }
+        },
+        "coral-anemone-mix*": {
+            base: { base: "block/creature/aquatic/coral/anemone/base-{color}" },
+            top: { "base": "block/creature/aquatic/coral/anemone/top-{color}" },
+            small: { "base": "block/creature/aquatic/coral/anemone/tentacle-small-mix*" },
+            large: { "base": "block/creature/aquatic/coral/anemone/tentacle-large-mix*" }
+        },
+        "*": {
+			base: { base: "block/creature/aquatic/coral/anemone/base-{color}*" },
+			top: { base: "block/creature/aquatic/coral/anemone/top-{color}*" },
+			small: { base: "block/creature/aquatic/coral/anemone/tentacle-small-{color}*" },
+			large: { base: "block/creature/aquatic/coral/anemone/tentacle-large-{color}*" }
+        }
+    },
+	creativeinventory: { "general": ["*"], "aquatic": ["*"] },
+	renderpass: "OpaqueNoCull",
+	doNotRenderAtLod2: true,
+	randomizeRotations: true,
+	randomDrawOffset: true,
+	sideopaque:{ all: false },
+	sidesolid: { all: false },
+	vertexFlags: { windMode: "WaterPlant" },
+	replaceable: 3000,
+	lightAbsorption: 0,
+	resistance: 4,
+	collisionbox: null,
+	sounds: {
+		place: "block/plant",
+		break: "block/plant",
+		hit: "block/plant"
+	},
+	blockmaterial: "Plant",
+	materialDensity: 1100,
+	transitionablePropsByType: {
+		"coral-anemone-stripe*": [{
+			type: "Perish",
+			freshHours: { avg: 24 },
+			transitionHours: { avg: 24 },
+			transitionedStack: { type: "item", code: "rot" },
+			transitionRatio: 1
+		}],
+		"coral-anemone-mix*": [{
+			type: "Perish",
+			freshHours: { avg: 24 },
+			transitionHours: { avg: 48 },
+			transitionedStack: { type: "item", code: "rot" },
+			transitionRatio: 1
+		}],
+		"*": [{
+			type: "Perish",
+			freshHours: { avg: 24 },
+			transitionHours: { avg: 72 },
+			transitionedStack: { type: "item", code: "rot" },
+			transitionRatio: 1
+		}]
+	},
+	selectionboxByType: {
+	 	"*": { x1: 0.125, y1: 0, z1: 0.125, x2: 0.875, y2: 0.25, z2: 0.875 }
+	},
+	guiTransformByType: {
+		"*": {
+			rotation: { x: -20, y: 19, z: 0 },
+			origin: { x: 0.5, y: 0.4, z: 0.5 },
+			scale: 1.52
+		}
+	},
+	tpHandTransformByType: {
+		"*": {
+			translation: { x: -1, y: -0.1, z: -1 },
+			rotation: { x: 71, y: 0, z: -84 },
+			origin: { x: 0.5, y: 0.1, z: 0.5 },
+			scale: 0.48
+		}
+	},
+	groundTransformByType: {
+		"*": {
+			scale: 2.64
+		}
+	},
+	fpHandTransformByType: {
+		"*": {
+			translation: { x: 0, y: 0.35, z: 0.5 },
+			scale: 1.62
+		}
+	}
+}

@@ -1,0 +1,32 @@
+{
+	// Eats all your block ids for breakfast
+	code: "blockideater",
+	enabled: false,
+	shape: { base: "block/basic/cube" },
+	attributes: {
+		handbook: {
+			exclude: true
+		}
+	},
+	variantgroups: [
+		{ code: "num", states: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"] },
+		{ code: "bar", states: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"] },
+		{ code: "baz", states: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"] },
+		{ code: "banana", states: ["0", "1", "2", "3", "4", "5", "6", "7", "8"] },
+	],
+	drawtype: "cube",
+	creativeinventory: { "general": [""], "construction": [""] },
+	blockmaterial: "Stone",
+	replaceable: 900,
+	lightAbsorption: 99,
+	textures: {
+		all: { base: "block/creative/col{num}" },
+	},
+	resistance: 1,
+	sideopaque: {
+		all: true
+	},
+	sidesolid: {
+		all: true
+	}
+}

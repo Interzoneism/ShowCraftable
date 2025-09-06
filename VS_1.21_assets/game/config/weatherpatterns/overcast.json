@@ -1,0 +1,67 @@
+[
+	{
+		code: "overcast",
+		name: "Overcast everywhere",
+		description: "100% clouds",
+		weight: 0.75,
+		weightFunction: "AvoidHotAndDry",
+		durationHours: { avg: 6, var: 24, dist: "invexp" },
+		sceneBrightness: { avg: 0.9, var: 0.05 },
+		clouds: {
+			baseThickness: { avg: 1, var: 0 },
+			opaqueness: { avg: 1, var: 0 },
+			thinCloudMode: { avg: 1 },
+			undulatingCloudMode: { avg: 0.1, var: 0.2 },
+			brightness: { avg: 0.9, var: 0.05 },
+			heightMul: { avg: 0.4 }
+		},
+		fog: {
+			fogBrightness: { avg: 0.65 },
+			density: { avg: 3, var: 20, dist: "stronginvexp" },
+		}
+	},
+	{
+		code: "overcastundulating",
+		name: "Overcast with undulating clouds everywhere",
+		description: "100% clouds",
+		weight: 1,
+		weightFunction: "AvoidHotAndDry",
+		durationHours: { avg: 6, var: 24, dist: "invexp" },
+		sceneBrightness: { avg: 0.9, var: 0.05 },
+		clouds: {
+			baseThickness: { avg: 1, var: 0 },
+			opaqueness: { avg: 1, var: 0 },
+			thinCloudMode: { avg: 1 },
+			undulatingCloudMode: { avg: 1 },
+			brightness: { avg: 0.9, var: 0.05 },
+			heightMul: { avg: 0.4 }
+		},
+		fog: {
+			fogBrightness: { avg: 0.65 },
+			density: { avg: 3, var: 20, dist: "stronginvexp" },
+		}
+	},
+	{
+		code: "overcast",
+		name: "Overcast extra chance in wet places",
+		description: "100% clouds",
+		weight: 1.5,
+		weightFunction: "TestRainTemp",
+		minRain: 0.6,
+		rainRange: 0.4,
+		durationHours: { avg: 6, var: 24, dist: "invexp" },
+		sceneBrightness: { avg: 0.9, var: 0.05 },
+		clouds: {
+			baseThickness: { avg: 1, var: 0 },
+			opaqueness: { avg: 1, var: 0 },
+			thinCloudMode: { avg: 1 },
+			undulatingCloudMode: { avg: 0.1, var: 0.2 },
+			brightness: { avg: 0.9, var: 0.05 },
+			heightMul: { avg: 0.4 }
+		},
+		fog: {
+			fogBrightness: { avg: 0.65 },
+			density: { avg: 3, var: 20, dist: "stronginvexp" },
+		}
+	}
+]

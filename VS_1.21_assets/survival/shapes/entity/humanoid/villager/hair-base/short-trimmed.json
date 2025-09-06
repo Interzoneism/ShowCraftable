@@ -1,0 +1,36 @@
+{
+	"editor": {
+		"backDropShape": "entity/humanoid/villager-male",
+		"allAngles": true,
+		"entityTextureMode": true
+	},
+	"textureWidth": 48,
+	"textureHeight": 48,
+	"textureSizes": {
+		"birch": [16,16]
+	},
+	"textures": {
+		"hair": "entity/humanoid/seraphskinparts/hair/eerieblack"
+	},
+	"elements": [
+		{
+			"name": "HairBase",
+			"stepParentName": "Head",
+			"from": [ -0.2, -0.3, -0.1 ],
+			"to": [ 5.6, 5.2, 5.1 ],
+			"renderPass": 3,
+			"autoUnwrap": false,
+			"uv": [ 1.5, 10.5 ],
+			"rotationOrigin": [ 2.8, 2.7, 2.5 ],
+			"faces": {
+				"north": { "texture": "#hair", "uv": [ 7.5, 36.0, 13.0, 41.5 ] },
+				"east": { "texture": "#hair", "uv": [ 0.5, 37.0, 5.5, 42.5 ] },
+				"south": { "texture": "#hair", "uv": [ 17.0, 36.0, 22.5, 41.5 ] },
+				"west": { "texture": "#hair", "uv": [ 12.5, 36.0, 17.5, 41.5 ] },
+				"up": { "texture": "#hair", "uv": [ 0.5, 36.0, 6.0, 41.0 ] }
+			}
+		}
+	],
+	"animations": [
+	]
+}

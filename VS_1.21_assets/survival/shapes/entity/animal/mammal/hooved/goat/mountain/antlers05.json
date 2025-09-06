@@ -1,0 +1,150 @@
+{
+	"editor": {
+		"backDropShape": "entity/animal/mammal/hooved/goat/mountain/adult",
+		"collapsedPaths": "Root/Body/abdomen,Root/Body/neck/neck2/head/Horn Attachment/HornRBase/HornRrotator/Rhorn1A/Rhorn2A/Rhorn3A,Root/Body/neck/neck2/head/Horn Attachment/RHornRotator/Rhorn1A,Root/Body/neck/neck2/head/Horn Attachment/LHornBase/Lhorn1A/Lhorn2A/Lhorn3A,Root/Body/Left Shoulder,Root/Body/Right Shoulder,Root/Body/rear",
+		"allAngles": true,
+		"entityTextureMode": true
+	},
+	"textureWidth": 48,
+	"textureHeight": 60,
+	"textureSizes": {
+		"mountain-adult": [48,60],
+		"mountain-wintercoat": [48,60]
+	},
+	"textures": {
+		"mountain-adult": "entity/animal/mammal/hooved/goat/mountain-adult"
+	},
+	"elements": [
+		{
+			"name": "Horn Attachment",
+			"stepParentName": "head",
+			"from": [ 0.5, 2.4, 1.25 ],
+			"to": [ 1.5, 3.4, 2.25 ],
+			"unwrapMode": 4,
+			"uv": [ 1.0, 19.5 ],
+			"rotationOrigin": [ 0.5, 2.4, 1.25 ],
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "LHorn1",
+					"from": [ -0.2, 1.0, 0.45 ],
+					"to": [ 0.3, 2.5, 0.95 ],
+					"unwrapMode": 4,
+					"uv": [ 0.0, 5.5 ],
+					"rotationOrigin": [ -0.2, 1.0, 0.45 ],
+					"rotationX": 15.0,
+					"rotationZ": -5.0,
+					"faces": {
+						"north": { "texture": "#mountain-adult", "uv": [ 0.0, 6.0, 0.5, 7.5 ] },
+						"east": { "texture": "#mountain-adult", "uv": [ 1.5, 6.0, 2.0, 7.5 ] },
+						"south": { "texture": "#mountain-adult", "uv": [ 1.0, 6.0, 1.5, 7.5 ] },
+						"west": { "texture": "#mountain-adult", "uv": [ 0.5, 6.0, 1.0, 7.5 ], "windMode": [-1,-1,-1,-1], "windData": [1,1,1,1] },
+						"up": { "texture": "#mountain-adult", "uv": [ 0.5, 5.5, 1.0, 6.0 ], "rotation": 90 }
+					},
+					"children": [
+						{
+							"name": "LHorn2",
+							"from": [ 0.05, 1.5, 0.05 ],
+							"to": [ 0.45, 3.0, 0.45 ],
+							"unwrapMode": 4,
+							"uv": [ 0.0, 3.5 ],
+							"rotationOrigin": [ 0.05, 1.5, 0.05 ],
+							"rotationZ": -15.0,
+							"faces": {
+								"north": { "texture": "#mountain-adult", "uv": [ 0.0, 4.0, 0.5, 5.5 ] },
+								"east": { "texture": "#mountain-adult", "uv": [ 1.5, 4.0, 2.0, 5.5 ] },
+								"south": { "texture": "#mountain-adult", "uv": [ 1.0, 4.0, 1.5, 5.5 ] },
+								"west": { "texture": "#mountain-adult", "uv": [ 0.5, 4.0, 1.0, 5.5 ] },
+								"up": { "texture": "#mountain-adult", "uv": [ 0.5, 3.5, 1.0, 4.0 ], "rotation": 90 }
+							},
+							"children": [
+								{
+									"name": "LHorn3",
+									"from": [ 0.05, 1.5, 0.05 ],
+									"to": [ 0.35, 3.0, 0.35 ],
+									"unwrapMode": 4,
+									"uv": [ 0.0, 1.5 ],
+									"rotationOrigin": [ 0.05, 1.5, 0.05 ],
+									"rotationZ": -15.0,
+									"faces": {
+										"north": { "texture": "#mountain-adult", "uv": [ 0.0, 2.0, 0.5, 3.5 ] },
+										"east": { "texture": "#mountain-adult", "uv": [ 1.5, 2.0, 2.0, 3.5 ] },
+										"south": { "texture": "#mountain-adult", "uv": [ 1.0, 2.0, 1.5, 3.5 ] },
+										"west": { "texture": "#mountain-adult", "uv": [ 0.5, 2.0, 1.0, 3.5 ] },
+										"up": { "texture": "#mountain-adult", "uv": [ 0.5, 1.5, 1.0, 2.0 ], "rotation": 90 }
+									}
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "RHorn1",
+					"from": [ -0.2, 1.0, -0.95 ],
+					"to": [ 0.3, 2.5, -0.45 ],
+					"unwrapMode": 4,
+					"uv": [ 2.5, 5.5 ],
+					"rotationOrigin": [ -0.2, 1.0, -0.45 ],
+					"rotationX": -15.0,
+					"rotationZ": -5.0,
+					"faces": {
+						"north": { "texture": "#mountain-adult", "uv": [ 2.5, 6.0, 3.0, 7.5 ] },
+						"east": { "texture": "#mountain-adult", "uv": [ 4.0, 6.0, 4.5, 7.5 ] },
+						"south": { "texture": "#mountain-adult", "uv": [ 3.5, 6.0, 4.0, 7.5 ] },
+						"west": { "texture": "#mountain-adult", "uv": [ 3.0, 6.0, 3.5, 7.5 ] },
+						"up": { "texture": "#mountain-adult", "uv": [ 3.0, 5.5, 3.5, 6.0 ], "rotation": 90 }
+					},
+					"children": [
+						{
+							"name": "RHorn2",
+							"from": [ 0.05, 1.5, 0.05 ],
+							"to": [ 0.45, 3.0, 0.45 ],
+							"unwrapMode": 4,
+							"uv": [ 2.5, 3.5 ],
+							"rotationOrigin": [ 0.05, 1.5, 0.45 ],
+							"rotationZ": -15.0,
+							"faces": {
+								"north": { "texture": "#mountain-adult", "uv": [ 2.5, 4.0, 3.0, 5.5 ] },
+								"east": { "texture": "#mountain-adult", "uv": [ 4.0, 4.0, 4.5, 5.5 ] },
+								"south": { "texture": "#mountain-adult", "uv": [ 3.5, 4.0, 4.0, 5.5 ] },
+								"west": { "texture": "#mountain-adult", "uv": [ 3.0, 4.0, 3.5, 5.5 ] },
+								"up": { "texture": "#mountain-adult", "uv": [ 3.0, 3.5, 3.5, 4.0 ], "rotation": 90 }
+							},
+							"children": [
+								{
+									"name": "RHorn3",
+									"from": [ 0.05, 1.5, 0.05 ],
+									"to": [ 0.35, 3.0, 0.35 ],
+									"unwrapMode": 4,
+									"uv": [ 2.5, 1.5 ],
+									"rotationOrigin": [ 0.05, 1.5, 0.35 ],
+									"rotationZ": -15.0,
+									"faces": {
+										"north": { "texture": "#mountain-adult", "uv": [ 2.5, 2.0, 3.0, 3.5 ] },
+										"east": { "texture": "#mountain-adult", "uv": [ 4.0, 2.0, 4.5, 3.5 ] },
+										"south": { "texture": "#mountain-adult", "uv": [ 3.5, 2.0, 4.0, 3.5 ] },
+										"west": { "texture": "#mountain-adult", "uv": [ 3.0, 2.0, 3.5, 3.5 ] },
+										"up": { "texture": "#mountain-adult", "uv": [ 3.0, 1.5, 3.5, 2.0 ], "rotation": 90 }
+									}
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"animations": [
+		{
+			"name": "Walk",
+			"code": "walk",
+			"quantityframes": 30,
+			"onActivityStopped": "Rewind",
+			"onAnimationEnd": "Repeat",
+			"keyframes": [
+
+			]
+		}
+	]
+}

@@ -1,0 +1,38 @@
+{
+	code: "solderbar",
+	behaviors: [
+		{ name: "GroundStorable", properties: { layout: 'Quadrants', collisionBox: { x1: 0, y1: 0, z1: 0, x2: 1, y2: 0.125, z2: 1 } } }
+	],
+	variantgroups: [
+	{ code:"metal", states: ["tin", "silver"] }
+	],
+	texture: { base: "block/metal/ingot/{metal}" },
+	creativeinventory: { "general": ["*"], "items": ["*"] },
+	maxstacksize: 64,
+	materialDensity: 900,
+	shape: { base: "item/solderbar" },
+	guiTransform: {
+		translation: { x: 2, y: 0, z: 0 },
+		rotation: { x: 149, y: -36, z: 0 },
+		origin: { x: 0.5, y: 0.1, z: 0.5 },
+		scale: 3.5
+	},
+	fpHandTransform: {
+		translation: { x: 0, y: 0.1, z: 0 },
+		rotation: { x: 90, y: 0, z: 30 },
+		origin: { x: 0.5, y: 0.1, z: 0.5 },
+		scale: 2.15
+	},
+	tpHandTransform: {
+		translation: { x: -0.77, y: -0.15, z: -0.64 },
+		rotation: { x: 0, y: -71, z: 18 },
+		origin: { x: 0.5, y: 0.1, z: 0.5 },
+		scale: 0.75
+	},
+	groundTransform: {
+		translation: { x: 0, y: 0, z: 0 },
+		rotation: { x: 0, y: 0, z: 0 },
+		origin: { x: 0.5, y: 0, z: 0.5 },
+		scale: 4.8
+	}
+}

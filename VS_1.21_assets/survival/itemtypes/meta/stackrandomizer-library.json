@@ -1,0 +1,78 @@
+{
+	code: "stackrandomizer",
+	class: "ItemStackRandomizer",
+	variantgroups: [
+		{ code: "type", states: [
+			"library"
+		] }
+	],
+	attributesByType: {
+		"*-library": {
+			handbook: { exclude: true },
+			stacks: [
+				{ type: "item", code: "paper-parchment", quantity: { avg: 3, var: 2 }, chance: 5 },
+				{ type: "item", code: "book-rotten-gray", chance: 1 },
+				{ type: "item", code: "book-rotten-brown", chance: 1 },
+				{ type: "item", code: "book-rotten-rust", chance: 1 },
+				{ type: "item", code: "book-rotten-purple", chance: 1 },
+				{ type: "item", code: "book-rotten-green", chance: 1 },
+				{ type: "item", code: "clothes-face-glasses", chance: 1 },
+				{ type: "item", code: "inkandquill", chance: 1 },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "candlestub-single", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "candlestubs-bunch1", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "candlestubs-bunch2", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "candlestubs-bunch3", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "candlestubs-bunch4", collected: true } },
+
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "bookshelves/large-book-closed", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "bookshelves/large-book-pile1", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "bookshelves/large-book-pile2", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "bookshelves/large-book-pile3", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "bookshelves/bookstand-verylarge-book-closed", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "bookshelves/bookstand-verylarge-book-open", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "bookshelves/lectern-large-book-closed", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "bookshelves/lectern-large-book-open", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "bookshelves/large-book-standing1", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "bookshelves/large-book-standing2", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "bookshelves/large-book-standing3", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "bookshelves/large-book-standing4", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "bookshelves/large-book-standing5", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "bookshelves/large-book-standing6", collected: true } },
+				
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "abacus1", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "abacus2", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "abacus3", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "abacus4", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "alidade", collected: true } },
+				
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "armillary1", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "armillary2", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "armillary3", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "astrolabe", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "diptych-dial", collected: true } },
+				
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "equi-dial", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "globe1", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "globe2", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "globe3", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "globe4", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "globe5", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "globe6", collected: true } },
+				
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "jonas-lamp/floor4", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "jonas-lamp/floor5", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "jonas-lamp/floor6", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "jonas-lamp/floor7", collected: true } },
+				
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "pile-drafting-instrument", collected: true } },
+				{ type: "block", code: "clutter", chance: 1, attributes: { type: "machine6", collected: true } },
+				{ type: "item", code: "omokpiece-lead", chance: 1 },
+				{ type: "item", code: "omokpiece-gold", chance: 1 }
+			]
+		}
+	},
+	maxstacksize: 1,
+	texture: { base: "item/meta/randomizer/{type}" },
+	creativeinventory: { "meta": ["*"] },
+	materialDensity: 600
+}

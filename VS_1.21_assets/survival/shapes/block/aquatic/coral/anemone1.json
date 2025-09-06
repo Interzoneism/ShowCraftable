@@ -1,0 +1,185 @@
+{
+	"editor": {
+		"allAngles": true,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+		"top": [8,8]
+	},
+	"textures": {
+		"base": "block/creature/aquatic/coral/anemone/base-blue1",
+		"large": "block/creature/aquatic/coral/anemone/tentacle-large-blue1",
+		"top": "block/creature/aquatic/coral/anemone/top-blue1"
+	},
+	"elements": [
+		{
+			"name": "origin",
+			"from": [ 8.0, 0.0, 8.0 ],
+			"to": [ 8.0, 0.0, 8.0 ],
+			"rotationOrigin": [ 8.0, 0.0, 8.0 ],
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "Cube2",
+					"from": [ -4.0, 0.0, -4.0 ],
+					"to": [ 4.0, 4.0, 4.0 ],
+					"rotationOrigin": [ -4.0, 0.0, -4.0 ],
+					"rotationX": 3.0,
+					"rotationZ": -3.0,
+					"faces": {
+						"north": { "texture": "#base", "uv": [ 1.5, 12.0, 9.5, 16.0 ] },
+						"east": { "texture": "#base", "uv": [ 7.0, 12.0, 15.0, 16.0 ] },
+						"south": { "texture": "#base", "uv": [ 2.0, 12.0, 10.0, 16.0 ] },
+						"west": { "texture": "#base", "uv": [ 2.5, 12.0, 10.5, 16.0 ] },
+						"up": { "texture": "#top", "uv": [ 0.0, 0.0, 8.0, 8.0 ], "windMode": [-1,-1,-1,-1] },
+						"down": { "texture": "#base", "uv": [ 0.0, 0.0, 8.0, 8.0 ] }
+					},
+					"children": [
+						{
+							"name": "Cube4",
+							"from": [ -3.5, 4.0, 4.0 ],
+							"to": [ 10.5, 12.0, 4.0 ],
+							"rotationOrigin": [ 4.1, 4.0, 4.0 ],
+							"faces": {
+							},
+							"children": [
+								{
+									"name": "tentacle12",
+									"from": [ 0.0, 0.0, -4.0 ],
+									"to": [ 14.0, 8.0, -4.0 ],
+									"rotationOrigin": [ 3.8, 0.0, -4.0 ],
+									"rotationX": -30.0,
+									"faces": {
+										"north": { "texture": "#large", "uv": [ 0.5, 0.0, 14.5, 8.0 ], "windMode": [0,-1,-1,0], "windData": [0,1,1,0] }
+									}
+								},
+								{
+									"name": "tentacle11",
+									"from": [ 0.0, 0.0, 4.0 ],
+									"to": [ 14.0, 8.0, 4.0 ],
+									"rotationOrigin": [ 3.8, 0.0, 4.0 ],
+									"rotationX": 66.0,
+									"faces": {
+										"north": { "texture": "#large", "uv": [ 0.0, 8.0, 14.0, 16.0 ], "windMode": [0,-1,-1,0], "windData": [0,1,1,0] }
+									}
+								},
+								{
+									"name": "tentacle10",
+									"from": [ 0.0, 0.0, 4.0 ],
+									"to": [ 14.0, 8.0, 4.0 ],
+									"rotationOrigin": [ -4.2, 0.0, 4.0 ],
+									"rotationX": 113.0,
+									"faces": {
+										"north": { "texture": "#large", "uv": [ 0.0, 0.0, 14.0, 8.0 ], "windMode": [0,-1,-1,0], "windData": [0,1,1,0] }
+									}
+								},
+								{
+									"name": "tentacle9",
+									"from": [ 0.0, 0.0, 4.0 ],
+									"to": [ 14.0, 8.0, 4.0 ],
+									"rotationOrigin": [ 3.8, 0.0, 4.0 ],
+									"rotationX": 18.0,
+									"faces": {
+										"north": { "texture": "#large", "uv": [ 0.0, 0.0, 14.0, 8.0 ], "windMode": [0,-1,-1,0], "windData": [0,1,1,0] }
+									}
+								},
+								{
+									"name": "tentacle8",
+									"from": [ 0.0, 0.0, -4.0 ],
+									"to": [ 14.0, 8.0, -4.0 ],
+									"rotationOrigin": [ 3.8, 0.0, -4.0 ],
+									"rotationX": -79.0,
+									"faces": {
+										"north": { "texture": "#large", "uv": [ 0.5, 8.0, 14.5, 16.0 ], "windMode": [0,-1,-1,0], "windData": [0,1,1,0] }
+									}
+								},
+								{
+									"name": "tentacle7",
+									"from": [ 0.0, 0.0, -4.0 ],
+									"to": [ 14.0, 8.0, -4.0 ],
+									"rotationOrigin": [ 3.8, 0.0, -4.0 ],
+									"rotationX": -114.0,
+									"faces": {
+										"north": { "texture": "#large", "uv": [ 0.5, 0.0, 14.5, 8.0 ], "windMode": [0,-1,-1,0], "windData": [0,1,1,0] }
+									}
+								}
+							]
+						},
+						{
+							"name": "Cube6",
+							"from": [ 4.0, 4.0, -3.5 ],
+							"to": [ 4.0, 12.0, 10.5 ],
+							"rotationOrigin": [ 4.0, 4.0, 3.5 ],
+							"faces": {
+							},
+							"children": [
+								{
+									"name": "tentacle1",
+									"from": [ -4.0, 0.0, 1.0 ],
+									"to": [ -4.0, 8.0, 15.0 ],
+									"rotationOrigin": [ -4.0, 0.0, 8.0 ],
+									"rotationZ": 30.0,
+									"faces": {
+										"east": { "texture": "#large", "uv": [ 0.0, 8.0, 14.0, 16.0 ], "windMode": [0,-1,-1,0], "windData": [0,1,1,0] }
+									}
+								},
+								{
+									"name": "tentacle2",
+									"from": [ 4.0, 0.0, 0.0 ],
+									"to": [ 4.0, 8.0, 14.0 ],
+									"rotationOrigin": [ 4.0, 0.0, 7.0 ],
+									"rotationZ": -30.0,
+									"faces": {
+										"east": { "texture": "#large", "uv": [ 0.5, 8.0, 14.5, 16.0 ], "windMode": [0,-1,-1,0], "windData": [0,1,1,0] }
+									}
+								},
+								{
+									"name": "tentacle3",
+									"from": [ -4.0, 0.0, 0.0 ],
+									"to": [ -4.0, 8.0, 14.0 ],
+									"rotationOrigin": [ -4.0, 0.0, 7.0 ],
+									"rotationZ": 126.0,
+									"faces": {
+										"east": { "texture": "#large", "uv": [ 0.0, 8.0, 14.0, 16.0 ], "windMode": [0,-1,-1,0], "windData": [0,1,1,0] }
+									}
+								},
+								{
+									"name": "tentacle4",
+									"from": [ -4.0, 0.0, 1.0 ],
+									"to": [ -4.0, 8.0, 15.0 ],
+									"rotationOrigin": [ -4.0, 0.0, 8.0 ],
+									"rotationZ": 74.0,
+									"faces": {
+										"east": { "texture": "#large", "uv": [ 0.0, 0.0, 14.0, 8.0 ], "windMode": [0,-1,-1,0], "windData": [0,1,1,0] }
+									}
+								},
+								{
+									"name": "tentacle5",
+									"from": [ 4.0, 0.0, 0.0 ],
+									"to": [ 4.0, 8.0, 14.0 ],
+									"rotationOrigin": [ 4.0, 0.0, 7.0 ],
+									"rotationZ": -67.0,
+									"faces": {
+										"east": { "texture": "#large", "uv": [ 0.5, 0.0, 14.5, 8.0 ], "windMode": [0,-1,-1,0], "windData": [0,1,1,0] }
+									}
+								},
+								{
+									"name": "tentacle6",
+									"from": [ 4.0, 0.0, 0.0 ],
+									"to": [ 4.0, 8.0, 14.0 ],
+									"rotationOrigin": [ 4.0, 0.0, 7.0 ],
+									"rotationZ": -107.0,
+									"faces": {
+										"east": { "texture": "#large", "uv": [ 0.5, 8.0, 14.5, 16.0 ], "windMode": [0,-1,-1,0], "windData": [0,1,1,0] }
+									}
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	]}

@@ -1,0 +1,13 @@
+[
+	{
+		code: "strongbreeze",
+		name: "A strong breeze",
+		weight: 1,
+		durationHours: { avg: 6, var: 36, dist: "invexp" },
+		strength: { avg: 0.6, var: 0.15 },
+		strengthNoise: {
+			amplitudes: [0.2, 0.15, 0.5],
+			frequencies: [20, 40, 150]
+		}
+	}
+]

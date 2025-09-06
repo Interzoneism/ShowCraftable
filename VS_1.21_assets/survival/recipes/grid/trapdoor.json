@@ -1,0 +1,41 @@
+[
+{
+	ingredientPattern: "WWW	SSS	WWW",
+	ingredients: {
+		"W": { type: "item", code: "plank-*", name: "wood", quantity: 1 },
+		"S": { type: "item", code: "stick" },
+	},
+	width: 3,
+	height: 3,
+	output: { type: "block", code: "trapdoor-window-{wood}-1", quantity: 2  }
+},
+{
+	ingredientPattern: "WWW	WWW	WWW",
+	ingredients: {
+		"W": { type: "item", code: "plank-*", name: "wood", quantity: 1 }
+	},
+	width: 3,
+	height: 3,
+	output: { type: "block", code: "trapdoor-solid-{wood}-1", quantity: 2  }
+},
+{
+	ingredientPattern: "NN	WW",
+	ingredients: {
+		"W": { type: "item", code: "metalplate-iron" },
+		"N": { type: "item", code: "metalnailsandstrips-iron", quantity: 1 }
+	},
+	width: 2,
+	height: 2,
+	output: { type: "block", code: "trapdoor-plate-iron-1", quantity: 1  }
+},
+{
+	ingredientPattern: "NN	RR	RR",
+	ingredients: {
+		"N": { type: "item", code: "metalnailsandstrips-iron", quantity: 1 },
+		"R": { type: "item", code: "rod-iron", quantity: 1 }
+	},
+	width: 2,
+	height: 3,
+	output: { type: "block", code: "trapdoor-bars-iron-1", quantity: 1  }
+}
+]

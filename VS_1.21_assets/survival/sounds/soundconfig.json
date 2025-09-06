@@ -1,0 +1,46 @@
+{
+	soundsets: {
+		"walk/default": ["walk/default1", "walk/default2", "walk/default3", "walk/default4"],
+		"walk/grass": ["walk/grass1", "walk/grass2", "walk/grass3"],
+		
+		"walk/gravel": ["walk/gravel1", "walk/gravel2", "walk/gravel3"],
+		"walk/sand": ["walk/sand1", "walk/sand2", "walk/sand3"],
+		"walk/snow": ["walk/snow1", "walk/snow2", "walk/snow3"],
+		"walk/deepsnow": ["walk/deepsnow1", "walk/deepsnow2", "walk/deepsnow3"],
+		"walk/ice": ["walk/ice1", "walk/ice2", "walk/ice3", "walk/ice4"],
+		"walk/wood": ["walk/wood1", "walk/wood2", "walk/wood3"],
+		"walk/water": ["walk/water1", "walk/water2"],
+		"walk/stone": ["walk/stone1", "walk/stone2", "walk/stone3"],
+		
+		"player/collect": ["player/collect1", "player/collect2", "player/collect3"],
+		"player/death": ["player/death1", "player/death2"],
+		"player/strike": ["player/strike1", "player/strike2"],
+		"player/hurt": ["player/hurt1", "player/hurt2", "player/hurt3", "player/hurt4"],
+		"player/chalkdraw": ["player/chalkdraw1", "player/chalkdraw2", "player/chalkdraw3"],
+		"player/gluerepair": ["player/gluerepair1", "player/gluerepair2", "player/gluerepair3", "player/gluerepair4"],
+		"effect/extinguish": ["effect/extinguish1", "effect/extinguish2"],
+		
+		"block/woodcreak": ["block/woodcreak_1", "block/woodcreak_2", "block/woodcreak_3", "block/woodcreak_4"],
+		"block/anvil": ["block/anvil1", "block/anvil2", "block/anvil3"],
+		"block/dirt": ["block/dirt1", "block/dirt2", "block/dirt3", "block/dirt4"],
+		"block/chop": ["block/chop1", "block/chop2", "block/chop3"],
+		"block/charcoal": ["block/charcoal1", "block/charcoal2", "block/charcoal3"],
+		
+		"creature/drifter-idle": ["creature/drifter-idle1", "creature/drifter-idle2", "creature/drifter-idle3", "creature/drifter-idle4"],
+		"creature/drifter-aggro": ["creature/drifter-aggro1", "creature/drifter-aggro2"],
+		"creature/chicken/hen-lay": ["creature/chicken/hen-lay1", "creature/chicken/hen-lay2"],
+		
+		"environment/largesplash": ["environment/largesplash1", "environment/largesplash2"],
+		"effect/anvilhit": ["effect/anvilhit1", "effect/anvilhit2", "effect/anvilhit3"],
+		"effect/water-fill": ["effect/water-fill1", "effect/water-fill2"],
+		"effect/crusher-impact": ["effect/crusher-impact1", "effect/crusher-impact2", "effect/crusher-impact3"],
+		"block/loosestone": ["block/loosestone1", "block/loosestone2", "block/loosestone3", "block/loosestone4"],
+		"environment/drip": ["environment/drip1", "environment/drip2", "environment/drip3"]
+	},
+	defaultBlockSounds: {
+		walk: "walk/default",
+		break: "player/destruct",
+		hit: "player/destruct",
+		place: "player/build"
+	}
+}

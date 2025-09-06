@@ -1,0 +1,149 @@
+{
+	"editor": {
+		"backDropShape": "entity/nonliving/boat/raft",
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+		"bark": "block/wood/bark/acacia-h",
+		"debarked": "block/wood/debarked/acacia"
+	},
+	"elements": [
+		{
+			"name": "origin",
+			"stepParentName": "OarStorage",
+			"from": [ 23.0, 2.7, 1.0 ],
+			"to": [ 23.0, 2.7, 1.0 ],
+			"rotationOrigin": [ 14.0, 2.7, 1.0 ],
+			"rotationX": 19.0,
+			"rotationY": -1.0,
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "stick1",
+					"from": [ 0.0, -0.75, -0.75 ],
+					"to": [ 16.0, 0.75, 0.75 ],
+					"faces": {
+						"north": { "texture": "#bark", "uv": [ 0.0, 7.0, 16.0, 8.5 ] },
+						"east": { "texture": "#debarked", "uv": [ 5.0, 5.0, 6.5, 6.5 ] },
+						"south": { "texture": "#bark", "uv": [ 0.0, 9.0, 16.0, 10.5 ] },
+						"up": { "texture": "#bark", "uv": [ 0.0, 8.0, 16.0, 9.5 ] },
+						"down": { "texture": "#bark", "uv": [ 0.0, 8.0, 16.0, 9.5 ] }
+					},
+					"children": [
+						{
+							"name": "stick2",
+							"from": [ -16.0, 0.0, 0.0 ],
+							"to": [ 0.0, 1.5, 1.5 ],
+							"rotationOrigin": [ 0.0, 0.75, 0.75 ],
+							"faces": {
+								"north": { "texture": "#bark", "uv": [ 0.0, 8.0, 16.0, 9.5 ] },
+								"south": { "texture": "#bark", "uv": [ 0.0, 7.0, 16.0, 8.5 ] },
+								"west": { "texture": "#bark", "uv": [ 7.0, 6.5, 8.5, 8.0 ] },
+								"up": { "texture": "#bark", "uv": [ 0.0, 8.0, 16.0, 9.5 ] },
+								"down": { "texture": "#bark", "uv": [ 0.0, 8.0, 16.0, 9.5 ] }
+							},
+							"children": [
+								{
+									"name": "branch1",
+									"from": [ -1.0, 0.5, 0.0 ],
+									"to": [ 4.0, 1.5, 1.0 ],
+									"rotationOrigin": [ 4.0, 1.0, 0.5 ],
+									"rotationX": 45.0,
+									"rotationY": -45.0,
+									"faces": {
+										"north": { "texture": "#bark", "uv": [ 4.5, 6.0, 9.5, 7.0 ] },
+										"south": { "texture": "#bark", "uv": [ 5.5, 6.5, 10.5, 7.5 ] },
+										"west": { "texture": "#bark", "uv": [ 6.0, 7.5, 7.0, 8.5 ] },
+										"up": { "texture": "#bark", "uv": [ 1.5, 6.5, 6.5, 7.5 ] },
+										"down": { "texture": "#bark", "uv": [ 7.0, 6.0, 12.0, 7.0 ] }
+									}
+								},
+								{
+									"name": "branch2",
+									"from": [ -2.0, 0.0, 0.0 ],
+									"to": [ 0.0, 1.0, 1.0 ],
+									"rotationOrigin": [ -2.0, 0.0, 0.0 ],
+									"faces": {
+										"north": { "texture": "#bark", "uv": [ 7.0, 7.5, 9.0, 8.5 ] },
+										"south": { "texture": "#bark", "uv": [ 8.0, 6.0, 10.0, 7.0 ] },
+										"west": { "texture": "#bark", "uv": [ 8.5, 6.5, 9.5, 7.5 ] },
+										"up": { "texture": "#bark", "uv": [ 4.0, 7.0, 6.0, 8.0 ] },
+										"down": { "texture": "#bark", "uv": [ 7.0, 9.0, 9.0, 10.0 ] }
+									}
+								}
+							]
+						},
+						{
+							"name": "chunk1",
+							"from": [ 16.0, 0.0, 0.0 ],
+							"to": [ 17.0, 1.0, 1.0 ],
+							"rotationOrigin": [ 16.0, 0.0, 0.0 ],
+							"faces": {
+								"north": { "texture": "#bark", "uv": [ 8.0, 10.0, 9.0, 11.0 ] },
+								"east": { "texture": "#debarked", "uv": [ 6.0, 6.5, 7.0, 7.5 ] },
+								"south": { "texture": "#debarked", "uv": [ 5.0, 7.5, 6.0, 8.5 ] },
+								"up": { "texture": "#debarked", "uv": [ 5.0, 7.0, 6.0, 8.0 ] },
+								"down": { "texture": "#bark", "uv": [ 7.0, 7.5, 8.0, 8.5 ] }
+							}
+						},
+						{
+							"name": "chunk2",
+							"from": [ 16.0, 1.0, 1.0 ],
+							"to": [ 17.5, 1.5, 1.5 ],
+							"rotationOrigin": [ 16.0, 1.0, 1.0 ],
+							"faces": {
+								"north": { "texture": "#debarked", "uv": [ 8.0, 9.5, 9.5, 10.0 ] },
+								"east": { "texture": "#debarked", "uv": [ 6.0, 6.5, 6.5, 7.0 ] },
+								"south": { "texture": "#bark", "uv": [ 5.0, 7.5, 6.5, 8.0 ] },
+								"up": { "texture": "#bark", "uv": [ 5.0, 7.0, 6.5, 7.5 ] },
+								"down": { "texture": "#debarked", "uv": [ 7.0, 7.5, 8.5, 8.0 ] }
+							}
+						},
+						{
+							"name": "chunk3",
+							"from": [ 17.0, 0.0, 0.0 ],
+							"to": [ 18.0, 0.5, 0.5 ],
+							"rotationOrigin": [ 17.0, 0.0, 0.0 ],
+							"faces": {
+								"north": { "texture": "#bark", "uv": [ 8.0, 10.0, 9.0, 10.5 ] },
+								"east": { "texture": "#debarked", "uv": [ 6.0, 6.5, 6.5, 7.0 ] },
+								"south": { "texture": "#debarked", "uv": [ 5.0, 7.5, 6.0, 8.0 ] },
+								"up": { "texture": "#debarked", "uv": [ 5.0, 7.0, 6.0, 7.5 ] },
+								"down": { "texture": "#bark", "uv": [ 7.0, 7.5, 8.0, 8.0 ] }
+							}
+						},
+						{
+							"name": "chunk4",
+							"from": [ 16.0, 1.0, 0.0 ],
+							"to": [ 16.5, 1.5, 0.5 ],
+							"rotationOrigin": [ 16.0, 1.0, 0.0 ],
+							"faces": {
+								"north": { "texture": "#bark", "uv": [ 8.0, 10.0, 8.5, 10.5 ] },
+								"east": { "texture": "#debarked", "uv": [ 6.0, 6.5, 6.5, 7.0 ] },
+								"south": { "texture": "#debarked", "uv": [ 5.0, 7.5, 5.5, 8.0 ] },
+								"up": { "texture": "#bark", "uv": [ 5.0, 7.0, 5.5, 7.5 ] }
+							}
+						},
+						{
+							"name": "chunk5",
+							"from": [ 16.0, 0.0, 1.0 ],
+							"to": [ 16.5, 0.5, 1.5 ],
+							"rotationOrigin": [ 16.0, 0.0, 1.0 ],
+							"faces": {
+								"east": { "texture": "#debarked", "uv": [ 6.0, 6.5, 6.5, 7.0 ] },
+								"south": { "texture": "#bark", "uv": [ 5.0, 7.5, 5.5, 8.0 ] },
+								"up": { "texture": "#debarked", "uv": [ 5.0, 7.0, 5.5, 7.5 ] },
+								"down": { "texture": "#bark", "uv": [ 7.0, 7.5, 7.5, 8.0 ] }
+							}
+						}
+					]
+				}
+			]
+		}
+	]}

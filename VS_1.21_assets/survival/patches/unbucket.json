@@ -1,0 +1,16 @@
+[
+  {
+    "op": "remove",
+    "path": "/attributes/waterTightContainerProps/whenSpilled/stackByFillLevel",
+    "file": "itemtypes/liquid/waterportion.json",
+    "condition": { "when": "noLiquidSourceTransport", "isValue": true },
+    "side": "Server"
+  },
+  {
+    "op": "remove",
+    "path": "/attributes/waterTightContainerProps/whenSpilled/stackByFillLevel",
+    "file": "itemtypes/liquid/saltwaterportion.json",
+    "condition": { "when": "noLiquidSourceTransport", "isValue": true },
+    "side": "Server"
+  }
+]

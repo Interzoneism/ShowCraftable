@@ -1,0 +1,92 @@
+{
+	code: "clothes",
+	class: "ItemWearable",
+	variantgroups: [
+		{ code: "type",  states: ["nadiya"] },
+		{ code: "category",  states: ["upperbody"] },
+		{ code: "upperbody", combine: "SelectiveMultiply", onVariant: "category", states: [
+			"barber", "blacksmith", "guard", "hunter", "innkeeper", "miner", "miner-clean", "peasant1", "peasant2", "peasant3", "peasant4", "tailor",
+			"beekeeper", "fisher", "musician", "winter1", "winter2",
+			"alchemist", "shepherd"
+		] }
+	],
+	storageFlags: 128,
+	attributes: {
+		clothescategory: "upperbody",
+		wearableAttachment: true,
+		handbook: {
+			groupBy: ["clothes-{village}-{category}-*"]
+		}
+	},
+	attributesByType: {
+		"*-winter1": { warmth: 2.5 },
+		"*-winter2": { warmth: 2.5 },
+		"*": { warmth: 2 }
+	},
+	shapeByType: {
+		"@*-(beekeeper|fisher|musician|winter1|winter2)": { 
+			base: "entity/humanoid/seraph/clothing/upperbody/longsleeve"
+		},
+		"*-alchemist": { 
+			base: "entity/humanoid/seraph/clothing/upperbody/longsleeve-extended"
+		},
+		"*-shepherd": { 
+			base: "entity/humanoid/seraph/clothing/upperbody/longsleeve-extended"
+		},
+		"*": {
+			base: "entity/humanoid/seraph/clothing/upperbody/shortsleeve" 
+		}
+	},
+	texturesByType: {
+		"@*-(beekeeper|fisher|musician|winter1|winter2)": { 
+			"seraph": { base: "block/transparent" },
+			"shirt": { base: "entity/humanoid/villagerclothes/upperbody/longsleeve/{upperbody}" }
+		},
+		"*-alchemist": { 
+			"seraph": { base: "block/transparent" },
+			"shirt": { base: "entity/humanoid/villagerclothes/upperbody/longsleeve-extended/{upperbody}" }
+		},
+		"*-shepherd": { 
+			"seraph": { base: "block/transparent" },
+			"shirt": { base: "entity/humanoid/villagerclothes/upperbody/longsleeve-extended/{upperbody}" }
+		},
+		"*": {
+			"seraph": { base: "block/transparent" },
+			"shirt": { base: "entity/humanoid/villagerclothes/upperbody/shortsleeve/{upperbody}" }
+		}
+	},
+	creativeinventory: { "general": ["*"], "items": ["*"], "clothing": ["*"] },
+	renderAlphaTest: 0.25,
+	guiTransformByType: {
+		"*-winter1": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: -178, y: -65, z: 10 },
+			origin: { x: 0.43, y: 1.13, z: 0.5 },
+			scale: 1.6
+		},
+		"*": {
+			rotate: false,
+			translation: { x: 0, y: 0, z: 0 },
+			rotation: { x: -178, y: -65, z: 10 },
+			origin: { x: 0.41, y: 1.16, z: 0.5 },
+			scale: 1.69
+		}
+	},
+	fpHandTransform: {
+		translation: { x: 0.05, y: -0.6, z: 0.3 },
+		rotation: { x: 180, y: 150, z: 180 },
+		scale: 2
+	},
+	tpHandTransform: {
+		translation: { x: -0.3, y: -0.9, z: -0.7 },
+		rotation: { x: -71, y: 180, z: 83 },
+		scale: 0.55
+	},
+	groundTransform: {
+		translation: { x: 0.05, y: 0.05, z: 0 },
+		rotation: { x: 0, y: 0, z: -87 },
+		origin: { x: 0.5, y: 0.5, z: 0.5299 },
+		scale: 4
+	}
+}

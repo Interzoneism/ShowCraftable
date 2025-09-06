@@ -1,0 +1,76 @@
+{
+	code: "wateringcan",
+	class: "BlockWateringCan",
+	entityClass: "WateringCan",
+	behaviors: [
+		{name: "GroundStorable", properties: { layout: 'SingleCenter' } },
+		{name: "Unplaceable", }, // The ground storable obsoletes this being a block. Should be an item, but is kept a block for backwards compatibility
+		{name: "Lockable"},
+		{name: "UnstableFalling"}, 		
+		{name: "RightClickPickup"},
+		{name: "SneakPlacing"}
+	],
+	variantgroups: [
+		{ code: "color", states: ["blue", "fire", "black", "brown", "cream", "gray", "orange", "red", "tan", ] },
+		{ code: "state", states: ["fired"] }
+	],
+	shape: { base: "block/clay/watering-can" },
+	textures: {  
+		"wateringcanup": { base: "block/clay/hardened/{color}" },
+		"wateringcanrose": { base: "block/clay/hardened/{color}", overlays: [ "block/clay/overlay/wateringcan" ] },
+		"watering-can": { base: "block/clay/hardened/{color}", overlays: [ "block/clay/overlay/wateringcan" ] }
+	},
+	attributes: {
+		reinforcable: true,
+		onTongTransform: {
+			translation: { x: -1.38, y: -1.14, z: -0.5 },
+			rotation: { x: -131, y: 71, z: -14 },
+			scale: 0.8
+		},
+		handbook: {
+			groupBy: ["wateringcan-*-{state}"]
+		}
+	},
+	heldTpUseAnimation: "water",
+	heldRightReadyAnimation: "helditemreadyslant",
+	blockmaterial: "Ceramic",
+	creativeinventory: { "general": ["*"], "construction": ["*"] },
+	replaceable: 1200,
+	resistance: 1.5,
+	maxStackSize: 1,
+	liquidSelectable: 1,
+	lightAbsorption: 0,
+	sounds: {
+		walk: "walk/stone",
+	},
+	collisionbox: {
+		x1: 0.25, y1: 0, z1: 0.25, x2: 0.75, y2: 0.75, z2: 0.75,
+	},
+	selectionbox: {
+		x1: 0.25, y1: 0, z1: 0.25, x2: 0.75, y2: 0.75, z2: 0.75,
+	},
+	sideopaque: {
+		all: false
+	},
+	sidesolid: {
+		all: false
+	},
+	fpHandTransform: {
+		rotation: { x: 0, y: -134, z: 0 },
+		scale: 1.56
+	},
+	guiTransform: {
+		origin: { x: 0.5, y: 0.35, z: 0.5 },
+		scale: 1.87
+	},
+	tpHandTransform: {
+		translation: { x: -0.97, y: -0.71, z: -0.71 },
+		rotation: { x: 0, y: 180, z: 9 },
+		origin: { x: 0.5, y: 0.3, z: 0.5 },
+		scale: 0.65
+	},
+	groundTransform: {
+		origin: { x: 0.5, y: 0, z: 0.5 },
+		scale: 2.5
+	}
+}

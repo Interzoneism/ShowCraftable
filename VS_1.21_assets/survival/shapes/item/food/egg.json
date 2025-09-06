@@ -1,0 +1,28 @@
+{
+	"editor": {
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+		"hay-egg": "block/wood/henbox/hay-egg"
+	},
+	"elements": [
+		{
+			"name": "egg",
+			"from": [ 7.0, 0.0, 7.0 ],
+			"to": [ 9.0, 1.0, 9.0 ],
+			"rotationOrigin": [ 8.0, 0.1, 8.0 ],
+			"faces": {
+				"north": { "texture": "#hay-egg", "uv": [ 13.0, 11.0, 15.0, 12.0 ] },
+				"east": { "texture": "#hay-egg", "uv": [ 10.5, 12.0, 12.5, 13.0 ] },
+				"south": { "texture": "#hay-egg", "uv": [ 11.5, 11.5, 13.5, 12.5 ] },
+				"west": { "texture": "#hay-egg", "uv": [ 11.5, 14.0, 13.5, 15.0 ] },
+				"up": { "texture": "#hay-egg", "uv": [ 12.0, 13.0, 14.0, 15.0 ] },
+				"down": { "texture": "#hay-egg", "uv": [ 11.0, 13.0, 13.0, 15.0 ] }
+			}
+		}
+	]}

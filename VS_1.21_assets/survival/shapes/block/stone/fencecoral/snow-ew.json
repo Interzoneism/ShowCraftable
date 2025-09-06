@@ -1,0 +1,57 @@
+{
+	"editor": {
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+		"wall": [16,16],
+		"side": [16,16],
+		"snowcover": [16,16]
+	},
+	"textures": {
+		"snowcover": "block/liquid/snow/normal1",
+		"wall": "block/stone/fencecoral/coral1",
+		"side": "block/stone/fencecoral/side"
+	},
+	"elements": [
+		{
+			"name": "origin",
+			"from": [ 8.0, 0.0, 8.0 ],
+			"to": [ 8.0, 0.0, 8.0 ],
+			"rotationOrigin": [ 8.0, 0.0, 8.0 ],
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "wall",
+					"from": [ -8.0, 0.0, -2.0 ],
+					"to": [ 8.0, 16.0, 2.0 ],
+					"faces": {
+						"north": { "texture": "#wall", "uv": [ 0.0, 0.0, 16.0, 16.0 ] },
+						"east": { "texture": "#side", "uv": [ 0.0, 0.0, 4.0, 16.0 ] },
+						"south": { "texture": "#wall", "uv": [ 0.0, 0.0, 16.0, 16.0 ] },
+						"west": { "texture": "#side", "uv": [ 0.0, 0.0, 4.0, 16.0 ] },
+						"up": { "texture": "#side", "uv": [ 5.0, 0.0, 9.0, 16.0 ], "rotation": 90 },
+						"down": { "texture": "#side", "uv": [ 5.0, 0.0, 9.0, 16.0 ], "rotation": 90 }
+					},
+					"children": [
+						{
+							"name": "wall-snow",
+							"from": [ 0.0, 16.01, 0.0 ],
+							"to": [ 16.0, 18.01, 4.0 ],
+							"faces": {
+								"north": { "texture": "#snowcover", "uv": [ 0.0, 0.0, 16.0, 2.0 ] },
+								"east": { "texture": "#snowcover", "uv": [ 0.0, 0.0, 4.0, 2.0 ] },
+								"south": { "texture": "#snowcover", "uv": [ 0.0, 0.0, 16.0, 2.0 ] },
+								"west": { "texture": "#snowcover", "uv": [ 0.0, 0.0, 4.0, 2.0 ] },
+								"up": { "texture": "#snowcover", "uv": [ 5.0, 0.0, 9.0, 16.0 ], "rotation": 90 },
+								"down": { "texture": "#snowcover", "uv": [ 5.0, 0.0, 9.0, 16.0 ], "rotation": 90 }
+							}
+						}
+					]
+				}
+			]
+		}
+	]}

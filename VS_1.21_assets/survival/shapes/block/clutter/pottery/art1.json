@@ -1,0 +1,70 @@
+{
+	"editor": {
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+		"aged-ceramic1": "block/clay/aged-ceramic1"
+	},
+	"elements": [
+		{
+			"name": "origin",
+			"from": [ 8.0, 0.0, 8.0 ],
+			"to": [ 8.0, 0.0, 8.0 ],
+			"rotationOrigin": [ 8.0, 0.0, 8.0 ],
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "center",
+					"from": [ -1.0, 0.2, -1.0 ],
+					"to": [ 1.0, 2.2, 1.0 ],
+					"rotationOrigin": [ 0.0, 1.2, 0.0 ],
+					"rotationX": 15.0,
+					"faces": {
+						"north": { "texture": "#aged-ceramic1", "uv": [ 10.0, 5.5, 12.0, 7.5 ] },
+						"east": { "texture": "#aged-ceramic1", "uv": [ 8.5, 8.0, 10.5, 10.0 ] },
+						"south": { "texture": "#aged-ceramic1", "uv": [ 5.0, 10.5, 7.0, 12.5 ] },
+						"west": { "texture": "#aged-ceramic1", "uv": [ 3.5, 3.0, 5.5, 5.0 ] },
+						"up": { "texture": "#aged-ceramic1", "uv": [ 13.0, 6.0, 15.0, 8.0 ] },
+						"down": { "texture": "#aged-ceramic1", "uv": [ 7.5, 4.0, 9.5, 6.0 ] }
+					},
+					"children": [
+						{
+							"name": "cog1",
+							"from": [ -1.0, 0.5, -1.0 ],
+							"to": [ 3.0, 1.5, 3.0 ],
+							"rotationOrigin": [ 1.0, 1.0, 1.0 ],
+							"rotationY": -45.0,
+							"faces": {
+								"north": { "texture": "#aged-ceramic1", "uv": [ 5.5, 4.5, 9.5, 5.5 ] },
+								"east": { "texture": "#aged-ceramic1", "uv": [ 7.0, 11.5, 11.0, 12.5 ] },
+								"south": { "texture": "#aged-ceramic1", "uv": [ 9.0, 5.5, 13.0, 6.5 ] },
+								"west": { "texture": "#aged-ceramic1", "uv": [ 6.0, 10.0, 10.0, 11.0 ] },
+								"up": { "texture": "#aged-ceramic1", "uv": [ 10.0, 9.5, 14.0, 13.5 ] },
+								"down": { "texture": "#aged-ceramic1", "uv": [ 2.5, 3.5, 6.5, 7.5 ] }
+							}
+						},
+						{
+							"name": "cog2",
+							"from": [ -1.0, 0.6, -1.0 ],
+							"to": [ 3.0, 1.4, 3.0 ],
+							"rotationOrigin": [ 1.0, 1.0, 1.0 ],
+							"faces": {
+								"north": { "texture": "#aged-ceramic1", "uv": [ 11.0, 6.0, 15.0, 6.5 ] },
+								"east": { "texture": "#aged-ceramic1", "uv": [ 7.5, 15.0, 11.5, 15.5 ] },
+								"south": { "texture": "#aged-ceramic1", "uv": [ 7.5, 3.0, 11.5, 3.5 ] },
+								"west": { "texture": "#aged-ceramic1", "uv": [ 10.0, 13.5, 14.0, 14.0 ] },
+								"up": { "texture": "#aged-ceramic1", "uv": [ 4.5, 11.5, 8.5, 15.5 ] },
+								"down": { "texture": "#aged-ceramic1", "uv": [ 6.5, 10.0, 10.5, 14.0 ] }
+							}
+						}
+					]
+				}
+			]
+		}
+	]}

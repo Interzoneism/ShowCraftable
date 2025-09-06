@@ -1,0 +1,429 @@
+{
+	code: "goat",
+	class: "EntityAgent",
+	tags: ["animal", "huntable", "habitat-land"],
+	weight: 4,
+	variantgroups: [
+		{ code: "type", "states": ["angora", "ibexalp", "ibexnub", "markhor", "mountain", "muskox", "nubian", "sirohi", "takingold", "turdag", "valais" ] },
+		{ code: "age", "states": ["baby"] },
+		{ code: "gender", "states": ["male", "female"] }
+	],
+	hitBoxSize: { "x": 0.7,"y": 0.7},
+	deadhitBoxSize: { "x": 0.7,"y": 0.3},
+	eyeHeight: 0.6,
+	fallDamageMultiplier: 0.4,
+	drops: [],
+	attributes: {
+		killedByInfoText: "deadcreature-killed",
+		trappable: {
+			"small": { trapChance: 0.3,	trapDestroyChance: 0.05 },
+			"large": { trapChance: 0.7,	trapDestroyChance: 0 }
+		},
+		creatureDiet: {
+			foodCategories: ["Vegetable", "Grain"],
+			weightedFoodTags: [
+				{ weight: 0.5, code: "nibbleCrop" }, 
+				{ weight: 0.1, code: "grass" },
+				{ weight: 0.9, code: "fruitmash" },
+				{ weight: 1, code: "tastyvegetable" },
+				{ weight: 0.2, code: "soybean" }
+			],
+			skipFoodTags: ["rice", "parsnip"]
+		},
+		handbook: {
+			groupcode: "creaturegroup-goat"
+		}
+	},
+	client: {
+		renderer: "Shape",
+		shapeByType: {
+			"goat-muskox-*": { base: "entity/animal/mammal/hooved/goat/muskox/baby" },
+			"goat-nubian-*": { base: "entity/animal/mammal/hooved/goat/baby2" },
+			"goat-sirohi-*": { base: "entity/animal/mammal/hooved/goat/baby2" },
+			"goat-takingold-*": { base: "entity/animal/mammal/hooved/goat/takingold/baby" },
+			"*": { base: "entity/animal/mammal/hooved/goat/baby1" }
+		},
+		textureByType: {
+			"goat-angora-*": { base: "entity/animal/mammal/hooved/goat/mountain-baby" },
+			"*": { base: "entity/animal/mammal/hooved/goat/{type}-{age}" }    
+		},
+		behaviors: [
+				{ code: "repulseagents" },
+				{ code: "controlledphysics", "stepHeight": 3.1251 },
+				{ code: "interpolateposition" },
+				{ code: "floatupwhenstuck", "onlyWhenDead": true },
+				{ code: "harvestable" },
+				{ code: "despawn", "minPlayerDistance": 16, "belowLightLevel": 8, "minSeconds": 300 },
+				{ code: "ropetieable", minGeneration: 2 }
+			],
+		animations: [
+			{
+				code: "meleeattack",
+				animation: "Attack",
+				animationSpeed: 2.2,
+				weight: 10,
+				blendMode: "AddAverage"
+			},
+			{
+				code: "charge",
+				animation: "Charge",
+				animationSpeed: 2.2,
+				weight: 10,
+				blendMode: "AddAverage"
+			},
+			{
+				code: "roar",
+				animation: "Roar",
+				animationSpeed: 2.2,
+				weight: 10,
+				blendMode: "AddAverage"
+			},
+			{
+				code: "hurt",
+				animation: "Hurt",
+				animationSpeed: 2.2,
+				weight: 10,
+				blendMode: "AddAverage"
+			},
+			{
+				code: "die",
+				animation: "Die",
+				easeInSpeed: 3,
+				animationSpeed: 1.0,
+				weight: 10,
+				blendMode: "Average",
+				triggeredBy: { "onControls": [ "dead" ] }
+			},
+			{
+				code: "idle",
+				animation: "Idle",
+				blendMode: "AddAverage",
+				easeOutSpeed: 4,
+				triggeredBy: { "defaultAnim": true }
+			},
+			{
+				code: "sleep",
+				animation: "Sleep",
+				easeInSpeed: 4,
+				easeOutSpeed: 4,
+				blendMode: "Average"
+			},
+			{
+				code: "sit",
+				animation: "Sit",
+				easeInSpeed: 4,
+				easeOutSpeed: 4,
+				blendMode: "Average"
+			},
+			{
+				code: "eat",
+				animation: "Eat",
+				easeInSpeed: 4,
+				easeOutSpeed: 4,
+				blendMode: "Average"
+			},
+			{
+				code: "swim",
+				animation: "Swim",
+				supressDefaultAnimation: true,
+				blendMode: "Average"
+			},
+			{
+				code: "walk",
+				animation: "Walk",
+				supressDefaultAnimation: true,
+				blendMode: "Average"
+			},
+			{
+				code: "run",
+				animation: "Run",
+				supressDefaultAnimation: true,
+				blendMode: "Average"
+			},
+			{
+				code: "stot",
+				animation: "Stot",
+				supressDefaultAnimation: true,
+				blendMode: "Average"
+			},
+			{
+				code: "gallop",
+				animation: "Gallop",
+				supressDefaultAnimation: true,
+				blendMode: "Average"
+			}	
+		]
+	},
+	server: {
+		attributes: {
+			pathfinder: {
+				minTurnAnglePerSec: 90,
+				maxTurnAnglePerSec: 180
+			}
+		},
+		behaviors: [
+			{ code: "ropetieable", minGeneration: 2 },
+			{ code: "repulseagents" },
+			{
+				code: "controlledphysics",
+				stepHeight: 3.1251
+			},
+			{
+				code: "despawn",
+				minPlayerDistance: 8,
+				belowLightLevel: 8,
+				minSeconds: 300
+			},
+			{
+				code: "health",
+				currenthealth: 10,
+				maxhealth: 10
+			},
+			{
+				code: "deaddecay",
+				hoursToDecay: 96,
+				decayedBlock: "carcass-small"
+			},
+			{
+				code: "floatupwhenstuck",
+				onlyWhenDead: true
+			},
+			{
+				code: "harvestable",
+				drops: [
+					{
+						type: "item",
+						code: "redmeat-raw",
+						quantity: {
+							avg: 2,
+							var: 1
+						}
+					},
+					{
+						type: "item",
+						code: "hide-raw-small",
+						quantity: {
+							avg: 1,
+							var: 0.5
+						}
+					}
+				]
+			},
+			{ code: "breathe" },
+			{ 
+				code: "grow", 
+				hoursToGrow: 336,
+				adultEntityCodesByType: {
+					"*-baby-male": ["goat-{type}-adult-male"],
+					"*-baby-female": ["goat-{type}-adult-female"]
+				}
+			},
+			{
+				code: "emotionstates",
+				states: [
+					{
+						code: "fleeondamage",
+						whenHealthRelBelow: 0.4,
+						duration: 60,
+						chance: 1.0,
+						slot: 0,
+						priority: 5,
+						accumType: "max"
+					},
+					{
+						code: "fleeondamage",
+						duration: 40,
+						chance: 1.0,
+						slot: 0,
+						priority: 1,
+						accumType: "max"
+					},
+					{
+						code: "alarmherdondamage",
+						chance: 1,
+						slot: 1,
+						priority: 1,
+						accumType: "max"
+					},
+					{
+						code: "aggressiveondamage",
+						duration: 30,
+						chanceByType: {
+							"*-male-*": 0.5,
+							"*": 0.0
+						},
+						slot: 0,
+						priority: 2,
+						accumType: "noaccum"
+					},
+					{
+						code: "saturated",
+						duration: 1200,
+						chance: 1,
+						slot: 0,
+						priority: 1,
+						accumType: "sum"
+					}
+				]
+			},
+			{
+				code: "taskai",
+				aiCreatureType: "LandCreature",
+				aitasks: [
+					{
+						code: "fleeentity",
+						instafleeOnDamageChance: 1,
+						animation: "Run",
+						entityCodes: [ "player", "wolf-*", "hyena-*", "bear-*" ],
+						priority: 1.51,
+						movespeed: 0.04,
+						seekingRangeByType: {
+							"goat-ibexnub-*": 16,
+							"goat-muskox-*": 16,
+							"goat-nubian-*": 16,
+							"goat-sirohi-*": 16,
+							"goat-valais-*": 16,
+							"*": 12
+						},
+						animationSpeed: 2,
+						sound: "creature/goat/bleatweird"
+					},
+					{
+						code: "followleadholder",
+						minGeneration: 2,
+						priority: 1.45,
+						animation: "Walk",
+						animationSpeed: 0.8,
+						movespeed: 0.0045
+					},
+					{
+						code: "stayclosetoentity",
+						animation: "Run",
+						priority: 1.4,
+						entityCode: "goat-{type}-adult-female",
+						movespeed: 0.04,
+						animationSpeed: 2,
+						maxDistance: 10,
+						searchRange: 25
+					},
+					{
+						code: "getoutofwater",
+						animation: "Swim",
+						priority: 1.4,
+						movespeed: 0.03,
+						animationSpeed: 1
+					},
+					{
+						code: "idle",
+						animation: "Idle",
+						priority: 0.9,
+						minduration: 6000,
+						maxduration: 45000,
+						mincooldown: 6000,
+						maxcooldown: 120000,
+						priorityForCancel: 1.28,
+						stopOnNearbyEntityCodes: [ "player", "wolf-*", "hyena-*", "bear-*" ],
+						stopRange: 10,
+						stopOnHurt: true,
+						sound: "creature/goat/bleat*"
+					},
+					{
+						code: "idle",
+						animation: "Sleep",
+						priority: 1.38,
+						minduration: 200000,
+						maxduration: 800000,
+						mincooldown: 10000,
+						maxcooldown: 30000,
+						priorityForCancel: 1.38,
+						whenNotInEmotionState: "aggressiveondamage",
+						duringDayTimeFrames: [
+							{ "fromHour": 20, "toHour": 4 }
+						],
+						stopOnNearbyEntityCodes: [ "player", "wolf-*", "hyena-*", "bear-*" ],
+						stopRange: 8,
+						stopOnHurt: true
+					},
+					{
+						code: "idle",
+						animation: "Sit",
+						priority: 0.9,
+						minduration: 6000,
+						maxduration: 45000,
+						mincooldown: 6000,
+						maxcooldown: 120000,
+						priorityForCancel: 1.28,
+						stopOnNearbyEntityCodes: [ "player", "wolf-*", "hyena-*", "bear-*" ],
+						stopRange: 10,
+						stopOnHurt: true
+					},
+					{
+						code: "idle",
+						animation: "Roar",
+						priority: 1.0,
+						priorityForCancel: 1.35,
+						stopOnNearbyEntityCodes: [ "player", "wolf-*", "hyena-*", "bear-*" ],
+						minduration: 4667,
+						maxduration: 4667,
+						chance: 0.05,
+						mincooldown: 8000,
+						maxcooldown: 50000,
+						animationSpeed: 1.0,
+						sound: "creature/goat/bleat*",
+						soundRange: 30
+					},
+					{
+						code: "idle",
+						animation: "Eat",
+						priority: 1.2,
+						priorityForCancel: 1.35,
+						stopOnNearbyEntityCodes: [ "player", "wolf-*", "hyena-*", "bear-*" ],
+						minduration: 2667,
+						maxduration: 2667,
+						mincooldown: 6000,
+						maxcooldown: 20000,
+						animationSpeed: 1
+					},
+					{
+						code: "wander",
+						animation: "Walk",
+						priority: 1.0,
+						priorityForCancel: 1.35,
+						stopOnNearbyEntityCodes: [ "player", "wolf-*", "hyena-*", "bear-*" ],
+						movespeed: 0.004,
+						animationSpeed: 0.8,
+						preferredLightLevel: 12
+					},
+					{
+						code: "seekfoodandeat",
+						movespeed: 0.004,
+						priority: 1.25,
+						eatSound: "creature/animal-eat-small",
+						eatTime: 1.5,
+						eatLooseItems: true,
+						animationSpeed: 1.1,
+						animation: "Walk",
+						eatAnimation: "Eat",
+						mincooldownHours: 1,
+						maxcooldownHours: 4
+					},
+					{
+						code: "lookaround",
+						priority: 0.5
+					}
+				]
+			},
+			{
+				code: "pettable",
+				minGeneration: 1
+			},
+			{ code: "entitystatetags" }
+		]
+	},
+	sounds:{
+		hurt: "creature/goat/goatkidhurt1*",
+		death: "creature/goat/goatkidbleat*",
+		idle: "creature/goat/goatkidbleat*"
+	},
+	idleSoundChance: 0.1
+}

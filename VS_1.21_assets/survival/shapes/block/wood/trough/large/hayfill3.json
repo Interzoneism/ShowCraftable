@@ -1,0 +1,84 @@
+{
+	"editor": {
+		"collapsedPaths": "Root/origin2",
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+		"normal-side": "block/hay/normal-side",
+		"normal-top": "block/hay/normal-top",
+		"singlehay": "block/wood/trough/large/singlehay",
+		"singlehay2": "block/wood/trough/large/singlehay2"
+	},
+	"elements": [
+		{
+			"name": "origin",
+			"from": [ 0.0, 0.0, 0.0 ],
+			"to": [ 0.0, 0.0, 0.0 ],
+			"rotationOrigin": [ 8.0, 0.0, 8.0 ],
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "contents",
+					"from": [ 5.0, 4.0, 4.0 ],
+					"to": [ 16.0, 8.5, 12.0 ],
+					"rotationOrigin": [ 5.0, 8.0, 11.0 ],
+					"faces": {
+						"east": { "texture": "#normal-side", "uv": [ 2.0, 0.0, 10.0, 4.5 ] },
+						"up": { "texture": "#normal-top", "uv": [ 5.0, 0.0, 16.0, 8.0 ], "rotation": 180 }
+					},
+					"children": [
+						{
+							"name": "haystack 1",
+							"from": [ -1.0, 2.0, 2.0 ],
+							"to": [ 11.0, 7.5, 2.0 ],
+							"shade": false,
+							"renderPass": 1,
+							"rotationOrigin": [ 1.0, 2.0, 2.0 ],
+							"faces": {
+								"south": { "texture": "#singlehay", "uv": [ 0.0, 0.0, 12.0, 5.5 ] }
+							}
+						},
+						{
+							"name": "haystack 2",
+							"from": [ -1.0, 2.0, 6.0 ],
+							"to": [ 11.0, 7.5, 6.0 ],
+							"shade": false,
+							"renderPass": 1,
+							"rotationOrigin": [ 1.0, 2.0, 6.0 ],
+							"faces": {
+								"south": { "texture": "#singlehay", "uv": [ 0.0, 8.0, 12.0, 13.5 ] }
+							}
+						},
+						{
+							"name": "haystack 3",
+							"from": [ 3.0, 2.0, 0.0 ],
+							"to": [ 3.0, 7.5, 8.0 ],
+							"shade": false,
+							"renderPass": 1,
+							"rotationOrigin": [ 7.0, 2.0, -3.0 ],
+							"faces": {
+								"east": { "texture": "#singlehay2", "uv": [ 2.0, 9.0, 10.0, 14.5 ] }
+							}
+						},
+						{
+							"name": "haystack 4",
+							"from": [ 8.0, 2.0, 0.0 ],
+							"to": [ 8.0, 7.5, 8.0 ],
+							"shade": false,
+							"renderPass": 1,
+							"rotationOrigin": [ 7.0, 2.0, -3.0 ],
+							"faces": {
+								"east": { "texture": "#singlehay2", "uv": [ 3.5, 1.0, 11.5, 6.5 ] }
+							}
+						}
+					]
+				}
+			]
+		}
+	]}

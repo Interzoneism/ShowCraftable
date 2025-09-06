@@ -1,0 +1,390 @@
+{
+	code: "sheep",
+	class: "EntityAgent",
+	tags: ["animal", "huntable", "adult", "habitat-land"],
+	weight: 130,
+	variantgroups:  [ 
+		{ code: "type", states: ["bighorn"]},
+		{ code: "age", states: ["adult"] },
+		{ code: "gender", states: ["male", "female"] },
+	] ,
+	hitboxSize: { x: 1.15, y: 1.4 },
+	deadHitboxSize: { x: 1.15, y: 0.75 },
+	eyeHeight: 1.4,
+	attributes: {
+		creatureDiet: {
+			foodCategories: ["Vegetable", "Grain"],
+			weightedFoodTags: [
+				{ weight: 0.1, code: "grass" },
+				{ weight: 0.5, code: "nibbleCrop" }, 
+				{ weight: 0.7, code: "grain" }, 
+				{ weight: 0.9, code: "fruitmash" },
+				{ weight: 1, code: "tastyvegetable" },
+				{ weight: 0.2, code: "soybean" }
+			],
+			skipFoodTags: ["rice", "parsnip"]
+		},
+		trappable: {
+			"small": { trapChance: 0.0,	trapDestroyChance: 0.5 },
+			"large": { trapChance: 0.0,	trapDestroyChance: 0.1 }
+		},
+		"handbook": {
+			"groupcode": "creaturegroup-bighorn"
+		}
+	},
+	fallDamageMultiplier: 0.5,
+	drops: [],
+	client: {
+		renderer: "Shape",
+		shape: { base: "entity/animal/mammal/hooved/sheep/bighorn/{type}-{gender}" },
+		texture: { base: "entity/animal/mammal/hooved/sheep/{type}-{gender}" },
+		behaviors: [
+			{ code: "repulseagents" },
+			{ code: "controlledphysics", stepHeight: 2.1251 },
+			{ code: "floatupwhenstuck", onlyWhenDead: true },
+			{ code: "interpolateposition" },
+			{ code: "multiply", "enabledByType": { "*-female": true, "*": false } },
+			{ code: "harvestable" },
+			{ code: "despawn", minPlayerDistance: 8, belowLightLevel: 8, minSeconds: 300 },
+			{ code: "milkable", enabledByType: {"*-female": true, "*": false }},
+			{ code: "ropetieable", minGeneration: 2 }
+		],
+		animations: [
+			{
+				code: "hurt",
+				animation: "hurt",
+				animationSpeed: 2.2,
+				weight: 10,
+				blendMode: "AddAverage"
+			},
+			{
+				code: "die",
+				animation: "death",
+				animationSpeed: 1.25,
+				weight: 10,
+				blendMode: "Average",
+				triggeredBy: { onControls: ["dead"] }
+			},
+			{
+				code: "idle",
+				animation: "idle",
+				blendMode: "AddAverage",
+				easeOutSpeed: 4,
+				triggeredBy: { defaultAnim: true },
+			},
+			{
+				code: "sleep",
+				animation: "sleep",
+				easeInSpeed: 4,
+				easeOutSpeed: 4,
+				blendMode: "Average",
+			},
+			{
+				code: "sit",
+				animation: "sit",
+				easeInSpeed: 4,
+				easeOutSpeed: 4,
+				blendMode: "Average",
+			}
+		]
+	},
+	server: {
+		attributes: {
+			pathfinder: {
+				minTurnAnglePerSec: 90,
+				maxTurnAnglePerSec: 180
+			}
+		},
+		behaviors: [
+			{ code: "repulseagents" },
+			{ code: "controlledphysics", stepHeight: 2.1251 },
+			{ code: "despawn", minPlayerDistance: 8, belowLightLevel: 8, minSeconds: 300 },
+			{ code: "health", 
+				currenthealthByType: {
+					"*-female": 17,
+					"*": 19
+				},
+				maxhealthByType: { 
+					"*-female": 17,
+					"*": 19
+				}
+			},
+			{ code: "deaddecay", hoursToDecay: 96, decayedBlock: "carcass-medium" },
+			{ code: "floatupwhenstuck", onlyWhenDead: true },
+			{ code: "harvestable", drops: [
+				{
+					type: "item",
+					code: "redmeat-raw",
+					quantity: { avg: 13, var: 3 }
+				},
+				{
+					type: "item",
+					code: "hide-raw-large",
+					quantity: { avg: 1.2, var: 0.2 }
+				},
+				{
+					type: "item",
+					code: "fat",
+					quantity: { avg: 1, var: 0.3 }
+				}
+			],
+			},
+			{ code: "breathe" },
+			{ 
+				code: "multiply",
+				enabledByType: {
+					"*-female": true,
+					"*": false
+				},
+				spawnEntityCodes: [ { code:"sheep-{type}-baby-male"}, {code: "sheep-{type}-baby-female"} ],
+				requiresNearbyEntityCode: "sheep-bighorn-adult-male",
+				requiresNearbyEntityRange: 10,
+				spawnQuantityMin: 1,
+				spawnQuantityMax: 1,
+				pregnancyDays: 20,
+				multiplyCooldownDaysMin: 4,
+				multiplyCooldownDaysMax: 11,
+				portionsEatenForMultiply: 10
+			}, 
+			{
+				code: "emotionstates",
+				states: [
+					{ code: "fleeondamage", duration: 60, chance: 0.85, slot: 0, priority: 5, accumType: "max", whenHealthRelBelow: 0.4 },
+					{ code: "aggressiveondamage", 
+						duration: 30, 
+						chanceByType: {
+							"*-female": 0.75,
+							"*": 0.95
+						},
+						slot: 0, 
+						priority: 2, 
+						accumType: "noaccum" },
+					{ code: "fleeondamage", duration: 30, chance: 1, slot: 0, priority: 1, accumType: "max" },
+					{ code: "alarmherdondamage", chance: 1, slot: 1, priority: 1, accumType: "max" }
+				],
+			},
+			{
+				code: "taskai",
+				aiCreatureType: "LandCreature",
+				aitasks: [
+					{
+						code: "meleeattack",
+						entityCodes: ["player"],
+						knockbackStrengthByType: {
+							"*-female": 2,
+							"*": 2.65
+						},
+						priority: 2,
+						slot: 1,
+						damageByType: {
+							"*-female": 6,
+							"*": 7.5
+						},
+						damageTier: 2,
+						mincooldown: 1500,
+						maxcooldown: 2500,
+						attackDurationMs: 1250,
+						damagePlayerAtMs: 800,
+						animation: "Attack",
+						animationSpeed: 2
+					},
+					{
+						code: "seekentity",
+						entityCodes: ["player"],
+						priority: 1.5,
+						mincooldown: 1000,
+						maxcooldown: 1500,
+						seekingRange: 25,
+						movespeed: 0.05,
+						animation: "Run",
+						animationSpeed: 2.5,
+						whenInEmotionState: "aggressiveondamage"
+					},
+					{
+						code: "fleeentity",
+						entityCodes: ["player", "bear-*"],
+						priority: 1.5,
+						movespeed: 0.052,
+						seekingRange: 12,
+						animation: "Run",
+						animationSpeed: 3.5,
+						sound: "creature/sheep/hurt2",
+						whenInEmotionState: "fleeondamage"
+					},
+					{
+						code: "followleadholder",
+						minGeneration: 2,
+						priority: 1.45,
+						animation: "walk",
+						animationSpeed: 1.5,
+						movespeed: 0.02
+					},
+					{
+						code: "getoutofwater",
+						priority: 1.4,
+						movespeed: 0.02,
+						animation: "Walk",
+						animationSpeed: 4
+					},
+					{
+						code: "stayclosetoentity",
+						enabledByType: {
+							"*-male": false,
+							"*": true
+						},
+						priority: 1.4,
+						entityCode: "sheep-bighorn-adult-male",
+						maxDistance: 10,
+						searchRange: 25,
+						movespeed: 0.035,
+						animation: "Run",
+						animationSpeed: 4,
+					},
+					{
+						code: "idle",
+						animation: "Sleep",
+						priority: 1.35,
+						priorityForCancel: 1.35,
+						minduration: 5000000,
+						maxduration: 5000000,
+						mincooldown: 10000,
+						maxcooldown: 30000,
+						whenNotInEmotionState: "aggressiveondamage",
+						duringDayTimeFrames: [ { fromHour: 22, toHour: 24 }, { fromHour: 0, toHour: 5 } ],
+						stopOnNearbyEntityTags: ["player"],
+						stopRange: 8,
+						stopOnHurt: true
+					},
+					{
+						code: "seekfoodandeat",
+						animation: "Walk",
+						movespeed: 0.006,
+						priority: 1.35,
+						eatSound: "creature/animal-eat1",
+						eatTime: 1.5,
+						animationSpeed: 1.5,
+						mincooldownHours: 1,
+						maxcooldownHours: 4
+					},
+					{
+						code: "idle",
+						animation: "Eat",
+						priority: 1.3,
+						priorityForCancel: 1.35,
+						minduration: 2667,
+						maxduration: 2667,
+						mincooldown: 6000,
+						maxcooldown: 20000,
+						animationSpeed: 1.5,
+						whenNotInEmotionState: "aggressiveondamage"
+					},
+					{
+						code: "idle",
+						animation: "Idle",
+						priority: 1.2,
+						priorityForCancel: 1.35,
+						minduration: 2500,
+						maxduration: 2500,
+						mincooldown: 6000,
+						maxcooldown: 20000,
+						animationSpeed: 1.25,
+						whenNotInEmotionState: "aggressiveondamage"
+					},
+					{
+						code: "idle",
+						animation: "look",
+						priority: 1.1,
+						priorityForCancel: 1.35,
+						minduration: 1500,
+						maxduration: 1500,
+						mincooldown: 6000,
+						maxcooldown: 90000,
+						animationSpeed: 1,
+						whenNotInEmotionState: "aggressiveondamage"
+					},
+					{
+						code: "idle",
+						animation: "Look",
+						priority: 1.0,
+						priorityForCancel: 1.35,
+						minduration: 5333,
+						maxduration: 5333,
+						mincooldown: 6000,
+						maxcooldown: 120000,
+						animation: "Look"
+					},
+					{
+						code: "wander",
+						animation: "Walk",
+						priority: 1.0,
+						movespeed: 0.006,
+						animationSpeed: 1.68,
+						preferredLightLevel: 24,
+						priorityForCancel: 1.37,
+					},
+					{
+						code: "idle",
+						animation: "Sit",
+						priority: 0.9,
+						minduration: 7000,
+						maxduration: 45000,
+						mincooldown: 6000,
+						maxcooldown: 120000,
+						priorityForCancel: 1.33,
+						stopOnNearbyEntityCodes: ["player"],
+						stopRange: 5,
+						stopOnHurt: true,
+					},
+					{
+						code: "lookaround",
+						priority: 0.5
+					}
+				]
+			},
+			{ code: "milkable", enabledByType: {"*-female": true, "*": false }},
+			{ code: "ropetieable", minGeneration: 2 },
+			{ code: "pettable", minGeneration: 1 },
+			{ code: "entitystatetags" }
+		],
+		spawnconditionsByType: {
+			"*-male": {
+				worldgen: {
+					TriesPerChunk: { avg: 0.05, var: 0 },
+					tryOnlySurface: true,
+					minLightLevel: 10,
+					groupSize: { dist: "verynarrowgaussian", avg: 3, var: 4 },
+					insideBlockCodes: ["air", "tallgrass-*", "snowlayer-1"],
+					minTemp: -10,
+					maxTemp: 20,
+					minRain: 0.2,
+					companions: ["sheep-{type}-adult-female", "sheep-{type}-baby-male", "sheep-{type}-baby-female"],
+					minY: 1.4,
+					maxY: 1.9
+				},
+				runtime: {
+					group: "neutral",
+					MinDistanceToPlayer: 24,
+					tryOnlySurface: true,
+					chance: 0.001,
+					maxQuantity: 4,
+					minLightLevel: 10,
+					groupSize: { dist: "verynarrowgaussian", avg: 3, var: 4 },
+					insideBlockCodes: ["air", "tallgrass-*", "snowlayer-1"],
+					minTemp: -10,
+					maxTemp: 20,
+					minRain: 0.23,
+					companions: ["sheep-{type}-adult-female", "sheep-{type}-baby-male", "sheep-{type}-baby-female"],
+					minY: 1.3,
+					maxY: 1.9
+				}
+			},
+			"*": null,
+		}
+	},
+	sounds: {
+		hurt: "creature/sheep/hurt",
+		death: "creature/sheep/hurt",
+		idle: "creature/sheep/idle"
+	},
+	idleSoundChance: 0.001
+}

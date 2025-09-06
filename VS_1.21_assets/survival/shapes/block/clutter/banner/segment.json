@@ -1,0 +1,44 @@
+{
+	"editor": {
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+		"fabric": "block/cloth/banner/library/sunlarge/blue"
+	},
+	"elements": [
+		{
+			"name": "origin rug",
+			"from": [ 7.5, 17.0, 7.8 ], 
+			"to": [ 7.5, 17.0, 7.8 ], 
+			"rotationOrigin": [ 7.5, 16.0, -0.2 ],
+			"faces": {
+				"north": { "texture": "#fabric", "uv": [ 0.0, 0.0, 0.5, 0.5 ], "enabled": false },
+				"east": { "texture": "#fabric", "uv": [ 0.0, 0.0, 0.5, 0.5 ], "enabled": false },
+				"south": { "texture": "#fabric", "uv": [ 0.0, 0.0, 0.5, 0.5 ], "enabled": false },
+				"west": { "texture": "#fabric", "uv": [ 0.0, 0.0, 0.5, 0.5 ], "enabled": false },
+				"up": { "texture": "#fabric", "uv": [ 0.0, 0.0, 0.5, 0.5 ], "enabled": false },
+				"down": { "texture": "#fabric", "uv": [ 0.0, 0.0, 0.5, 0.5 ], "enabled": false }
+			},
+			"children": [
+				{
+					"name": "segment 1",
+					"from": [ -4.5, -17.0, -8.0 ], 
+					"to": [ 5.5, -1.0, -7.5 ], 
+					"rotationOrigin": [ 0.5, -1.0, -8.0 ],
+					"faces": {
+						"north": { "texture": "#fabric", "uv": [ 3.0, 0.0, 13.0, 16.0 ] },
+						"east": { "texture": "#fabric", "uv": [ 0.0, 0.0, 0.5, 16.0 ] },
+						"south": { "texture": "#fabric", "uv": [ 3.0, 0.0, 13.0, 16.0 ] },
+						"west": { "texture": "#fabric", "uv": [ 0.0, 0.0, 0.5, 16.0 ] },
+						"up": { "texture": "#fabric", "uv": [ 3.0, 0.0, 13.0, 0.5 ] },
+						"down": { "texture": "#fabric", "uv": [ 3.0, 0.0, 13.0, 0.5 ] }
+					}
+				}
+			]
+		}
+	]}

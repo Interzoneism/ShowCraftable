@@ -1,0 +1,136 @@
+{
+	"editor": {
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+		"lore-marked": "item/lore/lore-marked",
+		"rotten1": "item/lore/rotten-gray"
+	},
+	"elements": [
+		{
+			"name": "book 3",
+			"from": [ 10.3, 7.9, 12.4 ],
+			"to": [ 10.3, 7.9, 12.4 ],
+			"rotationOrigin": [ 12.8, 7.6, 12.4 ],
+			"rotationY": 8.0,
+			"rotationZ": -10.5,
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "pages70",
+					"from": [ 2.0, -0.1, -2.0 ],
+					"to": [ 3.1, 5.5, 2.0 ],
+					"rotationOrigin": [ 2.5, -0.1, 0.0 ],
+					"faces": {
+						"north": { "texture": "#rotten1", "uv": [ 6.0, 0.0, 7.0, 5.5 ] },
+						"up": { "texture": "#rotten1", "uv": [ 5.0, 0.0, 6.0, 4.0 ], "rotation": 180 },
+						"down": { "texture": "#rotten1", "uv": [ 5.0, 2.0, 6.0, 6.0 ] }
+					}
+				},
+				{
+					"name": "cover front71",
+					"from": [ 1.6, -0.3, -2.2 ],
+					"to": [ 2.0, 5.7, 2.3 ],
+					"rotationOrigin": [ 1.6, -0.3, -2.2 ],
+					"faces": {
+						"north": { "texture": "#rotten1", "uv": [ 3.5, 0.0, 4.0, 6.0 ] },
+						"east": { "texture": "#rotten1", "uv": [ 11.5, 0.0, 16.0, 6.0 ] },
+						"south": { "texture": "#rotten1", "uv": [ 0.0, 0.0, 0.5, 6.0 ] },
+						"west": { "texture": "#rotten1", "uv": [ 7.0, 0.0, 11.5, 6.0 ] },
+						"up": { "texture": "#rotten1", "uv": [ 3.5, 0.0, 4.0, 4.5 ] },
+						"down": { "texture": "#rotten1", "uv": [ 3.5, 0.0, 4.0, 4.5 ] }
+					}
+				},
+				{
+					"name": "cover back72",
+					"from": [ 3.1, -0.3, -2.2 ],
+					"to": [ 3.5, 5.7, 2.3 ],
+					"rotationOrigin": [ 3.1, -0.3, -2.2 ],
+					"faces": {
+						"north": { "texture": "#rotten1", "uv": [ 4.0, 0.0, 4.5, 6.0 ] },
+						"east": { "texture": "#rotten1", "uv": [ 11.5, 0.0, 16.0, 6.0 ] },
+						"south": { "texture": "#rotten1", "uv": [ 3.0, 0.0, 3.5, 6.0 ] },
+						"west": { "texture": "#rotten1", "uv": [ 7.0, 0.0, 11.5, 6.0 ] },
+						"up": { "texture": "#rotten1", "uv": [ 4.0, 0.0, 4.5, 4.5 ] },
+						"down": { "texture": "#rotten1", "uv": [ 4.0, 0.0, 4.5, 4.5 ] }
+					}
+				},
+				{
+					"name": "back73",
+					"from": [ 2.0, -0.3, 2.0 ],
+					"to": [ 3.1, 5.7, 2.3 ],
+					"rotationOrigin": [ 2.0, -0.3, 2.0 ],
+					"faces": {
+						"north": { "texture": "#rotten1", "uv": [ 11.0, 0.0, 12.0, 6.0 ] },
+						"up": { "texture": "#rotten1", "uv": [ 4.0, 0.0, 5.0, 0.5 ] },
+						"down": { "texture": "#rotten1", "uv": [ 4.0, 5.5, 5.0, 6.0 ] }
+					}
+				},
+				{
+					"name": "back end74",
+					"from": [ 1.8, -0.3, 2.3 ],
+					"to": [ 3.3, 5.7, 2.6 ],
+					"rotationOrigin": [ 1.8, -0.3, 2.3 ],
+					"faces": {
+						"east": { "texture": "#rotten1", "uv": [ 2.5, 0.0, 3.0, 6.0 ] },
+						"south": { "texture": "#lore-marked", "uv": [ 0.0, 0.0, 1.5, 6.0 ] },
+						"west": { "texture": "#rotten1", "uv": [ 0.5, 0.0, 1.0, 6.0 ] },
+						"up": { "texture": "#rotten1", "uv": [ 1.0, 0.0, 2.5, 0.5 ] },
+						"down": { "texture": "#rotten1", "uv": [ 1.0, 5.5, 2.5, 6.0 ] }
+					}
+				}
+			]
+		}
+	],
+	"animations": [
+		{
+			"name": "test",
+			"code": "test",
+			"quantityframes": 60,
+			"onActivityStopped": "Rewind",
+			"onAnimationEnd": "Repeat",
+			"keyframes": [
+
+			]
+		},
+
+		{
+			"name": "test",
+			"code": "test",
+			"quantityframes": 60,
+			"onActivityStopped": "Rewind",
+			"onAnimationEnd": "Repeat",
+			"keyframes": [
+
+			]
+		},
+
+		{
+			"name": "test",
+			"code": "test",
+			"quantityframes": 60,
+			"onActivityStopped": "Rewind",
+			"onAnimationEnd": "Repeat",
+			"keyframes": [
+
+			]
+		},
+
+		{
+			"name": "test",
+			"code": "test",
+			"quantityframes": 60,
+			"onActivityStopped": "Rewind",
+			"onAnimationEnd": "Repeat",
+			"keyframes": [
+
+			]
+		}
+	]
+}

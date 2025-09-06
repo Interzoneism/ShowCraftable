@@ -1,0 +1,5 @@
+{
+    entityTags: ["state-swimming", "state-feet-in-liquid", "state-flying", "state-on-ground", "state-moving", "state-alive", "state-aiming", "state-sprinting", "state-sneaking", "state-armed", "state-armed-melee", "state-armed-ranged"],
+    itemTags: ["weapon", "weapon-melee", "weapon-ranged", "has-open-fire"],
+    blockTags: ["has-open-fire"]
+}
