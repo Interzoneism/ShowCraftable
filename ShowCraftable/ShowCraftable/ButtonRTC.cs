@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HarmonyLib;
+using System;
 using Vintagestory.API.Client;
 using Vintagestory.API.Config;
 
@@ -6,34 +7,29 @@ namespace ShowCraftable;
 
 public abstract class ButtonRTC : RichTextComponentBase
 {
-    protected const double UnscaledSize = 24.0;
-    protected const double Margin = 2.0;
+    private const double UnscaledSize = 24.0;
+    private const double Margin = 2.0;
 
+    private readonly int index;
     private readonly string label;
     private readonly string tooltip;
-    private readonly int index;
-
+    private readonly double offsetX;
+    private readonly double offsetY;
     private double timeInside = 0.0;
-    private double lastRenderX = 0.0;
-    private double lastRenderY = 0.0;
 
     private readonly GuiElementTextButton button;
     private readonly GuiElementHoverText hover;
     private readonly ElementBounds bounds;
 
-    /// <param name="index">0 = första knappen under grid, 1 = nästa osv.</param>
-    /// <param name="label">Text i knappen</param>
-    /// <param name="tooltipKeyOrText">Lang-nyckel eller ren text</param>
-    /// <param name="unusedOffsetX">Tidigare offset – inte längre använd</param>
-    /// <param name="unusedOffsetY">Tidigare offset – inte längre använd</param>
-    protected ButtonRTC(ICoreClientAPI api, int index, string label, string tooltipKeyOrText, double unusedOffsetX, double unusedOffsetY) : base(api)
+    public ButtonRTC(ICoreClientAPI api, int index, string label, string key, double offsetX, double offsetY) : base(api)
     {
         Float = EnumFloat.Inline;
         VerticalAlign = EnumVerticalAlign.FixedOffset;
-
         this.index = index;
         this.label = label;
-        tooltip = tooltipKeyOrText != null ? Lang.Get(tooltipKeyOrText) : label;
+        this.offsetX = offsetX;
+        this.offsetY = offsetY;
+        tooltip = Lang.Get("improvedhandbookrecipes:" + key);
 
         double size = Math.Ceiling(GuiElement.scaled(UnscaledSize));
         bounds = new GlobalBounds(0.0, 0.0, size, size);
@@ -45,20 +41,16 @@ public abstract class ButtonRTC : RichTextComponentBase
     {
         var font = CairoFont.ButtonText();
         var fontDown = CairoFont.ButtonPressedText();
+        font.UnscaledFontsize = fontDown.UnscaledFontsize = GuiElement.scaled(32.0);
+        var button = new GuiElementTextButton(api, label, font, fontDown, Click, bounds, EnumButtonStyle.Small);
+        button.PlaySound = false;
 
-        // Håll dig till UNscaled här, så Vintage Story skalar korrekt.
-        font.UnscaledFontsize = 14f;
-        fontDown.UnscaledFontsize = 14f;
+        var traverse = Traverse.Create(button);
+        AdjustOffsets(traverse.Field<GuiElementStaticText>("normalText").Value);
+        AdjustOffsets(traverse.Field<GuiElementStaticText>("pressedText").Value);
+        button.ComposeElements(null, null);
 
-        // Skapa knappelementet (centerar texten åt oss som standard)
-        var btn = new GuiElementTextButton(api, label, font, fontDown, Click, bounds, EnumButtonStyle.Small);
-
-        // Låt knappen spela sitt eget standardljud.
-        btn.PlaySound = true;
-
-        // Säkerställ att interna text-element är uppbyggda.
-        btn.ComposeElements(null, null);
-        return btn;
+        return button;
     }
 
     private GuiElementHoverText CreateHover(ElementBounds bounds)
@@ -68,9 +60,9 @@ public abstract class ButtonRTC : RichTextComponentBase
         return hover;
     }
 
-    protected void SetExtraTip(string text = null) => hover.SetNewText(text == null ? tooltip : $"{tooltip}\n{text}");
+    protected void SetExtraTip(string text = null)
+        => hover.SetNewText((text == null) ? tooltip : $"{tooltip}\n{text}");
 
-    // Det enda klicket gör här är att trigga knappelementets egna ljud (PlaySound = true).
     protected abstract void OnClick();
 
     private bool Click()
@@ -79,52 +71,49 @@ public abstract class ButtonRTC : RichTextComponentBase
         return true;
     }
 
-    protected virtual bool Visible => true;
+    protected virtual bool Visible
+        => true;
 
-    public override EnumCalcBoundsResult CalcBounds(
-        TextFlowPath[] flowPath, double currentLineHeight,
-        double offsetX, double lineY, out double nextOffsetX)
+    public override EnumCalcBoundsResult CalcBounds(TextFlowPath[] flowPath, double currentLineHeight, double offsetX, double lineY, out double nextOffsetX)
     {
-        double size = GuiElement.scaled(UnscaledSize);
-
-        // Högerkant (samma ankarpunkt som IH)
         double x = offsetX - GuiElement.scaled(3.0);
-
-        // TOPP-ankrat: start vid gridens överkant, sen nedåt per index
-        double y = lineY + GuiElement.scaled(Margin) + index * (size + GuiElement.scaled(Margin));
-
+        double y = lineY + GuiElement.scaled(126.0 - UnscaledSize - index * (UnscaledSize + Margin));
+        double size = GuiElement.scaled(UnscaledSize);
         BoundsPerLine = new LineRectangled[] { new(x, y, size, size) };
+
         bounds.fixedWidth = bounds.fixedHeight = size;
 
         nextOffsetX = offsetX;
         return EnumCalcBoundsResult.Continue;
     }
 
-
-
-
+    private void AdjustOffsets(GuiElementStaticText elem)
+    {
+        elem.offsetX = GuiElement.scaled(GuiElement.scaled(offsetX));
+        elem.offsetY = GuiElement.scaled(GuiElement.scaled(offsetY));
+    }
 
     public override void RenderInteractiveElements(float deltaTime, double renderX, double renderY, double renderZ)
     {
-        if (!Visible) return;
-
-        lastRenderX = renderX;
-        lastRenderY = renderY;
-        SetBounds(lastRenderX, lastRenderY);
-
-        button.RenderInteractiveElements(deltaTime);
-
-        hover.SetVisible(MouseOverFor(1.0, deltaTime));
-        hover.RenderInteractiveElements(deltaTime);
+        if (Visible)
+        {
+            SetBounds(renderX, renderY);
+            button.RenderInteractiveElements(deltaTime);
+            hover.SetVisible(MouseOverFor(1.0, deltaTime));
+            hover.RenderInteractiveElements(deltaTime);
+        }
     }
 
     private bool MouseOverFor(double time, double delta)
     {
         if (bounds.PointInside(api.Input.MouseX, api.Input.MouseY))
+        {
             timeInside += delta;
+        }
         else
+        {
             timeInside = 0.0;
-
+        }
         return timeInside > time;
     }
 
@@ -139,23 +128,30 @@ public abstract class ButtonRTC : RichTextComponentBase
 
     public override void OnMouseDown(MouseEvent args)
     {
-        if (!Visible) return;
-        SetBounds(lastRenderX, lastRenderY);
-        button.OnMouseDown(api, args);
+        if (Visible)
+        {
+            SetBounds();
+            button.OnMouseDown(api, args);
+        }
     }
 
     public override void OnMouseUp(MouseEvent args)
     {
-        if (!Visible) return;
-        SetBounds(lastRenderX, lastRenderY);
-        button.OnMouseUp(api, args);
+        if (Visible)
+        {
+            SetBounds();
+            button.OnMouseUp(api, args);
+        }
     }
 
     public override void OnMouseMove(MouseEvent args)
     {
-        if (!Visible) return;
-        SetBounds(lastRenderX, lastRenderY);
-        button.OnMouseMove(api, args);
+        if (Visible)
+        {
+            button.PlaySound = true;
+            button.OnMouseMove(api, args);
+            button.PlaySound = false;
+        }
     }
 
     public override void Dispose()
@@ -169,20 +165,27 @@ public abstract class ButtonRTC : RichTextComponentBase
         public GlobalBounds(double x, double y, double width, double height)
         {
             absFixedX = x;
-            absFixedY = y;
+            absFixedX = y;
             absInnerWidth = fixedWidth = width;
             absInnerHeight = fixedHeight = height;
             BothSizing = ElementSizing.Fixed;
             ParentBounds = new();
         }
 
-        public ElementBounds MakeChild() => Fill.WithParent(this);
+        public ElementBounds MakeChild()
+            => Fill.WithParent(this);
 
         public override double bgDrawX => absFixedX;
+
         public override double bgDrawY => absFixedY;
+
         public override double renderX => absFixedX + renderOffsetX;
+
         public override double renderY => absFixedY + renderOffsetY;
+
         public override double absX => absFixedX;
+
         public override double absY => absFixedY;
     }
+
 }
