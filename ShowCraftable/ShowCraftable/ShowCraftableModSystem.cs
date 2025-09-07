@@ -864,6 +864,25 @@ namespace ShowCraftable
             return pool;
         }
 
+        private static ResourcePool BuildResourcePoolPlayerOnly(ICoreClientAPI capi)
+        {
+            var pool = new ResourcePool();
+            var mgr = capi.World?.Player?.InventoryManager;
+            if (mgr == null) return pool;
+
+            var seen = new HashSet<IInventory>();
+            void AddInv(IInventory inv)
+            {
+                if (inv == null || !seen.Add(inv)) return;
+                foreach (var slot in inv) if (slot?.Itemstack != null) pool.Add(slot.Itemstack);
+            }
+
+            AddInv(mgr.GetOwnInventory("craftinggrid"));
+            AddInv(mgr.GetOwnInventory("backpack"));
+            AddInv(mgr.GetHotbarInventory());
+            return pool;
+        }
+
 
         private sealed class GridRecipeShim
         {
@@ -1222,9 +1241,7 @@ namespace ShowCraftable
             try
             {
 
-                // Server already includes the player's inventory counts in the reply,
-                // so start with an empty pool to avoid double counting.
-                var pool = new ResourcePool();
+                var pool = BuildResourcePoolPlayerOnly(_capi);
 
                 for (int i = 0; i < data.Codes.Count; i++)
                 {
