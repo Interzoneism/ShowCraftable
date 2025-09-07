@@ -1386,6 +1386,7 @@ namespace ShowCraftable
             public ItemSlot Slot;
             public string Code;
             public EnumItemClass Class;
+            public BlockEntity BlockEntity;
         }
 
         private bool SlotMatches(SlotRef slot, CraftIngredient ing)
@@ -1504,6 +1505,9 @@ namespace ShowCraftable
                             player.Entity.World.SpawnItemEntity(leftoverSlot.Itemstack, player.Entity.Pos.XYZ);
                         }
                     }
+
+                    sr.Slot.MarkDirty();
+                    sr.BlockEntity?.MarkDirty(true);
 
                     if (sum.TryGetValue(sr.Code, out var cur))
                     {
@@ -1704,7 +1708,7 @@ namespace ShowCraftable
 
                             if (sum.TryGetValue(code, out var cur)) sum[code] = (cur.count + add, cls); else sum[code] = (add, cls);
 
-                            slots.Add(new SlotRef { Slot = slot, Code = code, Class = cls });
+                            slots.Add(new SlotRef { Slot = slot, Code = code, Class = cls, BlockEntity = be });
                         }
                     }
 
