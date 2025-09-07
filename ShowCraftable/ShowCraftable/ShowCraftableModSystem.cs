@@ -1507,7 +1507,23 @@ namespace ShowCraftable
                     }
 
                     sr.Slot.MarkDirty();
-                    sr.BlockEntity?.MarkDirty(true);
+                    if (sr.BlockEntity is BlockEntityGroundStorage gs)
+                    {
+                        if (gs.Inventory.Empty && !gs.clientsideFirstPlacement)
+                        {
+                            gs.Api.World.BlockAccessor.SetBlock(0, gs.Pos);
+                            gs.Api.World.BlockAccessor.TriggerNeighbourBlockUpdate(gs.Pos);
+                        }
+                        else
+                        {
+                            gs.updateMeshes();
+                            gs.MarkDirty(true);
+                        }
+                    }
+                    else
+                    {
+                        sr.BlockEntity?.MarkDirty(true);
+                    }
 
                     if (sum.TryGetValue(sr.Code, out var cur))
                     {
