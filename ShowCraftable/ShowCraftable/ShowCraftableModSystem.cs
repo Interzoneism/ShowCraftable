@@ -1468,9 +1468,10 @@ namespace ShowCraftable
             return true;
         }
 
-        private void ExecuteVariant(List<SlotRef> slots, CraftIngredientList variant, IServerPlayer player,
+        private bool ExecuteVariant(List<SlotRef> slots, CraftIngredientList variant, IServerPlayer player,
             Dictionary<string, (int count, EnumItemClass cls)> sum)
         {
+            bool allFetched = true;
             foreach (var ing in variant.Ingredients)
             {
                 int need = ing.Quantity;
@@ -1507,7 +1508,14 @@ namespace ShowCraftable
                         else sum[sr.Code] = (left, cur.cls);
                     }
                 }
+
+                if (need > 0)
+                {
+                    allFetched = false;
+                }
             }
+
+            return allFetched;
         }
 
         private List<ItemStack> PreviewVariant(List<SlotRef> slots, CraftIngredientList variant)
@@ -1633,6 +1641,7 @@ namespace ShowCraftable
                 var counts = sum.ToDictionary(kv => kv.Key, kv => kv.Value.count);
                 bool done = false;
                 bool nospace = false;
+                bool partial = false;
 
                 foreach (var variant in req.Variants)
                 {
@@ -1645,8 +1654,9 @@ namespace ShowCraftable
                         break;
                     }
 
-                    ExecuteVariant(slots, variant, fromPlayer, sum);
+                    bool success = ExecuteVariant(slots, variant, fromPlayer, sum);
                     done = true;
+                    if (!success) partial = true;
                     break;
                 }
 
@@ -1657,6 +1667,12 @@ namespace ShowCraftable
                         : "[ShowCraftable] Could not collect required ingredients";
                     fromPlayer.SendMessage(GlobalConstants.InfoLogChatGroup,
                         msg, EnumChatType.CommandError);
+                }
+                else if (partial)
+                {
+                    fromPlayer.SendMessage(GlobalConstants.InfoLogChatGroup,
+                        "[ShowCraftable] Could not get all ingredients, your inventory is full!",
+                        EnumChatType.CommandError);
                 }
             }
 
