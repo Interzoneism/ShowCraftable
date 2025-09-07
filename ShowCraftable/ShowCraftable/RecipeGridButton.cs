@@ -241,17 +241,21 @@ public class RecipeGridButton : ButtonRTC
             }
             else
             {
-                // Wildcard: try to infer a base name from options or the pattern; mark "(any)"
-                if (unnamed != null && unnamed.TryGetValue(idx, out var options) && options != null && options.Length > 0)
+                // Wildcard: prefer the pattern if available to avoid differing labels per slot
+                var pattern = TryGetAssetLocation(ing, "Code");
+                if (pattern != null)
+                {
+                    string baseName = BaseNameFromPattern(pattern);
+                    label = WildcardLabel(baseName, qty);
+                }
+                else if (unnamed != null && unnamed.TryGetValue(idx, out var options) && options != null && options.Length > 0)
                 {
                     string baseName = BaseNameFromStack(options[0]);
                     label = WildcardLabel(baseName, qty);
                 }
                 else
                 {
-                    var pattern = TryGetAssetLocation(ing, "Code");
-                    string baseName = BaseNameFromPattern(pattern);
-                    label = WildcardLabel(baseName, qty);
+                    label = WildcardLabel(null, qty);
                 }
             }
 
