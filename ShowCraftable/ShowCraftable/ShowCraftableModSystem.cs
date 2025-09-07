@@ -1469,12 +1469,16 @@ namespace ShowCraftable
         }
 
         private bool ExecuteVariant(List<SlotRef> slots, CraftIngredientList variant, IServerPlayer player,
-            Dictionary<string, (int count, EnumItemClass cls)> sum)
+            Dictionary<string, (int count, EnumItemClass cls)> sum, Dictionary<string, int> playerCounts)
         {
             bool allFetched = true;
+            var pcount = playerCounts != null ? new Dictionary<string, int>(playerCounts) : new Dictionary<string, int>();
             foreach (var ing in variant.Ingredients)
             {
                 int need = ing.Quantity;
+                if (need <= 0) continue;
+
+                need = DeductFrom(pcount, ing, need);
                 if (need <= 0) continue;
 
                 foreach (var sr in slots)
@@ -1518,12 +1522,16 @@ namespace ShowCraftable
             return allFetched;
         }
 
-        private List<ItemStack> PreviewVariant(List<SlotRef> slots, CraftIngredientList variant)
+        private List<ItemStack> PreviewVariant(List<SlotRef> slots, CraftIngredientList variant, Dictionary<string, int> playerCounts)
         {
             var list = new List<ItemStack>();
+            var pcount = playerCounts != null ? new Dictionary<string, int>(playerCounts) : new Dictionary<string, int>();
             foreach (var ing in variant.Ingredients)
             {
                 int need = ing.Quantity;
+                if (need <= 0) continue;
+
+                need = DeductFrom(pcount, ing, need);
                 if (need <= 0) continue;
 
                 foreach (var sr in slots)
@@ -1539,6 +1547,47 @@ namespace ShowCraftable
                 }
             }
             return list;
+        }
+
+        private int DeductFrom(Dictionary<string, int> counts, CraftIngredient ing, int need)
+        {
+            if (counts == null || counts.Count == 0 || need <= 0) return need;
+
+            if (ing.Codes != null && ing.Codes.Count > 0)
+            {
+                foreach (var code in ing.Codes)
+                {
+                    if (need <= 0) break;
+                    if (!counts.TryGetValue(code, out var have) || have <= 0) continue;
+                    int take = Math.Min(need, have);
+                    have -= take;
+                    if (have <= 0) counts.Remove(code);
+                    else counts[code] = have;
+                    need -= take;
+                }
+            }
+            else if (ing.IsWildcard && !string.IsNullOrEmpty(ing.PatternCode))
+            {
+                var pattern = new AssetLocation(ing.PatternCode);
+                foreach (var kv in counts.ToList())
+                {
+                    if (need <= 0) break;
+                    try
+                    {
+                        var al = new AssetLocation(kv.Key);
+                        if (!WildcardUtil.Match(pattern, al)) continue;
+                    }
+                    catch { continue; }
+
+                    int take = Math.Min(need, kv.Value);
+                    int left = kv.Value - take;
+                    if (left <= 0) counts.Remove(kv.Key);
+                    else counts[kv.Key] = left;
+                    need -= take;
+                }
+            }
+
+            return need;
         }
 
         private bool HasInventorySpace(IServerPlayer player, List<ItemStack> items)
@@ -1608,6 +1657,30 @@ namespace ShowCraftable
 
             var sum = new Dictionary<string, (int count, EnumItemClass cls)>();
             var slots = new List<SlotRef>();
+            var playerCounts = new Dictionary<string, int>();
+
+            var pinvs = new IInventory[]
+            {
+                fromPlayer.InventoryManager.GetOwnInventory("hotbar"),
+                fromPlayer.InventoryManager.GetOwnInventory("backpack")
+            };
+
+            foreach (var inv in pinvs)
+            {
+                if (inv == null) continue;
+                foreach (var slot in inv)
+                {
+                    var st = slot?.Itemstack;
+                    if (st?.Collectible?.Code == null) continue;
+
+                    string code = st.Collectible.Code.ToString();
+                    int add = Math.Max(1, st.StackSize);
+                    var cls = st.Class;
+
+                    if (sum.TryGetValue(code, out var cur)) sum[code] = (cur.count + add, cls); else sum[code] = (add, cls);
+                    if (playerCounts.TryGetValue(code, out var pc)) playerCounts[code] = pc + add; else playerCounts[code] = add;
+                }
+            }
 
             for (int dx = -r; dx <= r; dx++)
                 for (int dy = -1; dy <= 2; dy++)
@@ -1629,8 +1702,7 @@ namespace ShowCraftable
                             int add = Math.Max(1, st.StackSize);
                             var cls = st.Class;
 
-                            if (sum.TryGetValue(code, out var cur)) sum[code] = (cur.count + add, cls);
-                            else sum[code] = (add, cls);
+                            if (sum.TryGetValue(code, out var cur)) sum[code] = (cur.count + add, cls); else sum[code] = (add, cls);
 
                             slots.Add(new SlotRef { Slot = slot, Code = code, Class = cls });
                         }
@@ -1647,14 +1719,14 @@ namespace ShowCraftable
                 {
                     if (!CanSatisfyVariant(counts, variant)) continue;
 
-                    var preview = PreviewVariant(slots, variant);
+                    var preview = PreviewVariant(slots, variant, playerCounts);
                     if (!HasInventorySpace(fromPlayer, preview))
                     {
                         nospace = true;
                         break;
                     }
 
-                    bool success = ExecuteVariant(slots, variant, fromPlayer, sum);
+                    bool success = ExecuteVariant(slots, variant, fromPlayer, sum, playerCounts);
                     done = true;
                     if (!success) partial = true;
                     break;
