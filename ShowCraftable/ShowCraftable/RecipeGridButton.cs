@@ -171,9 +171,7 @@ public class RecipeGridButton : ButtonRTC
                 var ing = recipe.resolvedIngredients[idx];
                 if (ing == null) continue;
 
-                bool isTool = TryGetBool(ing, "IsTool");
-                if (isTool) continue;
-
+                // Include tools as regular ingredients (durability is ignored)
                 bool isWild = TryGetBool(ing, "IsWildCard");
                 int qty = isWild ? TryGetInt(ing, "Quantity", 1)
                                   : Math.Max(1, TryGetStack(ing, "ResolvedItemstack")?.StackSize ?? 1);
@@ -222,9 +220,7 @@ public class RecipeGridButton : ButtonRTC
             var ing = recipe.resolvedIngredients[idx];
             if (ing == null) continue;
 
-            // Skip tools (not consumed)
             bool isTool = TryGetBool(ing, "IsTool");
-            if (isTool) continue;
 
             bool isWild = TryGetBool(ing, "IsWildCard");
 
@@ -258,6 +254,8 @@ public class RecipeGridButton : ButtonRTC
                     label = WildcardLabel(null, qty);
                 }
             }
+
+            if (isTool) label += " (tool)";
 
             items.Add((label, qty));
         }
