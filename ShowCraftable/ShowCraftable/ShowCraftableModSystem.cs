@@ -783,7 +783,7 @@ namespace ShowCraftable
                 return false;
             }
 
-            public bool TryConsumeWildcard(EnumItemClass type, AssetLocation pattern, Dictionary<string, string[]> allowed, int quantity, bool consume)
+            public bool TryConsumeWildcard(EnumItemClass type, AssetLocation pattern, string[] allowed, int quantity, bool consume)
             {
                 if (pattern == null) return false;
 
@@ -900,7 +900,7 @@ namespace ShowCraftable
             public int QuantityRequired;
             public List<ItemStack> Options = new();
             public AssetLocation PatternCode;
-            public Dictionary<string, string[]> Allowed;
+            public string[] Allowed;
             public EnumItemClass Type;
         }
 
@@ -909,7 +909,7 @@ namespace ShowCraftable
             ResourcePool pool,
             EnumItemClass type,
             AssetLocation patternCode,
-            Dictionary<string, string[]> allowed)
+            string[] allowed)
         {
             if (patternCode == null) return false;
 
@@ -950,7 +950,7 @@ namespace ShowCraftable
             Dictionary<Key, int> tmpCounts,
             EnumItemClass type,
             AssetLocation patternCode,
-            Dictionary<string, string[]> allowed,
+            string[] allowed,
             int need)
         {
             if (patternCode == null || need <= 0) return need <= 0;
@@ -1137,7 +1137,12 @@ namespace ShowCraftable
                     gi.IsWild = TryGetMember(it, ingRaw, "IsWildCard") as bool? ?? false;
 
                     gi.PatternCode = TryGetMember(it, ingRaw, "Code") as AssetLocation;
-                    gi.Allowed = TryGetMember(it, ingRaw, "AllowedVariants") as Dictionary<string, string[]>;
+                    var allowedObj = TryGetMember(it, ingRaw, "AllowedVariants");
+                    gi.Allowed = allowedObj as string[];
+                    if (gi.Allowed == null && allowedObj is Dictionary<string, string[]> dict)
+                    {
+                        gi.Allowed = dict.SelectMany(kv => kv.Value ?? Array.Empty<string>()).Distinct().ToArray();
+                    }
                     gi.Type = (EnumItemClass)(TryGetMember(it, ingRaw, "Type") as EnumItemClass? ?? EnumItemClass.Item);
 
                     var resolvedStack = TryGetMember(it, ingRaw, "ResolvedItemstack") as ItemStack;
@@ -1209,27 +1214,25 @@ namespace ShowCraftable
         }
 
 
-        private static bool WildcardMatch(AssetLocation pattern, AssetLocation code, Dictionary<string, string[]> allowed)
+        private static bool WildcardMatch(AssetLocation pattern, AssetLocation code, string[] allowed)
         {
-            var methods = typeof(WildcardUtil).GetMethods(BindingFlags.Public | BindingFlags.Static)
-                                              .Where(m => m.Name == "Match");
-            foreach (var m in methods)
+            var mi = typeof(WildcardUtil).GetMethod("Match", new[] { typeof(AssetLocation), typeof(AssetLocation), typeof(string[]) });
+            if (mi != null)
             {
-                var ps = m.GetParameters();
-                if (ps.Length == 3 &&
-                    ps[0].ParameterType == typeof(AssetLocation) &&
-                    ps[1].ParameterType == typeof(AssetLocation) &&
-                    ps[2].ParameterType == typeof(Dictionary<string, string[]>))
-                {
-                    return (bool)m.Invoke(null, new object[] { pattern, code, allowed });
-                }
+                return (bool)mi.Invoke(null, new object[] { pattern, code, allowed });
             }
 
-            var mi2 = typeof(WildcardUtil).GetMethod("Match", new[] { typeof(AssetLocation), typeof(AssetLocation), typeof(string[]) });
-            if (mi2 != null) return (bool)mi2.Invoke(null, new object[] { pattern, code, null });
+            var mi2 = typeof(WildcardUtil).GetMethod("Match", new[] { typeof(AssetLocation), typeof(AssetLocation), typeof(Dictionary<string, string[]>) });
+            if (mi2 != null)
+            {
+                return (bool)mi2.Invoke(null, new object[] { pattern, code, null });
+            }
 
             var mi3 = typeof(WildcardUtil).GetMethod("Match", new[] { typeof(AssetLocation), typeof(AssetLocation) });
-            if (mi3 != null) return (bool)mi3.Invoke(null, new object[] { pattern, code });
+            if (mi3 != null)
+            {
+                return (bool)mi3.Invoke(null, new object[] { pattern, code });
+            }
 
             return pattern != null && code != null && pattern.Equals(code);
         }
