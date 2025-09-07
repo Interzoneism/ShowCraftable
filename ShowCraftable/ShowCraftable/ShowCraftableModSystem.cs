@@ -1537,7 +1537,19 @@ namespace ShowCraftable
         {
             if (items == null || items.Count == 0) return true;
 
-            var stacks = items.Select(st => st.Clone()).ToList();
+            // Group requested stacks by code so we can merge them before estimating space
+            var need = new Dictionary<string, (ItemStack sample, int count)>();
+            foreach (var st in items)
+            {
+                if (st?.Collectible?.Code == null) continue;
+                string code = st.Collectible.Code.ToString();
+                if (need.TryGetValue(code, out var entry))
+                    need[code] = (entry.sample, entry.count + st.StackSize);
+                else
+                    need[code] = (st.Clone(), st.StackSize);
+            }
+
+            int emptySlots = 0;
             var invs = new IInventory[]
             {
                 player.InventoryManager.GetOwnInventory("hotbar"),
@@ -1550,44 +1562,34 @@ namespace ShowCraftable
 
                 foreach (var slot in inv)
                 {
-                    if (stacks.Count == 0) return true;
-
                     var existing = slot.Itemstack;
-                    if (existing?.Collectible == null) continue;
-
-                    for (int i = 0; i < stacks.Count; i++)
+                    if (existing == null)
                     {
-                        var want = stacks[i];
-                        int cap = existing.Collectible.GetMergableQuantity(existing, want, EnumMergePriority.AutoMerge);
-                        if (cap <= 0) continue;
-
-                        int move = Math.Min(cap, want.StackSize);
-                        want.StackSize -= move;
-                        if (want.StackSize <= 0)
-                        {
-                            stacks.RemoveAt(i);
-                            i--;
-                        }
-                        if (stacks.Count == 0) return true;
+                        emptySlots++;
+                        continue;
                     }
-                }
 
-                foreach (var slot in inv)
-                {
-                    if (stacks.Count == 0) return true;
-                    if (slot.Itemstack != null) continue;
+                    string code = existing.Collectible?.Code?.ToString();
+                    if (code == null || !need.TryGetValue(code, out var entry)) continue;
 
-                    var want = stacks[0];
-                    int move = Math.Min(want.StackSize, want.Collectible.MaxStackSize);
-                    want.StackSize -= move;
-                    if (want.StackSize <= 0)
-                    {
-                        stacks.RemoveAt(0);
-                    }
+                    int cap = existing.Collectible.GetMergableQuantity(existing, entry.sample, EnumMergePriority.AutoMerge);
+                    if (cap <= 0) continue;
+
+                    int moved = Math.Min(cap, entry.count);
+                    entry.count -= moved;
+                    if (entry.count <= 0) need.Remove(code);
+                    else need[code] = entry;
                 }
             }
 
-            return stacks.Count == 0;
+            int requiredSlots = 0;
+            foreach (var kv in need.Values)
+            {
+                int max = kv.sample.Collectible.MaxStackSize;
+                requiredSlots += (kv.count + max - 1) / max;
+            }
+
+            return requiredSlots <= emptySlots;
         }
 
         private void OnScanRequest(IServerPlayer fromPlayer, CraftScanRequest req)
