@@ -36,6 +36,11 @@ namespace ShowCraftable
 
         private static bool ScanInProgress = false;
 
+        private static Dictionary<string, List<GridRecipeShim>> ingredientToRecipes = new();
+        private static Dictionary<GridRecipeShim, int> recipeRemaining = new();
+        private static int recipesFetched;
+        private static int recipesUsable;
+
         private static class HandbookPauseGuard
         {
             private static int _refCount;
@@ -264,6 +269,9 @@ namespace ShowCraftable
             capi.Event.LevelFinalize += () =>
             {
                 lock (CacheLock) CachedPageCodes.Clear();
+                ingredientToRecipes.Clear();
+                recipeRemaining.Clear();
+                BuildRecipeIndex(capi);
                 LogEverywhere(capi, "[Craftable] LevelFinalize: cache cleared");
             };
         }
@@ -791,143 +799,6 @@ namespace ShowCraftable
         }
 
 
-        private static bool HasWildcard(
-            ResourcePool pool,
-            EnumItemClass type,
-            AssetLocation patternCode,
-            string[] allowed)
-        {
-            if (patternCode == null) return false;
-
-            foreach (var kv in pool.Counts)
-            {
-                if (kv.Value <= 0) continue;
-                if (!pool.Classes.TryGetValue(kv.Key, out var cls) || cls != type) continue;
-
-                var al = new AssetLocation(kv.Key.Code);
-                if (WildcardMatch(patternCode, al, allowed))
-                    return true;
-            }
-            return false;
-        }
-
-
-        private static bool HasAnyOption(ResourcePool pool, IList<ItemStack> options)
-        {
-            if (options == null || options.Count == 0) return false;
-
-            for (int i = 0; i < options.Count; i++)
-            {
-                var st = options[i];
-                var coll = st?.Collectible;
-                var code = coll?.Code?.ToString();
-                if (string.IsNullOrEmpty(code)) continue;
-
-                var key = new Key { Code = code };
-                if (pool.Counts.TryGetValue(key, out int have) && have > 0)
-                    return true;
-            }
-            return false;
-        }
-
-
-        private static bool TryConsumeWildcard(
-            ResourcePool pool,
-            Dictionary<Key, int> tmpCounts,
-            EnumItemClass type,
-            AssetLocation patternCode,
-            string[] allowed,
-            int need)
-        {
-            if (patternCode == null || need <= 0) return need <= 0;
-
-            foreach (var kv in pool.Counts)
-            {
-                if (need <= 0) break;
-
-                var key = kv.Key;
-                if (!pool.Classes.TryGetValue(key, out var cls) || cls != type) continue;
-                if (!tmpCounts.TryGetValue(key, out int have) || have <= 0) continue;
-
-                var al = new AssetLocation(key.Code);
-                if (!WildcardMatch(patternCode, al, allowed)) continue;
-
-                int take = have < need ? have : need;
-                if (take <= 0) continue;
-
-                tmpCounts[key] = have - take;
-                need -= take;
-            }
-
-            return need == 0;
-        }
-
-
-        private static bool TryConsumeOptions(
-            Dictionary<Key, int> tmpCounts,
-            IList<ItemStack> options,
-            int need)
-        {
-            if (options == null || options.Count == 0) return false;
-
-            for (int i = 0; i < options.Count && need > 0; i++)
-            {
-                var st = options[i];
-                var coll = st?.Collectible;
-                var code = coll?.Code?.ToString();
-                if (string.IsNullOrEmpty(code)) continue;
-
-                var key = new Key { Code = code };
-                if (!tmpCounts.TryGetValue(key, out int have) || have <= 0) continue;
-
-                int take = have < need ? have : need;
-                if (take <= 0) continue;
-
-                tmpCounts[key] = have - take;
-                need -= take;
-            }
-
-            return need == 0;
-        }
-
-
-        private static bool IsCraftable(GridRecipeShim r, ResourcePool pool)
-        {
-
-            var tmpCounts = new Dictionary<Key, int>(pool.Counts);
-
-
-            foreach (var ing in r.Ingredients)
-            {
-                if (!ing.IsTool) continue;
-
-                if (ing.IsWild)
-                {
-                    if (!HasWildcard(pool, ing.Type, ing.PatternCode, ing.Allowed))
-                        return false;
-                }
-                else
-                {
-                    if (!HasAnyOption(pool, ing.Options))
-                        return false;
-                }
-            }
-
-
-            foreach (var ing in r.Ingredients)
-            {
-                if (ing.IsTool) continue;
-
-                int need = Math.Max(1, ing.QuantityRequired);
-                bool ok = ing.IsWild
-                    ? TryConsumeWildcard(pool, tmpCounts, ing.Type, ing.PatternCode, ing.Allowed, need)
-                    : TryConsumeOptions(tmpCounts, ing.Options, need);
-
-                if (!ok) return false;
-            }
-
-            return true;
-        }
 
         private static List<GridRecipeShim> GetAllGridRecipes(ICoreClientAPI capi, out int fetched, out int usable)
         {
@@ -956,6 +827,77 @@ namespace ShowCraftable
 
             LogEverywhere(capi, $"[Craftable] Grid recipes fetched={fetched}, usable={usable}");
             return list;
+        }
+
+        private static void BuildRecipeIndex(ICoreClientAPI capi)
+        {
+            var recipes = GetAllGridRecipes(capi, out recipesFetched, out recipesUsable);
+            foreach (var r in recipes)
+            {
+                var unique = new HashSet<string>();
+                foreach (var ing in r.Ingredients)
+                {
+                    string uniqKey;
+                    if (ing.IsWild)
+                    {
+                        uniqKey = "wild:" + ing.PatternCode + "|" + string.Join(",", ing.Allowed ?? Array.Empty<string>());
+                        foreach (var code in AllCodesMatching(capi, ing))
+                        {
+                            if (!ingredientToRecipes.TryGetValue(code, out var list))
+                                ingredientToRecipes[code] = list = new List<GridRecipeShim>();
+                            if (!list.Contains(r)) list.Add(r);
+                        }
+                    }
+                    else
+                    {
+                        var codes = new HashSet<string>();
+                        foreach (var st in ing.Options)
+                        {
+                            var code = st?.Collectible?.Code?.ToString();
+                            if (string.IsNullOrEmpty(code)) continue;
+                            codes.Add(code);
+                            if (!ingredientToRecipes.TryGetValue(code, out var list))
+                                ingredientToRecipes[code] = list = new List<GridRecipeShim>();
+                            if (!list.Contains(r)) list.Add(r);
+                        }
+        
+                        uniqKey = "opts:" + string.Join(",", codes.OrderBy(c => c));
+                    }
+
+                    unique.Add(uniqKey);
+                }
+
+                recipeRemaining[r] = unique.Count;
+            }
+        }
+
+        private static IEnumerable<string> AllCodesMatching(ICoreClientAPI capi, GridIngredientShim ing)
+        {
+            var results = new List<string>();
+            if (ing.PatternCode == null) return results;
+
+            IEnumerable<CollectibleObject> coll = null;
+            if (ing.Type == EnumItemClass.Item)
+                coll = capi.World.Items?.Where(i => i != null);
+            else if (ing.Type == EnumItemClass.Block)
+                coll = capi.World.Blocks?.Where(b => b != null);
+
+            if (coll != null)
+            {
+                foreach (var c in coll)
+                {
+                    var code = c.Code?.ToString();
+                    if (string.IsNullOrEmpty(code)) continue;
+                    try
+                    {
+                        var al = new AssetLocation(code);
+                        if (WildcardMatch(ing.PatternCode, al, ing.Allowed)) results.Add(code);
+                    }
+                    catch { }
+                }
+            }
+
+            return results;
         }
 
         private static IEnumerable<object> FetchGridRecipesMulti(ICoreClientAPI capi)
@@ -1172,18 +1114,28 @@ namespace ShowCraftable
         private static int RebuildCacheWithPool(ICoreClientAPI capi, ResourcePool pool,
                                                 out int craftableOutputsCount, out int fetched, out int usable)
         {
-            craftableOutputsCount = 0; fetched = 0; usable = 0;
+            craftableOutputsCount = 0; fetched = recipesFetched; usable = recipesUsable;
 
-            var recipes = GetAllGridRecipes(capi, out fetched, out usable);
+            var remaining = recipeRemaining.ToDictionary(kv => kv.Key, kv => kv.Value);
             var craftableCodes = new HashSet<string>();
-            foreach (var r in recipes)
+
+            foreach (var kv in pool.Counts)
             {
-                if (IsCraftable(r, pool))
+                var code = kv.Key.Code;
+                if (!ingredientToRecipes.TryGetValue(code, out var list)) continue;
+
+                foreach (var r in list)
                 {
-                    foreach (var os in r.Outputs)
+                    if (!remaining.TryGetValue(r, out var need) || need <= 0) continue;
+                    need--;
+                    remaining[r] = need;
+                    if (need == 0)
                     {
-                        var code = os?.Collectible?.Code?.ToString();
-                        if (!string.IsNullOrEmpty(code)) craftableCodes.Add(code);
+                        foreach (var os in r.Outputs)
+                        {
+                            var ocode = os?.Collectible?.Code?.ToString();
+                            if (!string.IsNullOrEmpty(ocode)) craftableCodes.Add(ocode);
+                        }
                     }
                 }
             }
