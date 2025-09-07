@@ -60,9 +60,6 @@ public abstract class ButtonRTC : RichTextComponentBase
         return hover;
     }
 
-    protected void SetExtraTip(string text = null)
-        => hover.SetNewText((text == null) ? tooltip : $"{tooltip}\n{text}");
-
     protected abstract void OnClick();
 
     private bool Click()
@@ -70,9 +67,6 @@ public abstract class ButtonRTC : RichTextComponentBase
         OnClick();
         return true;
     }
-
-    protected virtual bool Visible
-        => true;
 
     public override EnumCalcBoundsResult CalcBounds(TextFlowPath[] flowPath, double currentLineHeight, double offsetX, double lineY, out double nextOffsetX)
     {
@@ -95,13 +89,10 @@ public abstract class ButtonRTC : RichTextComponentBase
 
     public override void RenderInteractiveElements(float deltaTime, double renderX, double renderY, double renderZ)
     {
-        if (Visible)
-        {
-            SetBounds(renderX, renderY);
-            button.RenderInteractiveElements(deltaTime);
-            hover.SetVisible(MouseOverFor(1.0, deltaTime));
-            hover.RenderInteractiveElements(deltaTime);
-        }
+        SetBounds(renderX, renderY);
+        button.RenderInteractiveElements(deltaTime);
+        hover.SetVisible(MouseOverFor(1.0, deltaTime));
+        hover.RenderInteractiveElements(deltaTime);
     }
 
     private bool MouseOverFor(double time, double delta)
@@ -128,30 +119,21 @@ public abstract class ButtonRTC : RichTextComponentBase
 
     public override void OnMouseDown(MouseEvent args)
     {
-        if (Visible)
-        {
-            SetBounds();
-            button.OnMouseDown(api, args);
-        }
+        SetBounds();
+        button.OnMouseDown(api, args);
     }
 
     public override void OnMouseUp(MouseEvent args)
     {
-        if (Visible)
-        {
-            SetBounds();
-            button.OnMouseUp(api, args);
-        }
+        SetBounds();
+        button.OnMouseUp(api, args);
     }
 
     public override void OnMouseMove(MouseEvent args)
     {
-        if (Visible)
-        {
-            button.PlaySound = true;
-            button.OnMouseMove(api, args);
-            button.PlaySound = false;
-        }
+        button.PlaySound = true;
+        button.OnMouseMove(api, args);
+        button.PlaySound = false;
     }
 
     public override void Dispose()
@@ -165,15 +147,12 @@ public abstract class ButtonRTC : RichTextComponentBase
         public GlobalBounds(double x, double y, double width, double height)
         {
             absFixedX = x;
-            absFixedX = y;
+            absFixedY = y;
             absInnerWidth = fixedWidth = width;
             absInnerHeight = fixedHeight = height;
             BothSizing = ElementSizing.Fixed;
             ParentBounds = new();
         }
-
-        public ElementBounds MakeChild()
-            => Fill.WithParent(this);
 
         public override double bgDrawX => absFixedX;
 
