@@ -1129,7 +1129,7 @@ namespace ShowCraftable
             try
             {
 
-                var pool = BuildResourcePoolPlayerOnly(_capi);
+                var pool = new ResourcePool();
 
                 for (int i = 0; i < data.Codes.Count; i++)
                 {
@@ -1503,7 +1503,7 @@ namespace ShowCraftable
         {
             if (items == null || items.Count == 0) return true;
 
-            // Group requested stacks by code so we can merge them before estimating space
+            // Group by code so we can reason about merging
             var need = new Dictionary<string, (ItemStack sample, int count)>();
             foreach (var st in items)
             {
@@ -1516,20 +1516,40 @@ namespace ShowCraftable
             }
 
             int emptySlots = 0;
+
             var invs = new IInventory[]
             {
-
-                player.InventoryManager.GetOwnInventory("hotbar"),
-                player.InventoryManager.GetOwnInventory("craftinggrid"),
-                player.InventoryManager.GetOwnInventory("backpack")
+        player.InventoryManager.GetOwnInventory("hotbar"),
+        player.InventoryManager.GetOwnInventory("craftinggrid"),
+        player.InventoryManager.GetOwnInventory("backpack")
             };
+
+            // De-dupe seen slots across all views
+            var seenSlotRefs = new HashSet<ItemSlot>();
+            var seenStackRefs = new HashSet<ItemStack>();
+            var seenKeys = new HashSet<string>();
+
+            bool Skip(IInventory inv, int i, ItemSlot slot)
+            {
+                bool dup = false;
+                if (slot != null && !seenSlotRefs.Add(slot)) dup = true;
+                var st = slot?.Itemstack;
+                if (st != null && !seenStackRefs.Add(st)) dup = true;
+                string key = null;
+                try { key = $"{inv?.InventoryID}:{i}"; } catch { }
+                if (key != null && !seenKeys.Add(key)) dup = true;
+                return dup;
+            }
 
             foreach (var inv in invs)
             {
                 if (inv == null) continue;
 
-                foreach (var slot in inv)
+                for (int i = 0; i < inv.Count; i++)
                 {
+                    var slot = inv[i];
+                    if (Skip(inv, i, slot)) continue;
+
                     var existing = slot.Itemstack;
                     if (existing == null)
                     {
@@ -1560,6 +1580,7 @@ namespace ShowCraftable
             return requiredSlots <= emptySlots;
         }
 
+
         private void OnScanRequest(IServerPlayer fromPlayer, CraftScanRequest req)
         {
             var pos = fromPlayer.Entity.Pos.AsBlockPos;
@@ -1570,18 +1591,40 @@ namespace ShowCraftable
             var slots = new List<SlotRef>();
             var playerCounts = new Dictionary<string, int>();
 
+            // --- De-dupe state: catch overlapping views & aliases ---
+            var seenSlotRefs = new HashSet<ItemSlot>();     // same ItemSlot instance
+            var seenStackRefs = new HashSet<ItemStack>();   // same ItemStack instance
+            var seenKeys = new HashSet<string>();       // InventoryID:index (stable within process)
+
+            bool IsDuplicate(IInventory inv, int index, ItemSlot slot)
+            {
+                bool dup = false;
+                if (slot != null && !seenSlotRefs.Add(slot)) dup = true;
+                var st = slot?.Itemstack;
+                if (st != null && !seenStackRefs.Add(st)) dup = true;
+                string key = null;
+                try { key = $"{inv?.InventoryID}:{index}"; } catch { }
+                if (key != null && !seenKeys.Add(key)) dup = true;
+                return dup;
+            }
+
+            // --- Scan player's inventories (count only; we never fetch from these slots) ---
             var pinvs = new IInventory[]
             {
-                fromPlayer.InventoryManager.GetOwnInventory("hotbar"),
-                fromPlayer.InventoryManager.GetOwnInventory("craftinggrid"),
-                fromPlayer.InventoryManager.GetOwnInventory("backpack")
+        fromPlayer.InventoryManager.GetOwnInventory("hotbar"),
+        fromPlayer.InventoryManager.GetOwnInventory("craftinggrid"),
+        fromPlayer.InventoryManager.GetOwnInventory("backpack")
             };
 
             foreach (var inv in pinvs)
             {
                 if (inv == null) continue;
-                foreach (var slot in inv)
+
+                for (int i = 0; i < inv.Count; i++)
                 {
+                    var slot = inv[i];
+                    if (IsDuplicate(inv, i, slot)) continue;
+
                     var st = slot?.Itemstack;
                     if (st?.Collectible?.Code == null) continue;
 
@@ -1594,6 +1637,7 @@ namespace ShowCraftable
                 }
             }
 
+            // --- Scan nearby block entities (count + build fetchable slot list) ---
             for (int dx = -r; dx <= r; dx++)
                 for (int dy = -1; dy <= 2; dy++)
                     for (int dz = -r; dz <= r; dz++)
@@ -1605,8 +1649,11 @@ namespace ShowCraftable
                         if (inv == null) continue;
                         if (be is BlockEntityCrate && !req.IncludeCrates) continue;
 
-                        foreach (var slot in inv)
+                        for (int i = 0; i < inv.Count; i++)
                         {
+                            var slot = inv[i];
+                            if (IsDuplicate(inv, i, slot)) continue;
+
                             var st = slot?.Itemstack;
                             if (st?.Collectible?.Code == null) continue;
 
@@ -1616,10 +1663,12 @@ namespace ShowCraftable
 
                             if (sum.TryGetValue(code, out var cur)) sum[code] = (cur.count + add, cls); else sum[code] = (add, cls);
 
+                            // These are the only slots we ever pull from
                             slots.Add(new SlotRef { Slot = slot, Code = code, Class = cls, BlockEntity = be });
                         }
                     }
 
+            // --- Optional collect (server-authoritative) ---
             if (req.CollectItems && req.Variants != null && req.Variants.Count > 0)
             {
                 var counts = sum.ToDictionary(kv => kv.Key, kv => kv.Value.count);
@@ -1630,8 +1679,10 @@ namespace ShowCraftable
                 foreach (var variant in req.Variants)
                 {
                     bool ignorePlayer = CanSatisfyVariant(playerCounts, variant);
+
                     Dictionary<string, int> checkCounts;
                     Dictionary<string, int> pcounts;
+
                     if (ignorePlayer)
                     {
                         checkCounts = new Dictionary<string, int>(counts);
@@ -1644,7 +1695,7 @@ namespace ShowCraftable
                                 else checkCounts[kv.Key] = left;
                             }
                         }
-                        pcounts = null;
+                        pcounts = null; // we've fully satisfied from player side
                     }
                     else
                     {
@@ -1672,8 +1723,7 @@ namespace ShowCraftable
                     string msg = nospace
                         ? "[ShowCraftable] Not enough inventory space to fetch the ingredients!"
                         : "[ShowCraftable] Could not collect required ingredients";
-                    fromPlayer.SendMessage(GlobalConstants.InfoLogChatGroup,
-                        msg, EnumChatType.CommandError);
+                    fromPlayer.SendMessage(GlobalConstants.InfoLogChatGroup, msg, EnumChatType.CommandError);
                 }
                 else if (partial)
                 {
@@ -1692,6 +1742,7 @@ namespace ShowCraftable
 
             sapi.Network.GetChannel(ShowCraftableSystem.ChannelName).SendPacket(reply, fromPlayer);
         }
+
 
     }
 }
