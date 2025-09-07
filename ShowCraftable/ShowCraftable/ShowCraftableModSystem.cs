@@ -1737,16 +1737,39 @@ namespace ShowCraftable
 
                 foreach (var variant in req.Variants)
                 {
-                    if (!CanSatisfyVariant(counts, variant)) continue;
+                    bool ignorePlayer = CanSatisfyVariant(playerCounts, variant);
+                    Dictionary<string, int> checkCounts;
+                    Dictionary<string, int> pcounts;
+                    if (ignorePlayer)
+                    {
+                        checkCounts = new Dictionary<string, int>(counts);
+                        foreach (var kv in playerCounts)
+                        {
+                            if (checkCounts.TryGetValue(kv.Key, out var have))
+                            {
+                                int left = have - kv.Value;
+                                if (left <= 0) checkCounts.Remove(kv.Key);
+                                else checkCounts[kv.Key] = left;
+                            }
+                        }
+                        pcounts = null;
+                    }
+                    else
+                    {
+                        checkCounts = counts;
+                        pcounts = playerCounts;
+                    }
 
-                    var preview = PreviewVariant(slots, variant, playerCounts);
+                    if (!CanSatisfyVariant(checkCounts, variant)) continue;
+
+                    var preview = PreviewVariant(slots, variant, pcounts);
                     if (!HasInventorySpace(fromPlayer, preview))
                     {
                         nospace = true;
                         break;
                     }
 
-                    bool success = ExecuteVariant(slots, variant, fromPlayer, sum, playerCounts);
+                    bool success = ExecuteVariant(slots, variant, fromPlayer, sum, pcounts);
                     done = true;
                     if (!success) partial = true;
                     break;
