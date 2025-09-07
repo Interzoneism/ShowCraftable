@@ -810,10 +810,10 @@ namespace ShowCraftable
             }
         }
 
-        private static void TryAddInventoryFromBE(BlockEntity be, ResourcePool pool, HashSet<IInventory> seen)
+        private static void TryAddInventoryFromBE(BlockEntity be, ResourcePool pool)
         {
             var inv = TryGetInventoryFromBE(be);
-            if (inv == null || !seen.Add(inv)) return;
+            if (inv == null) return;
 
             foreach (var slot in inv)
             {
@@ -827,21 +827,24 @@ namespace ShowCraftable
         {
             var pool = new ResourcePool();
             var mgr = capi.World?.Player?.InventoryManager;
-            var seen = new HashSet<IInventory>();
 
             if (mgr != null)
             {
                 void AddInv(IInventory inv)
                 {
-                    if (inv == null || !seen.Add(inv)) return;
+                    if (inv == null) return;
                     foreach (var slot in inv) if (slot?.Itemstack != null) pool.Add(slot.Itemstack);
                 }
-
                 AddInv(mgr.GetOwnInventory("craftinggrid"));
                 AddInv(mgr.GetOwnInventory("backpack"));
                 AddInv(mgr.GetHotbarInventory());
 
-                foreach (var inv in mgr.OpenedInventories) AddInv(inv);
+
+                foreach (var inv in mgr.OpenedInventories)
+                {
+                    if (inv is InventoryGeneric gen)
+                        foreach (var slot in gen) if (slot?.Itemstack != null) pool.Add(slot.Itemstack);
+                }
             }
 
             if (includeNearby)
@@ -856,7 +859,7 @@ namespace ShowCraftable
                             for (int dz = -r; dz <= r; dz++)
                             {
                                 var be = capi.World.BlockAccessor.GetBlockEntity(bp.AddCopy(dx, dy, dz));
-                                TryAddInventoryFromBE(be, pool, seen);
+                                TryAddInventoryFromBE(be, pool);
                             }
                 }
             }
@@ -870,10 +873,9 @@ namespace ShowCraftable
             var mgr = capi.World?.Player?.InventoryManager;
             if (mgr == null) return pool;
 
-            var seen = new HashSet<IInventory>();
             void AddInv(IInventory inv)
             {
-                if (inv == null || !seen.Add(inv)) return;
+                if (inv == null) return;
                 foreach (var slot in inv) if (slot?.Itemstack != null) pool.Add(slot.Itemstack);
             }
 
