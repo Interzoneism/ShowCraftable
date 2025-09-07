@@ -468,9 +468,10 @@ namespace ShowCraftable
             if (_staticCapi == null || components == null) return;
             for (int i = 0; i < components.Count; i++)
             {
-                if (components[i] is SlideshowGridRecipeTextComponent)
+                if (components[i] is SlideshowGridRecipeTextComponent slide)
                 {
-                    components.Insert(i + 1, new RecipeGridButton(_staticCapi));
+                    // Hand the exact slideshow this button should read from
+                    components.Insert(i + 1, new RecipeGridButton(_staticCapi, slide));
                     i++;
                 }
             }
