@@ -1613,7 +1613,6 @@ namespace ShowCraftable
             int emptySlots = 0;
             var invs = new IInventory[]
             {
-                player.InventoryManager.GetOwnInventory("hotbar"),
                 player.InventoryManager.GetOwnInventory("backpack")
             };
 
@@ -1665,7 +1664,6 @@ namespace ShowCraftable
 
             var pinvs = new IInventory[]
             {
-                fromPlayer.InventoryManager.GetOwnInventory("hotbar"),
                 fromPlayer.InventoryManager.GetOwnInventory("backpack")
             };
 
