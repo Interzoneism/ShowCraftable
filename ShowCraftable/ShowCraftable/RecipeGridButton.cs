@@ -66,6 +66,26 @@ public class RecipeGridButton : ButtonRTC
 
             foreach (var line in lines)
                 api.ShowChatMessage(line);
+
+            try
+            {
+                var reqVariants = BuildIngredientLists(variants);
+                if (reqVariants.Count > 0)
+                {
+                    var req = new CraftScanRequest
+                    {
+                        Radius = 12,
+                        IncludeCrates = true,
+                        CollectItems = true,
+                        Variants = reqVariants
+                    };
+                    api.Network.GetChannel(ShowCraftableSystem.ChannelName).SendPacket(req);
+                }
+            }
+            catch (Exception e)
+            {
+                api.ShowChatMessage("[ShowCraftable] Fetch request failed: " + e.Message);
+            }
         }
         catch (Exception e)
         {
@@ -135,6 +155,59 @@ public class RecipeGridButton : ButtonRTC
             }
         }
         return res;
+    }
+
+    private static List<CraftIngredientList> BuildIngredientLists(List<(GridRecipe recipe, Dictionary<int, ItemStack[]> unnamed)> variants)
+    {
+        var result = new List<CraftIngredientList>();
+        foreach (var (recipe, unnamed) in variants)
+        {
+            if (recipe?.resolvedIngredients == null || recipe.resolvedIngredients.Length == 0) continue;
+
+            var list = new CraftIngredientList();
+
+            for (int idx = 0; idx < recipe.resolvedIngredients.Length; idx++)
+            {
+                var ing = recipe.resolvedIngredients[idx];
+                if (ing == null) continue;
+
+                bool isTool = TryGetBool(ing, "IsTool");
+                if (isTool) continue;
+
+                bool isWild = TryGetBool(ing, "IsWildCard");
+                int qty = isWild ? TryGetInt(ing, "Quantity", 1)
+                                  : Math.Max(1, TryGetStack(ing, "ResolvedItemstack")?.StackSize ?? 1);
+
+                var ci = new CraftIngredient { IsWildcard = isWild, Quantity = qty };
+
+                if (unnamed != null && unnamed.TryGetValue(idx, out var options) && options != null)
+                {
+                    foreach (var opt in options)
+                    {
+                        var code = opt?.Collectible?.Code?.ToString();
+                        if (!string.IsNullOrEmpty(code) && !ci.Codes.Contains(code)) ci.Codes.Add(code);
+                    }
+                }
+                else
+                {
+                    var st = TryGetStack(ing, "ResolvedItemstack");
+                    var code = st?.Collectible?.Code?.ToString();
+                    if (!string.IsNullOrEmpty(code) && !ci.Codes.Contains(code)) ci.Codes.Add(code);
+                }
+
+                if (isWild)
+                {
+                    var pattern = TryGetAssetLocation(ing, "Code");
+                    if (pattern != null) ci.PatternCode = pattern.ToString();
+                }
+
+                list.Ingredients.Add(ci);
+            }
+
+            if (list.Ingredients.Count > 0) result.Add(list);
+        }
+
+        return result;
     }
 
     private string SummarizeRecipe(GridRecipe recipe, Dictionary<int, ItemStack[]> unnamed)

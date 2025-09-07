@@ -1331,10 +1331,27 @@ namespace ShowCraftable
 
 
     [ProtoContract]
+    public class CraftIngredient
+    {
+        [ProtoMember(1)] public bool IsWildcard { get; set; }
+        [ProtoMember(2)] public int Quantity { get; set; }
+        [ProtoMember(3)] public List<string> Codes { get; set; } = new();
+        [ProtoMember(4)] public string PatternCode { get; set; }
+    }
+
+    [ProtoContract]
+    public class CraftIngredientList
+    {
+        [ProtoMember(1)] public List<CraftIngredient> Ingredients { get; set; } = new();
+    }
+
+    [ProtoContract]
     public class CraftScanRequest
     {
         [ProtoMember(1)] public int Radius { get; set; }
         [ProtoMember(2)] public bool IncludeCrates { get; set; }
+        [ProtoMember(3)] public bool CollectItems { get; set; }
+        [ProtoMember(4)] public List<CraftIngredientList> Variants { get; set; } = new();
     }
 
     [ProtoContract]
@@ -1363,6 +1380,123 @@ namespace ShowCraftable
                .SetMessageHandler<CraftScanRequest>(OnScanRequest);
         }
 
+        private class SlotRef
+        {
+            public ItemSlot Slot;
+            public string Code;
+            public EnumItemClass Class;
+        }
+
+        private bool SlotMatches(SlotRef slot, CraftIngredient ing)
+        {
+            if (ing == null || slot?.Slot?.Itemstack == null) return false;
+
+            if (ing.Codes != null && ing.Codes.Contains(slot.Code)) return true;
+
+            if (ing.IsWildcard && !string.IsNullOrEmpty(ing.PatternCode))
+            {
+                try
+                {
+                    var pattern = new AssetLocation(ing.PatternCode);
+                    var code = new AssetLocation(slot.Code);
+                    if (WildcardUtil.Match(pattern, code)) return true;
+                }
+                catch { }
+            }
+
+            return false;
+        }
+
+        private bool CanSatisfyVariant(Dictionary<string, int> counts, CraftIngredientList variant)
+        {
+            if (variant == null) return false;
+
+            var tmp = new Dictionary<string, int>(counts);
+
+            foreach (var ing in variant.Ingredients)
+            {
+                int need = ing.Quantity;
+                if (need <= 0) continue;
+
+                if (ing.Codes != null && ing.Codes.Count > 0)
+                {
+                    int sum = 0;
+                    foreach (var code in ing.Codes)
+                    {
+                        if (tmp.TryGetValue(code, out var have)) sum += have;
+                        if (sum >= need) break;
+                    }
+                    if (sum < need) return false;
+
+                    foreach (var code in ing.Codes)
+                    {
+                        if (need <= 0) break;
+                        if (!tmp.TryGetValue(code, out var have) || have <= 0) continue;
+                        int take = Math.Min(need, have);
+                        tmp[code] = have - take;
+                        if (tmp[code] <= 0) tmp.Remove(code);
+                        need -= take;
+                    }
+                }
+                else if (ing.IsWildcard && !string.IsNullOrEmpty(ing.PatternCode))
+                {
+                    var pattern = new AssetLocation(ing.PatternCode);
+                    foreach (var kv in tmp.ToList())
+                    {
+                        if (need <= 0) break;
+                        try
+                        {
+                            var al = new AssetLocation(kv.Key);
+                            if (!WildcardUtil.Match(pattern, al)) continue;
+                        }
+                        catch { continue; }
+
+                        int take = Math.Min(need, kv.Value);
+                        tmp[kv.Key] = kv.Value - take;
+                        if (tmp[kv.Key] <= 0) tmp.Remove(kv.Key);
+                        need -= take;
+                    }
+                    if (need > 0) return false;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private void ExecuteVariant(List<SlotRef> slots, CraftIngredientList variant, IServerPlayer player,
+            Dictionary<string, (int count, EnumItemClass cls)> sum)
+        {
+            foreach (var ing in variant.Ingredients)
+            {
+                int need = ing.Quantity;
+                if (need <= 0) continue;
+
+                foreach (var sr in slots)
+                {
+                    if (need <= 0) break;
+                    if (!SlotMatches(sr, ing)) continue;
+
+                    int take = Math.Min(need, sr.Slot.StackSize);
+                    var taken = sr.Slot.TakeOut(take);
+                    if (taken == null) continue;
+
+                    player.InventoryManager.TryGiveItemstack(taken);
+                    need -= taken.StackSize;
+
+                    if (sum.TryGetValue(sr.Code, out var cur))
+                    {
+                        int left = cur.count - taken.StackSize;
+                        if (left <= 0) sum.Remove(sr.Code);
+                        else sum[sr.Code] = (left, cur.cls);
+                    }
+                }
+            }
+        }
+
         private void OnScanRequest(IServerPlayer fromPlayer, CraftScanRequest req)
         {
             var pos = fromPlayer.Entity.Pos.AsBlockPos;
@@ -1370,6 +1504,7 @@ namespace ShowCraftable
             int r = Math.Max(0, req.Radius);
 
             var sum = new Dictionary<string, (int count, EnumItemClass cls)>();
+            var slots = new List<SlotRef>();
 
             for (int dx = -r; dx <= r; dx++)
                 for (int dy = -1; dy <= 2; dy++)
@@ -1380,34 +1515,7 @@ namespace ShowCraftable
 
                         var inv = ShowCraftableSystem.TryGetInventoryFromBE(be);
                         if (inv == null) continue;
-
-
-                        if (be is BlockEntityCrate)
-                        {
-                            if (!req.IncludeCrates) continue;
-
-                            ItemStack sample = null;
-                            int total = 0;
-
-                            foreach (var slot in inv)
-                            {
-                                var st = slot?.Itemstack;
-                                if (st == null || st.Collectible?.Code == null) continue;
-                                if (sample == null) sample = st;
-                                total += Math.Max(1, st.StackSize);
-                            }
-
-                            if (sample != null && total > 0)
-                            {
-                                string code = sample.Collectible.Code.ToString();
-                                var cls = sample.Class;
-                                if (sum.TryGetValue(code, out var cur)) sum[code] = (cur.count + total, cls);
-                                else sum[code] = (total, cls);
-                            }
-
-                            continue;
-                        }
-
+                        if (be is BlockEntityCrate && !req.IncludeCrates) continue;
 
                         foreach (var slot in inv)
                         {
@@ -1420,8 +1528,31 @@ namespace ShowCraftable
 
                             if (sum.TryGetValue(code, out var cur)) sum[code] = (cur.count + add, cls);
                             else sum[code] = (add, cls);
+
+                            slots.Add(new SlotRef { Slot = slot, Code = code, Class = cls });
                         }
                     }
+
+            if (req.CollectItems && req.Variants != null && req.Variants.Count > 0)
+            {
+                var counts = sum.ToDictionary(kv => kv.Key, kv => kv.Value.count);
+                bool done = false;
+
+                foreach (var variant in req.Variants)
+                {
+                    if (!CanSatisfyVariant(counts, variant)) continue;
+
+                    ExecuteVariant(slots, variant, fromPlayer, sum);
+                    done = true;
+                    break;
+                }
+
+                if (!done)
+                {
+                    fromPlayer.SendMessage(GlobalConstants.InfoLogChatGroup,
+                        "[ShowCraftable] Could not collect required ingredients", EnumChatType.CommandError);
+                }
+            }
 
             var reply = new CraftScanReply
             {
