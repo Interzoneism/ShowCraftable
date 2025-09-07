@@ -28,7 +28,6 @@ namespace ShowCraftable
         public const string HarmonyId = "showcraftable.core";
         public const string CraftableCategoryCode = "craftable";
 
-        private static bool UseServerNearbyScan = true;
         public const string ChannelName = "showcraftablescan";
         private static int NearbyRadius = 12;
 
@@ -225,52 +224,6 @@ namespace ShowCraftable
                     return TextCommandResult.Success();
                 });
 
-            capi.ChatCommands.Create("craftablescan")
-                .WithDescription("Rebuild Craftable cache (player + nearby containers via server)")
-                .HandleWith(args =>
-                {
-                    if (UseServerNearbyScan)
-                    {
-                        RequestServerScan(capi, NearbyRadius, includeCrates: true);
-                        return TextCommandResult.Success();
-                    }
-
-                    ScanInProgress = true;
-                    HandbookPauseGuard.Acquire(capi);
-                    try
-                    {
-                        if (UseServerNearbyScan)
-                        {
-                            capi.Network.GetChannel(ChannelName).SendPacket(new CraftScanRequest
-                            {
-                                Radius = NearbyRadius,
-                                IncludeCrates = true
-                            });
-                            LogEverywhere(capi, $"[Craftable] Requested server-side nearby container scan (r={NearbyRadius})…", toChat: true);
-
-                            return TextCommandResult.Success();
-                        }
-
-
-                        int pages = RebuildCache(capi, includeNearby: true, radius: NearbyRadius,
-                                                 out int outputs, out int fetched, out int usable);
-                        LogEverywhere(capi, $"[Craftable] Local scan done: outputs={outputs}, pages={pages}, fetched={fetched}, usable={usable}", toChat: true);
-                        TryRefreshOpenDialog(capi);
-                    }
-                    catch (Exception e)
-                    {
-                        LogEverywhere(capi, $"[Craftable] Scan failed: {e}", toChat: true);
-                    }
-                    finally
-                    {
-                        ScanInProgress = false;
-
-                        if (!UseServerNearbyScan) HandbookPauseGuard.Release(capi);
-                    }
-
-                    return TextCommandResult.Success();
-                });
-
             capi.ChatCommands.Create("craftabledump")
                 .WithDescription("Dump Craftable cache & resolution stats")
                 .HandleWith(args =>
@@ -427,7 +380,7 @@ namespace ShowCraftable
                 AccessTools.Field(__instance.GetType(), "currentSearchText")?.SetValue(__instance, null);
                 AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
 
-                if (capi != null && UseServerNearbyScan)
+                if (capi != null)
                 {
 
                     var myScanId = ++_pendingScanId;
@@ -695,16 +648,6 @@ namespace ShowCraftable
             return null;
         }
 
-        private static int RebuildCache(ICoreClientAPI capi, bool includeNearby, int radius,
-                                        out int craftableOutputsCount, out int fetched, out int usable)
-        {
-            craftableOutputsCount = 0; fetched = 0; usable = 0;
-
-            var pool = BuildResourcePool(capi, includeNearby, radius);
-            return RebuildCacheWithPool(capi, pool, out craftableOutputsCount, out fetched, out usable);
-        }
-
-
         private struct Key : IEquatable<Key>
         {
             public string Code;
@@ -808,63 +751,6 @@ namespace ShowCraftable
                 }
                 return false;
             }
-        }
-
-        private static void TryAddInventoryFromBE(BlockEntity be, ResourcePool pool)
-        {
-            var inv = TryGetInventoryFromBE(be);
-            if (inv == null) return;
-
-            foreach (var slot in inv)
-            {
-                var st = slot?.Itemstack;
-                if (st?.Collectible != null) pool.Add(st);
-            }
-        }
-
-
-        private static ResourcePool BuildResourcePool(ICoreClientAPI capi, bool includeNearby, int radius)
-        {
-            var pool = new ResourcePool();
-            var mgr = capi.World?.Player?.InventoryManager;
-
-            if (mgr != null)
-            {
-                void AddInv(IInventory inv)
-                {
-                    if (inv == null) return;
-                    foreach (var slot in inv) if (slot?.Itemstack != null) pool.Add(slot.Itemstack);
-                }
-                AddInv(mgr.GetOwnInventory("craftinggrid"));
-                AddInv(mgr.GetOwnInventory("backpack"));
-                AddInv(mgr.GetHotbarInventory());
-
-
-                foreach (var inv in mgr.OpenedInventories)
-                {
-                    if (inv is InventoryGeneric gen)
-                        foreach (var slot in gen) if (slot?.Itemstack != null) pool.Add(slot.Itemstack);
-                }
-            }
-
-            if (includeNearby)
-            {
-                var pos = capi.World?.Player?.Entity?.ServerPos.AsBlockPos ?? capi.World?.Player?.Entity?.Pos.AsBlockPos;
-                if (pos != null)
-                {
-                    BlockPos bp = pos;
-                    int r = Math.Max(0, radius);
-                    for (int dx = -r; dx <= r; dx++)
-                        for (int dy = -1; dy <= 2; dy++)
-                            for (int dz = -r; dz <= r; dz++)
-                            {
-                                var be = capi.World.BlockAccessor.GetBlockEntity(bp.AddCopy(dx, dy, dz));
-                                TryAddInventoryFromBE(be, pool);
-                            }
-                }
-            }
-
-            return pool;
         }
 
         private static ResourcePool BuildResourcePoolPlayerOnly(ICoreClientAPI capi)
