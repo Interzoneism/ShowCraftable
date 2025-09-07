@@ -1485,17 +1485,109 @@ namespace ShowCraftable
                     var taken = sr.Slot.TakeOut(take);
                     if (taken == null) continue;
 
+                    int before = taken.StackSize;
                     player.InventoryManager.TryGiveItemstack(taken);
-                    need -= taken.StackSize;
+                    int moved = before - taken.StackSize;
+                    need -= moved;
+
+                    if (taken.StackSize > 0)
+                    {
+                        var leftoverSlot = new DummySlot(taken);
+                        leftoverSlot.TryPutInto(player.Entity.World, sr.Slot, taken.StackSize);
+                        if (!leftoverSlot.Empty)
+                        {
+                            player.Entity.World.SpawnItemEntity(leftoverSlot.Itemstack, player.Entity.Pos.XYZ);
+                        }
+                    }
 
                     if (sum.TryGetValue(sr.Code, out var cur))
                     {
-                        int left = cur.count - taken.StackSize;
+                        int left = cur.count - moved;
                         if (left <= 0) sum.Remove(sr.Code);
                         else sum[sr.Code] = (left, cur.cls);
                     }
                 }
             }
+        }
+
+        private List<ItemStack> PreviewVariant(List<SlotRef> slots, CraftIngredientList variant)
+        {
+            var list = new List<ItemStack>();
+            foreach (var ing in variant.Ingredients)
+            {
+                int need = ing.Quantity;
+                if (need <= 0) continue;
+
+                foreach (var sr in slots)
+                {
+                    if (need <= 0) break;
+                    if (!SlotMatches(sr, ing)) continue;
+
+                    int take = Math.Min(need, sr.Slot.StackSize);
+                    var clone = sr.Slot.Itemstack.Clone();
+                    clone.StackSize = take;
+                    list.Add(clone);
+                    need -= take;
+                }
+            }
+            return list;
+        }
+
+        private bool HasInventorySpace(IServerPlayer player, List<ItemStack> items)
+        {
+            if (items == null || items.Count == 0) return true;
+
+            var stacks = items.Select(st => st.Clone()).ToList();
+            var invs = new IInventory[]
+            {
+                player.InventoryManager.GetOwnInventory("hotbar"),
+                player.InventoryManager.GetOwnInventory("backpack")
+            };
+
+            foreach (var inv in invs)
+            {
+                if (inv == null) continue;
+
+                foreach (var slot in inv)
+                {
+                    if (stacks.Count == 0) return true;
+
+                    var existing = slot.Itemstack;
+                    if (existing?.Collectible == null) continue;
+
+                    for (int i = 0; i < stacks.Count; i++)
+                    {
+                        var want = stacks[i];
+                        int cap = existing.Collectible.GetMergableQuantity(existing, want, EnumMergePriority.AutoMerge);
+                        if (cap <= 0) continue;
+
+                        int move = Math.Min(cap, want.StackSize);
+                        want.StackSize -= move;
+                        if (want.StackSize <= 0)
+                        {
+                            stacks.RemoveAt(i);
+                            i--;
+                        }
+                        if (stacks.Count == 0) return true;
+                    }
+                }
+
+                foreach (var slot in inv)
+                {
+                    if (stacks.Count == 0) return true;
+                    if (slot.Itemstack != null) continue;
+
+                    var want = stacks[0];
+                    int move = Math.Min(want.StackSize, want.Collectible.MaxStackSize);
+                    want.StackSize -= move;
+                    if (want.StackSize <= 0)
+                    {
+                        stacks.RemoveAt(0);
+                    }
+                }
+            }
+
+            return stacks.Count == 0;
         }
 
         private void OnScanRequest(IServerPlayer fromPlayer, CraftScanRequest req)
@@ -1538,10 +1630,18 @@ namespace ShowCraftable
             {
                 var counts = sum.ToDictionary(kv => kv.Key, kv => kv.Value.count);
                 bool done = false;
+                bool nospace = false;
 
                 foreach (var variant in req.Variants)
                 {
                     if (!CanSatisfyVariant(counts, variant)) continue;
+
+                    var preview = PreviewVariant(slots, variant);
+                    if (!HasInventorySpace(fromPlayer, preview))
+                    {
+                        nospace = true;
+                        break;
+                    }
 
                     ExecuteVariant(slots, variant, fromPlayer, sum);
                     done = true;
@@ -1550,8 +1650,11 @@ namespace ShowCraftable
 
                 if (!done)
                 {
+                    string msg = nospace
+                        ? "[ShowCraftable] Not enough inventory space to fetch the ingredients!"
+                        : "[ShowCraftable] Could not collect required ingredients";
                     fromPlayer.SendMessage(GlobalConstants.InfoLogChatGroup,
-                        "[ShowCraftable] Could not collect required ingredients", EnumChatType.CommandError);
+                        msg, EnumChatType.CommandError);
                 }
             }
 
