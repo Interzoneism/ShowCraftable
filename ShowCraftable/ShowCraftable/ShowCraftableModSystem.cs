@@ -1484,12 +1484,24 @@ namespace ShowCraftable
                     var taken = sr.Slot.TakeOut(take);
                     if (taken == null) continue;
 
+                    int before = taken.StackSize;
                     player.InventoryManager.TryGiveItemstack(taken);
-                    need -= taken.StackSize;
+                    int moved = before - taken.StackSize;
+                    need -= moved;
+
+                    if (taken.StackSize > 0)
+                    {
+                        var leftoverSlot = new DummySlot(taken);
+                        leftoverSlot.TryPutInto(player.Entity.World, sr.Slot, taken.StackSize);
+                        if (!leftoverSlot.Empty)
+                        {
+                            player.Entity.World.SpawnItemEntity(leftoverSlot.Itemstack, player.Entity.Pos.XYZ);
+                        }
+                    }
 
                     if (sum.TryGetValue(sr.Code, out var cur))
                     {
-                        int left = cur.count - taken.StackSize;
+                        int left = cur.count - moved;
                         if (left <= 0) sum.Remove(sr.Code);
                         else sum[sr.Code] = (left, cur.cls);
                     }
