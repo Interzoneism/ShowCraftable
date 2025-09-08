@@ -783,7 +783,7 @@ namespace ShowCraftable
             foreach (var raw in rawRecipes)
             {
                 fetched++;
-                var shim = TryBuildGridShimResolving(raw, capi);
+                var shim = TryBuildGridShim(raw, capi);
                 if (shim != null && shim.Outputs.Count > 0)
                 {
                     usable++;
@@ -918,16 +918,15 @@ namespace ShowCraftable
             public int GetHashCode(object obj) => System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(obj);
         }
 
-        private static GridRecipeShim TryBuildGridShimResolving(object raw, ICoreClientAPI capi)
+        private static GridRecipeShim TryBuildGridShim(object raw, ICoreClientAPI capi)
         {
             if (raw == null) return null;
             var t = raw.GetType();
             if (!t.Name.Contains("GridRecipe", StringComparison.OrdinalIgnoreCase)) return null;
 
-            EnsureRecipeResolved(raw, t, capi);
-
             var shim = new GridRecipeShim { Raw = raw };
 
+            bool hadResolved = false;
             var resolvedIngreds = TryGetMember(t, raw, "resolvedIngredients");
             if (resolvedIngreds is System.Collections.IEnumerable ien)
             {
@@ -968,42 +967,123 @@ namespace ShowCraftable
                     }
 
                     if (gi.IsWild || gi.Options.Count > 0) shim.Ingredients.Add(gi);
+                    hadResolved = true;
+                }
+            }
+
+            if (!hadResolved)
+            {
+                var ingreds = TryGetMember(t, raw, "Ingredients") as System.Collections.IDictionary;
+                var pattern = TryGetMember(t, raw, "IngredientPattern") as string;
+                if (ingreds != null && pattern != null)
+                {
+                    foreach (var ch in pattern)
+                    {
+                        if (ch == ' ' || ch == '_') continue;
+                        string key = ch.ToString();
+                        if (!ingreds.Contains(key)) continue;
+
+                        var ingRaw = ingreds[key];
+                        if (ingRaw == null) continue;
+                        var it = ingRaw.GetType();
+                        var gi = new GridIngredientShim();
+
+                        gi.IsTool = TryGetMember(it, ingRaw, "IsTool") as bool? ?? false;
+                        gi.PatternCode = TryGetMember(it, ingRaw, "Code") as AssetLocation;
+                        var allowedObj = TryGetMember(it, ingRaw, "AllowedVariants");
+                        gi.Allowed = allowedObj as string[];
+                        if (gi.Allowed == null && allowedObj is Dictionary<string, string[]> dict)
+                            gi.Allowed = dict.SelectMany(kv => kv.Value ?? Array.Empty<string>()).Distinct().ToArray();
+                        gi.Type = (EnumItemClass)(TryGetMember(it, ingRaw, "Type") as EnumItemClass? ?? EnumItemClass.Item);
+                        gi.QuantityRequired = TryGetMember(it, ingRaw, "Quantity") as int? ?? 1;
+
+                        bool isWild = TryGetMember(it, ingRaw, "IsWildCard") as bool? ?? false;
+                        if (!isWild)
+                        {
+                            var path = gi.PatternCode?.Path;
+                            if (path != null && (path.Contains("*") || path.Contains("{") || path.Contains("}") || path.StartsWith("@")))
+                                isWild = true;
+                        }
+                        gi.IsWild = isWild;
+
+                        if (!gi.IsWild)
+                        {
+                            var codeStr = gi.PatternCode?.ToString();
+                            var st = MakeStackFromCode(capi, codeStr);
+                            if (st != null)
+                            {
+                                st.StackSize = gi.QuantityRequired;
+                                gi.Options.Add(st);
+                            }
+                        }
+
+                        if (gi.IsWild || gi.Options.Count > 0) shim.Ingredients.Add(gi);
+                    }
                 }
             }
 
             var outputIng = TryGetMember(t, raw, "Output");
             if (outputIng != null)
             {
-                var outStack = TryGetMember(outputIng.GetType(), outputIng, "ResolvedItemstack") as ItemStack;
-                if (outStack != null && outStack.Collectible != null) shim.Outputs.Add(outStack);
+                var ot = outputIng.GetType();
+                var outStack = TryGetMember(ot, outputIng, "ResolvedItemstack") as ItemStack;
+                if (outStack != null && outStack.Collectible != null)
+                {
+                    shim.Outputs.Add(outStack);
+                }
+                else
+                {
+                    var code = TryGetMember(ot, outputIng, "Code") as AssetLocation;
+                    var stack = MakeStackFromCode(capi, code?.ToString());
+                    if (stack != null)
+                    {
+                        int qty = TryGetMember(ot, outputIng, "Quantity") as int? ?? 1;
+                        stack.StackSize = Math.Max(1, qty);
+                        shim.Outputs.Add(stack);
+                    }
+                }
             }
 
             var outs = TryGetMember(t, raw, "ResolvedOutputs") ?? TryGetMember(t, raw, "Outputs");
             if (outs is System.Collections.IEnumerable outEnum)
-                foreach (var o in outEnum)
-                    if (o is ItemStack os && os.Collectible != null) shim.Outputs.Add(os);
-
-            return shim;
-        }
-
-        private static void EnsureRecipeResolved(object raw, Type t, ICoreClientAPI capi)
-        {
-            var mi = t.GetMethod("ResolveIngredients", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-            if (mi != null)
             {
-                try
+                foreach (var o in outEnum)
                 {
-                    var pars = mi.GetParameters();
-                    if (pars.Length == 1)
+                    if (o == null) continue;
+                    if (o is ItemStack os)
                     {
-                        var p0 = pars[0].ParameterType;
-                        if (p0.IsInstanceOfType(capi.World)) { mi.Invoke(raw, new object[] { capi.World }); return; }
-                        if (p0.IsInstanceOfType(capi.World?.Api)) { mi.Invoke(raw, new object[] { capi.World.Api }); return; }
-                        if (p0.IsInstanceOfType(capi)) { object[] parameters = new object[] { capi }; mi.Invoke(raw, parameters); return; }
+                        if (os.Collectible != null) shim.Outputs.Add(os);
+                        else
+                        {
+                            var codeProp = TryGetMember(o.GetType(), o, "Code") as AssetLocation;
+                            var st = MakeStackFromCode(capi, codeProp?.ToString());
+                            if (st != null) shim.Outputs.Add(st);
+                        }
+                    }
+                    else
+                    {
+                        var ot = o.GetType();
+                        var stack = TryGetMember(ot, o, "ResolvedItemstack") as ItemStack;
+                        if (stack != null && stack.Collectible != null)
+                        {
+                            shim.Outputs.Add(stack);
+                        }
+                        else
+                        {
+                            var code = TryGetMember(ot, o, "Code") as AssetLocation;
+                            var st = MakeStackFromCode(capi, code?.ToString());
+                            if (st != null)
+                            {
+                                int qty = TryGetMember(ot, o, "Quantity") as int? ?? 1;
+                                st.StackSize = Math.Max(1, qty);
+                                shim.Outputs.Add(st);
+                            }
+                        }
                     }
                 }
-                catch { }
             }
+
+            return shim;
         }
 
         private static object TryGetMember(Type t, object obj, string name)
