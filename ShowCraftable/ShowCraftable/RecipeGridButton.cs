@@ -9,7 +9,7 @@ using Vintagestory.API.Common;
 
 namespace ShowCraftable;
 
-public class RecipeGridButton : ButtonRTC
+public class RecipeGridButton : ButtonFetch
 {
     private const double YManualOffset = 0;
     private readonly SlideshowGridRecipeTextComponent slideshow;
@@ -80,7 +80,6 @@ public class RecipeGridButton : ButtonRTC
                         Variants = reqVariants
                     };
 
-                    // PAUSE-GUARD: säkerställ att servern tickar även om handboken pausar
                     ShowCraftableSystem.AcquireHandbookPauseGuard(api);
                     api.Network.GetChannel(ShowCraftableSystem.ChannelName).SendPacket(req);
                 }
@@ -106,19 +105,16 @@ public class RecipeGridButton : ButtonRTC
         return result;
     }
 
-    // ---------- Helpers ----------
     private static IEnumerable<string> FlattenAllowed(object allowedObj)
     {
         if (allowedObj == null) yield break;
 
-        // Direct enumerable of strings
         if (allowedObj is IEnumerable<string> es)
         {
             foreach (var s in es) if (!string.IsNullOrEmpty(s)) yield return s;
             yield break;
         }
 
-        // Likely a Dictionary<string, string[]> (generic, via reflection)
         var t = allowedObj.GetType();
         var keysProp = t.GetProperty("Keys");
         var indexer = t.GetProperty("Item");
@@ -137,7 +133,6 @@ public class RecipeGridButton : ButtonRTC
 
     private static IEnumerable<(GridRecipe recipe, Dictionary<int, ItemStack[]> unnamed)> GetVariants(SlideshowGridRecipeTextComponent slide)
     {
-        // Access public field via reflection to avoid relying on internal generic types
         var t = slide.GetType();
         var fi = t.GetField("GridRecipesAndUnIn", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
         var arr = fi?.GetValue(slide) as Array;
@@ -202,7 +197,6 @@ public class RecipeGridButton : ButtonRTC
                 var ing = recipe.resolvedIngredients[idx];
                 if (ing == null) continue;
 
-                // Include tools as regular ingredients (durability is ignored)
                 bool isWild = TryGetBool(ing, "IsWildCard");
                 int qty = isWild ? TryGetInt(ing, "Quantity", 1)
                                   : Math.Max(1, TryGetStack(ing, "ResolvedItemstack")?.StackSize ?? 1);
@@ -229,13 +223,11 @@ public class RecipeGridButton : ButtonRTC
                     var pattern = TryGetAssetLocation(ing, "Code");
                     if (pattern != null) ci.PatternCode = pattern.ToString();
 
-                    // AllowedVariants (string[] or Dictionary<string, string[]> depending on VS version)
                     var it = ing.GetType();
                     var allowedObj = GetMember(it, ing, "AllowedVariants");
                     var allowed = new HashSet<string>(FlattenAllowed(allowedObj), StringComparer.OrdinalIgnoreCase);
                     if (allowed.Count > 0) ci.Allowed.AddRange(allowed);
 
-                    // Type (Item vs Block). Only set HasType when recipe provided this property.
                     var typeObj = GetMember(it, ing, "Type");
                     if (typeObj is EnumItemClass cls)
                     {
@@ -282,7 +274,6 @@ public class RecipeGridButton : ButtonRTC
             }
             else
             {
-                // Wildcard: prefer the pattern if available to avoid differing labels per slot
                 var pattern = TryGetAssetLocation(ing, "Code");
                 if (pattern != null)
                 {
@@ -305,7 +296,6 @@ public class RecipeGridButton : ButtonRTC
             items.Add((label, qty));
         }
 
-        // Aggregate identical labels
         var merged = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         foreach (var (label, qty) in items)
         {
@@ -313,7 +303,6 @@ public class RecipeGridButton : ButtonRTC
             merged[label] = merged.TryGetValue(label, out var cur) ? cur + qty : qty;
         }
 
-        // Build nice English list with commas and "and"
         var parts = merged.Select(kv => $"{kv.Value} {kv.Key}").ToList();
         return JoinWithCommasAndAnd(parts);
     }
@@ -384,9 +373,7 @@ public class RecipeGridButton : ButtonRTC
     {
         if (pattern == null) return "item";
         var p = pattern.Path ?? "";
-        // Remove wildcard markers
         p = p.Replace("*", "");
-        // Remove advanced {variant} tokens
         while (true)
         {
             int s = p.IndexOf('{'); int e = p.IndexOf('}');
@@ -401,10 +388,8 @@ public class RecipeGridButton : ButtonRTC
     {
         if (string.IsNullOrEmpty(codePath)) return ("item", null);
 
-        // Normalize separators to spaces for readability
         string norm = codePath.Replace("/", " ").Replace("_", " ").Replace(".", " ");
 
-        // Prefer last '-' as variant separator when present (e.g., "plank-oak" -> "plank", "oak")
         int dash = norm.LastIndexOf('-');
         string basePart, variant = null;
 
@@ -427,7 +412,6 @@ public class RecipeGridButton : ButtonRTC
     private static string CleanupWords(string s)
     {
         if (string.IsNullOrWhiteSpace(s)) return s;
-        // collapse multiple separators, trim, and replace hyphens with spaces
         s = s.Replace("-", " ");
         while (s.Contains("  ")) s = s.Replace("  ", " ");
         return s.Trim();
@@ -446,10 +430,8 @@ public class RecipeGridButton : ButtonRTC
     private static string WildcardLabel(string baseName, int qty)
     {
         baseName ??= "item";
-        // For multi-word bases, prefer "(any)" suffix: "nail and strips (any)"
         if (baseName.Contains(' '))
             return $"{baseName} (any)";
-        // For single-word bases, prefer "any <plural>"
         return "any " + (qty > 1 ? Pluralize(baseName) : baseName);
     }
 

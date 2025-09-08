@@ -8,7 +8,6 @@ using System.Threading;
 using Vintagestory.API.Client;
 using Vintagestory.API.Server;
 using Vintagestory.API.Common;
-using Vintagestory.API.MathTools;
 using Vintagestory.API.Util;
 using Vintagestory.API.Config;
 using Vintagestory.GameContent;
@@ -16,7 +15,6 @@ using ProtoBuf;
 
 namespace ShowCraftable
 {
-
     public class ShowCraftableSystem : ModSystem
     {
         private Harmony _harmony;
@@ -112,7 +110,6 @@ namespace ShowCraftable
             }
         }
 
-        // I ShowCraftableModSystem.cs, inne i ShowCraftableSystem-klassen
         internal static void AcquireHandbookPauseGuard(ICoreClientAPI capi) => HandbookPauseGuard.Acquire(capi);
         internal static void ReleaseHandbookPauseGuard(ICoreClientAPI capi) => HandbookPauseGuard.Release(capi);
 
@@ -348,10 +345,7 @@ namespace ShowCraftable
 
         private static bool DialogIsOpen(object inst)
         {
-
             if (inst is GuiDialog dlg) return dlg.IsOpened();
-
-
             var mi = inst.GetType().GetMethod("IsOpened", BindingFlags.Instance | BindingFlags.Public);
             return mi != null && mi.ReturnType == typeof(bool) && (bool)mi.Invoke(inst, Array.Empty<object>());
         }
@@ -365,7 +359,6 @@ namespace ShowCraftable
 
                 if (!DialogIsOpen(__instance))
                 {
-
                     _pendingScanId++;
                     return;
                 }
@@ -375,7 +368,6 @@ namespace ShowCraftable
 
                 var fiOverview = AccessTools.Field(__instance.GetType(), "overviewGui");
                 var composer = fiOverview?.GetValue(__instance);
-
 
                 var piSingle =
                     AccessTools.Property(__instance.GetType(), "SingleComposer")
@@ -387,7 +379,6 @@ namespace ShowCraftable
                     _pendingScanId++;
                     return;
                 }
-
 
                 var miGetTextInput = composer?.GetType().GetMethod("GetTextInput");
                 var searchInput = miGetTextInput?.Invoke(composer, new object[] { "searchField" });
@@ -415,7 +406,6 @@ namespace ShowCraftable
             catch (Exception) { }
         }
 
-
         public static void AfterPagesLoaded_Postfix(object __instance)
         {
             try
@@ -440,7 +430,6 @@ namespace ShowCraftable
             {
                 if (components[i] is SlideshowGridRecipeTextComponent slide)
                 {
-                    // Hand the exact slideshow this button should read from
                     components.Insert(i + 1, new RecipeGridButton(_staticCapi, slide));
                     i++;
                 }
@@ -489,7 +478,6 @@ namespace ShowCraftable
                            ?? AccessTools.Property(__instance.GetType().BaseType, "SingleComposer");
                 try { piSingle?.SetValue(__instance, composer); } catch { }
 
-
                 var pageMap = AccessTools.Field(__instance.GetType(), "pageNumberByPageCode")?.GetValue(__instance) as Dictionary<string, int>;
                 var allPages = AccessTools.Field(__instance.GetType(), "allHandbookPages")?.GetValue(__instance) as System.Collections.IList;
                 if (pageMap == null || allPages == null) return true;
@@ -515,7 +503,6 @@ namespace ShowCraftable
                     LogEverywhere(capi, $"[Craftable] UI resolve: cached={codesSnapshot.Count}, resolved={resolvedPages.Count}, missing={missing}, loading={loading}, sample codes=[{sampleCodes}]");
                 }
 
-
                 List<object> finalPages;
                 if (!string.IsNullOrWhiteSpace(q))
                 {
@@ -540,7 +527,6 @@ namespace ShowCraftable
                     var visProp = p.GetType().GetProperty("Visible", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                     try { visProp?.SetValue(p, true); } catch { }
                 }
-
 
                 shown.Clear();
                 foreach (var p in finalPages) shown.Add(p);
@@ -696,9 +682,7 @@ namespace ShowCraftable
             {
                 if (stack == null) return;
 
-
                 CollectibleObject coll = stack.Collectible;
-
 
                 if (coll == null)
                 {
@@ -756,7 +740,6 @@ namespace ShowCraftable
                 }
                 return false;
             }
-
             public bool TryConsumeWildcard(EnumItemClass type, AssetLocation pattern, string[] allowed, int quantity, bool consume)
             {
                 if (pattern == null) return false;
@@ -784,25 +767,6 @@ namespace ShowCraftable
             }
         }
 
-        private static ResourcePool BuildResourcePoolPlayerOnly(ICoreClientAPI capi)
-        {
-            var pool = new ResourcePool();
-            var mgr = capi.World?.Player?.InventoryManager;
-            if (mgr == null) return pool;
-
-            void AddInv(IInventory inv)
-            {
-                if (inv == null) return;
-                foreach (var slot in inv) if (slot?.Itemstack != null) pool.Add(slot.Itemstack);
-            }
-
-            AddInv(mgr.GetOwnInventory("craftinggrid"));
-            AddInv(mgr.GetOwnInventory("backpack"));
-            AddInv(mgr.GetHotbarInventory());
-            return pool;
-        }
-
-
         private sealed class GridRecipeShim
         {
             public object Raw;
@@ -820,8 +784,6 @@ namespace ShowCraftable
             public string[] Allowed;
             public EnumItemClass Type;
         }
-
-
 
         private static List<GridRecipeShim> GetAllGridRecipes(ICoreClientAPI capi, out int fetched, out int usable)
         {
@@ -851,7 +813,6 @@ namespace ShowCraftable
             LogEverywhere(capi, $"[Craftable] Grid recipes fetched={fetched}, usable={usable}");
             return list;
         }
-
         private static void BuildRecipeIndex(ICoreClientAPI capi)
         {
             codeToRecipeGroups.Clear();
@@ -860,25 +821,21 @@ namespace ShowCraftable
             var recipes = GetAllGridRecipes(capi, out recipesFetched, out recipesUsable);
             foreach (var r in recipes)
             {
-                // groupKey -> total units required for this recipe
                 var groups = new Dictionary<string, int>(StringComparer.Ordinal);
 
                 foreach (var ing in r.Ingredients)
                 {
-                    // Build a stable group key: either a wildcard signature or an options signature
                     string groupKey;
                     IEnumerable<string> satisfiableCodes;
 
                     if (ing.IsWild)
                     {
-                        // Include Type so item vs block wildcards don't collide
                         var allowed = ing.Allowed ?? Array.Empty<string>();
                         groupKey = $"wild:{ing.PatternCode}|{string.Join(",", allowed.OrderBy(x => x))}|T:{ing.Type}";
                         satisfiableCodes = AllCodesMatching(capi, ing);   // preexpanded once at index time
                     }
                     else
                     {
-                        // Deterministic key for the OR-set of concrete options
                         var codes = ing.Options
                             .Select(st => st?.Collectible?.Code?.ToString())
                             .Where(s => !string.IsNullOrEmpty(s))
@@ -892,14 +849,11 @@ namespace ShowCraftable
                         satisfiableCodes = codes;
                     }
 
-                    // Quantity required for this slot (boards 12, etc.). Tools count as presence (1).
                     int qty = Math.Max(1, ing.QuantityRequired);
                     if (ing.IsTool) qty = 1;
 
-                    // Accumulate if the same group appears multiple times in the recipe
                     groups[groupKey] = groups.TryGetValue(groupKey, out var cur) ? cur + qty : qty;
 
-                    // Map each satisfiable code => this (recipe, groupKey) pair
                     foreach (var code in satisfiableCodes)
                     {
                         if (!codeToRecipeGroups.TryGetValue(code, out var list))
@@ -942,7 +896,6 @@ namespace ShowCraftable
 
             return results;
         }
-
         private static IEnumerable<object> FetchGridRecipesMulti(ICoreClientAPI capi)
         {
             var w = capi.World;
@@ -977,7 +930,6 @@ namespace ShowCraftable
                     foreach (var r in en) if (r != null && seen.Add(r)) yield return r;
             }
         }
-
         private sealed class ReferenceEqualityComparer : IEqualityComparer<object>
         {
             public static readonly ReferenceEqualityComparer Instance = new();
@@ -1038,7 +990,6 @@ namespace ShowCraftable
                 }
             }
 
-
             var outputIng = TryGetMember(t, raw, "Output");
             if (outputIng != null)
             {
@@ -1084,7 +1035,6 @@ namespace ShowCraftable
             return null;
         }
 
-
         private static bool WildcardMatch(AssetLocation pattern, AssetLocation code, string[] allowed)
         {
             var mi = typeof(WildcardUtil).GetMethod("Match", new[] { typeof(AssetLocation), typeof(AssetLocation), typeof(string[]) });
@@ -1107,7 +1057,6 @@ namespace ShowCraftable
 
             return pattern != null && code != null && pattern.Equals(code);
         }
-
 
         private void OnServerScanReply(CraftScanReply data)
         {
@@ -1159,7 +1108,6 @@ namespace ShowCraftable
         {
             craftableOutputsCount = 0; fetched = recipesFetched; usable = recipesUsable;
 
-            // Deep copy per-recipe remaining needs (group -> count)
             var remaining = recipeGroupNeeds.ToDictionary(
                 kv => kv.Key,
                 kv => kv.Value.ToDictionary(g => g.Key, g => g.Value, StringComparer.Ordinal)
@@ -1168,8 +1116,6 @@ namespace ShowCraftable
 
             var craftableCodes = new HashSet<string>(StringComparer.Ordinal);
 
-            // For each available code in the nearby pool, contribute its quantity to every
-            // recipe-group that can be satisfied by this code.
             foreach (var kv in pool.Counts)
             {
                 var code = kv.Key.Code;
@@ -1189,7 +1135,6 @@ namespace ShowCraftable
                 }
             }
 
-            // Any recipe with all groups satisfied is craftable; collect its output codes
             foreach (var kv in remaining)
             {
                 var recipe = kv.Key;
@@ -1207,7 +1152,6 @@ namespace ShowCraftable
 
             craftableOutputsCount = craftableCodes.Count;
 
-            // (unchanged) resolve handbook page codes
             var code2page = BuildPageCodeMapFromAllStacks(capi);
             var resultPageCodes = new HashSet<string>(StringComparer.Ordinal);
             foreach (var code in craftableCodes)
@@ -1237,7 +1181,6 @@ namespace ShowCraftable
 
     }
 
-
     [ProtoContract]
     public class CraftIngredient
     {
@@ -1245,14 +1188,10 @@ namespace ShowCraftable
         [ProtoMember(2)] public int Quantity { get; set; }
         [ProtoMember(3)] public List<string> Codes { get; set; } = new();
         [ProtoMember(4)] public string PatternCode { get; set; }
-
-        // NEW: the per-wildcard “allowed” variants and type gating
         [ProtoMember(5)] public List<string> Allowed { get; set; } = new();
         [ProtoMember(6)] public EnumItemClass Type { get; set; }
-        // NEW: tells server whether Type was actually provided by the recipe
         [ProtoMember(7)] public bool HasType { get; set; }
     }
-
 
     [ProtoContract]
     public class CraftIngredientList
@@ -1277,9 +1216,6 @@ namespace ShowCraftable
         [ProtoMember(3)] public List<EnumItemClass> Classes { get; set; } = new();
     }
 
-
-
-
     public class ShowCraftableServerSystem : ModSystem
     {
         private ICoreServerAPI sapi;
@@ -1301,7 +1237,6 @@ namespace ShowCraftable
             {
                 if (allowed != null && allowed.Length > 0)
                 {
-                    // Prefer the overload Match(AssetLocation, AssetLocation, string[]) if present
                     var mi = typeof(WildcardUtil).GetMethod(
                         "Match",
                         new[] { typeof(AssetLocation), typeof(AssetLocation), typeof(string[]) }
@@ -1314,7 +1249,6 @@ namespace ShowCraftable
             }
             catch { /* fall through to 2-arg */ }
 
-            // Fallback: older VS versions without the 3-arg overload
             return WildcardUtil.Match(pattern, code);
         }
 
@@ -1331,10 +1265,8 @@ namespace ShowCraftable
         {
             if (ing == null || slot?.Slot?.Itemstack == null) return false;
 
-            // Direct codes always match
             if (ing.Codes != null && ing.Codes.Contains(slot.Code)) return true;
 
-            // Wildcard: enforce type (when recipe provided one) and apply AllowedVariants
             if (ing.IsWildcard && !string.IsNullOrEmpty(ing.PatternCode))
             {
                 try
@@ -1351,7 +1283,6 @@ namespace ShowCraftable
 
             return false;
         }
-
 
         private bool CanSatisfyVariant(Dictionary<string, int> counts, CraftIngredientList variant)
         {
@@ -1560,7 +1491,6 @@ namespace ShowCraftable
         {
             if (items == null || items.Count == 0) return true;
 
-            // Group by code so we can reason about merging
             var need = new Dictionary<string, (ItemStack sample, int count)>();
             foreach (var st in items)
             {
@@ -1576,12 +1506,11 @@ namespace ShowCraftable
 
             var invs = new IInventory[]
             {
-        player.InventoryManager.GetOwnInventory("hotbar"),
-        player.InventoryManager.GetOwnInventory("craftinggrid"),
-        player.InventoryManager.GetOwnInventory("backpack")
+                player.InventoryManager.GetOwnInventory("hotbar"),
+                player.InventoryManager.GetOwnInventory("craftinggrid"),
+                player.InventoryManager.GetOwnInventory("backpack")
             };
 
-            // De-dupe seen slots across all views
             var seenSlotRefs = new HashSet<ItemSlot>();
             var seenStackRefs = new HashSet<ItemStack>();
             var seenKeys = new HashSet<string>();
@@ -1648,10 +1577,9 @@ namespace ShowCraftable
             var slots = new List<SlotRef>();
             var playerCounts = new Dictionary<string, int>();
 
-            // --- De-dupe state: catch overlapping views & aliases ---
-            var seenSlotRefs = new HashSet<ItemSlot>();     // same ItemSlot instance
-            var seenStackRefs = new HashSet<ItemStack>();   // same ItemStack instance
-            var seenKeys = new HashSet<string>();       // InventoryID:index (stable within process)
+            var seenSlotRefs = new HashSet<ItemSlot>();     
+            var seenStackRefs = new HashSet<ItemStack>();  
+            var seenKeys = new HashSet<string>();       
 
             bool IsDuplicate(IInventory inv, int index, ItemSlot slot)
             {
@@ -1665,12 +1593,11 @@ namespace ShowCraftable
                 return dup;
             }
 
-            // --- Scan player's inventories (count only; we never fetch from these slots) ---
             var pinvs = new IInventory[]
             {
-        fromPlayer.InventoryManager.GetOwnInventory("hotbar"),
-        fromPlayer.InventoryManager.GetOwnInventory("craftinggrid"),
-        fromPlayer.InventoryManager.GetOwnInventory("backpack")
+                fromPlayer.InventoryManager.GetOwnInventory("hotbar"),
+                fromPlayer.InventoryManager.GetOwnInventory("craftinggrid"),
+                fromPlayer.InventoryManager.GetOwnInventory("backpack")
             };
 
             foreach (var inv in pinvs)
@@ -1694,7 +1621,6 @@ namespace ShowCraftable
                 }
             }
 
-            // --- Scan nearby block entities (count + build fetchable slot list) ---
             for (int dx = -r; dx <= r; dx++)
                 for (int dy = -1; dy <= 2; dy++)
                     for (int dz = -r; dz <= r; dz++)
@@ -1720,12 +1646,10 @@ namespace ShowCraftable
 
                             if (sum.TryGetValue(code, out var cur)) sum[code] = (cur.count + add, cls); else sum[code] = (add, cls);
 
-                            // These are the only slots we ever pull from
                             slots.Add(new SlotRef { Slot = slot, Code = code, Class = cls, BlockEntity = be });
                         }
                     }
 
-            // --- Optional collect (server-authoritative) ---
             if (req.CollectItems && req.Variants != null && req.Variants.Count > 0)
             {
                 var counts = sum.ToDictionary(kv => kv.Key, kv => kv.Value.count);
@@ -1752,7 +1676,7 @@ namespace ShowCraftable
                                 else checkCounts[kv.Key] = left;
                             }
                         }
-                        pcounts = null; // we've fully satisfied from player side
+                        pcounts = null; 
                     }
                     else
                     {

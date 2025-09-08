@@ -5,7 +5,7 @@ using Vintagestory.API.Config;
 
 namespace ShowCraftable;
 
-public abstract class ButtonRTC : RichTextComponentBase
+public abstract class ButtonFetch : RichTextComponentBase
 {
     private const double UnscaledSize = 24.0;
     private const double Margin = 2.0;
@@ -13,23 +13,23 @@ public abstract class ButtonRTC : RichTextComponentBase
     private readonly int index;
     private readonly string label;
     private readonly string tooltip;
-    private readonly double offsetX;
-    private readonly double offsetY;
+    private readonly double offX;
+    private readonly double offY;
     private double timeInside = 0.0;
 
     private readonly GuiElementTextButton button;
     private readonly GuiElementHoverText hover;
     private readonly ElementBounds bounds;
 
-    public ButtonRTC(ICoreClientAPI api, int index, string label, string key, double offsetX, double offsetY) : base(api)
+    public ButtonFetch(ICoreClientAPI api, int index, string label, string key, double offX, double offY) : base(api)
     {
         Float = EnumFloat.Inline;
         VerticalAlign = EnumVerticalAlign.FixedOffset;
         this.index = index;
         this.label = label;
-        this.offsetX = offsetX;
-        this.offsetY = offsetY;
-        tooltip = Lang.Get("improvedhandbookrecipes:" + key);
+        this.offX = offX;
+        this.offY = offY;
+        tooltip = Lang.Get(key);
 
         double size = Math.Ceiling(GuiElement.scaled(UnscaledSize));
         bounds = new GlobalBounds(0.0, 0.0, size, size);
@@ -68,23 +68,23 @@ public abstract class ButtonRTC : RichTextComponentBase
         return true;
     }
 
-    public override EnumCalcBoundsResult CalcBounds(TextFlowPath[] flowPath, double currentLineHeight, double offsetX, double lineY, out double nextOffsetX)
+    public override EnumCalcBoundsResult CalcBounds(TextFlowPath[] flowPath, double currentLineHeight, double offX, double lineY, out double nextOffsetX)
     {
-        double x = offsetX - GuiElement.scaled(3.0);
+        double x = offX - GuiElement.scaled(3.0);
         double y = lineY + GuiElement.scaled(24.0 - UnscaledSize - index * (UnscaledSize + Margin));
         double size = GuiElement.scaled(UnscaledSize);
         BoundsPerLine = new LineRectangled[] { new(x, y, size, size) };
 
         bounds.fixedWidth = bounds.fixedHeight = size;
 
-        nextOffsetX = offsetX;
+        nextOffsetX = offX;
         return EnumCalcBoundsResult.Continue;
     }
 
     private void AdjustOffsets(GuiElementStaticText elem)
     {
-        elem.offsetX = GuiElement.scaled(GuiElement.scaled(offsetX));
-        elem.offsetY = GuiElement.scaled(GuiElement.scaled(offsetY));
+        elem.offsetX = GuiElement.scaled(GuiElement.scaled(offX));
+        elem.offsetY = GuiElement.scaled(GuiElement.scaled(offY));
     }
 
     public override void RenderInteractiveElements(float deltaTime, double renderX, double renderY, double renderZ)
