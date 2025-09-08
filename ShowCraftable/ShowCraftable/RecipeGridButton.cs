@@ -103,6 +103,33 @@ public class RecipeGridButton : ButtonRTC
     }
 
     // ---------- Helpers ----------
+    private static IEnumerable<string> FlattenAllowed(object allowedObj)
+    {
+        if (allowedObj == null) yield break;
+
+        // Direct enumerable of strings
+        if (allowedObj is IEnumerable<string> es)
+        {
+            foreach (var s in es) if (!string.IsNullOrEmpty(s)) yield return s;
+            yield break;
+        }
+
+        // Likely a Dictionary<string, string[]> (generic, via reflection)
+        var t = allowedObj.GetType();
+        var keysProp = t.GetProperty("Keys");
+        var indexer = t.GetProperty("Item");
+        if (keysProp == null || indexer == null) yield break;
+
+        if (keysProp.GetValue(allowedObj) is IEnumerable keys)
+        {
+            foreach (var k in keys)
+            {
+                var arr = indexer.GetValue(allowedObj, new object[] { k }) as string[];
+                if (arr == null) continue;
+                foreach (var s in arr) if (!string.IsNullOrEmpty(s)) yield return s;
+            }
+        }
+    }
 
     private static IEnumerable<(GridRecipe recipe, Dictionary<int, ItemStack[]> unnamed)> GetVariants(SlideshowGridRecipeTextComponent slide)
     {
@@ -197,6 +224,20 @@ public class RecipeGridButton : ButtonRTC
                 {
                     var pattern = TryGetAssetLocation(ing, "Code");
                     if (pattern != null) ci.PatternCode = pattern.ToString();
+
+                    // AllowedVariants (string[] or Dictionary<string, string[]> depending on VS version)
+                    var it = ing.GetType();
+                    var allowedObj = GetMember(it, ing, "AllowedVariants");
+                    var allowed = new HashSet<string>(FlattenAllowed(allowedObj), StringComparer.OrdinalIgnoreCase);
+                    if (allowed.Count > 0) ci.Allowed.AddRange(allowed);
+
+                    // Type (Item vs Block). Only set HasType when recipe provided this property.
+                    var typeObj = GetMember(it, ing, "Type");
+                    if (typeObj is EnumItemClass cls)
+                    {
+                        ci.Type = cls;
+                        ci.HasType = true;
+                    }
                 }
 
                 list.Ingredients.Add(ci);

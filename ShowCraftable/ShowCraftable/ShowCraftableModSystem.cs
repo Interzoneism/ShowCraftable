@@ -36,8 +36,8 @@ namespace ShowCraftable
 
         private static bool ScanInProgress = false;
 
-        private static Dictionary<string, List<GridRecipeShim>> ingredientToRecipes = new();
-        private static Dictionary<GridRecipeShim, int> recipeRemaining = new();
+        private static Dictionary<string, List<(GridRecipeShim Recipe, string GroupKey)>> codeToRecipeGroups = new();
+        private static Dictionary<GridRecipeShim, Dictionary<string, int>> recipeGroupNeeds = new();
         private static int recipesFetched;
         private static int recipesUsable;
 
@@ -111,6 +111,7 @@ namespace ShowCraftable
                 catch { }
             }
         }
+
 
 
         private static void LogEverywhere(ICoreClientAPI capi, string msg, bool toChat = false)
@@ -269,8 +270,8 @@ namespace ShowCraftable
             capi.Event.LevelFinalize += () =>
             {
                 lock (CacheLock) CachedPageCodes.Clear();
-                ingredientToRecipes.Clear();
-                recipeRemaining.Clear();
+                codeToRecipeGroups.Clear();
+                recipeGroupNeeds.Clear();
                 BuildRecipeIndex(capi);
                 LogEverywhere(capi, "[Craftable] LevelFinalize: cache cleared");
             };
@@ -831,45 +832,65 @@ namespace ShowCraftable
 
         private static void BuildRecipeIndex(ICoreClientAPI capi)
         {
+            codeToRecipeGroups.Clear();
+            recipeGroupNeeds.Clear();
+
             var recipes = GetAllGridRecipes(capi, out recipesFetched, out recipesUsable);
             foreach (var r in recipes)
             {
-                var unique = new HashSet<string>();
+                // groupKey -> total units required for this recipe
+                var groups = new Dictionary<string, int>(StringComparer.Ordinal);
+
                 foreach (var ing in r.Ingredients)
                 {
-                    string uniqKey;
+                    // Build a stable group key: either a wildcard signature or an options signature
+                    string groupKey;
+                    IEnumerable<string> satisfiableCodes;
+
                     if (ing.IsWild)
                     {
-                        uniqKey = "wild:" + ing.PatternCode + "|" + string.Join(",", ing.Allowed ?? Array.Empty<string>());
-                        foreach (var code in AllCodesMatching(capi, ing))
-                        {
-                            if (!ingredientToRecipes.TryGetValue(code, out var list))
-                                ingredientToRecipes[code] = list = new List<GridRecipeShim>();
-                            if (!list.Contains(r)) list.Add(r);
-                        }
+                        // Include Type so item vs block wildcards don't collide
+                        var allowed = ing.Allowed ?? Array.Empty<string>();
+                        groupKey = $"wild:{ing.PatternCode}|{string.Join(",", allowed.OrderBy(x => x))}|T:{ing.Type}";
+                        satisfiableCodes = AllCodesMatching(capi, ing);   // preexpanded once at index time
                     }
                     else
                     {
-                        var codes = new HashSet<string>();
-                        foreach (var st in ing.Options)
-                        {
-                            var code = st?.Collectible?.Code?.ToString();
-                            if (string.IsNullOrEmpty(code)) continue;
-                            codes.Add(code);
-                            if (!ingredientToRecipes.TryGetValue(code, out var list))
-                                ingredientToRecipes[code] = list = new List<GridRecipeShim>();
-                            if (!list.Contains(r)) list.Add(r);
-                        }
-        
-                        uniqKey = "opts:" + string.Join(",", codes.OrderBy(c => c));
+                        // Deterministic key for the OR-set of concrete options
+                        var codes = ing.Options
+                            .Select(st => st?.Collectible?.Code?.ToString())
+                            .Where(s => !string.IsNullOrEmpty(s))
+                            .Distinct()
+                            .OrderBy(s => s)
+                            .ToList();
+
+                        if (codes.Count == 0) continue;
+
+                        groupKey = "opts:" + string.Join(",", codes);
+                        satisfiableCodes = codes;
                     }
 
-                    unique.Add(uniqKey);
+                    // Quantity required for this slot (boards 12, etc.). Tools count as presence (1).
+                    int qty = Math.Max(1, ing.QuantityRequired);
+                    if (ing.IsTool) qty = 1;
+
+                    // Accumulate if the same group appears multiple times in the recipe
+                    groups[groupKey] = groups.TryGetValue(groupKey, out var cur) ? cur + qty : qty;
+
+                    // Map each satisfiable code => this (recipe, groupKey) pair
+                    foreach (var code in satisfiableCodes)
+                    {
+                        if (!codeToRecipeGroups.TryGetValue(code, out var list))
+                            codeToRecipeGroups[code] = list = new List<(GridRecipeShim, string)>();
+                        if (!list.Contains((r, groupKey))) list.Add((r, groupKey));
+                    }
                 }
 
-                recipeRemaining[r] = unique.Count;
+                if (groups.Count > 0)
+                    recipeGroupNeeds[r] = groups;
             }
         }
+
 
         private static IEnumerable<string> AllCodesMatching(ICoreClientAPI capi, GridIngredientShim ing)
         {
@@ -1112,38 +1133,61 @@ namespace ShowCraftable
 
 
         private static int RebuildCacheWithPool(ICoreClientAPI capi, ResourcePool pool,
-                                                out int craftableOutputsCount, out int fetched, out int usable)
+                                        out int craftableOutputsCount, out int fetched, out int usable)
         {
             craftableOutputsCount = 0; fetched = recipesFetched; usable = recipesUsable;
 
-            var remaining = recipeRemaining.ToDictionary(kv => kv.Key, kv => kv.Value);
-            var craftableCodes = new HashSet<string>();
+            // Deep copy per-recipe remaining needs (group -> count)
+            var remaining = recipeGroupNeeds.ToDictionary(
+                kv => kv.Key,
+                kv => kv.Value.ToDictionary(g => g.Key, g => g.Value, StringComparer.Ordinal)
+            );
 
+
+            var craftableCodes = new HashSet<string>(StringComparer.Ordinal);
+
+            // For each available code in the nearby pool, contribute its quantity to every
+            // recipe-group that can be satisfied by this code.
             foreach (var kv in pool.Counts)
             {
                 var code = kv.Key.Code;
-                if (!ingredientToRecipes.TryGetValue(code, out var list)) continue;
+                var have = kv.Value;
 
-                foreach (var r in list)
+                if (!codeToRecipeGroups.TryGetValue(code, out var targets) || targets == null) continue;
+
+                foreach (var (recipe, groupKey) in targets)
                 {
-                    if (!remaining.TryGetValue(r, out var need) || need <= 0) continue;
-                    need--;
-                    remaining[r] = need;
-                    if (need == 0)
-                    {
-                        foreach (var os in r.Outputs)
-                        {
-                            var ocode = os?.Collectible?.Code?.ToString();
-                            if (!string.IsNullOrEmpty(ocode)) craftableCodes.Add(ocode);
-                        }
-                    }
+                    if (!remaining.TryGetValue(recipe, out var groups)) continue;
+                    if (!groups.TryGetValue(groupKey, out var need) || need <= 0) continue;
+
+                    int take = Math.Min(need, have);
+                    if (take <= 0) continue;
+
+                    groups[groupKey] = need - take;
+                }
+            }
+
+            // Any recipe with all groups satisfied is craftable; collect its output codes
+            foreach (var kv in remaining)
+            {
+                var recipe = kv.Key;
+                var groups = kv.Value;
+
+                bool ok = groups.Count > 0 && groups.All(g => g.Value <= 0);
+                if (!ok) continue;
+
+                foreach (var os in recipe.Outputs)
+                {
+                    var ocode = os?.Collectible?.Code?.ToString();
+                    if (!string.IsNullOrEmpty(ocode)) craftableCodes.Add(ocode);
                 }
             }
 
             craftableOutputsCount = craftableCodes.Count;
 
+            // (unchanged) resolve handbook page codes
             var code2page = BuildPageCodeMapFromAllStacks(capi);
-            var resultPageCodes = new HashSet<string>();
+            var resultPageCodes = new HashSet<string>(StringComparer.Ordinal);
             foreach (var code in craftableCodes)
                 if (code2page.TryGetValue(code, out var pageCode))
                     resultPageCodes.Add(pageCode);
@@ -1166,9 +1210,9 @@ namespace ShowCraftable
 
             lock (CacheLock) CachedPageCodes = resultPageCodes.ToList();
             LogEverywhere(capi, $"[Craftable] craftable outputs={craftableOutputsCount}, pagesFromMap={resultPageCodes.Count}", toChat: false);
-
             return resultPageCodes.Count;
         }
+
     }
 
 
@@ -1179,7 +1223,14 @@ namespace ShowCraftable
         [ProtoMember(2)] public int Quantity { get; set; }
         [ProtoMember(3)] public List<string> Codes { get; set; } = new();
         [ProtoMember(4)] public string PatternCode { get; set; }
+
+        // NEW: the per-wildcard “allowed” variants and type gating
+        [ProtoMember(5)] public List<string> Allowed { get; set; } = new();
+        [ProtoMember(6)] public EnumItemClass Type { get; set; }
+        // NEW: tells server whether Type was actually provided by the recipe
+        [ProtoMember(7)] public bool HasType { get; set; }
     }
+
 
     [ProtoContract]
     public class CraftIngredientList
@@ -1222,6 +1273,30 @@ namespace ShowCraftable
                .SetMessageHandler<CraftScanRequest>(OnScanRequest);
         }
 
+        private static bool WildcardMatch(AssetLocation pattern, AssetLocation code, string[] allowed)
+        {
+            try
+            {
+                if (allowed != null && allowed.Length > 0)
+                {
+                    // Prefer the overload Match(AssetLocation, AssetLocation, string[]) if present
+                    var mi = typeof(WildcardUtil).GetMethod(
+                        "Match",
+                        new[] { typeof(AssetLocation), typeof(AssetLocation), typeof(string[]) }
+                    );
+                    if (mi != null)
+                    {
+                        return (bool)mi.Invoke(null, new object[] { pattern, code, allowed });
+                    }
+                }
+            }
+            catch { /* fall through to 2-arg */ }
+
+            // Fallback: older VS versions without the 3-arg overload
+            return WildcardUtil.Match(pattern, code);
+        }
+
+
         private class SlotRef
         {
             public ItemSlot Slot;
@@ -1234,21 +1309,27 @@ namespace ShowCraftable
         {
             if (ing == null || slot?.Slot?.Itemstack == null) return false;
 
+            // Direct codes always match
             if (ing.Codes != null && ing.Codes.Contains(slot.Code)) return true;
 
+            // Wildcard: enforce type (when recipe provided one) and apply AllowedVariants
             if (ing.IsWildcard && !string.IsNullOrEmpty(ing.PatternCode))
             {
                 try
                 {
+                    if (ing.HasType && slot.Class != ing.Type) return false;
+
                     var pattern = new AssetLocation(ing.PatternCode);
                     var code = new AssetLocation(slot.Code);
-                    if (WildcardUtil.Match(pattern, code)) return true;
+                    var allowed = (ing.Allowed != null && ing.Allowed.Count > 0) ? ing.Allowed.ToArray() : null;
+                    if (WildcardMatch(pattern, code, allowed)) return true;
                 }
                 catch { }
             }
 
             return false;
         }
+
 
         private bool CanSatisfyVariant(Dictionary<string, int> counts, CraftIngredientList variant)
         {
@@ -1284,13 +1365,15 @@ namespace ShowCraftable
                 else if (ing.IsWildcard && !string.IsNullOrEmpty(ing.PatternCode))
                 {
                     var pattern = new AssetLocation(ing.PatternCode);
+                    var allowed = (ing.Allowed != null && ing.Allowed.Count > 0) ? ing.Allowed.ToArray() : null;
+
                     foreach (var kv in tmp.ToList())
                     {
                         if (need <= 0) break;
                         try
                         {
                             var al = new AssetLocation(kv.Key);
-                            if (!WildcardUtil.Match(pattern, al)) continue;
+                            if (!WildcardMatch(pattern, al, allowed)) continue;
                         }
                         catch { continue; }
 
