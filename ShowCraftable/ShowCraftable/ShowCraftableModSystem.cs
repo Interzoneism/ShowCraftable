@@ -218,6 +218,10 @@ namespace ShowCraftable
 
             var miLoadAsync = AccessTools.Method(tBase, "LoadPages_Async");
             _harmony.Patch(miLoadAsync, postfix: new HarmonyMethod(typeof(ShowCraftableSystem), nameof(AfterPagesLoaded_Postfix)));
+#if NET7_0
+            var miClosed = AccessTools.Method(tBase, "OnGuiClosed");
+            _harmony.Patch(miClosed, prefix: new HarmonyMethod(typeof(ShowCraftableSystem), nameof(HandbookClosed_Prefix)));
+#endif
 
             var tBeh = AccessTools.TypeByName("Vintagestory.GameContent.CollectibleBehaviorHandbookTextAndExtraInfo");
             var miAddInfo = AccessTools.Method(tBeh, "addCreatedByInfo");
@@ -443,6 +447,21 @@ namespace ShowCraftable
             }
         }
 
+#if NET7_0
+        public static bool HandbookClosed_Prefix(object __instance)
+        {
+            try
+            {
+                var cur = AccessTools.Field(__instance.GetType(), "currentCatgoryCode")?.GetValue(__instance) as string;
+                if (string.Equals(cur, CraftableCategoryCode, StringComparison.Ordinal))
+                {
+                    AccessTools.Method(__instance.GetType(), "selectTab")?.Invoke(__instance, new object[] { null });
+                }
+            }
+            catch { }
+            return true;
+        }
+#endif
 
         public static bool FilterItems_Prefix(object __instance)
         {
