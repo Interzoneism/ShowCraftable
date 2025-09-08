@@ -1602,12 +1602,16 @@ namespace ShowCraftable
                 }
             }
 
+            var msbr = sapi.ModLoader.GetModSystem<ModSystemBlockReinforcement>();
+
             for (int dx = -r; dx <= r; dx++)
                 for (int dy = -1; dy <= 2; dy++)
                     for (int dz = -r; dz <= r; dz++)
                     {
                         var be = ba.GetBlockEntity(pos.AddCopy(dx, dy, dz));
                         if (be == null) continue;
+
+                        if (msbr?.IsLockedForInteract(be.Pos, fromPlayer) == true) continue;
 
                         var inv = ShowCraftableSystem.TryGetInventoryFromBE(be);
                         if (inv == null) continue;
