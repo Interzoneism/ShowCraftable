@@ -79,11 +79,15 @@ public class RecipeGridButton : ButtonRTC
                         CollectItems = true,
                         Variants = reqVariants
                     };
+
+                    // PAUSE-GUARD: säkerställ att servern tickar även om handboken pausar
+                    ShowCraftableSystem.AcquireHandbookPauseGuard(api);
                     api.Network.GetChannel(ShowCraftableSystem.ChannelName).SendPacket(req);
                 }
             }
             catch (Exception e)
             {
+                ShowCraftableSystem.ReleaseHandbookPauseGuard(api);
                 api.ShowChatMessage("[ShowCraftable] Fetch request failed: " + e.Message);
             }
         }

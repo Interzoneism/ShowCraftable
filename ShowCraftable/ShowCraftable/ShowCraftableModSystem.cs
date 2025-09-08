@@ -112,6 +112,9 @@ namespace ShowCraftable
             }
         }
 
+        // I ShowCraftableModSystem.cs, inne i ShowCraftableSystem-klassen
+        internal static void AcquireHandbookPauseGuard(ICoreClientAPI capi) => HandbookPauseGuard.Acquire(capi);
+        internal static void ReleaseHandbookPauseGuard(ICoreClientAPI capi) => HandbookPauseGuard.Release(capi);
 
 
         private static void LogEverywhere(ICoreClientAPI capi, string msg, bool toChat = false)
