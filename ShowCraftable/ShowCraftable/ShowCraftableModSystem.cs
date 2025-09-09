@@ -43,7 +43,7 @@ namespace ShowCraftable
 
         private static bool recipeIndexBuilt = false;
 
-        internal static bool DebugEnabled = false;
+        internal static bool DebugEnabled = true;
 
         private sealed class WildGroup
         {
@@ -778,6 +778,10 @@ namespace ShowCraftable
 
                     // NOTE: if duplicates exist, keep the first
                     if (!map.ContainsKey(key)) map[key] = pc;
+
+                    // Also add a forgiving code-only key (helps when attrs live on block variants)
+                    var codeOnly = new StackKey(key.Code, "", "");
+                    if (!map.ContainsKey(codeOnly)) map[codeOnly] = pc;
                 }
             }
             catch { }
@@ -813,30 +817,26 @@ namespace ShowCraftable
             {
                 if (stack == null) return;
 
-                CollectibleObject coll = stack.Collectible;
+                var coll = stack.Collectible;
+                if (coll == null || coll.Code == null) return;
 
-                if (coll == null)
+                var k = new Key { Code = coll.Code.ToString() };
+                int addQty = Math.Max(1, stack.StackSize);
+
+                // Accumulate quantity
+                if (Counts.TryGetValue(k, out var cur)) Counts[k] = cur + addQty;
+                else Counts[k] = addQty;
+
+                // Record effective class once.
+                // Treat carried blocks (ItemBlock stacks) as Block so block-typed wildcards can match.
+                if (!Classes.ContainsKey(k))
                 {
-                    try
-                    {
-                        var pi = stack.GetType().GetProperty("collectible",
-                            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                        coll = pi?.GetValue(stack) as CollectibleObject;
-                    }
-                    catch { }
+                    var eff = stack.Class;
+                    if (eff == EnumItemClass.Item && stack.Block != null) eff = EnumItemClass.Block;
+                    Classes[k] = eff;
                 }
-
-                if (coll == null) return;
-
-                var code = coll.Code?.ToString();
-                if (string.IsNullOrEmpty(code)) return;
-
-                var k = new Key { Code = code };
-                int q = Math.Max(1, stack.StackSize);
-
-                Counts[k] = Counts.TryGetValue(k, out var cur) ? cur + q : q;
-                if (!Classes.ContainsKey(k)) Classes[k] = stack.Class;
             }
+
 
             public bool TryConsumeAny(IEnumerable<ItemStack> options, int quantity, bool consume)
             {
@@ -1364,21 +1364,41 @@ namespace ShowCraftable
                     try
                     {
                         var al = new AssetLocation(codeStr);
-                        var cls = pool.Classes[kv.Key];  
+                        var cls = pool.Classes[kv.Key];
+
+                        // Local helper to tolerate Item<->Block when the code resolves accordingly
+                        bool ClassCompatible(EnumItemClass have, EnumItemClass need, AssetLocation code)
+                        {
+                            if (have == need) return true;
+                            if (need == EnumItemClass.Block && have == EnumItemClass.Item)
+                                return capi.World.GetBlock(code) != null; // carried block (ItemBlock)
+                            if (need == EnumItemClass.Item && have == EnumItemClass.Block)
+                                return capi.World.GetItem(code) != null;  // item form exists
+                            return false;
+                        }
 
                         foreach (var wg in wildcardGroups)
                         {
-                            if (wg.Type != cls) continue;
+                            if (!ClassCompatible(cls, wg.Type, al)) continue;
                             if (WildcardMatch(wg.Pattern, al, wg.Allowed))
                             {
                                 targets.Add((wg.Recipe, wg.GroupKey));
                             }
+                        }
+
+                        // Optional debug to verify linen classification
+                        if (DebugEnabled && codeStr.StartsWith("linen"))
+                        {
+                            bool hasItem = capi.World.GetItem(al) != null;
+                            bool hasBlock = capi.World.GetBlock(al) != null;
+                            LogEverywhere(capi, $"[Craftable][dbg] code={codeStr} class={cls} hasItem={hasItem} hasBlock={hasBlock}");
                         }
                     }
                     catch { /* best-effort */ }
 
                     wildMatchCache[codeStr] = targets;
                 }
+
 
                 foreach (var (recipe, gkey) in targets)
                 {
@@ -1405,26 +1425,27 @@ namespace ShowCraftable
 
             var key2page = BuildPageCodeMapFromAllStacks(capi);
             var resultPageCodes = new HashSet<string>(StringComparer.Ordinal);
+            var unresolved = new List<StackKey>();
 
             foreach (var key in craftableKeys)
-                if (key2page.TryGetValue(key, out var pageCode))
-                    resultPageCodes.Add(pageCode);
-
-            if (resultPageCodes.Count == 0)
             {
-                var ghType = AccessTools.TypeByName("Vintagestory.GameContent.GuiHandbookItemStackPage");
-                var miPageCodeForStack = ghType?.GetMethod("PageCodeForStack", BindingFlags.Public | BindingFlags.Static);
-                if (miPageCodeForStack != null)
+                if (key2page.TryGetValue(key, out var pageCode)) resultPageCodes.Add(pageCode);
+                else unresolved.Add(key);
+            }
+
+            var ghType = AccessTools.TypeByName("Vintagestory.GameContent.GuiHandbookItemStackPage");
+            var miPageCodeForStack = ghType?.GetMethod("PageCodeForStack", BindingFlags.Public | BindingFlags.Static);
+            if (miPageCodeForStack != null && unresolved.Count > 0)
+            {
+                foreach (var key in unresolved)
                 {
-                    foreach (var key in craftableKeys)
-                    {
-                        var stack = MakeStackFromCodeAndAttrs(capi, key.Code, key.Material, key.Type);
-                        if (stack == null) continue;
-                        var pc = miPageCodeForStack.Invoke(null, new object[] { stack }) as string;
-                        if (!string.IsNullOrEmpty(pc)) resultPageCodes.Add(pc);
-                    }
+                    var stack = MakeStackFromCodeAndAttrs(capi, key.Code, key.Material, key.Type);
+                    if (stack == null) continue;
+                    var pc = miPageCodeForStack.Invoke(null, new object[] { stack }) as string;
+                    if (!string.IsNullOrEmpty(pc)) resultPageCodes.Add(pc);
                 }
             }
+
 
             lock (CacheLock) CachedPageCodes = resultPageCodes.ToList();
             LogEverywhere(capi, $"[Craftable] craftable outputs={craftableOutputsCount}, pagesFromMap={resultPageCodes.Count}", toChat: false);
@@ -1868,7 +1889,8 @@ namespace ShowCraftable
 
                     string code = st.Collectible.Code.ToString();
                     int add = Math.Max(1, st.StackSize);
-                    var cls = st.Class;
+                    var cls = (st.Class == EnumItemClass.Item && st.Block != null) ? EnumItemClass.Block : st.Class;
+
 
                     if (sum.TryGetValue(code, out var cur)) sum[code] = (cur.count + add, cls); else sum[code] = (add, cls);
                     if (playerCounts.TryGetValue(code, out var pc)) playerCounts[code] = pc + add; else playerCounts[code] = add;
@@ -1900,7 +1922,8 @@ namespace ShowCraftable
 
                             string code = st.Collectible.Code.ToString();
                             int add = Math.Max(1, st.StackSize);
-                            var cls = st.Class;
+                            var cls = (st.Class == EnumItemClass.Item && st.Block != null) ? EnumItemClass.Block : st.Class;
+
 
                             if (sum.TryGetValue(code, out var cur)) sum[code] = (cur.count + add, cls); else sum[code] = (add, cls);
 
