@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Diagnostics;
 using System.Threading;
 using Vintagestory.API.Client;
 using Vintagestory.API.Server;
@@ -902,6 +903,7 @@ namespace ShowCraftable
 
         private static List<GridRecipeShim> GetAllGridRecipes(ICoreClientAPI capi, out int fetched, out int usable)
         {
+            var sw = Stopwatch.StartNew();
             var list = new List<GridRecipeShim>();
             fetched = 0; usable = 0;
 
@@ -910,9 +912,13 @@ namespace ShowCraftable
 
             var pi = world.GetType().GetProperty("GridRecipes", BindingFlags.Public | BindingFlags.Instance);
             var fi = world.GetType().GetField("GridRecipes", BindingFlags.Public | BindingFlags.Instance);
+            bool gridMemberFound = pi != null || fi != null;
             object val = pi?.GetValue(world) ?? fi?.GetValue(world);
-            if (val is System.Collections.IEnumerable en) rawRecipes = en.Cast<object>();
-            else rawRecipes = FetchGridRecipesMulti(capi);
+            bool usedGridRecipes = val is System.Collections.IEnumerable;
+            if (usedGridRecipes)
+                rawRecipes = ((System.Collections.IEnumerable)val).Cast<object>();
+            else
+                rawRecipes = FetchGridRecipesMulti(capi);
 
             foreach (var raw in rawRecipes)
             {
@@ -925,7 +931,8 @@ namespace ShowCraftable
                 }
             }
 
-            LogEverywhere(capi, $"[Craftable] Grid recipes fetched={fetched}, usable={usable}");
+            sw.Stop();
+            LogEverywhere(capi, $"[Craftable] Grid recipes fetched={fetched}, usable={usable}, ms={sw.ElapsedMilliseconds}, gridMemberFound={gridMemberFound}, usedWorldList={usedGridRecipes}");
             return list;
         }
         private static void BuildRecipeIndex(ICoreClientAPI capi)
