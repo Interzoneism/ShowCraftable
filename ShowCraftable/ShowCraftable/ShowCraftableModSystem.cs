@@ -43,6 +43,8 @@ namespace ShowCraftable
 
         private static bool recipeIndexBuilt = false;
 
+        internal static bool DebugEnabled = false;
+
         private sealed class WildGroup
         {
             public GridRecipeShim Recipe;
@@ -253,6 +255,8 @@ namespace ShowCraftable
 
         private static void LogEverywhere(ICoreClientAPI capi, string msg, bool toChat = false)
         {
+            if (!DebugEnabled) return;
+
             try { capi.Logger?.Notification(msg); } catch { }
             try { capi.World?.Logger?.Notification(msg); } catch { }
             if (toChat) { try { capi.ShowChatMessage(msg); } catch { } }
