@@ -30,14 +30,20 @@ public class RecipeGridButton : ButtonFetch
         {
             if (slideshow == null)
             {
-                api.ShowChatMessage("[ShowCraftable] Open a handbook recipe with a crafting grid first.");
+                if (ShowCraftableSystem.DebugEnabled)
+                {
+                    api.ShowChatMessage("[ShowCraftable] Open a handbook recipe with a crafting grid first.");
+                }
                 return;
             }
 
             var variants = GetVariants(slideshow).ToList();
             if (variants.Count == 0)
             {
-                api.ShowChatMessage("[ShowCraftable] No recipe variants found for this grid.");
+                if (ShowCraftableSystem.DebugEnabled)
+                {
+                    api.ShowChatMessage("[ShowCraftable] No recipe variants found for this grid.");
+                }
                 return;
             }
 
@@ -60,12 +66,18 @@ public class RecipeGridButton : ButtonFetch
 
             if (lines.Count == 0)
             {
-                api.ShowChatMessage("[ShowCraftable] Could not summarize ingredients for this recipe.");
+                if (ShowCraftableSystem.DebugEnabled)
+                {
+                    api.ShowChatMessage("[ShowCraftable] Could not summarize ingredients for this recipe.");
+                }
                 return;
             }
 
-            foreach (var line in lines)
-                api.ShowChatMessage(line);
+            if (ShowCraftableSystem.DebugEnabled)
+            {
+                foreach (var line in lines)
+                    api.ShowChatMessage(line);
+            }
 
             try
             {
@@ -87,12 +99,18 @@ public class RecipeGridButton : ButtonFetch
             catch (Exception e)
             {
                 ShowCraftableSystem.ReleaseHandbookPauseGuard(api);
-                api.ShowChatMessage("[ShowCraftable] Fetch request failed: " + e.Message);
+                if (ShowCraftableSystem.DebugEnabled)
+                {
+                    api.ShowChatMessage("[ShowCraftable] Fetch request failed: " + e.Message);
+                }
             }
         }
         catch (Exception e)
         {
-            api.ShowChatMessage("[ShowCraftable] Ingredient listing failed: " + e.Message);
+            if (ShowCraftableSystem.DebugEnabled)
+            {
+                api.ShowChatMessage("[ShowCraftable] Ingredient listing failed: " + e.Message);
+            }
         }
     }
 
