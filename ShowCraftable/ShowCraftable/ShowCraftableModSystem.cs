@@ -41,6 +41,23 @@ namespace ShowCraftable
         private static int recipesFetched;
         private static int recipesUsable;
 
+        private static bool recipeIndexBuilt = false;
+
+        private sealed class WildGroup
+        {
+            public GridRecipeShim Recipe;
+            public string GroupKey;
+            public EnumItemClass Type;
+            public AssetLocation Pattern;
+            public string[] Allowed;
+        }
+
+        private static readonly List<WildGroup> wildcardGroups = new();
+
+        private static readonly Dictionary<string, List<(GridRecipeShim Recipe, string GroupKey)>> wildMatchCache
+            = new(StringComparer.Ordinal);
+
+
         private static class HandbookPauseGuard
         {
             private static int _refCount;
@@ -115,16 +132,11 @@ namespace ShowCraftable
         internal static void AcquireHandbookPauseGuard(ICoreClientAPI capi) => HandbookPauseGuard.Acquire(capi);
         internal static void ReleaseHandbookPauseGuard(ICoreClientAPI capi) => HandbookPauseGuard.Release(capi);
 
-        // --- Attribute-aware handbook keys ---
         private readonly record struct StackKey(string Code, string Material, string Type);
-
-        // Pulls "material" and "type" (if present) from a stack
         private static string GetAttrStringSafe(ItemStack st, string key)
         {
             try { return st?.Attributes?.GetString(key, null); } catch { return null; }
         }
-
-        // Builds an attribute-aware key from a stack
         private static StackKey KeyFor(ItemStack st)
         {
             var code = st?.Collectible?.Code?.ToString() ?? "";
@@ -133,7 +145,6 @@ namespace ShowCraftable
             return new StackKey(code, material, type);
         }
 
-        // Creates a stack and assigns "material" / "type" attributes if provided
         private static ItemStack MakeStackFromCodeAndAttrs(ICoreClientAPI capi, string code, string material, string type)
         {
             var st = MakeStackFromCode(capi, code);
@@ -147,7 +158,6 @@ namespace ShowCraftable
             return st;
         }
 
-        // Extract the * token out of code path vs. a "path-with-*" pattern
         private static string ExtractTokenFromPath(string patternPath, string codePath)
         {
             if (string.IsNullOrEmpty(patternPath) || string.IsNullOrEmpty(codePath)) return null;
@@ -165,7 +175,6 @@ namespace ShowCraftable
             return c >= 0 ? domainCode.Substring(c + 1) : domainCode ?? "";
         }
 
-        // Aggregate counts in the pool per wildcard *token* (e.g., plank-* -> oak/birch/…)
         private static Dictionary<string, int> GetWildcardTokenCounts(ResourcePool pool, AssetLocation pattern, string[] allowed)
         {
             var res = new Dictionary<string, int>(StringComparer.Ordinal);
@@ -178,7 +187,6 @@ namespace ShowCraftable
                 try
                 {
                     var al = new AssetLocation(codeStr);
-                    // Respect Allowed[] when present
                     if (!WildcardMatch(pattern, al, (allowed != null && allowed.Length > 0) ? allowed : null)) continue;
 
                     var token = ExtractTokenFromPath(patPath, PathPart(al.Path ?? al.ToString()));
@@ -191,7 +199,6 @@ namespace ShowCraftable
             return res;
         }
 
-        // Expand a satisfiable recipe into attribute-aware output keys
         private static void ExpandOutputsForRecipe(
             ICoreClientAPI capi,
             ResourcePool pool,
@@ -201,11 +208,9 @@ namespace ShowCraftable
         {
             if (recipe?.Outputs == null || recipe.Outputs.Count == 0) return;
 
-            // Try to find a single relevant wildcard ingredient (e.g., plank-*) that "drives" {wood} material
             var wild = recipe.Ingredients?.FirstOrDefault(i => i != null && i.IsWild && i.PatternCode != null);
             string[] allowed = wild?.Allowed;
 
-            // Compute the original quantity required for that wildcard group (if any)
             int neededFromWild = 0;
             if (wild != null && originalNeeds != null && originalNeeds.TryGetValue(recipe, out var needMap) && needMap != null)
             {
@@ -214,7 +219,6 @@ namespace ShowCraftable
                     neededFromWild = Math.Max(1, wild.QuantityRequired);
             }
 
-            // If we have a wildcard, pre-compute token counts in the pool
             Dictionary<string, int> tokenCounts = null;
             if (wild != null) tokenCounts = GetWildcardTokenCounts(pool, wild.PatternCode, allowed);
 
@@ -223,14 +227,13 @@ namespace ShowCraftable
                 var ocode = os?.Collectible?.Code?.ToString();
                 if (string.IsNullOrEmpty(ocode)) continue;
 
-                string outType = GetAttrStringSafe(os, "type");      // e.g., "2row1col" or "normal"
-                string outMat = GetAttrStringSafe(os, "material");  // may be null or "{wood}"
+                string outType = GetAttrStringSafe(os, "type");     
+                string outMat = GetAttrStringSafe(os, "material"); 
 
                 bool needsMaterialExpansion = string.IsNullOrEmpty(outMat) || outMat.IndexOf('{') >= 0 || outMat.IndexOf('}') >= 0;
 
                 if (wild != null && tokenCounts != null && tokenCounts.Count > 0 && needsMaterialExpansion)
                 {
-                    // Expand one output per token that individually meets the required quantity
                     foreach (var kv in tokenCounts)
                     {
                         string token = kv.Key;
@@ -243,7 +246,6 @@ namespace ShowCraftable
                 }
                 else
                 {
-                    // No expansion necessary: just use whatever attributes the output already carries (or none)
                     dest.Add(new StackKey(ocode, outMat ?? "", outType ?? ""));
                 }
             }
@@ -407,9 +409,18 @@ namespace ShowCraftable
                 lock (CacheLock) CachedPageCodes.Clear();
                 codeToRecipeGroups.Clear();
                 recipeGroupNeeds.Clear();
-                BuildRecipeIndex(capi);
+                wildcardGroups.Clear();
+                wildMatchCache.Clear();
+                recipeIndexBuilt = false; 
                 LogEverywhere(capi, "[Craftable] LevelFinalize: cache cleared");
             };
+        }
+
+        private static void EnsureRecipeIndex(ICoreClientAPI capi)
+        {
+            if (recipeIndexBuilt) return;
+            BuildRecipeIndex(capi);
+            recipeIndexBuilt = true;
         }
 
         public override void Dispose() => _harmony?.UnpatchAll(HarmonyId);
@@ -529,7 +540,7 @@ namespace ShowCraftable
 
                         if (myScanId != _pendingScanId) return;
                         if (!DialogIsOpen(__instance) || !CraftableTabActive) return;
-
+                        EnsureRecipeIndex(capi);
                         RequestServerScan(capi, NearbyRadius, includeCrates: true);
                     }, "CraftableScanKickoff");
                 }
@@ -941,12 +952,52 @@ namespace ShowCraftable
             recipeGroupNeeds.Clear();
 
             var recipes = GetAllGridRecipes(capi, out recipesFetched, out recipesUsable);
+
+            var wildCache = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+
+            IEnumerable<string> GetWildMatches(GridIngredientShim ing)
+            {
+                if (ing == null || ing.PatternCode == null) return Array.Empty<string>();
+
+                var allowed = ing.Allowed ?? Array.Empty<string>();
+                string sig = $"wild:{ing.PatternCode}|{string.Join(",", allowed.OrderBy(x => x))}|T:{ing.Type}";
+
+                if (wildCache.TryGetValue(sig, out var cached)) return cached;
+
+                var results = new List<string>();
+
+                IEnumerable<CollectibleObject> coll = null;
+                if (ing.Type == EnumItemClass.Item) coll = capi.World.Items?.Where(i => i != null);
+                else if (ing.Type == EnumItemClass.Block) coll = capi.World.Blocks?.Where(b => b != null);
+
+                if (coll != null)
+                {
+                    foreach (var c in coll)
+                    {
+                        var code = c?.Code?.ToString();
+                        if (string.IsNullOrEmpty(code)) continue;
+                        try
+                        {
+                            var al = new AssetLocation(code);
+                            if (WildcardMatch(ing.PatternCode, al, allowed)) results.Add(code);
+                        }
+                        catch { /* best-effort */ }
+                    }
+                }
+
+                var distinct = results.Distinct(StringComparer.Ordinal).ToList();
+                wildCache[sig] = distinct;
+                return distinct;
+            }
+
             foreach (var r in recipes)
             {
                 var groups = new Dictionary<string, int>(StringComparer.Ordinal);
 
                 foreach (var ing in r.Ingredients)
                 {
+                    if (ing == null) continue;
+
                     string groupKey;
                     IEnumerable<string> satisfiableCodes;
 
@@ -954,70 +1005,37 @@ namespace ShowCraftable
                     {
                         var allowed = ing.Allowed ?? Array.Empty<string>();
                         groupKey = $"wild:{ing.PatternCode}|{string.Join(",", allowed.OrderBy(x => x))}|T:{ing.Type}";
-                        satisfiableCodes = AllCodesMatching(capi, ing);   // preexpanded once at index time
+                        satisfiableCodes = GetWildMatches(ing);   
                     }
                     else
                     {
                         var codes = ing.Options
                             .Select(st => st?.Collectible?.Code?.ToString())
                             .Where(s => !string.IsNullOrEmpty(s))
-                            .Distinct()
-                            .OrderBy(s => s)
-                            .ToList();
-
-                        if (codes.Count == 0) continue;
-
-                        groupKey = "opts:" + string.Join(",", codes);
+                            .Distinct(StringComparer.Ordinal);
+                        groupKey = string.Join("|", codes.OrderBy(s => s));
                         satisfiableCodes = codes;
                     }
 
                     int qty = Math.Max(1, ing.QuantityRequired);
                     if (ing.IsTool) qty = 1;
-
-                    groups[groupKey] = groups.TryGetValue(groupKey, out var cur) ? cur + qty : qty;
+                    if (!groups.TryGetValue(groupKey, out var cur)) cur = 0;
+                    groups[groupKey] = cur + qty;
 
                     foreach (var code in satisfiableCodes)
                     {
+                        if (string.IsNullOrEmpty(code)) continue;
                         if (!codeToRecipeGroups.TryGetValue(code, out var list))
-                            codeToRecipeGroups[code] = list = new List<(GridRecipeShim, string)>();
-                        if (!list.Contains((r, groupKey))) list.Add((r, groupKey));
+                            codeToRecipeGroups[code] = list = new List<(GridRecipeShim Recipe, string GroupKey)>();
+                        if (!list.Any(p => ReferenceEquals(p.Recipe, r) && p.GroupKey == groupKey))
+                            list.Add((r, groupKey));
                     }
                 }
 
-                if (groups.Count > 0)
-                    recipeGroupNeeds[r] = groups;
+                recipeGroupNeeds[r] = groups;
             }
         }
 
-
-        private static IEnumerable<string> AllCodesMatching(ICoreClientAPI capi, GridIngredientShim ing)
-        {
-            var results = new List<string>();
-            if (ing.PatternCode == null) return results;
-
-            IEnumerable<CollectibleObject> coll = null;
-            if (ing.Type == EnumItemClass.Item)
-                coll = capi.World.Items?.Where(i => i != null);
-            else if (ing.Type == EnumItemClass.Block)
-                coll = capi.World.Blocks?.Where(b => b != null);
-
-            if (coll != null)
-            {
-                foreach (var c in coll)
-                {
-                    var code = c.Code?.ToString();
-                    if (string.IsNullOrEmpty(code)) continue;
-                    try
-                    {
-                        var al = new AssetLocation(code);
-                        if (WildcardMatch(ing.PatternCode, al, ing.Allowed)) results.Add(code);
-                    }
-                    catch { }
-                }
-            }
-
-            return results;
-        }
         private static IEnumerable<object> FetchGridRecipesMulti(ICoreClientAPI capi)
         {
             var w = capi.World;
@@ -1310,20 +1328,18 @@ namespace ShowCraftable
         {
             craftableOutputsCount = 0; fetched = recipesFetched; usable = recipesUsable;
 
-            // Clone the per-recipe group needs so we can subtract
             var remaining = recipeGroupNeeds.ToDictionary(
                 kv => kv.Key,
                 kv => kv.Value.ToDictionary(g => g.Key, g => g.Value, StringComparer.Ordinal)
             );
 
-            // First pass: subtract available counts from each recipe group
             foreach (var kv in pool.Counts)
             {
                 var code = kv.Key.Code;
                 var have = kv.Value;
                 if (!codeToRecipeGroups.TryGetValue(code, out var targets) || targets == null) continue;
 
-                foreach (var (recipe, groupKey) in targets)
+                foreach (var (recipe, groupKey) in targets.Distinct())
                 {
                     if (!remaining.TryGetValue(recipe, out var groups)) continue;
                     if (!groups.TryGetValue(groupKey, out var need) || need <= 0) continue;
@@ -1333,7 +1349,43 @@ namespace ShowCraftable
                 }
             }
 
-            // Second pass: any recipe fully satisfied? expand its outputs into attribute-aware keys
+            foreach (var kv in pool.Counts)
+            {
+                string codeStr = kv.Key.Code;
+                int have = kv.Value;
+
+                if (!wildMatchCache.TryGetValue(codeStr, out var targets))
+                {
+                    targets = new List<(GridRecipeShim, string)>();
+                    try
+                    {
+                        var al = new AssetLocation(codeStr);
+                        var cls = pool.Classes[kv.Key];  
+
+                        foreach (var wg in wildcardGroups)
+                        {
+                            if (wg.Type != cls) continue;
+                            if (WildcardMatch(wg.Pattern, al, wg.Allowed))
+                            {
+                                targets.Add((wg.Recipe, wg.GroupKey));
+                            }
+                        }
+                    }
+                    catch { /* best-effort */ }
+
+                    wildMatchCache[codeStr] = targets;
+                }
+
+                foreach (var (recipe, gkey) in targets)
+                {
+                    if (!remaining.TryGetValue(recipe, out var groups)) continue;
+                    if (!groups.TryGetValue(gkey, out var need) || need <= 0) continue;
+                    int take = Math.Min(need, have);
+                    if (take <= 0) continue;
+                    groups[gkey] = need - take;
+                }
+            }
+
             var craftableKeys = new HashSet<StackKey>();
             foreach (var kv in remaining)
             {
@@ -1347,7 +1399,6 @@ namespace ShowCraftable
 
             craftableOutputsCount = craftableKeys.Count;
 
-            // Map keys -> handbook pages
             var key2page = BuildPageCodeMapFromAllStacks(capi);
             var resultPageCodes = new HashSet<string>(StringComparer.Ordinal);
 
@@ -1355,7 +1406,6 @@ namespace ShowCraftable
                 if (key2page.TryGetValue(key, out var pageCode))
                     resultPageCodes.Add(pageCode);
 
-            // Fallback: compute pages via PageCodeForStack if the prebuilt map missed something
             if (resultPageCodes.Count == 0)
             {
                 var ghType = AccessTools.TypeByName("Vintagestory.GameContent.GuiHandbookItemStackPage");

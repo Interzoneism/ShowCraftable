@@ -50,7 +50,7 @@ public class RecipeGridButton : ButtonFetch
                 string summary = SummarizeRecipe(recipe, unnamed);
 
                 if (string.IsNullOrWhiteSpace(summary)) continue;
-                if (!rendered.Add(summary)) continue; // skip duplicates
+                if (!rendered.Add(summary)) continue; 
 
                 if (variants.Count > 1)
                     lines.Add($"[ShowCraftable] Required (variant {lines.Count + 1}/{variants.Count}): {summary}");
@@ -168,7 +168,7 @@ public class RecipeGridButton : ButtonFetch
 
         var t = genericDict.GetType();
         var keysProp = t.GetProperty("Keys");
-        var indexer = t.GetProperty("Item"); // get_Item
+        var indexer = t.GetProperty("Item"); 
         if (keysProp == null || indexer == null) return res;
 
         if (keysProp.GetValue(genericDict) is IEnumerable keysEnum)
