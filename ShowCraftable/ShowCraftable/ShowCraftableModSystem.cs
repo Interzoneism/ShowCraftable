@@ -205,6 +205,56 @@ namespace ShowCraftable
             return st;
         }
 
+        private static bool StackHasCreatedByRecipe(ICoreClientAPI capi, ItemStack stack)
+        {
+            if (capi == null || stack?.Collectible == null) return false;
+            try
+            {
+                foreach (var gr in capi.World.GridRecipes)
+                {
+                    if (!gr.ShowInCreatedBy) continue;
+                    var outSt = gr.Output?.ResolvedItemstack;
+                    if (outSt != null && outSt.Satisfies(stack)) return true;
+                    var ingr = gr.resolvedIngredients;
+                    if (ingr == null) continue;
+                    foreach (var gi in ingr)
+                    {
+                        var ret = gi?.ReturnedStack?.ResolvedItemstack;
+                        if (ret != null && ret.Satisfies(stack))
+                        {
+                            var inSt = gi.ResolvedItemstack;
+                            if (inSt != null && !inSt.Satisfies(stack)) return true;
+                        }
+                    }
+                }
+
+                foreach (var r in capi.GetKnappingRecipes())
+                {
+                    var outSt = r.Output?.ResolvedItemstack;
+                    if (outSt != null && outSt.Equals(capi.World, stack, GlobalConstants.IgnoredStackAttributes)) return true;
+                }
+
+                foreach (var r in capi.GetClayformingRecipes())
+                {
+                    var outSt = r.Output?.ResolvedItemstack;
+                    if (outSt != null && outSt.Equals(capi.World, stack, GlobalConstants.IgnoredStackAttributes)) return true;
+                }
+
+                foreach (var r in capi.GetSmithingRecipes())
+                {
+                    var outSt = r.Output?.ResolvedItemstack;
+                    if (outSt != null && outSt.Equals(capi.World, stack, GlobalConstants.IgnoredStackAttributes)) return true;
+                }
+
+                foreach (var r in capi.GetCookingRecipes())
+                {
+                    if (r.CooksInto?.ResolvedItemstack?.Satisfies(stack) == true) return true;
+                }
+            }
+            catch { }
+            return false;
+        }
+
         private static string ExtractTokenFromPath(string patternPath, string codePath)
         {
             if (string.IsNullOrEmpty(patternPath) || string.IsNullOrEmpty(codePath)) return null;
@@ -873,6 +923,8 @@ namespace ShowCraftable
                 foreach (var s in arr)
                 {
                     if (s?.Collectible?.Code == null) continue;
+                    if (!StackHasCreatedByRecipe(capi, s)) continue;
+
                     var key = KeyFor(s);
                     var pc = miPageCodeForStack.Invoke(null, new object[] { s }) as string;
                     if (string.IsNullOrEmpty(pc)) continue;
@@ -1924,7 +1976,7 @@ namespace ShowCraftable
                 else if (miPageCodeForStack != null)
                 {
                     var stack = MakeStackFromCodeAndAttrs(capi, key.Code, key.Material, key.Type);
-                    if (stack != null)
+                    if (stack != null && StackHasCreatedByRecipe(capi, stack))
                     {
                         pageCode = miPageCodeForStack.Invoke(null, new object[] { stack }) as string;
                         if (!string.IsNullOrEmpty(pageCode))
@@ -1943,14 +1995,17 @@ namespace ShowCraftable
                         var codeOnlyStack = MakeStackFromCode(capi, key.Code);
                         if (codeOnlyStack != null)
                         {
-                            pageCode = miPageCodeForStack.Invoke(null, new object[] { codeOnlyStack }) as string;
-                            if (!string.IsNullOrEmpty(pageCode))
+                            if (StackHasCreatedByRecipe(capi, codeOnlyStack))
                             {
-                                codeOnlyFallbacks++;
-                                resultPageCodes.Add(pageCode);
-                                lock (PageCodeMapLock)
+                                pageCode = miPageCodeForStack.Invoke(null, new object[] { codeOnlyStack }) as string;
+                                if (!string.IsNullOrEmpty(pageCode))
                                 {
-                                    key2page[key] = pageCode;
+                                    codeOnlyFallbacks++;
+                                    resultPageCodes.Add(pageCode);
+                                    lock (PageCodeMapLock)
+                                    {
+                                        key2page[key] = pageCode;
+                                    }
                                 }
                             }
                             else
@@ -1962,6 +2017,7 @@ namespace ShowCraftable
                                     {
                                         if (cs?.Collectible?.Code == null) continue;
                                         if (!cs.Collectible.Code.ToString().StartsWith(key.Code)) continue;
+                                        if (!StackHasCreatedByRecipe(capi, cs)) continue;
                                         pageCode = miPageCodeForStack.Invoke(null, new object[] { cs }) as string;
                                         if (!string.IsNullOrEmpty(pageCode))
                                         {
