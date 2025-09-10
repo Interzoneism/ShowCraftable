@@ -1103,61 +1103,6 @@ namespace ShowCraftable
             }
         }
 
-        private static void SaveRecipeIndex(ICoreClientAPI capi)
-        {
-            try
-            {
-                var data = new RecipeIndexCache();
-                var recipes = recipeGroupNeeds.Keys.ToList();
-                var indexMap = new Dictionary<GridRecipeShim, int>();
-                for (int i = 0; i < recipes.Count; i++) indexMap[recipes[i]] = i;
-
-                foreach (var r in recipes)
-                {
-                    var cr = new CachedRecipe();
-                    foreach (var ing in r.Ingredients)
-                    {
-                        var ci = new CachedIngredient
-                        {
-                            IsTool = ing.IsTool,
-                            IsWild = ing.IsWild,
-                            QuantityRequired = ing.QuantityRequired,
-                            PatternCode = ing.PatternCode?.ToString(),
-                            Allowed = ing.Allowed,
-                            Type = ing.Type
-                        };
-                        foreach (var opt in ing.Options)
-                        {
-                            try { ci.Options.Add(opt.ToBytes()); } catch { }
-                        }
-                        cr.Ingredients.Add(ci);
-                    }
-                    foreach (var o in r.Outputs)
-                    {
-                        try { cr.Outputs.Add(o.ToBytes()); } catch { }
-                    }
-                    if (recipeGroupNeeds.TryGetValue(r, out var needs) && needs != null)
-                        cr.Needs = new Dictionary<string, int>(needs);
-                    data.Recipes.Add(cr);
-                }
-
-                foreach (var kv in codeToRecipeGroups)
-                {
-                    var list = new List<CodeRecipeRef>();
-                    foreach (var pair in kv.Value)
-                    {
-                        if (indexMap.TryGetValue(pair.Recipe, out var idx))
-                            list.Add(new CodeRecipeRef { Recipe = idx, GroupKey = pair.GroupKey });
-                    }
-                    data.CodeToRecipes[kv.Key] = list;
-                }
-
-                using var fs = File.Create(GetCachePath(capi));
-                Serializer.Serialize(fs, data);
-            }
-            catch { }
-        }
-
         private static bool LoadRecipeIndex(ICoreClientAPI capi)
         {
             try
@@ -1249,7 +1194,6 @@ namespace ShowCraftable
                 if (!LoadRecipeIndex(capi))
                 {
                     BuildRecipeIndex(capi);
-                    SaveRecipeIndex(capi);
                 }
                 recipeIndexBuilt = true;
                 GetCachedPageCodeMap(capi);
