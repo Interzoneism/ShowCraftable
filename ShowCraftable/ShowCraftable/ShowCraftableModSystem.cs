@@ -577,21 +577,28 @@ namespace ShowCraftable
                     return;
                 }
 
-                var miGetTextInput = composer?.GetType().GetMethod("GetTextInput");
-                var searchInput = miGetTextInput?.Invoke(composer, new object[] { "searchField" });
-                searchInput?.GetType().GetMethod("SetValue")?.Invoke(searchInput, new object[] { "", true });
-
-                AccessTools.Field(__instance.GetType(), "currentSearchText")?.SetValue(__instance, null);
-                AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
                 if (capi != null && composer != null)
                 {
                     try
                     {
-                        var stacklist = composer.GetFlatList("stacklist");
-                        stacklist?.Elements.Clear();
-                        stacklist?.CalcTotalHeight();
-                        var shown = AccessTools.Field(__instance.GetType(), "shownHandbookPages")?.GetValue(__instance) as System.Collections.IList;
-                        shown?.Clear();
+                        bool haveCache;
+                        lock (CacheLock) haveCache = CachedPageCodes.Count > 0;
+
+                        var miGetTextInput = composer.GetType().GetMethod("GetTextInput");
+                        var searchInput = miGetTextInput?.Invoke(composer, new object[] { "searchField" });
+                        searchInput?.GetType().GetMethod("SetValue")?.Invoke(searchInput, new object[] { "", true });
+
+                        AccessTools.Field(__instance.GetType(), "currentSearchText")?.SetValue(__instance, null);
+                        if (!haveCache)
+                        {
+                            AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
+                            var stacklist = composer.GetFlatList("stacklist");
+                            stacklist?.Elements.Clear();
+                            stacklist?.CalcTotalHeight();
+                            var shown = AccessTools.Field(__instance.GetType(), "shownHandbookPages")?.GetValue(__instance) as System.Collections.IList;
+                            shown?.Clear();
+                        }
+
                         SetUpdatingText(capi, true);
                     }
                     catch { }
@@ -647,13 +654,27 @@ namespace ShowCraftable
                 {
                     if (dt == null)
                     {
-                        var search = composer.GetTextInput("searchField");
-                        if (search == null) return;
-                        var sb = search.Bounds;
-                        var tb = ElementBounds.Fixed(0, sb.fixedY, 120, sb.fixedHeight);
-                        tb.ParentBounds = sb.ParentBounds;
-                        tb.FixedRightOf(sb, 10);
-                        composer.AddDynamicText("Updating...", CairoFont.WhiteSmallishText(), tb, "scUpdating").Compose();
+                        capi.Event.EnqueueMainThreadTask(() =>
+                        {
+                            try
+                            {
+                                var innerDt = composer.GetDynamicText("scUpdating");
+                                if (innerDt != null)
+                                {
+                                    innerDt.SetNewText("Updating...");
+                                    return;
+                                }
+                                var search = composer.GetTextInput("searchField");
+                                if (search == null) return;
+                                var sb = search.Bounds;
+                                var tb = ElementBounds.Fixed(0, sb.fixedY, 120, sb.fixedHeight);
+                                tb.ParentBounds = sb.ParentBounds;
+                                tb.FixedRightOf(sb, 10);
+                                innerDt = new GuiElementDynamicText(capi, "Updating...", CairoFont.WhiteSmallishText(), tb);
+                                composer.AddInteractiveElement(innerDt, "scUpdating");
+                            }
+                            catch { }
+                        }, "scAddUpdating");
                     }
                     else
                     {
