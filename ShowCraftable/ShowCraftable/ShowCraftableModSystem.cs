@@ -1689,7 +1689,8 @@ namespace ShowCraftable
             craftableOutputsCount = resultPageCodes.Count;
             Flush();
 
-            capi.Event.EnqueueMainThreadTask(() => LogEverywhere(capi, $"[Craftable] craftable outputs={craftableOutputsCount}, pagesFromMap={fromMap}, attrFallbacks={attrFallbacks}, codeOnlyFallbacks={codeOnlyFallbacks}, hbFallbacks={hbStackFallbacks}", toChat: false), null);
+            int outputsCount = craftableOutputsCount;
+            capi.Event.EnqueueMainThreadTask(() => LogEverywhere(capi, $"[Craftable] craftable outputs={outputsCount}, pagesFromMap={fromMap}, attrFallbacks={attrFallbacks}, codeOnlyFallbacks={codeOnlyFallbacks}, hbFallbacks={hbStackFallbacks}", toChat: false), null);
             return resultPageCodes.Count;
         }
 
