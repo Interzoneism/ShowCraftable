@@ -45,7 +45,10 @@ namespace ShowCraftable
         private static int recipesFetched;
         private static int recipesUsable;
 
-        private static bool recipeIndexBuilt = false;
+        private static Task recipeIndexBuildTask;
+        private static volatile int recipeIndexBuildTotal;
+        private static volatile int recipeIndexBuildProgress;
+        private static volatile bool recipeIndexBuilt = false;
 
         internal static bool DebugEnabled = true;
 
@@ -62,6 +65,40 @@ namespace ShowCraftable
 
         private static readonly Dictionary<string, List<(GridRecipeShim Recipe, string GroupKey)>> wildMatchCache
             = new(StringComparer.Ordinal);
+
+        [ProtoContract]
+        private class CachedIngredient
+        {
+            [ProtoMember(1)] public bool IsTool;
+            [ProtoMember(2)] public bool IsWild;
+            [ProtoMember(3)] public int QuantityRequired;
+            [ProtoMember(4)] public List<byte[]> Options = new();
+            [ProtoMember(5)] public string PatternCode;
+            [ProtoMember(6)] public string[] Allowed;
+            [ProtoMember(7)] public EnumItemClass Type;
+        }
+
+        [ProtoContract]
+        private class CachedRecipe
+        {
+            [ProtoMember(1)] public List<CachedIngredient> Ingredients = new();
+            [ProtoMember(2)] public List<byte[]> Outputs = new();
+            [ProtoMember(3)] public Dictionary<string, int> Needs = new();
+        }
+
+        [ProtoContract]
+        private class CodeRecipeRef
+        {
+            [ProtoMember(1)] public int Recipe;
+            [ProtoMember(2)] public string GroupKey;
+        }
+
+        [ProtoContract]
+        private class RecipeIndexCache
+        {
+            [ProtoMember(1)] public List<CachedRecipe> Recipes { get; set; } = new();
+            [ProtoMember(2)] public Dictionary<string, List<CodeRecipeRef>> CodeToRecipes { get; set; } = new();
+        }
 
 
         private static class HandbookPauseGuard
@@ -424,15 +461,9 @@ namespace ShowCraftable
                 wildcardGroups.Clear();
                 wildMatchCache.Clear();
                 recipeIndexBuilt = false;
-                LogEverywhere(capi, "[Craftable] LevelFinalize: cache cleared");
+                LogEverywhere(capi, "[Craftable] LevelFinalize: cache reset");
+                StartRecipeIndexBuild(capi);
             };
-        }
-
-        private static void EnsureRecipeIndex(ICoreClientAPI capi)
-        {
-            if (recipeIndexBuilt) return;
-            BuildRecipeIndex(capi);
-            recipeIndexBuilt = true;
         }
 
         public override void Dispose() => _harmony?.UnpatchAll(HarmonyId);
@@ -549,10 +580,29 @@ namespace ShowCraftable
 
                     capi.Event.EnqueueMainThreadTask(() =>
                     {
-
                         if (myScanId != _pendingScanId) return;
                         if (!DialogIsOpen(__instance) || !CraftableTabActive) return;
-                        EnsureRecipeIndex(capi);
+
+                        if (!recipeIndexBuilt)
+                        {
+                            StartRecipeIndexBuild(capi);
+                            int total = Math.Max(1, recipeIndexBuildTotal);
+                            capi.ShowChatMessage($"[Craftable] Building recipe index {recipeIndexBuildProgress}/{total}...");
+                            if (recipeIndexBuildTask != null)
+                            {
+                                recipeIndexBuildTask.ContinueWith(_ =>
+                                {
+                                    capi.Event.EnqueueMainThreadTask(() =>
+                                    {
+                                        if (myScanId != _pendingScanId) return;
+                                        if (!DialogIsOpen(__instance) || !CraftableTabActive) return;
+                                        RequestServerScan(capi, NearbyRadius, includeCrates: true);
+                                    }, "CraftableScanKickoff2");
+                                });
+                            }
+                            return;
+                        }
+
                         RequestServerScan(capi, NearbyRadius, includeCrates: true);
                     }, "CraftableScanKickoff");
                 }
@@ -988,12 +1038,185 @@ namespace ShowCraftable
             LogEverywhere(capi, $"[Craftable] Grid recipes fetched={fetched}, usable={usable}, ms={sw.ElapsedMilliseconds}, gridMemberFound={gridMemberFound}, usedWorldList={usedGridRecipes}");
             return list;
         }
+
+        private static string GetCachePath(ICoreClientAPI capi)
+        {
+            try
+            {
+                var m = typeof(ICoreAPI).GetMethod("GetOrCreateDataPath", BindingFlags.Public | BindingFlags.Instance);
+                var basePath = m != null ? (string)m.Invoke(capi, new object[] { "ShowCraftable" }) : null;
+                if (string.IsNullOrEmpty(basePath))
+                {
+                    basePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ShowCraftable");
+                }
+                Directory.CreateDirectory(basePath);
+                return Path.Combine(basePath, "recipeindex.bin");
+            }
+            catch
+            {
+                return Path.Combine(Path.GetTempPath(), "recipeindex.bin");
+            }
+        }
+
+        private static void SaveRecipeIndex(ICoreClientAPI capi)
+        {
+            try
+            {
+                var data = new RecipeIndexCache();
+                var recipes = recipeGroupNeeds.Keys.ToList();
+                var indexMap = new Dictionary<GridRecipeShim, int>();
+                for (int i = 0; i < recipes.Count; i++) indexMap[recipes[i]] = i;
+
+                foreach (var r in recipes)
+                {
+                    var cr = new CachedRecipe();
+                    foreach (var ing in r.Ingredients)
+                    {
+                        var ci = new CachedIngredient
+                        {
+                            IsTool = ing.IsTool,
+                            IsWild = ing.IsWild,
+                            QuantityRequired = ing.QuantityRequired,
+                            PatternCode = ing.PatternCode?.ToString(),
+                            Allowed = ing.Allowed,
+                            Type = ing.Type
+                        };
+                        foreach (var opt in ing.Options)
+                        {
+                            try { ci.Options.Add(opt.ToBytes()); } catch { }
+                        }
+                        cr.Ingredients.Add(ci);
+                    }
+                    foreach (var o in r.Outputs)
+                    {
+                        try { cr.Outputs.Add(o.ToBytes()); } catch { }
+                    }
+                    if (recipeGroupNeeds.TryGetValue(r, out var needs) && needs != null)
+                        cr.Needs = new Dictionary<string, int>(needs);
+                    data.Recipes.Add(cr);
+                }
+
+                foreach (var kv in codeToRecipeGroups)
+                {
+                    var list = new List<CodeRecipeRef>();
+                    foreach (var pair in kv.Value)
+                    {
+                        if (indexMap.TryGetValue(pair.Recipe, out var idx))
+                            list.Add(new CodeRecipeRef { Recipe = idx, GroupKey = pair.GroupKey });
+                    }
+                    data.CodeToRecipes[kv.Key] = list;
+                }
+
+                using var fs = File.Create(GetCachePath(capi));
+                Serializer.Serialize(fs, data);
+            }
+            catch { }
+        }
+
+        private static bool LoadRecipeIndex(ICoreClientAPI capi)
+        {
+            try
+            {
+                var path = GetCachePath(capi);
+                if (!File.Exists(path)) return false;
+                RecipeIndexCache data;
+                using (var fs = File.OpenRead(path)) data = Serializer.Deserialize<RecipeIndexCache>(fs);
+
+                codeToRecipeGroups.Clear();
+                recipeGroupNeeds.Clear();
+                wildcardGroups.Clear();
+                wildMatchCache.Clear();
+
+                var recipes = new List<GridRecipeShim>();
+                foreach (var cr in data.Recipes)
+                {
+                    var r = new GridRecipeShim();
+                    foreach (var ci in cr.Ingredients)
+                    {
+                        var gi = new GridIngredientShim
+                        {
+                            IsTool = ci.IsTool,
+                            IsWild = ci.IsWild,
+                            QuantityRequired = ci.QuantityRequired,
+                            PatternCode = ci.PatternCode != null ? new AssetLocation(ci.PatternCode) : null,
+                            Allowed = ci.Allowed,
+                            Type = ci.Type
+                        };
+                        if (ci.Options != null)
+                        {
+                            foreach (var b in ci.Options)
+                            {
+                                try
+                                {
+                                    var st = new ItemStack(b);
+                                    st.ResolveBlockOrItem(capi.World);
+                                    gi.Options.Add(st);
+                                }
+                                catch { }
+                            }
+                        }
+                        r.Ingredients.Add(gi);
+                        if (gi.IsWild && gi.PatternCode != null)
+                        {
+                            var gkey = $"wild:{gi.PatternCode}|{string.Join(",", (gi.Allowed ?? Array.Empty<string>()).OrderBy(x => x))}|T:{gi.Type}";
+                            wildcardGroups.Add(new WildGroup { Recipe = r, GroupKey = gkey, Type = gi.Type, Pattern = gi.PatternCode, Allowed = gi.Allowed });
+                        }
+                    }
+                    if (cr.Outputs != null)
+                    {
+                        foreach (var b in cr.Outputs)
+                        {
+                            try
+                            {
+                                var st = new ItemStack(b);
+                                st.ResolveBlockOrItem(capi.World);
+                                r.Outputs.Add(st);
+                            }
+                            catch { }
+                        }
+                    }
+                    recipes.Add(r);
+                    recipeGroupNeeds[r] = cr.Needs ?? new Dictionary<string, int>(StringComparer.Ordinal);
+                }
+
+                foreach (var kv in data.CodeToRecipes)
+                {
+                    var list = new List<(GridRecipeShim Recipe, string GroupKey)>();
+                    foreach (var rref in kv.Value)
+                    {
+                        if (rref.Recipe >= 0 && rref.Recipe < recipes.Count)
+                            list.Add((recipes[rref.Recipe], rref.GroupKey));
+                    }
+                    codeToRecipeGroups[kv.Key] = list;
+                }
+
+                recipeIndexBuilt = true;
+                return true;
+            }
+            catch { return false; }
+        }
+
+        private static void StartRecipeIndexBuild(ICoreClientAPI capi)
+        {
+            if (recipeIndexBuildTask != null && !recipeIndexBuildTask.IsCompleted) return;
+            recipeIndexBuildTask = Task.Run(() =>
+            {
+                if (!LoadRecipeIndex(capi))
+                {
+                    BuildRecipeIndex(capi);
+                    SaveRecipeIndex(capi);
+                }
+                recipeIndexBuilt = true;
+            });
+        }
         private static void BuildRecipeIndex(ICoreClientAPI capi)
         {
             codeToRecipeGroups.Clear();
             recipeGroupNeeds.Clear();
 
             var recipes = GetAllGridRecipes(capi, out recipesFetched, out recipesUsable);
+            recipeIndexBuildTotal = recipes.Count;
+            recipeIndexBuildProgress = 0;
 
             var wildCache = new Dictionary<string, List<string>>(StringComparer.Ordinal);
 
@@ -1075,6 +1298,7 @@ namespace ShowCraftable
                 }
 
                 recipeGroupNeeds[r] = groups;
+                recipeIndexBuildProgress++;
             }
         }
 
