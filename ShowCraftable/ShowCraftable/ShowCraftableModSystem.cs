@@ -345,17 +345,6 @@ namespace ShowCraftable
 
         private static void RequestServerScan(ICoreClientAPI capi, int radius, bool includeCrates)
         {
-
-            var now = DateTime.UtcNow;
-            if ((now - _lastScanAt).TotalMilliseconds < 400) return;
-            _lastScanAt = now;
-
-            if (ScanInProgress) return;
-            ScanInProgress = true;
-
-
-            HandbookPauseGuard.Acquire(capi);
-
             try
             {
                 capi.Network.GetChannel(ChannelName).SendPacket(new CraftScanRequest
@@ -370,6 +359,115 @@ namespace ShowCraftable
                 ScanInProgress = false;
                 HandbookPauseGuard.Release(capi);
                 LogEverywhere(capi, $"[Craftable] scan send failed: {e}", toChat: true);
+            }
+        }
+
+        private static ResourcePool BuildResourcePoolFromPlayer(ICoreClientAPI capi, IPlayer player, int radius)
+        {
+            var pool = new ResourcePool();
+
+            try
+            {
+                var ba = capi.World.BlockAccessor;
+                var pos = player.Entity.Pos.AsBlockPos;
+                var msbr = capi.ModLoader.GetModSystem<ModSystemBlockReinforcement>();
+
+                var seenSlotRefs = new HashSet<ItemSlot>();
+                var seenStackRefs = new HashSet<ItemStack>();
+                var seenKeys = new HashSet<string>();
+
+                bool IsDuplicate(IInventory inv, int index, ItemSlot slot)
+                {
+                    bool dup = false;
+                    if (slot != null && !seenSlotRefs.Add(slot)) dup = true;
+                    var st = slot?.Itemstack;
+                    if (st != null && !seenStackRefs.Add(st)) dup = true;
+                    string key = null;
+                    try { key = $"{inv?.InventoryID}:{index}"; } catch { }
+                    if (key != null && !seenKeys.Add(key)) dup = true;
+                    return dup;
+                }
+
+                var pinvs = new IInventory[]
+                {
+                    player.InventoryManager.GetOwnInventory("hotbar"),
+                    player.InventoryManager.GetOwnInventory("craftinggrid"),
+                    player.InventoryManager.GetOwnInventory("backpack")
+                };
+
+                foreach (var inv in pinvs)
+                {
+                    if (inv == null) continue;
+                    for (int i = 0; i < inv.Count; i++)
+                    {
+                        var slot = inv[i];
+                        if (IsDuplicate(inv, i, slot)) continue;
+                        pool.Add(slot?.Itemstack);
+                    }
+                }
+
+                for (int dx = -radius; dx <= radius; dx++)
+                    for (int dy = -1; dy <= 2; dy++)
+                        for (int dz = -radius; dz <= radius; dz++)
+                        {
+                            var be = ba.GetBlockEntity(pos.AddCopy(dx, dy, dz));
+                            if (be == null) continue;
+                            if (msbr?.IsLockedForInteract(be.Pos, player) == true) continue;
+                            var inv = TryGetInventoryFromBE(be);
+                            if (inv == null) continue;
+                            for (int i = 0; i < inv.Count; i++)
+                            {
+                                var slot = inv[i];
+                                if (IsDuplicate(inv, i, slot)) continue;
+                                pool.Add(slot?.Itemstack);
+                            }
+                        }
+            }
+            catch { }
+
+            return pool;
+        }
+
+        private static void RequestLocalScan(ICoreClientAPI capi, int radius)
+        {
+            var player = capi.World.Player;
+            var pool = BuildResourcePoolFromPlayer(capi, player, radius);
+
+            try
+            {
+                int outputs, fetched, usable;
+                RebuildCacheWithPool(capi, pool, out outputs, out fetched, out usable);
+                capi.Event.EnqueueMainThreadTask(() => TryRefreshOpenDialog(capi), null);
+            }
+            catch (Exception e)
+            {
+                capi.Event.EnqueueMainThreadTask(() => LogEverywhere(capi, $"[Craftable] local scan error: {e}", toChat: true), null);
+            }
+            finally
+            {
+                ScanInProgress = false;
+                HandbookPauseGuard.Release(capi);
+            }
+        }
+
+        private static void RequestScan(ICoreClientAPI capi, int radius, bool includeCrates)
+        {
+            var now = DateTime.UtcNow;
+            if ((now - _lastScanAt).TotalMilliseconds < 400) return;
+            _lastScanAt = now;
+
+            if (ScanInProgress) return;
+            ScanInProgress = true;
+
+            HandbookPauseGuard.Acquire(capi);
+
+            if (capi.IsSinglePlayer)
+            {
+                Task.Run(() => RequestLocalScan(capi, radius));
+            }
+            else
+            {
+                RequestServerScan(capi, radius, includeCrates);
             }
         }
 
@@ -603,14 +701,14 @@ namespace ShowCraftable
                                     {
                                         if (myScanId != _pendingScanId) return;
                                         if (!DialogIsOpen(__instance) || !CraftableTabActive) return;
-                                        RequestServerScan(capi, NearbyRadius, includeCrates: true);
+                                        RequestScan(capi, NearbyRadius, includeCrates: true);
                                     }, "CraftableScanKickoff2");
                                 });
                             }
                             return;
                         }
 
-                        RequestServerScan(capi, NearbyRadius, includeCrates: true);
+                        RequestScan(capi, NearbyRadius, includeCrates: true);
                     }, "CraftableScanKickoff");
                 }
             }
