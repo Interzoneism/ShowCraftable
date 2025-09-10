@@ -597,7 +597,12 @@ namespace ShowCraftable
                             var shown = AccessTools.Field(__instance.GetType(), "shownHandbookPages")?.GetValue(__instance) as System.Collections.IList;
                             shown?.Clear();
                         }
-                        SetUpdatingText(capi, true);
+                        // Adding or modifying GUI elements during tab selection can
+                        // trigger an InvalidOperationException because the element
+                        // collection is being iterated for event propagation. Defer
+                        // the update to the main thread to avoid modifying the
+                        // collection while it is in use.
+                        capi.Event.EnqueueMainThreadTask(() => SetUpdatingText(capi, true), "SCUpdatingText");
                     }
                     catch { }
 
