@@ -1607,7 +1607,7 @@ namespace ShowCraftable
             var temp = ClonePool(pool);
             foreach (var ing in shim.Ingredients)
             {
-                if (ing == null || ing.IsTool) continue;
+                if (ing == null) continue;
                 if (ing.IsWild)
                 {
                     if (!temp.TryConsumeWildcard(ing.Type, ing.PatternCode, ing.Allowed, Math.Max(1, ing.QuantityRequired), true))
