@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Diagnostics;
 using System.Threading;
+using System.Text;
 using Vintagestory.API.Client;
 using Vintagestory.API.Server;
 using Vintagestory.API.Common;
@@ -33,6 +34,7 @@ namespace ShowCraftable
 
         private static readonly object CacheLock = new();
         private static List<string> CachedPageCodes = new();
+        private static readonly Dictionary<string, List<string>> ScanResultsCache = new();
 
         private static bool ScanInProgress = false;
 
@@ -410,12 +412,16 @@ namespace ShowCraftable
 
             capi.Event.LevelFinalize += () =>
             {
-                lock (CacheLock) CachedPageCodes.Clear();
+                lock (CacheLock)
+                {
+                    CachedPageCodes.Clear();
+                    ScanResultsCache.Clear();
+                }
                 codeToRecipeGroups.Clear();
                 recipeGroupNeeds.Clear();
                 wildcardGroups.Clear();
                 wildMatchCache.Clear();
-                recipeIndexBuilt = false; 
+                recipeIndexBuilt = false;
                 LogEverywhere(capi, "[Craftable] LevelFinalize: cache cleared");
             };
         }
@@ -835,6 +841,18 @@ namespace ShowCraftable
                     if (eff == EnumItemClass.Item && stack.Block != null) eff = EnumItemClass.Block;
                     Classes[k] = eff;
                 }
+            }
+
+            public string GetSignature()
+            {
+                var sb = new StringBuilder();
+                foreach (var kv in Counts.OrderBy(k => k.Key.Code))
+                {
+                    var cls = Classes.TryGetValue(kv.Key, out var c) ? c : 0;
+                    sb.Append(kv.Key.Code).Append(':').Append(kv.Value)
+                      .Append(':').Append((int)cls).Append('|');
+                }
+                return sb.ToString();
             }
 
 
@@ -1417,9 +1435,29 @@ namespace ShowCraftable
                     if (st != null) pool.Add(st);
                 }
 
+                string sig = pool.GetSignature();
+                List<string> cached;
+                bool reused = false;
+                lock (CacheLock)
+                {
+                    if (ScanResultsCache.TryGetValue(sig, out cached))
+                    {
+                        CachedPageCodes = cached.ToList();
+                        reused = true;
+                    }
+                }
 
-                int pages = RebuildCacheWithPool(_capi, pool, out int outputs, out int fetched, out int usable);
-                LogEverywhere(_capi, $"[Craftable] Server nearby scan merged: outputs={outputs}, pages={pages}, fetched={fetched}, usable={usable}", toChat: true);
+                if (reused)
+                {
+                    LogEverywhere(_capi, $"[Craftable] Server nearby scan reused cache: pages={CachedPageCodes.Count}", toChat: true);
+                }
+                else
+                {
+                    int pages = RebuildCacheWithPool(_capi, pool, out int outputs, out int fetched, out int usable);
+                    LogEverywhere(_capi, $"[Craftable] Server nearby scan merged: outputs={outputs}, pages={pages}, fetched={fetched}, usable={usable}", toChat: true);
+                    lock (CacheLock) ScanResultsCache[sig] = CachedPageCodes.ToList();
+                }
+
                 TryRefreshOpenDialog(_capi);
             }
             catch (Exception e)
