@@ -1890,8 +1890,14 @@ namespace ShowCraftable
             foreach (var key in craftableKeys)
             {
                 string pageCode = null;
+                bool found;
 
-                if (key2page.TryGetValue(key, out pageCode))
+                lock (PageCodeMapLock)
+                {
+                    found = key2page.TryGetValue(key, out pageCode);
+                }
+
+                if (found)
                 {
                     resultPageCodes.Add(pageCode);
                     fromMap++;
