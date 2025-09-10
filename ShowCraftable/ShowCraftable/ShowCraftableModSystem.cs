@@ -1677,15 +1677,22 @@ namespace ShowCraftable
                     if (st?.Collectible == null) continue;
                     object page = ctor.Invoke(new object[] { capi, st });
                     var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
+                    var pKey = KeyFor(pStack);
                     var recipes = CollectGridRecipesForStack(capi, pStack);
                     foreach (var r in recipes)
                     {
-                        if (RecipeSatisfiedByPool(capi, pool, r))
-                        {
-                            var pc = miPageCode.Invoke(null, new object[] { pStack }) as string;
-                            if (!string.IsNullOrEmpty(pc)) dest.Add(pc);
-                            break;
-                        }
+                        if (!RecipeSatisfiedByPool(capi, pool, r)) continue;
+
+                        var shim = TryBuildGridShim(r, capi);
+                        if (shim == null) continue;
+
+                        var outputs = new HashSet<StackKey>();
+                        ExpandOutputsForRecipe(capi, pool, shim, outputs, recipeGroupNeeds);
+                        if (!outputs.Contains(pKey)) continue;
+
+                        var pc = miPageCode.Invoke(null, new object[] { pStack }) as string;
+                        if (!string.IsNullOrEmpty(pc)) dest.Add(pc);
+                        break;
                     }
                 }
             }
