@@ -37,6 +37,10 @@ namespace ShowCraftable
         private static List<string> CachedPageCodes = new();
         private static readonly Dictionary<string, List<string>> ScanResultsCache = new();
 
+        private static readonly object PageCodeMapLock = new();
+        private static Dictionary<StackKey, string> AllStacksPageCodeMap = new();
+        private static ItemStack[] AllStacksPageCodeMapSource;
+
         private static bool ScanInProgress = false;
         private static int LastDialogPageCount;
 
@@ -461,9 +465,12 @@ namespace ShowCraftable
                 wildcardGroups.Clear();
                 wildMatchCache.Clear();
                 recipeIndexBuilt = false;
+                InvalidatePageCodeMapCache();
                 LogEverywhere(capi, "[Craftable] LevelFinalize: cache reset");
                 StartRecipeIndexBuild(capi);
             };
+
+            capi.Event.LeaveWorld += InvalidatePageCodeMapCache;
         }
 
         public override void Dispose() => _harmony?.UnpatchAll(HarmonyId);
@@ -864,6 +871,39 @@ namespace ShowCraftable
             return map;
         }
 
+        private static Dictionary<StackKey, string> GetCachedPageCodeMap(ICoreClientAPI capi)
+        {
+            try
+            {
+                var msType = AccessTools.TypeByName("Vintagestory.GameContent.ModSystemSurvivalHandbook");
+                var ms = msType != null ? GetModSystemByType(capi, msType) : null;
+                var fiAllStacks = AccessTools.Field(msType, "allstacks");
+                var arr = fiAllStacks?.GetValue(ms) as ItemStack[];
+                lock (PageCodeMapLock)
+                {
+                    if (!ReferenceEquals(arr, AllStacksPageCodeMapSource) || AllStacksPageCodeMap.Count == 0)
+                    {
+                        AllStacksPageCodeMap = BuildPageCodeMapFromAllStacks(capi);
+                        AllStacksPageCodeMapSource = arr;
+                    }
+                    return AllStacksPageCodeMap;
+                }
+            }
+            catch
+            {
+                return AllStacksPageCodeMap;
+            }
+        }
+
+        private static void InvalidatePageCodeMapCache()
+        {
+            lock (PageCodeMapLock)
+            {
+                AllStacksPageCodeMap.Clear();
+                AllStacksPageCodeMapSource = null;
+            }
+        }
+
 
         private static ItemStack MakeStackFromCode(ICoreClientAPI capi, string code)
         {
@@ -1207,6 +1247,7 @@ namespace ShowCraftable
                     SaveRecipeIndex(capi);
                 }
                 recipeIndexBuilt = true;
+                GetCachedPageCodeMap(capi);
             });
         }
         private static void BuildRecipeIndex(ICoreClientAPI capi)
@@ -1827,7 +1868,7 @@ namespace ShowCraftable
 
             craftableOutputsCount = craftableKeys.Count;
 
-            var key2page = BuildPageCodeMapFromAllStacks(capi);
+            var key2page = GetCachedPageCodeMap(capi);
             var resultPageCodes = new HashSet<string>(StringComparer.Ordinal);
             var ghType = AccessTools.TypeByName("Vintagestory.GameContent.GuiHandbookItemStackPage");
             var miPageCodeForStack = ghType?.GetMethod("PageCodeForStack", BindingFlags.Public | BindingFlags.Static);
@@ -1865,7 +1906,10 @@ namespace ShowCraftable
                         {
                             attrFallbacks++;
                             resultPageCodes.Add(pageCode);
-                            key2page[key] = pageCode;
+                            lock (PageCodeMapLock)
+                            {
+                                key2page[key] = pageCode;
+                            }
                         }
                     }
 
@@ -1879,7 +1923,10 @@ namespace ShowCraftable
                             {
                                 codeOnlyFallbacks++;
                                 resultPageCodes.Add(pageCode);
-                                key2page[key] = pageCode;
+                                lock (PageCodeMapLock)
+                                {
+                                    key2page[key] = pageCode;
+                                }
                             }
                             else
                             {
@@ -1895,7 +1942,10 @@ namespace ShowCraftable
                                         {
                                             hbStackFallbacks++;
                                             resultPageCodes.Add(pageCode);
-                                            key2page[key] = pageCode;
+                                            lock (PageCodeMapLock)
+                                            {
+                                                key2page[key] = pageCode;
+                                            }
                                             break;
                                         }
                                     }
