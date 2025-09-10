@@ -291,6 +291,12 @@ namespace ShowCraftable
                         }
                     }
                 }
+                else if (wild != null && needsMaterialExpansion)
+                {
+                    // No matching tokens found in the current resource pool.
+                    // Avoid adding outputs for unrelated material variants.
+                    continue;
+                }
                 else
                 {
                     dest.Add(new StackKey(ocode, outMat ?? "", outType ?? ""));
