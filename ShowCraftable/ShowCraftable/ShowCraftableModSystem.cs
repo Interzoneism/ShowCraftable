@@ -243,6 +243,15 @@ namespace ShowCraftable
                 }
                 catch { /* ignore */ }
             }
+
+            try
+            {
+                var tokens = string.Join(",", res.Select(kv => kv.Key + ":" + kv.Value));
+                var allowStr = allowed == null ? "(null)" : string.Join("|", allowed);
+                LogEverywhere(_staticCapi, $"[WildcardTokenCounts] pattern={pattern} allowed={allowStr} tokens={tokens}");
+            }
+            catch { }
+
             return res;
         }
 
@@ -269,6 +278,14 @@ namespace ShowCraftable
             Dictionary<string, int> tokenCounts = null;
             if (wild != null) tokenCounts = GetWildcardTokenCounts(pool, wild.PatternCode, allowed);
 
+            try
+            {
+                var outs = string.Join(",", recipe.Outputs.Select(o => o?.Collectible?.Code?.ToString()));
+                var tokens = tokenCounts == null ? "(null)" : string.Join(",", tokenCounts.Select(kv => kv.Key + ":" + kv.Value));
+                LogEverywhere(_staticCapi, $"[ExpandOutputs] outputs={outs} wildPattern={wild?.PatternCode} neededFromWild={neededFromWild} tokens={tokens}");
+            }
+            catch { }
+
             foreach (var os in recipe.Outputs)
             {
                 var ocode = os?.Collectible?.Code?.ToString();
@@ -288,12 +305,22 @@ namespace ShowCraftable
                         if (neededFromWild <= 0 || have >= neededFromWild)
                         {
                             dest.Add(new StackKey(ocode, token, outType ?? ""));
+                            try
+                            {
+                                LogEverywhere(_staticCapi, $"[ExpandOutputs] add code={ocode} token={token} type={outType}");
+                            }
+                            catch { }
                         }
                     }
                 }
                 else
                 {
                     dest.Add(new StackKey(ocode, outMat ?? "", outType ?? ""));
+                    try
+                    {
+                        LogEverywhere(_staticCapi, $"[ExpandOutputs] add code={ocode} material={outMat} type={outType}");
+                    }
+                    catch { }
                 }
             }
         }
@@ -951,6 +978,12 @@ namespace ShowCraftable
                     if (eff == EnumItemClass.Item && stack.Block != null) eff = EnumItemClass.Block;
                     Classes[k] = eff;
                 }
+
+                try
+                {
+                    LogEverywhere(_staticCapi, $"[Pool.Add] code={k.Code} qty={addQty} class={Classes[k]}");
+                }
+                catch { }
             }
 
             public string GetSignature()
@@ -1611,14 +1644,32 @@ namespace ShowCraftable
                 if (ing.IsWild)
                 {
                     if (!temp.TryConsumeWildcard(ing.Type, ing.PatternCode, ing.Allowed, Math.Max(1, ing.QuantityRequired), true))
+                    {
+                        try { LogEverywhere(_staticCapi, $"[RecipeSat] fail wild pattern={ing.PatternCode}"); } catch { }
                         return false;
+                    }
                 }
                 else
                 {
                     if (!temp.TryConsumeAny(ing.Options, Math.Max(1, ing.QuantityRequired), true))
+                    {
+                        try
+                        {
+                            var codes = string.Join(",", ing.Options.Select(o => o?.Collectible?.Code?.ToString()));
+                            LogEverywhere(_staticCapi, $"[RecipeSat] fail options={codes}");
+                        }
+                        catch { }
                         return false;
+                    }
                 }
             }
+
+            try
+            {
+                var outs = string.Join(",", shim.Outputs.Select(o => o?.Collectible?.Code?.ToString()));
+                LogEverywhere(_staticCapi, $"[RecipeSat] ok outputs={outs}");
+            }
+            catch { }
             return true;
         }
 
@@ -1691,7 +1742,15 @@ namespace ShowCraftable
                         if (!outputs.Contains(pKey)) continue;
 
                         var pc = miPageCode.Invoke(null, new object[] { pStack }) as string;
-                        if (!string.IsNullOrEmpty(pc)) dest.Add(pc);
+                        if (!string.IsNullOrEmpty(pc))
+                        {
+                            dest.Add(pc);
+                            try
+                            {
+                                LogEverywhere(_staticCapi, $"[AllStacks] added page={pc} for code={pStack.Collectible.Code} material={GetAttrStringSafe(pStack, \"material\")}");
+                            }
+                            catch { }
+                        }
                         break;
                     }
                 }
@@ -1784,6 +1843,13 @@ namespace ShowCraftable
         {
             craftableOutputsCount = 0; fetched = recipesFetched; usable = recipesUsable;
 
+            try
+            {
+                var poolSig = string.Join(",", pool.Counts.Select(kv => kv.Key.Code + ":" + kv.Value));
+                LogEverywhere(_staticCapi, $"[Rebuild] pool={poolSig}");
+            }
+            catch { }
+
             var remaining = recipeGroupNeeds.ToDictionary(
                 kv => kv.Key,
                 kv => kv.Value.ToDictionary(g => g.Key, g => g.Value, StringComparer.Ordinal)
@@ -1802,6 +1868,11 @@ namespace ShowCraftable
                     int take = Math.Min(need, have);
                     if (take <= 0) continue;
                     groups[groupKey] = need - take;
+                    try
+                    {
+                        LogEverywhere(_staticCapi, $"[Rebuild] direct code={code} group={groupKey} need={need} take={take}");
+                    }
+                    catch { }
                 }
             }
 
@@ -1835,6 +1906,11 @@ namespace ShowCraftable
                             if (WildcardMatch(wg.Pattern, al, wg.Allowed))
                             {
                                 targets.Add((wg.Recipe, wg.GroupKey));
+                                try
+                                {
+                                    LogEverywhere(_staticCapi, $"[Rebuild] wildcard match code={codeStr} pattern={wg.Pattern} group={wg.GroupKey}");
+                                }
+                                catch { }
                             }
                         }
 
@@ -1859,6 +1935,11 @@ namespace ShowCraftable
                     int take = Math.Min(need, have);
                     if (take <= 0) continue;
                     groups[gkey] = need - take;
+                    try
+                    {
+                        LogEverywhere(_staticCapi, $"[Rebuild] wildcard consume code={codeStr} group={gkey} need={need} take={take}");
+                    }
+                    catch { }
                 }
             }
 
@@ -1874,6 +1955,15 @@ namespace ShowCraftable
             }
 
             craftableOutputsCount = craftableKeys.Count;
+
+            try
+            {
+                foreach (var key in craftableKeys)
+                {
+                    LogEverywhere(_staticCapi, $"[Rebuild] craftable code={key.Code} material={key.Material} type={key.Type}");
+                }
+            }
+            catch { }
 
             var key2page = GetCachedPageCodeMap(capi);
             var resultPageCodes = new HashSet<string>(StringComparer.Ordinal);
