@@ -274,12 +274,13 @@ namespace ShowCraftable
                 var ocode = os?.Collectible?.Code?.ToString();
                 if (string.IsNullOrEmpty(ocode)) continue;
 
-                string outType = GetAttrStringSafe(os, "type");     
-                string outMat = GetAttrStringSafe(os, "material"); 
+                string outType = GetAttrStringSafe(os, "type");
+                string outMat = GetAttrStringSafe(os, "material");
 
                 bool needsMaterialExpansion = string.IsNullOrEmpty(outMat) || outMat.IndexOf('{') >= 0 || outMat.IndexOf('}') >= 0;
+                bool replaceInCode = !string.IsNullOrEmpty(outMat) && ocode.IndexOf(outMat, StringComparison.Ordinal) >= 0;
 
-                if (wild != null && tokenCounts != null && tokenCounts.Count > 0 && needsMaterialExpansion)
+                if (wild != null && tokenCounts != null && tokenCounts.Count > 0 && (needsMaterialExpansion || replaceInCode))
                 {
                     foreach (var kv in tokenCounts)
                     {
@@ -287,7 +288,8 @@ namespace ShowCraftable
                         int have = kv.Value;
                         if (neededFromWild <= 0 || have >= neededFromWild)
                         {
-                            dest.Add(new StackKey(ocode, token, outType ?? ""));
+                            string code = replaceInCode ? ocode.Replace(outMat, token) : ocode;
+                            dest.Add(new StackKey(code, token, outType ?? ""));
                         }
                     }
                 }
