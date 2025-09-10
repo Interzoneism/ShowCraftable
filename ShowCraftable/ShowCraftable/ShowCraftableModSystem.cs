@@ -564,7 +564,7 @@ namespace ShowCraftable
                 var capi = fiCapi?.GetValue(__instance) as ICoreClientAPI;
 
                 var fiOverview = AccessTools.Field(__instance.GetType(), "overviewGui");
-                var composer = fiOverview?.GetValue(__instance);
+                var composer = fiOverview?.GetValue(__instance) as GuiComposer;
 
                 var piSingle =
                     AccessTools.Property(__instance.GetType(), "SingleComposer")
@@ -583,12 +583,20 @@ namespace ShowCraftable
 
                 AccessTools.Field(__instance.GetType(), "currentSearchText")?.SetValue(__instance, null);
                 AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
-
-                if (capi != null)
+                if (capi != null && composer != null)
                 {
+                    try
+                    {
+                        var stacklist = composer.GetFlatList("stacklist");
+                        stacklist?.Elements.Clear();
+                        stacklist?.CalcTotalHeight();
+                        var shown = AccessTools.Field(__instance.GetType(), "shownHandbookPages")?.GetValue(__instance) as System.Collections.IList;
+                        shown?.Clear();
+                        SetUpdatingText(capi, true);
+                    }
+                    catch { }
 
                     var myScanId = ++_pendingScanId;
-
 
                     capi.Event.EnqueueMainThreadTask(() =>
                     {
@@ -620,6 +628,44 @@ namespace ShowCraftable
                 }
             }
             catch (Exception) { }
+        }
+
+        private static void SetUpdatingText(ICoreClientAPI capi, bool show)
+        {
+            try
+            {
+                var msType = AccessTools.TypeByName("Vintagestory.GameContent.ModSystemSurvivalHandbook");
+                var ms = msType != null ? GetModSystemByType(capi, msType) : null;
+                var dlg = msType != null ? AccessTools.Field(msType, "dialog")?.GetValue(ms) : null;
+                var composer = dlg != null
+                    ? AccessTools.Field(dlg.GetType(), "overviewGui")?.GetValue(dlg) as GuiComposer
+                    : null;
+                if (composer == null) return;
+
+                var dt = composer.GetDynamicText("scUpdating");
+                if (show)
+                {
+                    if (dt == null)
+                    {
+                        var search = composer.GetTextInput("searchField");
+                        if (search == null) return;
+                        var sb = search.Bounds;
+                        var tb = ElementBounds.Fixed(0, sb.fixedY, 120, sb.fixedHeight);
+                        tb.ParentBounds = sb.ParentBounds;
+                        tb.FixedRightOf(sb, 10);
+                        composer.AddDynamicText("Updating...", CairoFont.WhiteSmallishText(), tb, "scUpdating").Compose();
+                    }
+                    else
+                    {
+                        dt.SetNewText("Updating...");
+                    }
+                }
+                else
+                {
+                    dt?.SetNewText("");
+                }
+            }
+            catch { }
         }
 
         public static void AfterPagesLoaded_Postfix(object __instance)
@@ -1686,6 +1732,7 @@ namespace ShowCraftable
                     {
                         LogEverywhere(_capi, $"[Craftable] Server nearby scan reused cache: pages={CachedPageCodes.Count}", toChat: true);
                         TryRefreshOpenDialog(_capi);
+                        SetUpdatingText(_capi, false);
                     }, null);
 
                     ScanInProgress = false;
@@ -1709,6 +1756,7 @@ namespace ShowCraftable
                     {
                         ScanInProgress = false;
                         HandbookPauseGuard.Release(_capi);
+                        _capi.Event.EnqueueMainThreadTask(() => SetUpdatingText(_capi, false), null);
                     }
                 });
             }
@@ -1717,6 +1765,7 @@ namespace ShowCraftable
                 LogEverywhere(_capi, $"[Craftable] OnServerScanReply error: {e}", toChat: true);
                 ScanInProgress = false;
                 HandbookPauseGuard.Release(_capi);
+                _capi.Event.EnqueueMainThreadTask(() => SetUpdatingText(_capi, false), null);
             }
         }
 
