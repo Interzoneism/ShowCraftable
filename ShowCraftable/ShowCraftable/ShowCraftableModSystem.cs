@@ -681,6 +681,13 @@ namespace ShowCraftable
                 List<string> codesSnapshot;
                 lock (CacheLock) codesSnapshot = CachedPageCodes.ToList();
 
+                codesSnapshot.Sort((a, b) =>
+                {
+                    int ai = pageMap.TryGetValue(a, out var aidx) ? aidx : int.MaxValue;
+                    int bi = pageMap.TryGetValue(b, out var bidx) ? bidx : int.MaxValue;
+                    return ai == bi ? string.CompareOrdinal(a, b) : ai.CompareTo(bi);
+                });
+
                 var resolvedPages = new List<object>();
                 int missing = 0;
                 foreach (var code in codesSnapshot)
@@ -1657,6 +1664,7 @@ namespace ShowCraftable
             return list;
         }
 
+        // Retained for reference; no longer used in the rebuild path
         private static void AddCraftablePagesFromAllStacks(ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest)
         {
             try
@@ -1965,7 +1973,6 @@ namespace ShowCraftable
                 if (processed % chunkSize == 0) Flush();
             }
 
-            AddCraftablePagesFromAllStacks(capi, pool, resultPageCodes);
             craftableOutputsCount = resultPageCodes.Count;
             Flush();
 
