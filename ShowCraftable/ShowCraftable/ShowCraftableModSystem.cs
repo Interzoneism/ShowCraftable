@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Text;
 using Vintagestory.API.Client;
 using Vintagestory.API.Server;
@@ -37,6 +38,7 @@ namespace ShowCraftable
         private static readonly Dictionary<string, List<string>> ScanResultsCache = new();
 
         private static bool ScanInProgress = false;
+        private static int LastDialogPageCount;
 
         private static Dictionary<string, List<(GridRecipeShim Recipe, string GroupKey)>> codeToRecipeGroups = new();
         private static Dictionary<GridRecipeShim, Dictionary<string, int>> recipeGroupNeeds = new();
@@ -722,12 +724,30 @@ namespace ShowCraftable
             {
                 var msType = AccessTools.TypeByName("Vintagestory.GameContent.ModSystemSurvivalHandbook");
                 var ms = msType != null ? GetModSystemByType(capi, msType) : null;
-                if (ms == null) return;
+                if (ms == null)
+                {
+                    LastDialogPageCount = 0;
+                    return;
+                }
                 var fiDialog = AccessTools.Field(msType, "dialog");
                 var dlg = fiDialog?.GetValue(ms);
-                if (dlg == null) return;
+                if (dlg == null)
+                {
+                    LastDialogPageCount = 0;
+                    return;
+                }
                 var cur = AccessTools.Field(dlg.GetType(), "currentCatgoryCode")?.GetValue(dlg) as string;
-                if (!string.Equals(cur, CraftableCategoryCode, StringComparison.Ordinal)) return;
+                if (!string.Equals(cur, CraftableCategoryCode, StringComparison.Ordinal))
+                {
+                    LastDialogPageCount = 0;
+                    return;
+                }
+
+                int count;
+                lock (CacheLock) count = CachedPageCodes.Count;
+                if (count == LastDialogPageCount) return;
+                LastDialogPageCount = count;
+
                 AccessTools.Method(dlg.GetType(), "FilterItems")?.Invoke(dlg, null);
             }
             catch { }
@@ -1411,7 +1431,6 @@ namespace ShowCraftable
         {
             try
             {
-
                 var pool = new ResourcePool();
 
                 for (int i = 0; i < data.Codes.Count; i++)
@@ -1449,23 +1468,39 @@ namespace ShowCraftable
 
                 if (reused)
                 {
-                    LogEverywhere(_capi, $"[Craftable] Server nearby scan reused cache: pages={CachedPageCodes.Count}", toChat: true);
-                }
-                else
-                {
-                    int pages = RebuildCacheWithPool(_capi, pool, out int outputs, out int fetched, out int usable);
-                    LogEverywhere(_capi, $"[Craftable] Server nearby scan merged: outputs={outputs}, pages={pages}, fetched={fetched}, usable={usable}", toChat: true);
-                    lock (CacheLock) ScanResultsCache[sig] = CachedPageCodes.ToList();
+                    _capi.Event.EnqueueMainThreadTask(() =>
+                    {
+                        LogEverywhere(_capi, $"[Craftable] Server nearby scan reused cache: pages={CachedPageCodes.Count}", toChat: true);
+                        TryRefreshOpenDialog(_capi);
+                    }, null);
+
+                    ScanInProgress = false;
+                    HandbookPauseGuard.Release(_capi);
+                    return;
                 }
 
-                TryRefreshOpenDialog(_capi);
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        int pages = RebuildCacheWithPool(_capi, pool, out int outputs, out int fetched, out int usable);
+                        lock (CacheLock) ScanResultsCache[sig] = CachedPageCodes.ToList();
+                        _capi.Event.EnqueueMainThreadTask(() => LogEverywhere(_capi, $"[Craftable] Server nearby scan merged: outputs={outputs}, pages={pages}, fetched={fetched}, usable={usable}", toChat: true), null);
+                    }
+                    catch (Exception e)
+                    {
+                        _capi.Event.EnqueueMainThreadTask(() => LogEverywhere(_capi, $"[Craftable] OnServerScanReply error: {e}", toChat: true), null);
+                    }
+                    finally
+                    {
+                        ScanInProgress = false;
+                        HandbookPauseGuard.Release(_capi);
+                    }
+                });
             }
             catch (Exception e)
             {
                 LogEverywhere(_capi, $"[Craftable] OnServerScanReply error: {e}", toChat: true);
-            }
-            finally
-            {
                 ScanInProgress = false;
                 HandbookPauseGuard.Release(_capi);
             }
@@ -1578,6 +1613,15 @@ namespace ShowCraftable
             int codeOnlyFallbacks = 0;
             int hbStackFallbacks = 0;
 
+            const int chunkSize = 64;
+            int processed = 0;
+
+            void Flush()
+            {
+                lock (CacheLock) CachedPageCodes = resultPageCodes.ToList();
+                capi.Event.EnqueueMainThreadTask(() => TryRefreshOpenDialog(capi), null);
+            }
+
             foreach (var key in craftableKeys)
             {
                 string pageCode = null;
@@ -1586,61 +1630,66 @@ namespace ShowCraftable
                 {
                     resultPageCodes.Add(pageCode);
                     fromMap++;
-                    continue;
                 }
-
-                if (miPageCodeForStack == null) continue;
-
-                var stack = MakeStackFromCodeAndAttrs(capi, key.Code, key.Material, key.Type);
-                if (stack != null)
+                else if (miPageCodeForStack != null)
                 {
-                    pageCode = miPageCodeForStack.Invoke(null, new object[] { stack }) as string;
-                    if (!string.IsNullOrEmpty(pageCode))
+                    var stack = MakeStackFromCodeAndAttrs(capi, key.Code, key.Material, key.Type);
+                    if (stack != null)
                     {
-                        attrFallbacks++;
-                        resultPageCodes.Add(pageCode);
-                        key2page[key] = pageCode;
-                        continue;
-                    }
-                }
-
-                var codeOnlyStack = MakeStackFromCode(capi, key.Code);
-                if (codeOnlyStack != null)
-                {
-                    pageCode = miPageCodeForStack.Invoke(null, new object[] { codeOnlyStack }) as string;
-                    if (!string.IsNullOrEmpty(pageCode))
-                    {
-                        codeOnlyFallbacks++;
-                        resultPageCodes.Add(pageCode);
-                        key2page[key] = pageCode;
-                        continue;
-                    }
-
-                    var hbStacks = codeOnlyStack.Collectible?.GetHandBookStacks(capi);
-                    if (hbStacks != null)
-                    {
-                        foreach (var cs in hbStacks)
+                        pageCode = miPageCodeForStack.Invoke(null, new object[] { stack }) as string;
+                        if (!string.IsNullOrEmpty(pageCode))
                         {
-                            if (cs?.Collectible?.Code == null) continue;
-                            if (!cs.Collectible.Code.ToString().StartsWith(key.Code)) continue;
-                            pageCode = miPageCodeForStack.Invoke(null, new object[] { cs }) as string;
+                            attrFallbacks++;
+                            resultPageCodes.Add(pageCode);
+                            key2page[key] = pageCode;
+                        }
+                    }
+
+                    if (pageCode == null)
+                    {
+                        var codeOnlyStack = MakeStackFromCode(capi, key.Code);
+                        if (codeOnlyStack != null)
+                        {
+                            pageCode = miPageCodeForStack.Invoke(null, new object[] { codeOnlyStack }) as string;
                             if (!string.IsNullOrEmpty(pageCode))
                             {
-                                hbStackFallbacks++;
+                                codeOnlyFallbacks++;
                                 resultPageCodes.Add(pageCode);
                                 key2page[key] = pageCode;
-                                break;
+                            }
+                            else
+                            {
+                                var hbStacks = codeOnlyStack.Collectible?.GetHandBookStacks(capi);
+                                if (hbStacks != null)
+                                {
+                                    foreach (var cs in hbStacks)
+                                    {
+                                        if (cs?.Collectible?.Code == null) continue;
+                                        if (!cs.Collectible.Code.ToString().StartsWith(key.Code)) continue;
+                                        pageCode = miPageCodeForStack.Invoke(null, new object[] { cs }) as string;
+                                        if (!string.IsNullOrEmpty(pageCode))
+                                        {
+                                            hbStackFallbacks++;
+                                            resultPageCodes.Add(pageCode);
+                                            key2page[key] = pageCode;
+                                            break;
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
+
+                processed++;
+                if (processed % chunkSize == 0) Flush();
             }
 
             AddCraftablePagesFromAllStacks(capi, pool, resultPageCodes);
             craftableOutputsCount = resultPageCodes.Count;
+            Flush();
 
-            lock (CacheLock) CachedPageCodes = resultPageCodes.ToList();
-            LogEverywhere(capi, $"[Craftable] craftable outputs={craftableOutputsCount}, pagesFromMap={fromMap}, attrFallbacks={attrFallbacks}, codeOnlyFallbacks={codeOnlyFallbacks}, hbFallbacks={hbStackFallbacks}", toChat: false);
+            capi.Event.EnqueueMainThreadTask(() => LogEverywhere(capi, $"[Craftable] craftable outputs={craftableOutputsCount}, pagesFromMap={fromMap}, attrFallbacks={attrFallbacks}, codeOnlyFallbacks={codeOnlyFallbacks}, hbFallbacks={hbStackFallbacks}", toChat: false), null);
             return resultPageCodes.Count;
         }
 
