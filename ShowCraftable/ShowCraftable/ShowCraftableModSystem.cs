@@ -582,14 +582,13 @@ namespace ShowCraftable
                 searchInput?.GetType().GetMethod("SetValue")?.Invoke(searchInput, new object[] { "", true });
 
                 AccessTools.Field(__instance.GetType(), "currentSearchText")?.SetValue(__instance, null);
-                AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
+
                 if (capi != null && composer != null)
                 {
-                    try
+                    // Clear the current list and repopulate from cache on the main thread
+                    capi.Event.EnqueueMainThreadTask(() =>
                     {
-                        bool haveCache;
-                        lock (CacheLock) haveCache = CachedPageCodes.Count > 0;
-                        if (!haveCache)
+                        try
                         {
                             var stacklist = composer.GetFlatList("stacklist");
                             stacklist?.Elements.Clear();
@@ -597,6 +596,13 @@ namespace ShowCraftable
                             var shown = AccessTools.Field(__instance.GetType(), "shownHandbookPages")?.GetValue(__instance) as System.Collections.IList;
                             shown?.Clear();
                         }
+                        catch { }
+
+                        AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
+                    }, "SCClearCraftableList");
+
+                    try
+                    {
                         // Adding or modifying GUI elements during tab selection can
                         // trigger an InvalidOperationException because the element
                         // collection is being iterated for event propagation. Defer
@@ -635,6 +641,20 @@ namespace ShowCraftable
 
                         RequestServerScan(capi, NearbyRadius, includeCrates: true);
                     }, "CraftableScanKickoff");
+                }
+                else
+                {
+                    try
+                    {
+                        var stacklist = composer?.GetFlatList("stacklist");
+                        stacklist?.Elements.Clear();
+                        stacklist?.CalcTotalHeight();
+                        var shown = AccessTools.Field(__instance.GetType(), "shownHandbookPages")?.GetValue(__instance) as System.Collections.IList;
+                        shown?.Clear();
+                    }
+                    catch { }
+
+                    AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
                 }
             }
             catch (Exception) { }
