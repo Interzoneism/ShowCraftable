@@ -587,11 +587,16 @@ namespace ShowCraftable
                 {
                     try
                     {
-                        var stacklist = composer.GetFlatList("stacklist");
-                        stacklist?.Elements.Clear();
-                        stacklist?.CalcTotalHeight();
-                        var shown = AccessTools.Field(__instance.GetType(), "shownHandbookPages")?.GetValue(__instance) as System.Collections.IList;
-                        shown?.Clear();
+                        bool haveCache;
+                        lock (CacheLock) haveCache = CachedPageCodes.Count > 0;
+                        if (!haveCache)
+                        {
+                            var stacklist = composer.GetFlatList("stacklist");
+                            stacklist?.Elements.Clear();
+                            stacklist?.CalcTotalHeight();
+                            var shown = AccessTools.Field(__instance.GetType(), "shownHandbookPages")?.GetValue(__instance) as System.Collections.IList;
+                            shown?.Clear();
+                        }
                         SetUpdatingText(capi, true);
                     }
                     catch { }
@@ -653,7 +658,8 @@ namespace ShowCraftable
                         var tb = ElementBounds.Fixed(0, sb.fixedY, 120, sb.fixedHeight);
                         tb.ParentBounds = sb.ParentBounds;
                         tb.FixedRightOf(sb, 10);
-                        composer.AddDynamicText("Updating...", CairoFont.WhiteSmallishText(), tb, "scUpdating").Compose();
+                        dt = new GuiElementDynamicText(capi, "Updating...", CairoFont.WhiteSmallishText(), tb);
+                        composer.AddInteractiveElement(dt, "scUpdating");
                     }
                     else
                     {
