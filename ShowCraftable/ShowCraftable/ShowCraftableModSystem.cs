@@ -277,7 +277,12 @@ namespace ShowCraftable
                 string outType = GetAttrStringSafe(os, "type");     
                 string outMat = GetAttrStringSafe(os, "material"); 
 
-                bool needsMaterialExpansion = string.IsNullOrEmpty(outMat) || outMat.IndexOf('{') >= 0 || outMat.IndexOf('}') >= 0;
+                // Only treat outputs as needing material expansion when they explicitly
+                // reference a material token placeholder. Outputs with a null or empty
+                // material value are constant and should not be skipped if no wildcard
+                // materials are present in the resource pool.
+                bool needsMaterialExpansion = !string.IsNullOrEmpty(outMat) &&
+                                              (outMat.IndexOf('{') >= 0 || outMat.IndexOf('}') >= 0);
 
                 if (wild != null && tokenCounts != null && tokenCounts.Count > 0 && needsMaterialExpansion)
                 {
