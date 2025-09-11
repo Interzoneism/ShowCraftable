@@ -267,7 +267,18 @@ namespace ShowCraftable
             }
 
             Dictionary<string, int> tokenCounts = null;
-            if (wild != null) tokenCounts = GetWildcardTokenCounts(pool, wild.PatternCode, allowed);
+            if (wild != null)
+            {
+                tokenCounts = GetWildcardTokenCounts(pool, wild.PatternCode, allowed);
+                if (tokenCounts == null || tokenCounts.Count == 0)
+                {
+                    // No matching tokens in the player's inventory, so this recipe
+                    // cannot produce any of its wildcard-based variants. Avoid
+                    // adding a placeholder output which would later expand into
+                    // every allowed variant, e.g. crates for all wood types.
+                    return;
+                }
+            }
 
             foreach (var os in recipe.Outputs)
             {
