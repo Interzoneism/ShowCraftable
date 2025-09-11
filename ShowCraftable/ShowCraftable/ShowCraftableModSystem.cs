@@ -1310,6 +1310,7 @@ namespace ShowCraftable
         }
         private static void BuildRecipeIndex(ICoreClientAPI capi)
         {
+            var sw = Stopwatch.StartNew();
             codeToRecipeGroups.Clear();
             recipeGroupNeeds.Clear();
 
@@ -1399,6 +1400,11 @@ namespace ShowCraftable
                 recipeGroupNeeds[r] = groups;
                 recipeIndexBuildProgress++;
             }
+
+            sw.Stop();
+            long elapsedMs = sw.ElapsedMilliseconds;
+            capi.Event.EnqueueMainThreadTask(() =>
+                LogEverywhere(capi, $"[Craftable] BuildRecipeIndex took {elapsedMs}ms"), null);
         }
 
         private static IEnumerable<object> FetchGridRecipesMulti(ICoreClientAPI capi)
@@ -1856,6 +1862,7 @@ namespace ShowCraftable
         private static int RebuildCacheWithPool(ICoreClientAPI capi, ResourcePool pool,
      out int craftableOutputsCount, out int fetched, out int usable)
         {
+            var sw = Stopwatch.StartNew();
             craftableOutputsCount = 0; fetched = recipesFetched; usable = recipesUsable;
 
             var remaining = recipeGroupNeeds.ToDictionary(
@@ -2050,9 +2057,18 @@ namespace ShowCraftable
             craftableOutputsCount = resultPageCodes.Count;
             Flush();
 
+            var pagesList = resultPageCodes.ToList();
+            sw.Stop();
             int outputsCount = craftableOutputsCount;
-            capi.Event.EnqueueMainThreadTask(() => LogEverywhere(capi, $"[Craftable] craftable outputs={outputsCount}, pagesFromMap={fromMap}, attrFallbacks={attrFallbacks}, codeOnlyFallbacks={codeOnlyFallbacks}, hbFallbacks={hbStackFallbacks}", toChat: false), null);
-            return resultPageCodes.Count;
+            int totalPages = pagesList.Count;
+            long elapsedMs = sw.ElapsedMilliseconds;
+            capi.Event.EnqueueMainThreadTask(() =>
+            {
+                LogEverywhere(capi, $"[Craftable] craftable outputs={outputsCount}, pagesFromMap={fromMap}, attrFallbacks={attrFallbacks}, codeOnlyFallbacks={codeOnlyFallbacks}, hbFallbacks={hbStackFallbacks}", toChat: false);
+                LogEverywhere(capi, $"[Craftable] pages added to Craftable tab: [{string.Join(", ", pagesList)}] (total {totalPages})");
+                LogEverywhere(capi, $"[Craftable] RebuildCacheWithPool took {elapsedMs}ms");
+            }, null);
+            return totalPages;
         }
 
 
