@@ -1322,14 +1322,18 @@ namespace ShowCraftable
         }
         private static void BuildRecipeIndex(ICoreClientAPI capi)
         {
-            codeToRecipeGroups.Clear();
-            recipeGroupNeeds.Clear();
+            Stopwatch sw = null;
+            if (DebugEnabled) sw = Stopwatch.StartNew();
+            try
+            {
+                codeToRecipeGroups.Clear();
+                recipeGroupNeeds.Clear();
 
-            var recipes = GetAllGridRecipes(capi, out recipesFetched, out recipesUsable);
-            recipeIndexBuildTotal = recipes.Count;
-            recipeIndexBuildProgress = 0;
+                var recipes = GetAllGridRecipes(capi, out recipesFetched, out recipesUsable);
+                recipeIndexBuildTotal = recipes.Count;
+                recipeIndexBuildProgress = 0;
 
-            var wildCache = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+                var wildCache = new Dictionary<string, List<string>>(StringComparer.Ordinal);
 
             IEnumerable<string> GetWildMatches(GridIngredientShim ing)
             {
@@ -1410,6 +1414,14 @@ namespace ShowCraftable
 
                 recipeGroupNeeds[r] = groups;
                 recipeIndexBuildProgress++;
+            }
+        }
+        finally
+        {
+            if (sw != null)
+            {
+                sw.Stop();
+                LogEverywhere(capi, $"[Craftable] BuildRecipeIndex {sw.ElapsedMilliseconds}ms");
             }
         }
 
@@ -1868,9 +1880,13 @@ namespace ShowCraftable
         private static int RebuildCacheWithPool(ICoreClientAPI capi, ResourcePool pool,
      out int craftableOutputsCount, out int fetched, out int usable)
         {
-            craftableOutputsCount = 0; fetched = recipesFetched; usable = recipesUsable;
+            Stopwatch sw = null;
+            if (DebugEnabled) sw = Stopwatch.StartNew();
+            try
+            {
+                craftableOutputsCount = 0; fetched = recipesFetched; usable = recipesUsable;
 
-            var remaining = recipeGroupNeeds.ToDictionary(
+                var remaining = recipeGroupNeeds.ToDictionary(
                 kv => kv.Key,
                 kv => kv.Value.ToDictionary(g => g.Key, g => g.Value, StringComparer.Ordinal)
             );
@@ -2066,7 +2082,14 @@ namespace ShowCraftable
             capi.Event.EnqueueMainThreadTask(() => LogEverywhere(capi, $"[Craftable] craftable outputs={outputsCount}, pagesFromMap={fromMap}, attrFallbacks={attrFallbacks}, codeOnlyFallbacks={codeOnlyFallbacks}, hbFallbacks={hbStackFallbacks}", toChat: false), null);
             return resultPageCodes.Count;
         }
-
+        finally
+        {
+            if (sw != null)
+            {
+                sw.Stop();
+                LogEverywhere(capi, $"[Craftable] RebuildCacheWithPool {sw.ElapsedMilliseconds}ms");
+            }
+        }
 
     }
 
