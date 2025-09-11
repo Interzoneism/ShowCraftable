@@ -841,6 +841,18 @@ namespace ShowCraftable
                 shown.Clear();
                 foreach (var p in finalPages) shown.Add(p);
 
+                if (DebugEnabled && capi != null)
+                {
+                    foreach (var p in finalPages)
+                    {
+                        if (p is GuiHandbookPage hp)
+                        {
+                            LogEverywhere(capi, $"[Craftable] Page: {hp.PageCode}");
+                        }
+                    }
+                    LogEverywhere(capi, $"[Craftable] Total pages: {finalPages.Count}");
+                }
+
 
                 double listHeight = 500d;
 
