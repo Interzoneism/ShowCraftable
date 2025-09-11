@@ -701,6 +701,7 @@ namespace ShowCraftable
                 if (composer == null) return;
 
                 var dt = composer.GetDynamicText("scUpdating");
+                bool needsRecompose = false;
                 if (show)
                 {
                     if (dt == null)
@@ -713,6 +714,7 @@ namespace ShowCraftable
                         tb.FixedRightOf(sb, 10);
                         dt = new GuiElementDynamicText(capi, "Updating...", CairoFont.WhiteSmallishText(), tb);
                         composer.AddInteractiveElement(dt, "scUpdating");
+                        needsRecompose = true;
                     }
                     else
                     {
@@ -724,7 +726,7 @@ namespace ShowCraftable
                     dt?.SetNewText("");
                 }
 
-                composer.ReCompose();
+                if (needsRecompose) composer.ReCompose();
             }
             catch { }
         }
