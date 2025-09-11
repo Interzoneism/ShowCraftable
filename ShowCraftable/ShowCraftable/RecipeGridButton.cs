@@ -79,8 +79,13 @@ public class RecipeGridButton : ButtonFetch
                     api.ShowChatMessage(line);
             }
 
+            bool guardAcquired = false;
+            bool requestSent = false;
             try
             {
+                ShowCraftableSystem.AcquireHandbookPauseGuard(api);
+                guardAcquired = true;
+
                 var reqVariants = BuildIngredientLists(variants);
                 if (reqVariants.Count > 0)
                 {
@@ -92,16 +97,27 @@ public class RecipeGridButton : ButtonFetch
                         Variants = reqVariants
                     };
 
-                    ShowCraftableSystem.AcquireHandbookPauseGuard(api);
                     api.Network.GetChannel(ShowCraftableSystem.ChannelName).SendPacket(req);
+                    requestSent = true;
                 }
             }
             catch (Exception e)
             {
-                ShowCraftableSystem.ReleaseHandbookPauseGuard(api);
+                if (guardAcquired)
+                {
+                    ShowCraftableSystem.ReleaseHandbookPauseGuard(api);
+                    guardAcquired = false;
+                }
                 if (ShowCraftableSystem.DebugEnabled)
                 {
                     api.ShowChatMessage("[ShowCraftable] Fetch request failed: " + e.Message);
+                }
+            }
+            finally
+            {
+                if (guardAcquired && !requestSent)
+                {
+                    ShowCraftableSystem.ReleaseHandbookPauseGuard(api);
                 }
             }
         }
