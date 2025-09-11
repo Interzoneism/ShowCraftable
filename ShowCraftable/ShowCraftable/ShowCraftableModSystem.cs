@@ -1424,6 +1424,7 @@ namespace ShowCraftable
                 LogEverywhere(capi, $"[Craftable] BuildRecipeIndex {sw.ElapsedMilliseconds}ms");
             }
         }
+        }
 
         private static IEnumerable<object> FetchGridRecipesMulti(ICoreClientAPI capi)
         {
@@ -2651,4 +2652,5 @@ namespace ShowCraftable
 
 
     }
+}
 }
