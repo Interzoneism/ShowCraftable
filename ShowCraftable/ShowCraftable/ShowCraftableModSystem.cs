@@ -1625,10 +1625,13 @@ namespace ShowCraftable
             return res;
         }
 
-        private static bool RecipeSatisfiedByPool(ICoreClientAPI capi, ResourcePool pool, GridRecipe recipe)
+        private static bool RecipeSatisfiedByPool(ICoreClientAPI capi, ResourcePool pool, GridRecipe recipe, ItemStack desired)
         {
             var shim = TryBuildGridShim(recipe, capi);
             if (shim == null) return false;
+
+            string target = desired == null ? null :
+                ((desired.Collectible?.Code?.ToString() ?? "") + " " + ((desired.Attributes as TreeAttribute)?.ToJsonToken() ?? ""));
 
             var temp = ClonePool(pool);
             foreach (var ing in shim.Ingredients)
@@ -1636,7 +1639,13 @@ namespace ShowCraftable
                 if (ing == null) continue;
                 if (ing.IsWild)
                 {
-                    if (!temp.TryConsumeWildcard(ing.Type, ing.PatternCode, ing.Allowed, Math.Max(1, ing.QuantityRequired), true))
+                    string[] allowed = ing.Allowed;
+                    if (target != null && allowed != null && allowed.Length > 0)
+                    {
+                        string match = allowed.FirstOrDefault(v => target.Contains(v));
+                        if (match != null) allowed = new[] { match };
+                    }
+                    if (!temp.TryConsumeWildcard(ing.Type, ing.PatternCode, allowed, Math.Max(1, ing.QuantityRequired), true))
                         return false;
                 }
                 else
@@ -1645,6 +1654,17 @@ namespace ShowCraftable
                         return false;
                 }
             }
+
+            if (desired != null)
+            {
+                bool match = false;
+                foreach (var st in shim.Outputs)
+                {
+                    if (st != null && st.Satisfies(desired) && desired.Satisfies(st)) { match = true; break; }
+                }
+                if (!match) return false;
+            }
+
             return true;
         }
 
@@ -1706,7 +1726,7 @@ namespace ShowCraftable
                     var recipes = CollectGridRecipesForStack(capi, pStack);
                     foreach (var r in recipes)
                     {
-                        if (RecipeSatisfiedByPool(capi, pool, r))
+                        if (RecipeSatisfiedByPool(capi, pool, r, pStack))
                         {
                             var pc = miPageCode.Invoke(null, new object[] { pStack }) as string;
                             if (!string.IsNullOrEmpty(pc)) dest.Add(pc);
