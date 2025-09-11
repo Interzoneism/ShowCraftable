@@ -723,6 +723,8 @@ namespace ShowCraftable
                 {
                     dt?.SetNewText("");
                 }
+
+                composer.ReCompose();
             }
             catch { }
         }
