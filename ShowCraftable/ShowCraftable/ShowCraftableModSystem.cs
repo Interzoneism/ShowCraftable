@@ -131,12 +131,18 @@ namespace ShowCraftable
             {
                 if (capi == null || !capi.IsSinglePlayer || capi.OpenedToLan) return;
 
-                if (Interlocked.Decrement(ref _refCount) == 0)
+                int newVal = Interlocked.Decrement(ref _refCount);
+                if (newVal < 0)
+                {
+                    Interlocked.Exchange(ref _refCount, 0);
+                    return;
+                }
+
+                if (newVal == 0)
                 {
                     try
                     {
                         capi.Settings.Bool["noHandbookPause"] = _savedNoHandbookPause;
-
 
                         if (IsHandbookOpen(capi) && !_savedNoHandbookPause)
                         {
@@ -358,9 +364,6 @@ namespace ShowCraftable
             if (ScanInProgress) return;
             ScanInProgress = true;
 
-
-            HandbookPauseGuard.Acquire(capi);
-
             try
             {
                 capi.Network.GetChannel(ChannelName).SendPacket(new CraftScanRequest
@@ -373,7 +376,6 @@ namespace ShowCraftable
             catch (Exception e)
             {
                 ScanInProgress = false;
-                HandbookPauseGuard.Release(capi);
                 LogEverywhere(capi, $"[Craftable] scan send failed: {e}", toChat: true);
             }
         }
