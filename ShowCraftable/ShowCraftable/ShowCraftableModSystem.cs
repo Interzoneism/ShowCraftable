@@ -985,28 +985,6 @@ namespace ShowCraftable
             return map;
         }
 
-        private static Dictionary<StackKey, ItemStack> BuildStackLookupFromAllStacks(ICoreClientAPI capi)
-        {
-            var dict = new Dictionary<StackKey, ItemStack>();
-            try
-            {
-                var msType = AccessTools.TypeByName("Vintagestory.GameContent.ModSystemSurvivalHandbook");
-                var ms = msType != null ? GetModSystemByType(capi, msType) : null;
-                var fiAllStacks = AccessTools.Field(msType, "allstacks");
-                var arr = fiAllStacks?.GetValue(ms) as ItemStack[];
-                if (arr == null || arr.Length == 0) return dict;
-
-                foreach (var st in arr)
-                {
-                    if (st?.Collectible?.Code == null) continue;
-                    var key = KeyFor(st);
-                    if (!dict.ContainsKey(key)) dict[key] = st;
-                }
-            }
-            catch { }
-            return dict;
-        }
-
         private static Dictionary<StackKey, string> GetCachedPageCodeMap(ICoreClientAPI capi)
         {
             try
@@ -1763,20 +1741,24 @@ namespace ShowCraftable
             return list;
         }
 
-        private static void AddCraftablePagesForKeys(ICoreClientAPI capi, ResourcePool pool,
-            IEnumerable<StackKey> keys, Dictionary<StackKey, ItemStack> lookup, HashSet<string> dest)
+        private static void AddCraftablePagesFromAllStacks(ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest)
         {
             try
             {
+                var msType = AccessTools.TypeByName("Vintagestory.GameContent.ModSystemSurvivalHandbook");
+                var ms = msType != null ? GetModSystemByType(capi, msType) : null;
+                var stacks = AccessTools.Field(msType, "allstacks")?.GetValue(ms) as ItemStack[];
+                if (stacks == null || stacks.Length == 0) return;
+
                 var ghType = AccessTools.TypeByName("Vintagestory.GameContent.GuiHandbookItemStackPage");
                 var ctor = ghType?.GetConstructor(new[] { typeof(ICoreClientAPI), typeof(ItemStack) });
                 var fiStack = AccessTools.Field(ghType, "Stack");
                 var miPageCode = ghType?.GetMethod("PageCodeForStack", BindingFlags.Public | BindingFlags.Static);
                 if (ctor == null || miPageCode == null) return;
 
-                foreach (var key in keys)
+                foreach (var st in stacks)
                 {
-                    if (!lookup.TryGetValue(key, out var st) || st?.Collectible == null) continue;
+                    if (st?.Collectible == null) continue;
                     object page = ctor.Invoke(new object[] { capi, st });
                     var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
                     var recipes = CollectGridRecipesForStack(capi, pStack);
@@ -1974,8 +1956,6 @@ namespace ShowCraftable
 
             craftableOutputsCount = craftableKeys.Count;
 
-            var stackLookup = BuildStackLookupFromAllStacks(capi);
-            var unresolved = new HashSet<StackKey>(craftableKeys);
             var key2page = GetCachedPageCodeMap(capi);
             var resultPageCodes = new HashSet<string>(StringComparer.Ordinal);
             var ghType = AccessTools.TypeByName("Vintagestory.GameContent.GuiHandbookItemStackPage");
@@ -2069,13 +2049,11 @@ namespace ShowCraftable
                     }
                 }
 
-                if (!string.IsNullOrEmpty(pageCode)) unresolved.Remove(key);
-
                 processed++;
                 if (processed % chunkSize == 0) Flush();
             }
 
-            AddCraftablePagesForKeys(capi, pool, unresolved, stackLookup, resultPageCodes);
+            AddCraftablePagesFromAllStacks(capi, pool, resultPageCodes);
             craftableOutputsCount = resultPageCodes.Count;
             Flush();
 
