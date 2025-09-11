@@ -179,35 +179,20 @@ namespace ShowCraftable
         internal static void AcquireHandbookPauseGuard(ICoreClientAPI capi) => HandbookPauseGuard.Acquire(capi);
         internal static void ReleaseHandbookPauseGuard(ICoreClientAPI capi) => HandbookPauseGuard.Release(capi);
 
-        private readonly record struct StackKey(string Code, string Material, string Type, string Extra);
+        private readonly record struct StackKey(string Code, string Material, string Type);
         private static string GetAttrStringSafe(ItemStack st, string key)
         {
             try { return st?.Attributes?.GetString(key, null); } catch { return null; }
-        }
-        private static string GetExtraAttrs(ItemStack st)
-        {
-            try
-            {
-                var tree = st?.Attributes as TreeAttribute;
-                if (tree == null || tree.Count == 0) return "";
-                var clone = tree.Clone() as TreeAttribute;
-                clone?.RemoveAttribute("material");
-                clone?.RemoveAttribute("type");
-                clone?.RemoveAttribute("lidState");
-                return clone != null && clone.Count > 0 ? clone.ToJsonToken() : "";
-            }
-            catch { return ""; }
         }
         private static StackKey KeyFor(ItemStack st)
         {
             var code = st?.Collectible?.Code?.ToString() ?? "";
             var material = GetAttrStringSafe(st, "material") ?? "";
             var type = GetAttrStringSafe(st, "type") ?? "";
-            var extra = GetExtraAttrs(st);
-            return new StackKey(code, material, type, extra);
+            return new StackKey(code, material, type);
         }
 
-        private static ItemStack MakeStackFromCodeAndAttrs(ICoreClientAPI capi, string code, string material, string type, string extra)
+        private static ItemStack MakeStackFromCodeAndAttrs(ICoreClientAPI capi, string code, string material, string type)
         {
             var st = MakeStackFromCode(capi, code);
             if (st == null) return null;
@@ -215,11 +200,6 @@ namespace ShowCraftable
             {
                 if (!string.IsNullOrEmpty(material)) st.Attributes.SetString("material", material);
                 if (!string.IsNullOrEmpty(type)) st.Attributes.SetString("type", type);
-                if (!string.IsNullOrEmpty(extra))
-                {
-                    var extraAttr = TreeAttribute.FromJson(extra) as ITreeAttribute;
-                    if (extraAttr != null) st.Attributes.MergeTree(extraAttr);
-                }
             }
             catch { /* best effort */ }
             return st;
@@ -296,7 +276,6 @@ namespace ShowCraftable
 
                 string outType = GetAttrStringSafe(os, "type");
                 string outMat = GetAttrStringSafe(os, "material");
-                string extra = GetExtraAttrs(os);
 
                 bool canExpand = wild != null && tokenCounts != null && tokenCounts.Count > 0;
 
@@ -309,25 +288,17 @@ namespace ShowCraftable
                         if (neededFromWild > 0 && have < neededFromWild) continue;
 
                         string finalCode = ocode;
-                        string finalExtra = extra;
-                        if (!string.IsNullOrEmpty(outMat))
+                        if (!string.IsNullOrEmpty(outMat) && finalCode.Contains(outMat))
                         {
-                            if (finalCode.Contains(outMat))
-                            {
-                                finalCode = finalCode.Replace(outMat, token);
-                            }
-                            if (!string.IsNullOrEmpty(finalExtra) && finalExtra.Contains(outMat))
-                            {
-                                finalExtra = finalExtra.Replace(outMat, token);
-                            }
+                            finalCode = finalCode.Replace(outMat, token);
                         }
 
-                        dest.Add(new StackKey(finalCode, token, outType ?? "", finalExtra));
+                        dest.Add(new StackKey(finalCode, token, outType ?? ""));
                     }
                 }
                 else
                 {
-                    dest.Add(new StackKey(ocode, outMat ?? "", outType ?? "", extra));
+                    dest.Add(new StackKey(ocode, outMat ?? "", outType ?? ""));
                 }
             }
         }
@@ -1006,7 +977,7 @@ namespace ShowCraftable
                     if (!map.ContainsKey(key)) map[key] = pc;
 
                     // Also add a forgiving code-only key (helps when attrs live on block variants)
-                    var codeOnly = new StackKey(key.Code, "", "", "");
+                    var codeOnly = new StackKey(key.Code, "", "");
                     if (!map.ContainsKey(codeOnly)) map[codeOnly] = pc;
                 }
             }
@@ -1678,6 +1649,132 @@ namespace ShowCraftable
             return pattern != null && code != null && pattern.Equals(code);
         }
 
+        private static ResourcePool ClonePool(ResourcePool pool)
+        {
+            var res = new ResourcePool();
+            foreach (var kv in pool.Counts)
+            {
+                res.Counts[new Key { Code = kv.Key.Code }] = kv.Value;
+            }
+            foreach (var kv in pool.Classes)
+            {
+                res.Classes[new Key { Code = kv.Key.Code }] = kv.Value;
+            }
+            return res;
+        }
+
+        private static bool RecipeSatisfiedByPool(ICoreClientAPI capi, ResourcePool pool, GridRecipe recipe, ItemStack desired)
+        {
+            var shim = TryBuildGridShim(recipe, capi);
+            if (shim == null) return false;
+
+            string target = desired == null ? null :
+                ((desired.Collectible?.Code?.ToString() ?? "") + " " + ((desired.Attributes as TreeAttribute)?.ToJsonToken() ?? ""));
+
+            var temp = ClonePool(pool);
+            foreach (var ing in shim.Ingredients)
+            {
+                if (ing == null) continue;
+                if (ing.IsWild)
+                {
+                    string[] allowed = ing.Allowed;
+                    if (target != null && allowed != null && allowed.Length > 0)
+                    {
+                        string match = allowed.FirstOrDefault(v => target.Contains(v));
+                        if (match != null) allowed = new[] { match };
+                    }
+                    if (!temp.TryConsumeWildcard(ing.Type, ing.PatternCode, allowed, Math.Max(1, ing.QuantityRequired), true))
+                        return false;
+                }
+                else
+                {
+                    if (!temp.TryConsumeAny(ing.Options, Math.Max(1, ing.QuantityRequired), true))
+                        return false;
+                }
+            }
+
+            if (desired != null)
+            {
+                bool match = false;
+                foreach (var st in shim.Outputs)
+                {
+                    if (st != null && st.Satisfies(desired) && desired.Satisfies(st)) { match = true; break; }
+                }
+                if (!match) return false;
+            }
+
+            return true;
+        }
+
+        private static List<GridRecipe> CollectGridRecipesForStack(ICoreClientAPI capi, ItemStack stack)
+        {
+            var list = new List<GridRecipe>();
+            try
+            {
+                foreach (var gr in capi.World.GridRecipes)
+                {
+                    if (!gr.ShowInCreatedBy) continue;
+                    var outStack = gr.Output?.ResolvedItemstack;
+                    if (outStack != null && outStack.Satisfies(stack))
+                    {
+                        list.Add(gr);
+                        continue;
+                    }
+                    var ingreds = gr.resolvedIngredients?.ToArray();
+                    if (ingreds == null) continue;
+                    foreach (var ing in ingreds)
+                    {
+                        var ret = ing?.ReturnedStack?.ResolvedItemstack;
+                        if (ret != null && ret.Satisfies(stack))
+                        {
+                            var resStack = ing.ResolvedItemstack;
+                            if (resStack != null && !resStack.Satisfies(stack))
+                            {
+                                list.Add(gr);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
+            return list;
+        }
+
+        private static void AddCraftablePagesFromAllStacks(ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest)
+        {
+            try
+            {
+                var msType = AccessTools.TypeByName("Vintagestory.GameContent.ModSystemSurvivalHandbook");
+                var ms = msType != null ? GetModSystemByType(capi, msType) : null;
+                var stacks = AccessTools.Field(msType, "allstacks")?.GetValue(ms) as ItemStack[];
+                if (stacks == null || stacks.Length == 0) return;
+
+                var ghType = AccessTools.TypeByName("Vintagestory.GameContent.GuiHandbookItemStackPage");
+                var ctor = ghType?.GetConstructor(new[] { typeof(ICoreClientAPI), typeof(ItemStack) });
+                var fiStack = AccessTools.Field(ghType, "Stack");
+                var miPageCode = ghType?.GetMethod("PageCodeForStack", BindingFlags.Public | BindingFlags.Static);
+                if (ctor == null || miPageCode == null) return;
+
+                foreach (var st in stacks)
+                {
+                    if (st?.Collectible == null) continue;
+                    object page = ctor.Invoke(new object[] { capi, st });
+                    var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
+                    var recipes = CollectGridRecipesForStack(capi, pStack);
+                    foreach (var r in recipes)
+                    {
+                        if (RecipeSatisfiedByPool(capi, pool, r, pStack))
+                        {
+                            var pc = miPageCode.Invoke(null, new object[] { pStack }) as string;
+                            if (!string.IsNullOrEmpty(pc)) dest.Add(pc);
+                            break;
+                        }
+                    }
+                }
+            }
+            catch { }
+        }
 
         private void OnServerScanReply(CraftScanReply data)
         {
@@ -1895,7 +1992,7 @@ namespace ShowCraftable
                 }
                 else if (miPageCodeForStack != null)
                 {
-                    var stack = MakeStackFromCodeAndAttrs(capi, key.Code, key.Material, key.Type, key.Extra);
+                    var stack = MakeStackFromCodeAndAttrs(capi, key.Code, key.Material, key.Type);
                     if (stack != null)
                     {
                         pageCode = miPageCodeForStack.Invoke(null, new object[] { stack }) as string;
@@ -1956,6 +2053,7 @@ namespace ShowCraftable
                 if (processed % chunkSize == 0) Flush();
             }
 
+            AddCraftablePagesFromAllStacks(capi, pool, resultPageCodes);
             craftableOutputsCount = resultPageCodes.Count;
             Flush();
 
