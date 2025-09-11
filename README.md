@@ -1,0 +1,1 @@
+Vintage Story mod that scans what items you have on your character and in every storage container within 12 blocks, figures out what grid recipes you can build, and builds a new tab in the handbook called "Craftable" populated by the recipes respective handbook pages. Also includes a button to fetch the ingredients from storage.
