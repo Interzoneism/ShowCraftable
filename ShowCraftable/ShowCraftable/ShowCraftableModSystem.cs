@@ -585,7 +585,7 @@ namespace ShowCraftable
 
                 if (capi != null && composer != null)
                 {
-                    // Clear the current list and repopulate from cache on the main thread
+                    // Clear the current list on the main thread and refresh the GUI to show an empty tab
                     capi.Event.EnqueueMainThreadTask(() =>
                     {
                         try
@@ -595,10 +595,21 @@ namespace ShowCraftable
                             stacklist?.CalcTotalHeight();
                             var shown = AccessTools.Field(__instance.GetType(), "shownHandbookPages")?.GetValue(__instance) as System.Collections.IList;
                             shown?.Clear();
+
+                            // Temporarily empty the cache so FilterItems renders an empty list
+                            List<string> snapshot;
+                            lock (CacheLock)
+                            {
+                                snapshot = CachedPageCodes.ToList();
+                                CachedPageCodes.Clear();
+                            }
+
+                            AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
+
+                            // Restore cache for later reuse
+                            lock (CacheLock) CachedPageCodes = snapshot;
                         }
                         catch { }
-
-                        AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
                     }, "SCClearCraftableList");
 
                     try
@@ -618,6 +629,14 @@ namespace ShowCraftable
                     {
                         if (myScanId != _pendingScanId) return;
                         if (!DialogIsOpen(__instance) || !CraftableTabActive) return;
+
+                        // After the empty state was shown, repopulate from cache if available
+                        bool haveCache;
+                        lock (CacheLock) haveCache = CachedPageCodes.Count > 0;
+                        if (haveCache)
+                        {
+                            AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
+                        }
 
                         if (!recipeIndexBuilt)
                         {
@@ -651,10 +670,19 @@ namespace ShowCraftable
                         stacklist?.CalcTotalHeight();
                         var shown = AccessTools.Field(__instance.GetType(), "shownHandbookPages")?.GetValue(__instance) as System.Collections.IList;
                         shown?.Clear();
+
+                        List<string> snapshot;
+                        lock (CacheLock)
+                        {
+                            snapshot = CachedPageCodes.ToList();
+                            CachedPageCodes.Clear();
+                        }
+
+                        AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
+
+                        lock (CacheLock) CachedPageCodes = snapshot;
                     }
                     catch { }
-
-                    AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
                 }
             }
             catch (Exception) { }
