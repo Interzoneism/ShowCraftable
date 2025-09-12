@@ -26,12 +26,19 @@ namespace ShowCraftable
         private static ICoreClientAPI _staticCapi;
 
         private static volatile bool CraftableTabActive;
+        private static volatile bool CraftableModsTabActive;
+        private static volatile bool LastScanWasMods;
 
         public const string HarmonyId = "showcraftable.core";
         public const string CraftableCategoryCode = "craftable";
+        public const string CraftableModsCategoryCode = "craftablemods";
 
         public const string ChannelName = "showcraftablescan";
         private static int NearbyRadius = 12;
+
+        private static bool IsCraftableCategory(string code)
+            => string.Equals(code, CraftableCategoryCode, StringComparison.Ordinal)
+               || string.Equals(code, CraftableModsCategoryCode, StringComparison.Ordinal);
 
         private static readonly object CacheLock = new();
         private static List<string> CachedPageCodes = new();
@@ -92,6 +99,7 @@ namespace ShowCraftable
             [ProtoMember(1)] public List<CachedIngredient> Ingredients = new();
             [ProtoMember(2)] public List<byte[]> Outputs = new();
             [ProtoMember(3)] public Dictionary<string, int> Needs = new();
+            [ProtoMember(4)] public bool IsModRecipe;
         }
 
         [ProtoContract]
@@ -522,7 +530,8 @@ namespace ShowCraftable
                 foreach (var t in tabs)
                 {
                     var cat = GetPF(tabType, t, "CategoryCode") as string;
-                    if (string.Equals(cat, CraftableCategoryCode, StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(cat, CraftableCategoryCode, StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(cat, CraftableModsCategoryCode, StringComparison.OrdinalIgnoreCase))
                     {
                         __result = ToTypedArray(tabType, tabs);
                         return;
@@ -537,6 +546,14 @@ namespace ShowCraftable
 
                 int insertAt = Math.Min(2, tabs.Count);
                 tabs.Insert(insertAt, newTab);
+
+                var modTab = Activator.CreateInstance(tabType);
+                SetPF(tabType, modTab, "Name", "Craftable (Mods)");
+                SetPF(tabType, modTab, "CategoryCode", CraftableModsCategoryCode);
+                SetPF(tabType, modTab, "DataInt", tabs.Count);
+                SetPF(tabType, modTab, "PaddingTop", 20.0);
+                tabs.Insert(insertAt + 1, modTab);
+
                 __result = ToTypedArray(tabType, tabs);
             }
             catch { }
@@ -562,7 +579,13 @@ namespace ShowCraftable
         {
             try
             {
-                CraftableTabActive = string.Equals(code, CraftableCategoryCode, StringComparison.Ordinal);
+                CraftableTabActive = IsCraftableCategory(code);
+                CraftableModsTabActive = string.Equals(code, CraftableModsCategoryCode, StringComparison.Ordinal);
+
+                if (CraftableTabActive && CraftableModsTabActive != LastScanWasMods)
+                {
+                    lock (CacheLock) CachedPageCodes.Clear();
+                }
 
 
                 if (!DialogIsOpen(__instance))
@@ -635,6 +658,7 @@ namespace ShowCraftable
                     catch { }
 
                     var myScanId = ++_pendingScanId;
+                    bool modsTab = CraftableModsTabActive;
 
                     capi.Event.EnqueueMainThreadTask(() =>
                     {
@@ -643,7 +667,7 @@ namespace ShowCraftable
 
                         // After the empty state was shown, repopulate from cache if available
                         bool haveCache;
-                        lock (CacheLock) haveCache = CachedPageCodes.Count > 0;
+                        lock (CacheLock) haveCache = CachedPageCodes.Count > 0 && modsTab == LastScanWasMods;
                         if (haveCache)
                         {
                             AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
@@ -750,7 +774,7 @@ namespace ShowCraftable
                 var capi = fiCapi?.GetValue(__instance) as ICoreClientAPI;
                 var cur = AccessTools.Field(__instance.GetType(), "currentCatgoryCode")?.GetValue(__instance) as string;
 
-                if (capi != null && string.Equals(cur, CraftableCategoryCode, StringComparison.Ordinal))
+                if (capi != null && IsCraftableCategory(cur))
                 {
                     AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
                     LogEverywhere(capi, "[Craftable] AfterPagesLoaded: refreshed Craftable tab");
@@ -778,7 +802,7 @@ namespace ShowCraftable
             try
             {
                 string cat = (string)AccessTools.Field(__instance.GetType(), "currentCatgoryCode").GetValue(__instance);
-                if (!string.Equals(cat, CraftableCategoryCode, StringComparison.Ordinal)) return true;
+                if (!IsCraftableCategory(cat)) return true;
 
                 var fiCapi = AccessTools.Field(__instance.GetType(), "capi");
                 var fiShown = AccessTools.Field(__instance.GetType(), "shownHandbookPages");
@@ -919,7 +943,7 @@ namespace ShowCraftable
                     return;
                 }
                 var cur = AccessTools.Field(dlg.GetType(), "currentCatgoryCode")?.GetValue(dlg) as string;
-                if (!string.Equals(cur, CraftableCategoryCode, StringComparison.Ordinal))
+                if (!IsCraftableCategory(cur))
                 {
                     LastDialogPageCount = 0;
                     return;
@@ -1156,6 +1180,7 @@ namespace ShowCraftable
             public object Raw;
             public List<GridIngredientShim> Ingredients = new();
             public List<ItemStack> Outputs = new();
+            public bool IsModRecipe;
         }
 
         private sealed class GridIngredientShim
@@ -1240,7 +1265,7 @@ namespace ShowCraftable
                 var recipes = new List<GridRecipeShim>();
                 foreach (var cr in data.Recipes)
                 {
-                    var r = new GridRecipeShim();
+                    var r = new GridRecipeShim { IsModRecipe = cr.IsModRecipe };
                     foreach (var ci in cr.Ingredients)
                     {
                         var gi = new GridIngredientShim
@@ -1495,6 +1520,9 @@ namespace ShowCraftable
 
             var shim = new GridRecipeShim { Raw = raw };
 
+            var nameLoc = TryGetMember(t, raw, "Name") as AssetLocation;
+            shim.IsModRecipe = nameLoc != null && !string.Equals(nameLoc.Domain, "game", StringComparison.OrdinalIgnoreCase);
+
             bool hadResolved = false;
             var resolvedIngreds = TryGetMember(t, raw, "resolvedIngredients");
             if (resolvedIngreds is System.Collections.IEnumerable ien)
@@ -1745,7 +1773,7 @@ namespace ShowCraftable
             return true;
         }
 
-        private static List<GridRecipe> CollectGridRecipesForStack(ICoreClientAPI capi, ItemStack stack)
+        private static List<GridRecipe> CollectGridRecipesForStack(ICoreClientAPI capi, ItemStack stack, bool modsOnly)
         {
             var list = new List<GridRecipe>();
             try
@@ -1753,6 +1781,8 @@ namespace ShowCraftable
                 foreach (var gr in capi.World.GridRecipes)
                 {
                     if (!gr.ShowInCreatedBy) continue;
+                    bool isMod = gr?.Name != null && !string.Equals(gr.Name.Domain, "game", StringComparison.OrdinalIgnoreCase);
+                    if (modsOnly != isMod) continue;
                     var outStack = gr.Output?.ResolvedItemstack;
                     if (outStack != null && outStack.Satisfies(stack))
                     {
@@ -1780,7 +1810,7 @@ namespace ShowCraftable
             return list;
         }
 
-        private static void AddCraftablePagesFromAllStacks(ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest)
+        private static void AddCraftablePagesFromAllStacks(ICoreClientAPI capi, ResourcePool pool, bool modsOnly, HashSet<string> dest)
         {
             try
             {
@@ -1800,7 +1830,7 @@ namespace ShowCraftable
                     if (st?.Collectible == null) continue;
                     object page = ctor.Invoke(new object[] { capi, st });
                     var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
-                    var recipes = CollectGridRecipesForStack(capi, pStack);
+                    var recipes = CollectGridRecipesForStack(capi, pStack, modsOnly);
                     foreach (var r in recipes)
                     {
                         if (RecipeSatisfiedByPool(capi, pool, r, pStack))
@@ -1842,7 +1872,8 @@ namespace ShowCraftable
                     if (st != null) pool.Add(st);
                 }
 
-                string sig = pool.GetSignature();
+                bool modsTab = CraftableModsTabActive;
+                string sig = pool.GetSignature() + (modsTab ? "|mods" : "|vanilla");
                 List<string> cached;
                 bool reused = false;
                 lock (CacheLock)
@@ -1850,6 +1881,7 @@ namespace ShowCraftable
                     if (ScanResultsCache.TryGetValue(sig, out cached))
                     {
                         CachedPageCodes = cached.ToList();
+                        LastScanWasMods = modsTab;
                         reused = true;
                     }
                 }
@@ -1872,7 +1904,7 @@ namespace ShowCraftable
                 {
                     try
                     {
-                        int pages = RebuildCacheWithPool(_capi, pool, out int outputs, out int fetched, out int usable);
+                        int pages = RebuildCacheWithPool(_capi, pool, modsTab, out int outputs, out int fetched, out int usable);
                         lock (CacheLock) ScanResultsCache[sig] = CachedPageCodes.ToList();
                         _capi.Event.EnqueueMainThreadTask(() => LogEverywhere(_capi, $"[Craftable] Server nearby scan merged: outputs={outputs}, pages={pages}, fetched={fetched}, usable={usable}", toChat: true), null);
                     }
@@ -1899,16 +1931,18 @@ namespace ShowCraftable
 
 
         private static int RebuildCacheWithPool(
-    ICoreClientAPI capi, ResourcePool pool,
+    ICoreClientAPI capi, ResourcePool pool, bool modsOnly,
     out int craftableOutputsCount, out int fetched, out int usable)
         {
             var sw = Stopwatch.StartNew();
             craftableOutputsCount = 0; fetched = recipesFetched; usable = recipesUsable;
 
             // Clone original needs so we can compute per-recipe "remaining" without touching the canonical map
-            var remaining = recipeGroupNeeds.ToDictionary(
-                kv => kv.Key,
-                kv => kv.Value.ToDictionary(g => g.Key, g => g.Value, StringComparer.Ordinal));
+            var remaining = recipeGroupNeeds
+                .Where(kv => modsOnly ? kv.Key.IsModRecipe : !kv.Key.IsModRecipe)
+                .ToDictionary(
+                    kv => kv.Key,
+                    kv => kv.Value.ToDictionary(g => g.Key, g => g.Value, StringComparer.Ordinal));
 
             // --- Helpers -------------------------------------------------------------
             static bool TryParseGroupType(string gkey, out EnumItemClass need)
@@ -2109,7 +2143,11 @@ namespace ShowCraftable
 
             void Flush()
             {
-                lock (CacheLock) CachedPageCodes = resultPageCodes.ToList();
+                lock (CacheLock)
+                {
+                    CachedPageCodes = resultPageCodes.ToList();
+                    LastScanWasMods = modsOnly;
+                }
                 capi.Event.EnqueueMainThreadTask(() => TryRefreshOpenDialog(capi), null);
             }
 
@@ -2150,7 +2188,7 @@ namespace ShowCraftable
                 if (processed % chunkSize == 0) Flush();
             }
 
-            AddCraftablePagesFromAllStacks(capi, pool, resultPageCodes); // keep as safety net for "misses"
+            AddCraftablePagesFromAllStacks(capi, pool, modsOnly, resultPageCodes); // keep as safety net for "misses"
             craftableOutputsCount = resultPageCodes.Count;
             Flush();
 
