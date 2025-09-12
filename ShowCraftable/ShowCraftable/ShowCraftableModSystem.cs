@@ -1663,8 +1663,9 @@ namespace ShowCraftable
             return res;
         }
 
-        private static bool RecipeSatisfiedByPool(ICoreClientAPI capi, ResourcePool pool, GridRecipeShim shim, ItemStack desired)
+        private static bool RecipeSatisfiedByPool(ICoreClientAPI capi, ResourcePool pool, GridRecipe recipe, ItemStack desired)
         {
+            var shim = TryBuildGridShim(recipe, capi);
             if (shim == null) return false;
 
             string target = desired == null ? null :
@@ -1705,50 +1706,69 @@ namespace ShowCraftable
             return true;
         }
 
+        private static List<GridRecipe> CollectGridRecipesForStack(ICoreClientAPI capi, ItemStack stack)
+        {
+            var list = new List<GridRecipe>();
+            try
+            {
+                foreach (var gr in capi.World.GridRecipes)
+                {
+                    if (!gr.ShowInCreatedBy) continue;
+                    var outStack = gr.Output?.ResolvedItemstack;
+                    if (outStack != null && outStack.Satisfies(stack))
+                    {
+                        list.Add(gr);
+                        continue;
+                    }
+                    var ingreds = gr.resolvedIngredients?.ToArray();
+                    if (ingreds == null) continue;
+                    foreach (var ing in ingreds)
+                    {
+                        var ret = ing?.ReturnedStack?.ResolvedItemstack;
+                        if (ret != null && ret.Satisfies(stack))
+                        {
+                            var resStack = ing.ResolvedItemstack;
+                            if (resStack != null && !resStack.Satisfies(stack))
+                            {
+                                list.Add(gr);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
+            return list;
+        }
+
         private static void AddCraftablePagesFromAllStacks(ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest)
         {
             try
             {
+                var msType = AccessTools.TypeByName("Vintagestory.GameContent.ModSystemSurvivalHandbook");
+                var ms = msType != null ? GetModSystemByType(capi, msType) : null;
+                var stacks = AccessTools.Field(msType, "allstacks")?.GetValue(ms) as ItemStack[];
+                if (stacks == null || stacks.Length == 0) return;
+
                 var ghType = AccessTools.TypeByName("Vintagestory.GameContent.GuiHandbookItemStackPage");
                 var ctor = ghType?.GetConstructor(new[] { typeof(ICoreClientAPI), typeof(ItemStack) });
                 var fiStack = AccessTools.Field(ghType, "Stack");
                 var miPageCode = ghType?.GetMethod("PageCodeForStack", BindingFlags.Public | BindingFlags.Static);
                 if (ctor == null || miPageCode == null) return;
 
-                foreach (var recipe in capi.World.GridRecipes)
+                foreach (var st in stacks)
                 {
-                    if (recipe == null || !recipe.ShowInCreatedBy) continue;
-
-                    var shim = TryBuildGridShim(recipe, capi);
-                    if (shim == null) continue;
-
-                    var candidateStacks = new List<ItemStack>();
-                    foreach (var st in shim.Outputs)
+                    if (st?.Collectible == null) continue;
+                    object page = ctor.Invoke(new object[] { capi, st });
+                    var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
+                    var recipes = CollectGridRecipesForStack(capi, pStack);
+                    foreach (var r in recipes)
                     {
-                        if (st?.Collectible != null) candidateStacks.Add(st);
-                    }
-
-                    var ingreds = recipe.resolvedIngredients?.ToArray();
-                    if (ingreds != null)
-                    {
-                        foreach (var ing in ingreds)
-                        {
-                            var ret = ing?.ReturnedStack?.ResolvedItemstack;
-                            var res = ing?.ResolvedItemstack;
-                            if (ret != null && res != null && !res.Satisfies(ret)) candidateStacks.Add(ret);
-                        }
-                    }
-
-                    if (!RecipeSatisfiedByPool(capi, pool, shim, null)) continue;
-
-                    foreach (var st in candidateStacks)
-                    {
-                        object page = ctor.Invoke(new object[] { capi, st });
-                        var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
-                        if (RecipeSatisfiedByPool(capi, pool, shim, pStack))
+                        if (RecipeSatisfiedByPool(capi, pool, r, pStack))
                         {
                             var pc = miPageCode.Invoke(null, new object[] { pStack }) as string;
                             if (!string.IsNullOrEmpty(pc)) dest.Add(pc);
+                            break;
                         }
                     }
                 }
