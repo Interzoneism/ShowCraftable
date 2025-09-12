@@ -124,15 +124,58 @@ namespace ShowCraftable
             foreach (var ing in r.Ingredients)
             {
                 if (!ing.IsWild || ing.PatternCode == null) continue;
+
                 if (IsWoodWildcard(ing.PatternCode))
                 {
                     usesWood = true;
-                    foreach (var v in (ing.Allowed ?? WoodVariants)) woodTokens.Add(v);
+                    if (ing.Allowed != null)
+                    {
+                        foreach (var raw in ing.Allowed)
+                        {
+                            if (string.IsNullOrEmpty(raw)) continue;
+                            bool matched = false;
+                            foreach (var token in WoodVariants)
+                            {
+                                if (raw.IndexOf(token, StringComparison.OrdinalIgnoreCase) >= 0)
+                                {
+                                    woodTokens.Add(token);
+                                    matched = true;
+                                    break;
+                                }
+                            }
+                            if (!matched) woodTokens.Add(raw);
+                        }
+                    }
+                    else
+                    {
+                        foreach (var v in WoodVariants) woodTokens.Add(v);
+                    }
                 }
                 else if (IsStoneWildcard(ing.PatternCode))
                 {
                     usesStone = true;
-                    foreach (var v in (ing.Allowed ?? StoneVariants)) stoneTokens.Add(v);
+                    if (ing.Allowed != null)
+                    {
+                        foreach (var raw in ing.Allowed)
+                        {
+                            if (string.IsNullOrEmpty(raw)) continue;
+                            bool matched = false;
+                            foreach (var token in StoneVariants)
+                            {
+                                if (raw.IndexOf(token, StringComparison.OrdinalIgnoreCase) >= 0)
+                                {
+                                    stoneTokens.Add(token);
+                                    matched = true;
+                                    break;
+                                }
+                            }
+                            if (!matched) stoneTokens.Add(raw);
+                        }
+                    }
+                    else
+                    {
+                        foreach (var v in StoneVariants) stoneTokens.Add(v);
+                    }
                 }
             }
 
