@@ -26,9 +26,11 @@ namespace ShowCraftable
         private static ICoreClientAPI _staticCapi;
 
         private static volatile bool CraftableTabActive;
+        private static volatile bool CraftableModsTabActive;
 
         public const string HarmonyId = "showcraftable.core";
         public const string CraftableCategoryCode = "craftable";
+        public const string CraftableModsCategoryCode = "craftablemods";
 
         public const string ChannelName = "showcraftablescan";
         private static int NearbyRadius = 12;
@@ -61,6 +63,7 @@ namespace ShowCraftable
         private static volatile int recipeIndexBuildTotal;
         private static volatile int recipeIndexBuildProgress;
         private static volatile bool recipeIndexBuilt = false;
+        private static volatile bool recipeIndexForMods = false;
 
         internal static bool DebugEnabled = true;
 
@@ -496,7 +499,7 @@ namespace ShowCraftable
                 recipeIndexBuilt = false;
                 InvalidatePageCodeMapCache();
                 LogEverywhere(capi, "[Craftable] LevelFinalize: cache reset");
-                StartRecipeIndexBuild(capi);
+                StartRecipeIndexBuild(capi, false);
             };
 
             capi.Event.LeaveWorld += InvalidatePageCodeMapCache;
@@ -532,24 +535,37 @@ namespace ShowCraftable
                     if (fi != null) fi.SetValue(o, val);
                 }
 
+                bool craftableExists = false;
+                bool craftableModsExists = false;
                 foreach (var t in tabs)
                 {
                     var cat = GetPF(tabType, t, "CategoryCode") as string;
-                    if (string.Equals(cat, CraftableCategoryCode, StringComparison.OrdinalIgnoreCase))
-                    {
-                        __result = ToTypedArray(tabType, tabs);
-                        return;
-                    }
+                    if (string.Equals(cat, CraftableCategoryCode, StringComparison.OrdinalIgnoreCase)) craftableExists = true;
+                    if (string.Equals(cat, CraftableModsCategoryCode, StringComparison.OrdinalIgnoreCase)) craftableModsExists = true;
                 }
 
-                var newTab = Activator.CreateInstance(tabType);
-                SetPF(tabType, newTab, "Name", "Craftable");
-                SetPF(tabType, newTab, "CategoryCode", CraftableCategoryCode);
-                SetPF(tabType, newTab, "DataInt", tabs.Count);
-                SetPF(tabType, newTab, "PaddingTop", 20.0);
-
                 int insertAt = Math.Min(2, tabs.Count);
-                tabs.Insert(insertAt, newTab);
+                if (!craftableExists)
+                {
+                    var newTab = Activator.CreateInstance(tabType);
+                    SetPF(tabType, newTab, "Name", "Craftable");
+                    SetPF(tabType, newTab, "CategoryCode", CraftableCategoryCode);
+                    SetPF(tabType, newTab, "DataInt", tabs.Count);
+                    SetPF(tabType, newTab, "PaddingTop", 20.0);
+                    tabs.Insert(insertAt, newTab);
+                    insertAt++;
+                }
+
+                if (!craftableModsExists)
+                {
+                    var newTabMods = Activator.CreateInstance(tabType);
+                    SetPF(tabType, newTabMods, "Name", "Craftable (Mods)");
+                    SetPF(tabType, newTabMods, "CategoryCode", CraftableModsCategoryCode);
+                    SetPF(tabType, newTabMods, "DataInt", tabs.Count);
+                    SetPF(tabType, newTabMods, "PaddingTop", 20.0);
+                    tabs.Insert(insertAt, newTabMods);
+                }
+
                 __result = ToTypedArray(tabType, tabs);
             }
             catch { }
@@ -576,7 +592,9 @@ namespace ShowCraftable
             try
             {
                 CraftableTabActive = string.Equals(code, CraftableCategoryCode, StringComparison.Ordinal);
-
+                CraftableModsTabActive = string.Equals(code, CraftableModsCategoryCode, StringComparison.Ordinal);
+                bool modsOnly = CraftableModsTabActive;
+                bool anyCraftable = CraftableTabActive || CraftableModsTabActive;
 
                 if (!DialogIsOpen(__instance))
                 {
@@ -595,7 +613,7 @@ namespace ShowCraftable
                     ?? AccessTools.Property(__instance.GetType().BaseType, "SingleComposer");
                 try { piSingle?.SetValue(__instance, composer); } catch { }
 
-                if (!CraftableTabActive)
+                if (!anyCraftable)
                 {
                     _pendingScanId++;
                     return;
@@ -652,7 +670,7 @@ namespace ShowCraftable
                     capi.Event.EnqueueMainThreadTask(() =>
                     {
                         if (myScanId != _pendingScanId) return;
-                        if (!DialogIsOpen(__instance) || !CraftableTabActive) return;
+                        if (!DialogIsOpen(__instance) || (!CraftableTabActive && !CraftableModsTabActive)) return;
 
                         // After the empty state was shown, repopulate from cache if available
                         bool haveCache;
@@ -662,9 +680,9 @@ namespace ShowCraftable
                             AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
                         }
 
-                        if (!recipeIndexBuilt)
+                        if (!recipeIndexBuilt || recipeIndexForMods != modsOnly)
                         {
-                            StartRecipeIndexBuild(capi);
+                            StartRecipeIndexBuild(capi, modsOnly);
                             int total = Math.Max(1, recipeIndexBuildTotal);
                             capi.ShowChatMessage($"[Craftable] Building recipe index {recipeIndexBuildProgress}/{total}...");
                             if (recipeIndexBuildTask != null)
@@ -674,7 +692,7 @@ namespace ShowCraftable
                                     capi.Event.EnqueueMainThreadTask(() =>
                                     {
                                         if (myScanId != _pendingScanId) return;
-                                        if (!DialogIsOpen(__instance) || !CraftableTabActive) return;
+                                        if (!DialogIsOpen(__instance) || (!CraftableTabActive && !CraftableModsTabActive)) return;
                                         RequestServerScan(capi, NearbyRadius, includeCrates: true);
                                     }, "CraftableScanKickoff2");
                                 });
@@ -763,7 +781,8 @@ namespace ShowCraftable
                 var capi = fiCapi?.GetValue(__instance) as ICoreClientAPI;
                 var cur = AccessTools.Field(__instance.GetType(), "currentCatgoryCode")?.GetValue(__instance) as string;
 
-                if (capi != null && string.Equals(cur, CraftableCategoryCode, StringComparison.Ordinal))
+                if (capi != null && (string.Equals(cur, CraftableCategoryCode, StringComparison.Ordinal) ||
+                                     string.Equals(cur, CraftableModsCategoryCode, StringComparison.Ordinal)))
                 {
                     AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
                     LogEverywhere(capi, "[Craftable] AfterPagesLoaded: refreshed Craftable tab");
@@ -791,7 +810,8 @@ namespace ShowCraftable
             try
             {
                 string cat = (string)AccessTools.Field(__instance.GetType(), "currentCatgoryCode").GetValue(__instance);
-                if (!string.Equals(cat, CraftableCategoryCode, StringComparison.Ordinal)) return true;
+                if (!(string.Equals(cat, CraftableCategoryCode, StringComparison.Ordinal) ||
+                      string.Equals(cat, CraftableModsCategoryCode, StringComparison.Ordinal))) return true;
 
                 var fiCapi = AccessTools.Field(__instance.GetType(), "capi");
                 var fiShown = AccessTools.Field(__instance.GetType(), "shownHandbookPages");
@@ -932,7 +952,8 @@ namespace ShowCraftable
                     return;
                 }
                 var cur = AccessTools.Field(dlg.GetType(), "currentCatgoryCode")?.GetValue(dlg) as string;
-                if (!string.Equals(cur, CraftableCategoryCode, StringComparison.Ordinal))
+                if (!(string.Equals(cur, CraftableCategoryCode, StringComparison.Ordinal) ||
+                      string.Equals(cur, CraftableModsCategoryCode, StringComparison.Ordinal)))
                 {
                     LastDialogPageCount = 0;
                     return;
@@ -1169,6 +1190,7 @@ namespace ShowCraftable
             public object Raw;
             public List<GridIngredientShim> Ingredients = new();
             public List<ItemStack> Outputs = new();
+            public bool IsMod;
         }
 
         private sealed class GridIngredientShim
@@ -1182,7 +1204,7 @@ namespace ShowCraftable
             public EnumItemClass Type;
         }
 
-        private static List<GridRecipeShim> GetAllGridRecipes(ICoreClientAPI capi, out int fetched, out int usable)
+        private static List<GridRecipeShim> GetAllGridRecipes(ICoreClientAPI capi, out int fetched, out int usable, bool modsOnly)
         {
             var sw = Stopwatch.StartNew();
             var list = new List<GridRecipeShim>();
@@ -1207,8 +1229,11 @@ namespace ShowCraftable
                 var shim = TryBuildGridShim(raw, capi);
                 if (shim != null && shim.Outputs.Count > 0)
                 {
-                    usable++;
-                    list.Add(shim);
+                    if ((modsOnly && shim.IsMod) || (!modsOnly && !shim.IsMod))
+                    {
+                        usable++;
+                        list.Add(shim);
+                    }
                 }
             }
 
@@ -1217,7 +1242,7 @@ namespace ShowCraftable
             return list;
         }
 
-        private static string GetCachePath(ICoreClientAPI capi)
+        private static string GetCachePath(ICoreClientAPI capi, bool modsOnly)
         {
             try
             {
@@ -1228,19 +1253,19 @@ namespace ShowCraftable
                     basePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ShowCraftable");
                 }
                 Directory.CreateDirectory(basePath);
-                return Path.Combine(basePath, "recipeindex.bin");
+                return Path.Combine(basePath, modsOnly ? "recipeindex_mods.bin" : "recipeindex.bin");
             }
             catch
             {
-                return Path.Combine(Path.GetTempPath(), "recipeindex.bin");
+                return Path.Combine(Path.GetTempPath(), modsOnly ? "recipeindex_mods.bin" : "recipeindex.bin");
             }
         }
 
-        private static bool LoadRecipeIndex(ICoreClientAPI capi)
+        private static bool LoadRecipeIndex(ICoreClientAPI capi, bool modsOnly)
         {
             try
             {
-                var path = GetCachePath(capi);
+                var path = GetCachePath(capi, modsOnly);
                 if (!File.Exists(path)) return false;
                 RecipeIndexCache data;
                 using (var fs = File.OpenRead(path)) data = Serializer.Deserialize<RecipeIndexCache>(fs);
@@ -1337,27 +1362,39 @@ namespace ShowCraftable
             catch { return false; }
         }
 
-        private static void StartRecipeIndexBuild(ICoreClientAPI capi)
+        private static void StartRecipeIndexBuild(ICoreClientAPI capi, bool modsOnly)
         {
-            if (recipeIndexBuildTask != null && !recipeIndexBuildTask.IsCompleted) return;
+            if (recipeIndexBuilt && recipeIndexForMods == modsOnly) return;
+            if (recipeIndexBuildTask != null && !recipeIndexBuildTask.IsCompleted)
+            {
+                recipeIndexBuildTask.ContinueWith(_ => StartRecipeIndexBuild(capi, modsOnly));
+                return;
+            }
+            recipeIndexBuilt = false;
+            lock (CacheLock)
+            {
+                CachedPageCodes.Clear();
+                ScanResultsCache.Clear();
+            }
             recipeIndexBuildTask = Task.Run(() =>
             {
-                if (!LoadRecipeIndex(capi))
+                if (!LoadRecipeIndex(capi, modsOnly))
                 {
-                    BuildRecipeIndex(capi);
+                    BuildRecipeIndex(capi, modsOnly);
                 }
                 recipeIndexBuilt = true;
+                recipeIndexForMods = modsOnly;
                 GetCachedPageCodeMap(capi);
             });
         }
-        private static void BuildRecipeIndex(ICoreClientAPI capi)
+        private static void BuildRecipeIndex(ICoreClientAPI capi, bool modsOnly)
         {
             var sw = Stopwatch.StartNew();
             codeToRecipeGroups.Clear();
             recipeGroupNeeds.Clear();
             codeToGkeys.Clear();
 
-            var recipes = GetAllGridRecipes(capi, out recipesFetched, out recipesUsable);
+            var recipes = GetAllGridRecipes(capi, out recipesFetched, out recipesUsable, modsOnly);
             recipeIndexBuildTotal = recipes.Count;
             recipeIndexBuildProgress = 0;
 
@@ -1663,6 +1700,17 @@ namespace ShowCraftable
                         }
                     }
                 }
+            }
+
+            var nameAl = TryGetMember(t, raw, "Name") as AssetLocation;
+            if (nameAl != null)
+            {
+                shim.IsMod = !string.Equals(nameAl.Domain, "game", StringComparison.Ordinal);
+            }
+            else
+            {
+                shim.IsMod = shim.Outputs.Any(o => o?.Collectible?.Code != null &&
+                    !string.Equals(o.Collectible.Code.Domain, "game", StringComparison.Ordinal));
             }
 
             return shim;
