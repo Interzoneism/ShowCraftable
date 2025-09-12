@@ -255,7 +255,7 @@ namespace ShowCraftable
                 try
                 {
                     var al = new AssetLocation(codeStr);
-                    if (!WildcardMatch(pattern, al, (allowed != null && allowed.Length > 0) ? allowed : null)) continue;
+                    if (!WildcardUtil.Match(pattern, al, (allowed != null && allowed.Length > 0) ? allowed : null)) continue;
 
                     var token = ExtractTokenFromPath(patPath, PathPart(al.Path ?? al.ToString()));
                     if (string.IsNullOrEmpty(token)) continue;
@@ -1147,7 +1147,7 @@ namespace ShowCraftable
                     if (!Classes.TryGetValue(k, out var cls) || cls != type) continue;
 
                     var code = new AssetLocation(k.Code);
-                    if (!WildcardMatch(pattern, code, allowed)) continue;
+                    if (!WildcardUtil.Match(pattern, code, allowed)) continue;
 
                     if (kv.Value >= quantity)
                     {
@@ -1387,7 +1387,7 @@ namespace ShowCraftable
                         try
                         {
                             var al = new AssetLocation(code);
-                            if (WildcardMatch(ing.PatternCode, al, allowed)) results.Add(code);
+                            if (WildcardUtil.Match(ing.PatternCode, al, allowed)) results.Add(code);
                         }
                         catch { /* best-effort */ }
                     }
@@ -1676,29 +1676,6 @@ namespace ShowCraftable
             var fi = t.GetField(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             if (fi != null) return fi.GetValue(obj);
             return null;
-        }
-
-        private static bool WildcardMatch(AssetLocation pattern, AssetLocation code, string[] allowed)
-        {
-            var mi = typeof(WildcardUtil).GetMethod("Match", new[] { typeof(AssetLocation), typeof(AssetLocation), typeof(string[]) });
-            if (mi != null)
-            {
-                return (bool)mi.Invoke(null, new object[] { pattern, code, allowed });
-            }
-
-            var mi2 = typeof(WildcardUtil).GetMethod("Match", new[] { typeof(AssetLocation), typeof(AssetLocation), typeof(Dictionary<string, string[]>) });
-            if (mi2 != null)
-            {
-                return (bool)mi2.Invoke(null, new object[] { pattern, code, null });
-            }
-
-            var mi3 = typeof(WildcardUtil).GetMethod("Match", new[] { typeof(AssetLocation), typeof(AssetLocation) });
-            if (mi3 != null)
-            {
-                return (bool)mi3.Invoke(null, new object[] { pattern, code });
-            }
-
-            return pattern != null && code != null && pattern.Equals(code);
         }
 
         private static ResourcePool ClonePool(ResourcePool pool)
@@ -2199,28 +2176,6 @@ namespace ShowCraftable
                .SetMessageHandler<CraftScanRequest>(OnScanRequest);
         }
 
-        private static bool WildcardMatch(AssetLocation pattern, AssetLocation code, string[] allowed)
-        {
-            try
-            {
-                if (allowed != null && allowed.Length > 0)
-                {
-                    var mi = typeof(WildcardUtil).GetMethod(
-                        "Match",
-                        new[] { typeof(AssetLocation), typeof(AssetLocation), typeof(string[]) }
-                    );
-                    if (mi != null)
-                    {
-                        return (bool)mi.Invoke(null, new object[] { pattern, code, allowed });
-                    }
-                }
-            }
-            catch { /* fall through to 2-arg */ }
-
-            return WildcardUtil.Match(pattern, code);
-        }
-
-
         private class SlotRef
         {
             public ItemSlot Slot;
@@ -2244,7 +2199,7 @@ namespace ShowCraftable
                     var pattern = new AssetLocation(ing.PatternCode);
                     var code = new AssetLocation(slot.Code);
                     var allowed = (ing.Allowed != null && ing.Allowed.Count > 0) ? ing.Allowed.ToArray() : null;
-                    if (WildcardMatch(pattern, code, allowed)) return true;
+                    if (WildcardUtil.Match(pattern, code, allowed)) return true;
                 }
                 catch { }
             }
@@ -2294,7 +2249,7 @@ namespace ShowCraftable
                         try
                         {
                             var al = new AssetLocation(kv.Key);
-                            if (!WildcardMatch(pattern, al, allowed)) continue;
+                            if (!WildcardUtil.Match(pattern, al, allowed)) continue;
                         }
                         catch { continue; }
 
@@ -2441,7 +2396,7 @@ namespace ShowCraftable
                     {
                         var al = new AssetLocation(kv.Key);
                         var allowed = (ing.Allowed != null && ing.Allowed.Count > 0) ? ing.Allowed.ToArray() : null;
-                        if (!WildcardMatch(pattern, al, allowed)) continue;
+                        if (!WildcardUtil.Match(pattern, al, allowed)) continue;
                     }
                     catch { continue; }
 
