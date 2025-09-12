@@ -1741,26 +1741,35 @@ namespace ShowCraftable
             return list;
         }
 
-        private static void AddCraftablePagesFromAllStacks(ICoreClientAPI capi, HashSet<StackKey> craftableKeys, HashSet<string> dest)
+        private static void AddCraftablePagesFromAllStacks(ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest)
         {
             try
             {
-                if (craftableKeys == null || craftableKeys.Count == 0) return;
+                var msType = AccessTools.TypeByName("Vintagestory.GameContent.ModSystemSurvivalHandbook");
+                var ms = msType != null ? GetModSystemByType(capi, msType) : null;
+                var stacks = AccessTools.Field(msType, "allstacks")?.GetValue(ms) as ItemStack[];
+                if (stacks == null || stacks.Length == 0) return;
 
-                var key2page = GetCachedPageCodeMap(capi);
-                foreach (var key in craftableKeys)
+                var ghType = AccessTools.TypeByName("Vintagestory.GameContent.GuiHandbookItemStackPage");
+                var ctor = ghType?.GetConstructor(new[] { typeof(ICoreClientAPI), typeof(ItemStack) });
+                var fiStack = AccessTools.Field(ghType, "Stack");
+                var miPageCode = ghType?.GetMethod("PageCodeForStack", BindingFlags.Public | BindingFlags.Static);
+                if (ctor == null || miPageCode == null) return;
+
+                foreach (var st in stacks)
                 {
-                    if (key2page.TryGetValue(key, out var pc) && !string.IsNullOrEmpty(pc))
+                    if (st?.Collectible == null) continue;
+                    object page = ctor.Invoke(new object[] { capi, st });
+                    var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
+                    var recipes = CollectGridRecipesForStack(capi, pStack);
+                    foreach (var r in recipes)
                     {
-                        dest.Add(pc);
-                        continue;
-                    }
-
-                    // Try forgiving code-only lookup
-                    var codeOnly = new StackKey(key.Code, "", "");
-                    if (key2page.TryGetValue(codeOnly, out pc) && !string.IsNullOrEmpty(pc))
-                    {
-                        dest.Add(pc);
+                        if (RecipeSatisfiedByPool(capi, pool, r, pStack))
+                        {
+                            var pc = miPageCode.Invoke(null, new object[] { pStack }) as string;
+                            if (!string.IsNullOrEmpty(pc)) dest.Add(pc);
+                            break;
+                        }
                     }
                 }
             }
@@ -2044,7 +2053,7 @@ namespace ShowCraftable
                 if (processed % chunkSize == 0) Flush();
             }
 
-            AddCraftablePagesFromAllStacks(capi, craftableKeys, resultPageCodes);
+            AddCraftablePagesFromAllStacks(capi, pool, resultPageCodes);
             craftableOutputsCount = resultPageCodes.Count;
             Flush();
 
