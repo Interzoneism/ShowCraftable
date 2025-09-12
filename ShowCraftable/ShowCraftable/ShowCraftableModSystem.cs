@@ -70,6 +70,45 @@ namespace ShowCraftable
 
         internal static bool DebugEnabled = true;
 
+        private static readonly HashSet<string> WoodVariants = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "birch", "oak", "maple", "pine", "acacia", "kapok", "aged",
+            "baldcypress", "larch", "redwood", "ebony", "walnut", "purpleheart"
+        };
+
+        private static readonly HashSet<string> StoneVariants = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "andesite", "chalk", "chert", "conglomerate", "limestone",
+            "claystone", "granite", "basalt", "peridotite", "phyllite",
+            "sandstone", "shale", "slate", "bauxite", "suevite",
+            "whitemarble", "greenmarble", "redmarble", "kimberlite"
+        };
+
+        private static readonly string[] WoodWildcardPrefixes =
+        {
+            "plank-", "log-", "logsection-"
+        };
+
+        private static readonly string[] StoneWildcardPrefixes =
+        {
+            "stone-", "stonebrick-", "cobblestone-", "rockpolished-",
+            "polishedrockslab-", "gravel-"
+        };
+
+        private static readonly string[] WoodOutputPrefixes =
+        {
+            "planks-", "plank-", "plankslab-", "plankstairs-", "door-",
+            "trapdoor-", "supportbeam-", "woodenfence-", "roughhewnfence-",
+            "woodenpath-", "slantedroofing", "glasspane-leaded-", "crate",
+            "bookshelf", "scrollrack", "oar-crude-", "boat-raft-"
+        };
+
+        private static readonly string[] StoneOutputPrefixes =
+        {
+            "cobblestone", "stonebrick", "stonebricks", "rockpolished",
+            "polishedrockslab", "stonecoffinlid"
+        };
+
         private sealed class WildGroup
         {
             public GridRecipeShim Recipe;
@@ -275,17 +314,101 @@ namespace ShowCraftable
             return res;
         }
 
-        private static bool CodeHasVariant(string codePath)
+        private static bool CodeIsWoodVariant(string codePath)
         {
             if (string.IsNullOrEmpty(codePath)) return false;
-            string norm = codePath.Replace("/", " ").Replace("_", " ").Replace(".", " ");
-            int dash = norm.LastIndexOf('-');
-            if (dash > 0 && dash < norm.Length - 1)
+            if (!WoodOutputPrefixes.Any(pref => codePath.StartsWith(pref, StringComparison.Ordinal))) return false;
+            return WoodVariants.Any(v => codePath.Contains("-" + v, StringComparison.Ordinal));
+        }
+
+        private static bool CodeIsStoneVariant(string codePath)
+        {
+            if (string.IsNullOrEmpty(codePath)) return false;
+            if (!StoneOutputPrefixes.Any(pref => codePath.StartsWith(pref, StringComparison.Ordinal))) return false;
+            return StoneVariants.Any(v => codePath.Contains("-" + v, StringComparison.Ordinal));
+        }
+
+        private static bool OutputIsWoodVariant(string codePath, string typeAttr, string materialAttr)
+        {
+            if (CodeIsWoodVariant(codePath)) return true;
+            if (!string.IsNullOrEmpty(materialAttr) && WoodVariants.Contains(materialAttr)) return true;
+            if (!string.IsNullOrEmpty(typeAttr))
             {
-                string variant = norm.Substring(dash + 1).Replace("-", " ").Trim();
-                return !string.IsNullOrEmpty(variant);
+                string token = typeAttr;
+                int idx = token.LastIndexOf('-');
+                if (idx >= 0) token = token.Substring(idx + 1);
+                if (WoodVariants.Contains(token)) return true;
             }
             return false;
+        }
+
+        private static bool OutputIsWoodVariant(ItemStack st)
+        {
+            if (st == null) return false;
+            return OutputIsWoodVariant(st.Collectible?.Code?.Path, GetAttrStringSafe(st, "type"), GetAttrStringSafe(st, "material"));
+        }
+
+        private static bool OutputIsStoneVariant(string codePath, string typeAttr, string materialAttr, string rockTypeAttr)
+        {
+            if (CodeIsStoneVariant(codePath)) return true;
+            if (!string.IsNullOrEmpty(materialAttr) && StoneVariants.Contains(materialAttr)) return true;
+            if (!string.IsNullOrEmpty(rockTypeAttr) && StoneVariants.Contains(rockTypeAttr)) return true;
+            if (!string.IsNullOrEmpty(typeAttr))
+            {
+                string token = typeAttr;
+                int idx = token.LastIndexOf('-');
+                if (idx >= 0) token = token.Substring(idx + 1);
+                if (StoneVariants.Contains(token)) return true;
+            }
+            return false;
+        }
+
+        private static bool OutputIsStoneVariant(ItemStack st)
+        {
+            if (st == null) return false;
+            return OutputIsStoneVariant(st.Collectible?.Code?.Path, GetAttrStringSafe(st, "type"), GetAttrStringSafe(st, "material"), GetAttrStringSafe(st, "rocktype"));
+        }
+
+        private static bool CodeHasVariant(string codePath, string typeAttr, string materialAttr, string rockTypeAttr)
+        {
+            return OutputIsWoodVariant(codePath, typeAttr, materialAttr) || OutputIsStoneVariant(codePath, typeAttr, materialAttr, rockTypeAttr);
+        }
+
+        private static bool CodeHasVariant(ItemStack st)
+        {
+            if (st == null) return false;
+            return CodeHasVariant(st.Collectible?.Code?.Path, GetAttrStringSafe(st, "type"), GetAttrStringSafe(st, "material"), GetAttrStringSafe(st, "rocktype"));
+        }
+
+        private static bool IsWoodWildcard(string path)
+        {
+            return WoodWildcardPrefixes.Any(pref => path.StartsWith(pref, StringComparison.Ordinal));
+        }
+
+        private static bool IsStoneWildcard(string path)
+        {
+            return StoneWildcardPrefixes.Any(pref => path.StartsWith(pref, StringComparison.Ordinal));
+        }
+
+        private static bool IsWoodVariantRecipe(GridRecipeShim recipe)
+        {
+            if (recipe?.Ingredients == null) return false;
+            bool hasWild = recipe.Ingredients.Any(gi => gi.IsWild && gi.PatternCode?.Path != null && gi.PatternCode.Path.Contains("*") && IsWoodWildcard(gi.PatternCode.Path));
+            if (!hasWild) return false;
+            return recipe.Outputs.Any(OutputIsWoodVariant);
+        }
+
+        private static bool IsStoneVariantRecipe(GridRecipeShim recipe)
+        {
+            if (recipe?.Ingredients == null) return false;
+            bool hasWild = recipe.Ingredients.Any(gi => gi.IsWild && gi.PatternCode?.Path != null && gi.PatternCode.Path.Contains("*") && IsStoneWildcard(gi.PatternCode.Path));
+            if (!hasWild) return false;
+            return recipe.Outputs.Any(OutputIsStoneVariant);
+        }
+
+        private static bool RecipeHasVariant(GridRecipeShim recipe)
+        {
+            return IsWoodVariantRecipe(recipe) || IsStoneVariantRecipe(recipe);
         }
 
         private static void ExpandOutputsForRecipe(
@@ -321,6 +444,7 @@ namespace ShowCraftable
 
                 string outType = GetAttrStringSafe(os, "type");
                 string outMat = GetAttrStringSafe(os, "material");
+                string outRock = GetAttrStringSafe(os, "rocktype");
 
                 bool canExpand = wild != null && tokenCounts != null && tokenCounts.Count > 0;
 
@@ -339,7 +463,7 @@ namespace ShowCraftable
                         }
 
 
-                        if (!modsOnly && variantsOnly != CodeHasVariant(finalCode)) continue;
+                        if (!modsOnly && variantsOnly != CodeHasVariant(finalCode, outType, outMat, outRock)) continue;
 
                         dest.Add(new StackKey(finalCode, token, outType ?? ""));
                     }
@@ -347,7 +471,7 @@ namespace ShowCraftable
                 else
                 {
 
-                    if (!modsOnly && variantsOnly != CodeHasVariant(ocode)) continue;
+                    if (!modsOnly && variantsOnly != CodeHasVariant(ocode, outType, outMat, outRock)) continue;
 
                     dest.Add(new StackKey(ocode, outMat ?? "", outType ?? ""));
                 }
@@ -1273,10 +1397,8 @@ namespace ShowCraftable
                 var shim = TryBuildGridShim(raw, capi);
                 if (shim != null && shim.Outputs.Count > 0)
                 {
-                    bool anyVariant = shim.Outputs.Any(s => CodeHasVariant(s?.Collectible?.Code?.Path));
-                    bool anyNonVariant = shim.Outputs.Any(s => !CodeHasVariant(s?.Collectible?.Code?.Path));
-
-                    bool matchesVariant = modsOnly || (variantsOnly ? anyVariant : anyNonVariant);
+                    bool isVariantRecipe = RecipeHasVariant(shim);
+                    bool matchesVariant = modsOnly || (variantsOnly ? isVariantRecipe : !isVariantRecipe);
 
                     if ((modsOnly && shim.IsMod) || (!modsOnly && !shim.IsMod))
                     {
@@ -1287,7 +1409,7 @@ namespace ShowCraftable
                         }
                     }
                 }
-        }
+            }
 
             sw.Stop();
             LogEverywhere(capi, $"[Craftable] Grid recipes fetched={fetched}, usable={usable}, ms={sw.ElapsedMilliseconds}, gridMemberFound={gridMemberFound}, usedWorldList={usedGridRecipes}");
@@ -1902,7 +2024,7 @@ namespace ShowCraftable
                     bool isModStack = !string.Equals(st.Collectible.Code?.Domain, "game", StringComparison.Ordinal);
                     if (modsOnly != isModStack) continue;
 
-                    if (!modsOnly && variantsOnly != CodeHasVariant(st.Collectible.Code?.Path)) continue;
+                    if (!modsOnly && variantsOnly != CodeHasVariant(st)) continue;
 
 
                     object page = ctor.Invoke(new object[] { capi, st });
