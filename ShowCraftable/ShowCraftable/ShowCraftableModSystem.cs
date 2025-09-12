@@ -41,6 +41,10 @@ namespace ShowCraftable
         private static Dictionary<StackKey, string> AllStacksPageCodeMap = new();
         private static ItemStack[] AllStacksPageCodeMapSource;
 
+        private static readonly Dictionary<string, Dictionary<string, int>> WildTokenCountsMemo
+    = new(StringComparer.Ordinal);
+
+
         private static bool ScanInProgress = false;
         private static int LastDialogPageCount;
 
@@ -238,6 +242,12 @@ namespace ShowCraftable
             var res = new Dictionary<string, int>(StringComparer.Ordinal);
             if (pool == null || pattern == null) return res;
 
+            string allowedCsv = (allowed != null && allowed.Length > 0) ? string.Join(",", allowed.OrderBy(x => x)) : "";
+            string memoKey = (pool.GetSignature() ?? "") + "||" + (pattern.ToString() ?? "") + "||" + allowedCsv;
+
+            lock (WildTokenCountsMemo)
+                if (WildTokenCountsMemo.TryGetValue(memoKey, out var cached)) return cached;
+
             string patPath = pattern.Path ?? pattern.ToString();
             foreach (var kv in pool.Counts)
             {
@@ -254,8 +264,11 @@ namespace ShowCraftable
                 }
                 catch { /* ignore */ }
             }
+
+            lock (WildTokenCountsMemo) WildTokenCountsMemo[memoKey] = res;
             return res;
         }
+
 
         private static void ExpandOutputsForRecipe(
             ICoreClientAPI capi,
@@ -1906,9 +1919,17 @@ namespace ShowCraftable
             craftableOutputsCount = 0; fetched = recipesFetched; usable = recipesUsable;
 
             // Clone original needs so we can compute per-recipe "remaining" without touching the canonical map
-            var remaining = recipeGroupNeeds.ToDictionary(
-                kv => kv.Key,
-                kv => kv.Value.ToDictionary(g => g.Key, g => g.Value, StringComparer.Ordinal));
+            var candidates = new HashSet<GridRecipeShim>(ReferenceEqualityComparer.Instance);
+            foreach (var pkv in pool.Counts)
+            {
+                var code = pkv.Key.Code;
+                if (codeToRecipeGroups.TryGetValue(code, out var uses))
+                    foreach (var (r, _) in uses) candidates.Add(r);
+            }
+
+            var remaining = new Dictionary<GridRecipeShim, Dictionary<string, int>>(ReferenceEqualityComparer.Instance);
+            foreach (var r in candidates)
+                remaining[r] = recipeGroupNeeds[r].ToDictionary(g => g.Key, g => g.Value, StringComparer.Ordinal);
 
             // --- Helpers -------------------------------------------------------------
             static bool TryParseGroupType(string gkey, out EnumItemClass need)
@@ -1938,7 +1959,9 @@ namespace ShowCraftable
             var groupAvail = new Dictionary<string, int>(StringComparer.Ordinal);
 
             // Also build gkey -> codes (limited to codes we actually have in the pool). This powers the overlap detector.
-            var gkeyToCodes = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+            // NEW Pass A': subtract per code + detect ambiguity per code.
+            // We no longer build groupAvail or gkey->codes. We subtract straight into `remaining`.
+            var ambRecipes = new HashSet<GridRecipeShim>(ReferenceEqualityComparer.Instance);
 
             foreach (var pkv in pool.Counts)
             {
@@ -1946,116 +1969,61 @@ namespace ShowCraftable
                 var haveQty = pkv.Value;
                 if (haveQty <= 0) continue;
 
-                if (!codeToGkeys.TryGetValue(code, out var gset) || gset == null || gset.Count == 0)
+                if (!codeToRecipeGroups.TryGetValue(code, out var uses) || uses == null || uses.Count == 0)
                     continue;
 
-                pool.Classes.TryGetValue(pkv.Key, out var haveClass);
-                AssetLocation al = null;
+                // For this specific code, track how many distinct gkeys each recipe hit.
+                var hitsPerRecipe = new Dictionary<GridRecipeShim, int>(ReferenceEqualityComparer.Instance);
 
-                foreach (var g in gset)
+                foreach (var (recipe, gkey) in uses)
                 {
-                    // Respect class constraints for wild groups (exact groups are fine as-is).
-                    if (TryParseGroupType(g, out var needClass))
-                    {
-                        if (al == null) al = new AssetLocation(code);
-                        if (!ClassCompatible(haveClass, needClass, al)) continue;
-                    }
+                    if (!remaining.TryGetValue(recipe, out var groups)) continue;
+                    if (!groups.TryGetValue(gkey, out var need) || need <= 0) continue;
 
-                    groupAvail[g] = (groupAvail.TryGetValue(g, out var cur) ? cur : 0) + haveQty;
+                    int take = Math.Min(need, haveQty);
+                    if (take > 0) groups[gkey] = need - take;
 
-                    if (!gkeyToCodes.TryGetValue(g, out var codes))
-                        gkeyToCodes[g] = codes = new HashSet<string>(StringComparer.Ordinal);
-                    codes.Add(code);
+                    // Ambiguity = this code satisfies >=2 distinct gkeys in the SAME recipe
+                    hitsPerRecipe[recipe] = (hitsPerRecipe.TryGetValue(recipe, out var c) ? c : 0) + 1;
                 }
+
+                foreach (var kv2 in hitsPerRecipe)
+                    if (kv2.Value >= 2) ambRecipes.Add(kv2.Key);
             }
 
-            // Pass B: for each recipe, check needs against groupAvail (non-consuming, recipe-local)
-            foreach (var kv in remaining)
-            {
-                var groups = kv.Value;
-                if (groups == null || groups.Count == 0) continue;
+            // No Pass B, no RecipeIsAmbiguous() needed anymore.
 
-                // subtract available per group (bounded at zero, we do NOT consume across recipes)
-                // NOTE: this is correct for non-overlapping groups. For overlapping groups we validate in Pass C.
-                var keys = groups.Keys.ToArray();
-                foreach (var g in keys)
-                {
-                    var need = groups[g];
-                    if (need <= 0) continue;
-                    var have = groupAvail.TryGetValue(g, out var h) ? h : 0;
-                    var take = Math.Min(need, have);
-                    if (take <= 0) continue;
-                    groups[g] = need - take;
-                }
-            }
-
-            // Detect ambiguous (overlapping) recipes: any pool code satisfies >=2 gkeys in the same recipe.
-            bool RecipeIsAmbiguous(Dictionary<string, int> groupNeeds)
-            {
-                int collisions = 0;
-                var seen = new Dictionary<string, int>(StringComparer.Ordinal);
-                foreach (var g in groupNeeds.Keys)
-                {
-                    if (!gkeyToCodes.TryGetValue(g, out var codes) || codes == null) continue;
-                    foreach (var c in codes)
-                    {
-                        var cnt = (seen.TryGetValue(c, out var v) ? v : 0) + 1;
-                        if (cnt >= 2) return true; // early out
-                        seen[c] = cnt;
-                    }
-                }
-                return false;
-            }
-
-            // Precise validator for ambiguous recipes: greedy consume from a temp "code -> qty" map.
-            bool CanSatisfyPrecisely(GridRecipeShim recipe)
+            bool CanSatisfyPrecisely_NoGkeyToCodes(GridRecipeShim recipe, ResourcePool poolLocal)
             {
                 if (recipe == null) return false;
 
-                // Local copy of pool counts (code -> qty), limited to codes relevant to this recipe.
+                // Local copy (code -> qty). Start from pool counts so we don't rebuild a filtered map first.
                 var codeAvail = new Dictionary<string, int>(StringComparer.Ordinal);
-                foreach (var pkv in pool.Counts)
-                {
-                    var c = pkv.Key.Code;
-                    // Only bring in codes that appear in any gkey for this recipe to keep it small
-                    if (!recipeGroupNeeds.TryGetValue(recipe, out var needs) || needs == null) continue;
-                    bool relevant = false;
-                    foreach (var g in needs.Keys)
-                    {
-                        if (g.StartsWith("wild:", StringComparison.Ordinal))
-                        {
-                            if (gkeyToCodes.TryGetValue(g, out var set) && set.Contains(c)) { relevant = true; break; }
-                        }
-                        else
-                        {
-                            // exact group: groupKey is a pipe-join of codes
-                            // (cheaper than splitting upfront for all)
-                            if (("|" + g + "|").Contains("|" + c + "|", StringComparison.Ordinal)) { relevant = true; break; }
-                        }
-                    }
-                    if (relevant) codeAvail[c] = pkv.Value;
-                }
+                foreach (var pkv in poolLocal.Counts) codeAvail[pkv.Key.Code] = pkv.Value;
 
-                // Consume per group
                 foreach (var gkv in recipeGroupNeeds[recipe])
                 {
-                    var need = gkv.Value;
+                    int need = gkv.Value;
                     if (need <= 0) continue;
 
                     IEnumerable<string> candidates;
                     if (gkv.Key.StartsWith("wild:", StringComparison.Ordinal))
                     {
-                        candidates = gkeyToCodes.TryGetValue(gkv.Key, out var set) ? set : Array.Empty<string>();
+                        // Filter *only* the player's codes by membership in this gkey to keep it small
+                        candidates = codeAvail.Keys.Where(c =>
+                            codeToGkeys.TryGetValue(c, out var set) && set != null && set.Contains(gkv.Key));
                     }
                     else
                     {
-                        candidates = gkv.Key.Split('|'); // exact group
+                        // Exact group: groupKey is a '|'-joined code list
+                        candidates = gkv.Key.Split('|').Where(c => codeAvail.ContainsKey(c));
                     }
 
                     int taken = 0;
                     foreach (var c in candidates)
                     {
-                        if (!codeAvail.TryGetValue(c, out var have) || have <= 0) continue;
+                        int have = codeAvail.TryGetValue(c, out var v) ? v : 0;
+                        if (have <= 0) continue;
                         int take = Math.Min(need - taken, have);
                         if (take > 0)
                         {
@@ -2071,6 +2039,7 @@ namespace ShowCraftable
                 return true;
             }
 
+
             // Pass C: collect craftable outputs; validate only ambiguous ones.
             var craftableKeys = new HashSet<StackKey>();
             foreach (var kv in remaining)
@@ -2081,15 +2050,12 @@ namespace ShowCraftable
                 bool prelimOk = groups.Count > 0 && groups.All(g => g.Value <= 0);
                 if (!prelimOk) continue;
 
-                bool ok = true;
-                if (RecipeIsAmbiguous(groups))
-                    ok = CanSatisfyPrecisely(recipe);
-
+                bool ok = !ambRecipes.Contains(recipe) ? true : CanSatisfyPrecisely_NoGkeyToCodes(recipe, pool);
                 if (!ok) continue;
 
-                // Expand into variant outputs & add as before
                 ExpandOutputsForRecipe(capi, pool, recipe, craftableKeys, recipeGroupNeeds);
             }
+
 
             craftableOutputsCount = craftableKeys.Count;
 
@@ -2150,7 +2116,14 @@ namespace ShowCraftable
                 if (processed % chunkSize == 0) Flush();
             }
 
-            AddCraftablePagesFromAllStacks(capi, pool, resultPageCodes); // keep as safety net for "misses"
+            // compute how many outputs didn’t resolve to a page via the fast map/fallbacks
+            int misses = craftableKeys.Count - (fromMap + attrFallbacks + codeOnlyFallbacks);
+
+            if (misses > 0 && misses <= 12)  // small cap to avoid O(N×M) blowups on big modpacks
+            {
+                AddCraftablePagesFromAllStacks(capi, pool, resultPageCodes);
+            }
+
             craftableOutputsCount = resultPageCodes.Count;
             Flush();
 
