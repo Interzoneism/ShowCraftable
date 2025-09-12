@@ -27,10 +27,12 @@ namespace ShowCraftable
 
         private static volatile bool CraftableTabActive;
         private static volatile bool CraftableModsTabActive;
+        private static volatile bool CraftableVariantsTabActive;
 
         public const string HarmonyId = "showcraftable.core";
         public const string CraftableCategoryCode = "craftable";
         public const string CraftableModsCategoryCode = "craftablemods";
+        public const string CraftableVariantsCategoryCode = "craftablevariants";
 
         public const string ChannelName = "showcraftablescan";
         private static int NearbyRadius = 12;
@@ -64,6 +66,7 @@ namespace ShowCraftable
         private static volatile int recipeIndexBuildProgress;
         private static volatile bool recipeIndexBuilt = false;
         private static volatile bool recipeIndexForMods = false;
+        private static volatile bool recipeIndexForVariants = false;
 
         internal static bool DebugEnabled = true;
 
@@ -272,13 +275,26 @@ namespace ShowCraftable
             return res;
         }
 
+        private static bool CodeHasVariant(string codePath)
+        {
+            if (string.IsNullOrEmpty(codePath)) return false;
+            string norm = codePath.Replace("/", " ").Replace("_", " ").Replace(".", " ");
+            int dash = norm.LastIndexOf('-');
+            if (dash > 0 && dash < norm.Length - 1)
+            {
+                string variant = norm.Substring(dash + 1).Replace("-", " ").Trim();
+                return !string.IsNullOrEmpty(variant);
+            }
+            return false;
+        }
 
         private static void ExpandOutputsForRecipe(
             ICoreClientAPI capi,
             ResourcePool pool,
             GridRecipeShim recipe,
             HashSet<StackKey> dest,
-            Dictionary<GridRecipeShim, Dictionary<string, int>> originalNeeds)
+            Dictionary<GridRecipeShim, Dictionary<string, int>> originalNeeds,
+            bool variantsOnly)
         {
             if (recipe?.Outputs == null || recipe.Outputs.Count == 0) return;
 
@@ -320,11 +336,13 @@ namespace ShowCraftable
                             finalCode = finalCode.Replace(outMat, token);
                         }
 
+                        if (variantsOnly != CodeHasVariant(finalCode)) continue;
                         dest.Add(new StackKey(finalCode, token, outType ?? ""));
                     }
                 }
                 else
                 {
+                    if (variantsOnly != CodeHasVariant(ocode)) continue;
                     dest.Add(new StackKey(ocode, outMat ?? "", outType ?? ""));
                 }
             }
@@ -497,9 +515,11 @@ namespace ShowCraftable
                 wildcardGroups.Clear();
                 wildMatchCache.Clear();
                 recipeIndexBuilt = false;
+                recipeIndexForMods = false;
+                recipeIndexForVariants = false;
                 InvalidatePageCodeMapCache();
                 LogEverywhere(capi, "[Craftable] LevelFinalize: cache reset");
-                StartRecipeIndexBuild(capi, false);
+                StartRecipeIndexBuild(capi, false, false);
             };
 
             capi.Event.LeaveWorld += InvalidatePageCodeMapCache;
@@ -536,11 +556,13 @@ namespace ShowCraftable
                 }
 
                 bool craftableExists = false;
+                bool craftableVariantsExists = false;
                 bool craftableModsExists = false;
                 foreach (var t in tabs)
                 {
                     var cat = GetPF(tabType, t, "CategoryCode") as string;
                     if (string.Equals(cat, CraftableCategoryCode, StringComparison.OrdinalIgnoreCase)) craftableExists = true;
+                    if (string.Equals(cat, CraftableVariantsCategoryCode, StringComparison.OrdinalIgnoreCase)) craftableVariantsExists = true;
                     if (string.Equals(cat, CraftableModsCategoryCode, StringComparison.OrdinalIgnoreCase)) craftableModsExists = true;
                 }
 
@@ -553,6 +575,17 @@ namespace ShowCraftable
                     SetPF(tabType, newTab, "DataInt", tabs.Count);
                     SetPF(tabType, newTab, "PaddingTop", 20.0);
                     tabs.Insert(insertAt, newTab);
+                    insertAt++;
+                }
+
+                if (!craftableVariantsExists)
+                {
+                    var newTabVar = Activator.CreateInstance(tabType);
+                    SetPF(tabType, newTabVar, "Name", "Craftable Variants");
+                    SetPF(tabType, newTabVar, "CategoryCode", CraftableVariantsCategoryCode);
+                    SetPF(tabType, newTabVar, "DataInt", tabs.Count);
+                    SetPF(tabType, newTabVar, "PaddingTop", 20.0);
+                    tabs.Insert(insertAt, newTabVar);
                     insertAt++;
                 }
 
@@ -593,8 +626,10 @@ namespace ShowCraftable
             {
                 CraftableTabActive = string.Equals(code, CraftableCategoryCode, StringComparison.Ordinal);
                 CraftableModsTabActive = string.Equals(code, CraftableModsCategoryCode, StringComparison.Ordinal);
+                CraftableVariantsTabActive = string.Equals(code, CraftableVariantsCategoryCode, StringComparison.Ordinal);
                 bool modsOnly = CraftableModsTabActive;
-                bool anyCraftable = CraftableTabActive || CraftableModsTabActive;
+                bool variantsOnly = CraftableVariantsTabActive;
+                bool anyCraftable = CraftableTabActive || CraftableVariantsTabActive || CraftableModsTabActive;
 
                 if (!DialogIsOpen(__instance))
                 {
@@ -670,7 +705,7 @@ namespace ShowCraftable
                     capi.Event.EnqueueMainThreadTask(() =>
                     {
                         if (myScanId != _pendingScanId) return;
-                        if (!DialogIsOpen(__instance) || (!CraftableTabActive && !CraftableModsTabActive)) return;
+                        if (!DialogIsOpen(__instance) || (!CraftableTabActive && !CraftableVariantsTabActive && !CraftableModsTabActive)) return;
 
                         // After the empty state was shown, repopulate from cache if available
                         bool haveCache;
@@ -680,9 +715,9 @@ namespace ShowCraftable
                             AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
                         }
 
-                        if (!recipeIndexBuilt || recipeIndexForMods != modsOnly)
+                        if (!recipeIndexBuilt || recipeIndexForMods != modsOnly || recipeIndexForVariants != variantsOnly)
                         {
-                            StartRecipeIndexBuild(capi, modsOnly);
+                            StartRecipeIndexBuild(capi, modsOnly, variantsOnly);
                             int total = Math.Max(1, recipeIndexBuildTotal);
                             capi.ShowChatMessage($"[Craftable] Building recipe index {recipeIndexBuildProgress}/{total}...");
                             if (recipeIndexBuildTask != null)
@@ -692,7 +727,7 @@ namespace ShowCraftable
                                     capi.Event.EnqueueMainThreadTask(() =>
                                     {
                                         if (myScanId != _pendingScanId) return;
-                                        if (!DialogIsOpen(__instance) || (!CraftableTabActive && !CraftableModsTabActive)) return;
+                                        if (!DialogIsOpen(__instance) || (!CraftableTabActive && !CraftableVariantsTabActive && !CraftableModsTabActive)) return;
                                         RequestServerScan(capi, NearbyRadius, includeCrates: true);
                                     }, "CraftableScanKickoff2");
                                 });
@@ -782,7 +817,8 @@ namespace ShowCraftable
                 var cur = AccessTools.Field(__instance.GetType(), "currentCatgoryCode")?.GetValue(__instance) as string;
 
                 if (capi != null && (string.Equals(cur, CraftableCategoryCode, StringComparison.Ordinal) ||
-                                     string.Equals(cur, CraftableModsCategoryCode, StringComparison.Ordinal)))
+                                     string.Equals(cur, CraftableModsCategoryCode, StringComparison.Ordinal) ||
+                                     string.Equals(cur, CraftableVariantsCategoryCode, StringComparison.Ordinal)))
                 {
                     AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
                     LogEverywhere(capi, "[Craftable] AfterPagesLoaded: refreshed Craftable tab");
@@ -811,7 +847,8 @@ namespace ShowCraftable
             {
                 string cat = (string)AccessTools.Field(__instance.GetType(), "currentCatgoryCode").GetValue(__instance);
                 if (!(string.Equals(cat, CraftableCategoryCode, StringComparison.Ordinal) ||
-                      string.Equals(cat, CraftableModsCategoryCode, StringComparison.Ordinal))) return true;
+                      string.Equals(cat, CraftableModsCategoryCode, StringComparison.Ordinal) ||
+                      string.Equals(cat, CraftableVariantsCategoryCode, StringComparison.Ordinal))) return true;
 
                 var fiCapi = AccessTools.Field(__instance.GetType(), "capi");
                 var fiShown = AccessTools.Field(__instance.GetType(), "shownHandbookPages");
@@ -953,7 +990,8 @@ namespace ShowCraftable
                 }
                 var cur = AccessTools.Field(dlg.GetType(), "currentCatgoryCode")?.GetValue(dlg) as string;
                 if (!(string.Equals(cur, CraftableCategoryCode, StringComparison.Ordinal) ||
-                      string.Equals(cur, CraftableModsCategoryCode, StringComparison.Ordinal)))
+                      string.Equals(cur, CraftableModsCategoryCode, StringComparison.Ordinal) ||
+                      string.Equals(cur, CraftableVariantsCategoryCode, StringComparison.Ordinal)))
                 {
                     LastDialogPageCount = 0;
                     return;
@@ -1204,7 +1242,7 @@ namespace ShowCraftable
             public EnumItemClass Type;
         }
 
-        private static List<GridRecipeShim> GetAllGridRecipes(ICoreClientAPI capi, out int fetched, out int usable, bool modsOnly)
+        private static List<GridRecipeShim> GetAllGridRecipes(ICoreClientAPI capi, out int fetched, out int usable, bool modsOnly, bool variantsOnly)
         {
             var sw = Stopwatch.StartNew();
             var list = new List<GridRecipeShim>();
@@ -1229,20 +1267,26 @@ namespace ShowCraftable
                 var shim = TryBuildGridShim(raw, capi);
                 if (shim != null && shim.Outputs.Count > 0)
                 {
+                    bool anyVariant = shim.Outputs.Any(s => CodeHasVariant(s?.Collectible?.Code?.Path));
+                    bool anyNonVariant = shim.Outputs.Any(s => !CodeHasVariant(s?.Collectible?.Code?.Path));
+                    bool matchesVariant = variantsOnly ? anyVariant : anyNonVariant;
                     if ((modsOnly && shim.IsMod) || (!modsOnly && !shim.IsMod))
                     {
-                        usable++;
-                        list.Add(shim);
+                        if (matchesVariant)
+                        {
+                            usable++;
+                            list.Add(shim);
+                        }
                     }
                 }
-            }
+        }
 
             sw.Stop();
             LogEverywhere(capi, $"[Craftable] Grid recipes fetched={fetched}, usable={usable}, ms={sw.ElapsedMilliseconds}, gridMemberFound={gridMemberFound}, usedWorldList={usedGridRecipes}");
             return list;
         }
 
-        private static string GetCachePath(ICoreClientAPI capi, bool modsOnly)
+        private static string GetCachePath(ICoreClientAPI capi, bool modsOnly, bool variantsOnly)
         {
             try
             {
@@ -1253,19 +1297,21 @@ namespace ShowCraftable
                     basePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ShowCraftable");
                 }
                 Directory.CreateDirectory(basePath);
-                return Path.Combine(basePath, modsOnly ? "recipeindex_mods.bin" : "recipeindex.bin");
+                string fname = modsOnly ? "recipeindex_mods.bin" : (variantsOnly ? "recipeindex_variants.bin" : "recipeindex.bin");
+                return Path.Combine(basePath, fname);
             }
             catch
             {
-                return Path.Combine(Path.GetTempPath(), modsOnly ? "recipeindex_mods.bin" : "recipeindex.bin");
+                string fname = modsOnly ? "recipeindex_mods.bin" : (variantsOnly ? "recipeindex_variants.bin" : "recipeindex.bin");
+                return Path.Combine(Path.GetTempPath(), fname);
             }
         }
 
-        private static bool LoadRecipeIndex(ICoreClientAPI capi, bool modsOnly)
+        private static bool LoadRecipeIndex(ICoreClientAPI capi, bool modsOnly, bool variantsOnly)
         {
             try
             {
-                var path = GetCachePath(capi, modsOnly);
+                var path = GetCachePath(capi, modsOnly, variantsOnly);
                 if (!File.Exists(path)) return false;
                 RecipeIndexCache data;
                 using (var fs = File.OpenRead(path)) data = Serializer.Deserialize<RecipeIndexCache>(fs);
@@ -1362,12 +1408,12 @@ namespace ShowCraftable
             catch { return false; }
         }
 
-        private static void StartRecipeIndexBuild(ICoreClientAPI capi, bool modsOnly)
+        private static void StartRecipeIndexBuild(ICoreClientAPI capi, bool modsOnly, bool variantsOnly)
         {
-            if (recipeIndexBuilt && recipeIndexForMods == modsOnly) return;
+            if (recipeIndexBuilt && recipeIndexForMods == modsOnly && recipeIndexForVariants == variantsOnly) return;
             if (recipeIndexBuildTask != null && !recipeIndexBuildTask.IsCompleted)
             {
-                recipeIndexBuildTask.ContinueWith(_ => StartRecipeIndexBuild(capi, modsOnly));
+                recipeIndexBuildTask.ContinueWith(_ => StartRecipeIndexBuild(capi, modsOnly, variantsOnly));
                 return;
             }
             recipeIndexBuilt = false;
@@ -1378,23 +1424,24 @@ namespace ShowCraftable
             }
             recipeIndexBuildTask = Task.Run(() =>
             {
-                if (!LoadRecipeIndex(capi, modsOnly))
+                if (!LoadRecipeIndex(capi, modsOnly, variantsOnly))
                 {
-                    BuildRecipeIndex(capi, modsOnly);
+                    BuildRecipeIndex(capi, modsOnly, variantsOnly);
                 }
                 recipeIndexBuilt = true;
                 recipeIndexForMods = modsOnly;
+                recipeIndexForVariants = variantsOnly;
                 GetCachedPageCodeMap(capi);
             });
         }
-        private static void BuildRecipeIndex(ICoreClientAPI capi, bool modsOnly)
+        private static void BuildRecipeIndex(ICoreClientAPI capi, bool modsOnly, bool variantsOnly)
         {
             var sw = Stopwatch.StartNew();
             codeToRecipeGroups.Clear();
             recipeGroupNeeds.Clear();
             codeToGkeys.Clear();
 
-            var recipes = GetAllGridRecipes(capi, out recipesFetched, out recipesUsable, modsOnly);
+            var recipes = GetAllGridRecipes(capi, out recipesFetched, out recipesUsable, modsOnly, variantsOnly);
             recipeIndexBuildTotal = recipes.Count;
             recipeIndexBuildProgress = 0;
 
@@ -1825,7 +1872,7 @@ namespace ShowCraftable
             return list;
         }
 
-        private static void AddCraftablePagesFromAllStacks(ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest, bool modsOnly)
+        private static void AddCraftablePagesFromAllStacks(ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest, bool modsOnly, bool variantsOnly)
         {
             try
             {
@@ -1846,6 +1893,7 @@ namespace ShowCraftable
 
                     bool isModStack = !string.Equals(st.Collectible.Code?.Domain, "game", StringComparison.Ordinal);
                     if (modsOnly != isModStack) continue;
+                    if (variantsOnly != CodeHasVariant(st.Collectible.Code?.Path)) continue;
 
                     object page = ctor.Invoke(new object[] { capi, st });
                     var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
@@ -1891,7 +1939,7 @@ namespace ShowCraftable
                     if (st != null) pool.Add(st);
                 }
 
-                string sig = pool.GetSignature();
+                string sig = $"{(CraftableModsTabActive ? "m" : "b")}{(CraftableVariantsTabActive ? "v" : "n")}|" + pool.GetSignature();
                 List<string> cached;
                 bool reused = false;
                 lock (CacheLock)
@@ -1921,7 +1969,7 @@ namespace ShowCraftable
                 {
                     try
                     {
-                        int pages = RebuildCacheWithPool(_capi, pool, out int outputs, out int fetched, out int usable, CraftableModsTabActive);
+                        int pages = RebuildCacheWithPool(_capi, pool, out int outputs, out int fetched, out int usable, CraftableModsTabActive, CraftableVariantsTabActive);
                         lock (CacheLock) ScanResultsCache[sig] = CachedPageCodes.ToList();
                         _capi.Event.EnqueueMainThreadTask(() => LogEverywhere(_capi, $"[Craftable] Server nearby scan merged: outputs={outputs}, pages={pages}, fetched={fetched}, usable={usable}", toChat: true), null);
                     }
@@ -1949,7 +1997,7 @@ namespace ShowCraftable
 
         private static int RebuildCacheWithPool(
     ICoreClientAPI capi, ResourcePool pool,
-    out int craftableOutputsCount, out int fetched, out int usable, bool modsOnly)
+    out int craftableOutputsCount, out int fetched, out int usable, bool modsOnly, bool variantsOnly)
         {
             var sw = Stopwatch.StartNew();
             craftableOutputsCount = 0; fetched = recipesFetched; usable = recipesUsable;
@@ -2089,7 +2137,7 @@ namespace ShowCraftable
                 bool ok = !ambRecipes.Contains(recipe) ? true : CanSatisfyPrecisely_NoGkeyToCodes(recipe, pool);
                 if (!ok) continue;
 
-                ExpandOutputsForRecipe(capi, pool, recipe, craftableKeys, recipeGroupNeeds);
+                ExpandOutputsForRecipe(capi, pool, recipe, craftableKeys, recipeGroupNeeds, variantsOnly);
             }
 
 
@@ -2157,7 +2205,7 @@ namespace ShowCraftable
 
             if (misses > 0 && misses <= 12)  // small cap to avoid O(N×M) blowups on big modpacks
             {
-                AddCraftablePagesFromAllStacks(capi, pool, resultPageCodes, modsOnly);
+                AddCraftablePagesFromAllStacks(capi, pool, resultPageCodes, modsOnly, variantsOnly);
             }
 
             craftableOutputsCount = resultPageCodes.Count;
