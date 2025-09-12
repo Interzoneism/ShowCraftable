@@ -294,6 +294,8 @@ namespace ShowCraftable
             GridRecipeShim recipe,
             HashSet<StackKey> dest,
             Dictionary<GridRecipeShim, Dictionary<string, int>> originalNeeds,
+
+            bool modsOnly,
             bool variantsOnly)
         {
             if (recipe?.Outputs == null || recipe.Outputs.Count == 0) return;
@@ -336,13 +338,17 @@ namespace ShowCraftable
                             finalCode = finalCode.Replace(outMat, token);
                         }
 
-                        if (variantsOnly != CodeHasVariant(finalCode)) continue;
+
+                        if (!modsOnly && variantsOnly != CodeHasVariant(finalCode)) continue;
+
                         dest.Add(new StackKey(finalCode, token, outType ?? ""));
                     }
                 }
                 else
                 {
-                    if (variantsOnly != CodeHasVariant(ocode)) continue;
+
+                    if (!modsOnly && variantsOnly != CodeHasVariant(ocode)) continue;
+
                     dest.Add(new StackKey(ocode, outMat ?? "", outType ?? ""));
                 }
             }
@@ -1269,7 +1275,9 @@ namespace ShowCraftable
                 {
                     bool anyVariant = shim.Outputs.Any(s => CodeHasVariant(s?.Collectible?.Code?.Path));
                     bool anyNonVariant = shim.Outputs.Any(s => !CodeHasVariant(s?.Collectible?.Code?.Path));
-                    bool matchesVariant = variantsOnly ? anyVariant : anyNonVariant;
+
+                    bool matchesVariant = modsOnly || (variantsOnly ? anyVariant : anyNonVariant);
+
                     if ((modsOnly && shim.IsMod) || (!modsOnly && !shim.IsMod))
                     {
                         if (matchesVariant)
@@ -1893,7 +1901,9 @@ namespace ShowCraftable
 
                     bool isModStack = !string.Equals(st.Collectible.Code?.Domain, "game", StringComparison.Ordinal);
                     if (modsOnly != isModStack) continue;
-                    if (variantsOnly != CodeHasVariant(st.Collectible.Code?.Path)) continue;
+
+                    if (!modsOnly && variantsOnly != CodeHasVariant(st.Collectible.Code?.Path)) continue;
+
 
                     object page = ctor.Invoke(new object[] { capi, st });
                     var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
@@ -2137,7 +2147,9 @@ namespace ShowCraftable
                 bool ok = !ambRecipes.Contains(recipe) ? true : CanSatisfyPrecisely_NoGkeyToCodes(recipe, pool);
                 if (!ok) continue;
 
-                ExpandOutputsForRecipe(capi, pool, recipe, craftableKeys, recipeGroupNeeds, variantsOnly);
+
+                ExpandOutputsForRecipe(capi, pool, recipe, craftableKeys, recipeGroupNeeds, modsOnly, variantsOnly);
+
             }
 
 
