@@ -1783,7 +1783,7 @@ namespace ShowCraftable
             return true;
         }
 
-        private static List<GridRecipe> CollectGridRecipesForStack(ICoreClientAPI capi, ItemStack stack)
+        private static List<GridRecipe> CollectGridRecipesForStack(ICoreClientAPI capi, ItemStack stack, bool modsOnly)
         {
             var list = new List<GridRecipe>();
             try
@@ -1791,6 +1791,13 @@ namespace ShowCraftable
                 foreach (var gr in capi.World.GridRecipes)
                 {
                     if (!gr.ShowInCreatedBy) continue;
+
+                    bool isMod = gr.Name != null
+                        ? !string.Equals(gr.Name.Domain, "game", StringComparison.Ordinal)
+                        : gr.Output?.ResolvedItemstack?.Collectible?.Code != null &&
+                          !string.Equals(gr.Output.ResolvedItemstack.Collectible.Code.Domain, "game", StringComparison.Ordinal);
+                    if (modsOnly != isMod) continue;
+
                     var outStack = gr.Output?.ResolvedItemstack;
                     if (outStack != null && outStack.Satisfies(stack))
                     {
@@ -1818,7 +1825,7 @@ namespace ShowCraftable
             return list;
         }
 
-        private static void AddCraftablePagesFromAllStacks(ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest)
+        private static void AddCraftablePagesFromAllStacks(ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest, bool modsOnly)
         {
             try
             {
@@ -1836,9 +1843,13 @@ namespace ShowCraftable
                 foreach (var st in stacks)
                 {
                     if (st?.Collectible == null) continue;
+
+                    bool isModStack = !string.Equals(st.Collectible.Code?.Domain, "game", StringComparison.Ordinal);
+                    if (modsOnly != isModStack) continue;
+
                     object page = ctor.Invoke(new object[] { capi, st });
                     var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
-                    var recipes = CollectGridRecipesForStack(capi, pStack);
+                    var recipes = CollectGridRecipesForStack(capi, pStack, modsOnly);
                     foreach (var r in recipes)
                     {
                         if (RecipeSatisfiedByPool(capi, pool, r, pStack))
@@ -1910,7 +1921,7 @@ namespace ShowCraftable
                 {
                     try
                     {
-                        int pages = RebuildCacheWithPool(_capi, pool, out int outputs, out int fetched, out int usable);
+                        int pages = RebuildCacheWithPool(_capi, pool, out int outputs, out int fetched, out int usable, CraftableModsTabActive);
                         lock (CacheLock) ScanResultsCache[sig] = CachedPageCodes.ToList();
                         _capi.Event.EnqueueMainThreadTask(() => LogEverywhere(_capi, $"[Craftable] Server nearby scan merged: outputs={outputs}, pages={pages}, fetched={fetched}, usable={usable}", toChat: true), null);
                     }
@@ -1938,7 +1949,7 @@ namespace ShowCraftable
 
         private static int RebuildCacheWithPool(
     ICoreClientAPI capi, ResourcePool pool,
-    out int craftableOutputsCount, out int fetched, out int usable)
+    out int craftableOutputsCount, out int fetched, out int usable, bool modsOnly)
         {
             var sw = Stopwatch.StartNew();
             craftableOutputsCount = 0; fetched = recipesFetched; usable = recipesUsable;
@@ -2146,7 +2157,7 @@ namespace ShowCraftable
 
             if (misses > 0 && misses <= 12)  // small cap to avoid O(N×M) blowups on big modpacks
             {
-                AddCraftablePagesFromAllStacks(capi, pool, resultPageCodes);
+                AddCraftablePagesFromAllStacks(capi, pool, resultPageCodes, modsOnly);
             }
 
             craftableOutputsCount = resultPageCodes.Count;
