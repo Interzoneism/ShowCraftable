@@ -26,16 +26,32 @@ namespace ShowCraftable
         private static ICoreClientAPI _staticCapi;
 
         private static volatile bool CraftableTabActive;
+        private static volatile bool CraftableModsTabActive;
 
         public const string HarmonyId = "showcraftable.core";
         public const string CraftableCategoryCode = "craftable";
+        public const string CraftableModsCategoryCode = "craftablemods";
 
         public const string ChannelName = "showcraftablescan";
         private static int NearbyRadius = 12;
 
         private static readonly object CacheLock = new();
-        private static List<string> CachedPageCodes = new();
-        private static readonly Dictionary<string, List<string>> ScanResultsCache = new();
+        private static List<string> CachedPageCodesVanilla = new();
+        private static List<string> CachedPageCodesMods = new();
+        private static readonly Dictionary<string, List<string>> ScanResultsCacheVanilla = new();
+        private static readonly Dictionary<string, List<string>> ScanResultsCacheMods = new();
+
+        private static List<string> ActiveCache
+        {
+            get => CraftableModsTabActive ? CachedPageCodesMods : CachedPageCodesVanilla;
+            set
+            {
+                if (CraftableModsTabActive) CachedPageCodesMods = value; else CachedPageCodesVanilla = value;
+            }
+        }
+
+        private static Dictionary<string, List<string>> ActiveScanResultsCache =>
+            CraftableModsTabActive ? ScanResultsCacheMods : ScanResultsCacheVanilla;
 
         private static readonly object PageCodeMapLock = new();
         private static Dictionary<StackKey, string> AllStacksPageCodeMap = new();
@@ -43,6 +59,7 @@ namespace ShowCraftable
 
         private static bool ScanInProgress = false;
         private static int LastDialogPageCount;
+        private static int LastDialogModsPageCount;
 
         private static Dictionary<string, List<(GridRecipeShim Recipe, string GroupKey)>> codeToRecipeGroups = new();
         // Maps a collectible code -> all ingredient group keys (gkeys) that the code satisfies.
@@ -439,7 +456,7 @@ namespace ShowCraftable
                     try
                     {
                         List<string> codes;
-                        lock (CacheLock) codes = CachedPageCodes.ToList();
+                        lock (CacheLock) codes = ActiveCache.ToList();
 
                         LogEverywhere(capi, $"[Craftable] dump: cached={codes.Count}, first10=[{string.Join(", ", codes.Take(10))}]", toChat: true);
 
@@ -473,14 +490,18 @@ namespace ShowCraftable
             {
                 lock (CacheLock)
                 {
-                    CachedPageCodes.Clear();
-                    ScanResultsCache.Clear();
+                    CachedPageCodesVanilla.Clear();
+                    CachedPageCodesMods.Clear();
+                    ScanResultsCacheVanilla.Clear();
+                    ScanResultsCacheMods.Clear();
                 }
                 codeToRecipeGroups.Clear();
                 recipeGroupNeeds.Clear();
                 wildcardGroups.Clear();
                 wildMatchCache.Clear();
                 recipeIndexBuilt = false;
+                LastDialogPageCount = 0;
+                LastDialogModsPageCount = 0;
                 InvalidatePageCodeMapCache();
                 LogEverywhere(capi, "[Craftable] LevelFinalize: cache reset");
                 StartRecipeIndexBuild(capi);
@@ -519,24 +540,37 @@ namespace ShowCraftable
                     if (fi != null) fi.SetValue(o, val);
                 }
 
+                bool haveCraftable = false;
+                bool haveCraftableMods = false;
                 foreach (var t in tabs)
                 {
                     var cat = GetPF(tabType, t, "CategoryCode") as string;
-                    if (string.Equals(cat, CraftableCategoryCode, StringComparison.OrdinalIgnoreCase))
-                    {
-                        __result = ToTypedArray(tabType, tabs);
-                        return;
-                    }
+                    if (string.Equals(cat, CraftableCategoryCode, StringComparison.OrdinalIgnoreCase)) haveCraftable = true;
+                    if (string.Equals(cat, CraftableModsCategoryCode, StringComparison.OrdinalIgnoreCase)) haveCraftableMods = true;
                 }
 
-                var newTab = Activator.CreateInstance(tabType);
-                SetPF(tabType, newTab, "Name", "Craftable");
-                SetPF(tabType, newTab, "CategoryCode", CraftableCategoryCode);
-                SetPF(tabType, newTab, "DataInt", tabs.Count);
-                SetPF(tabType, newTab, "PaddingTop", 20.0);
-
                 int insertAt = Math.Min(2, tabs.Count);
-                tabs.Insert(insertAt, newTab);
+                if (!haveCraftable)
+                {
+                    var newTab = Activator.CreateInstance(tabType);
+                    SetPF(tabType, newTab, "Name", "Craftable");
+                    SetPF(tabType, newTab, "CategoryCode", CraftableCategoryCode);
+                    SetPF(tabType, newTab, "DataInt", tabs.Count);
+                    SetPF(tabType, newTab, "PaddingTop", 20.0);
+                    tabs.Insert(insertAt, newTab);
+                    insertAt++;
+                }
+
+                if (!haveCraftableMods)
+                {
+                    var newTab = Activator.CreateInstance(tabType);
+                    SetPF(tabType, newTab, "Name", "Craftable (Mods)");
+                    SetPF(tabType, newTab, "CategoryCode", CraftableModsCategoryCode);
+                    SetPF(tabType, newTab, "DataInt", tabs.Count);
+                    SetPF(tabType, newTab, "PaddingTop", 20.0);
+                    tabs.Insert(insertAt, newTab);
+                }
+
                 __result = ToTypedArray(tabType, tabs);
             }
             catch { }
@@ -562,7 +596,8 @@ namespace ShowCraftable
         {
             try
             {
-                CraftableTabActive = string.Equals(code, CraftableCategoryCode, StringComparison.Ordinal);
+                CraftableModsTabActive = string.Equals(code, CraftableModsCategoryCode, StringComparison.Ordinal);
+                CraftableTabActive = CraftableModsTabActive || string.Equals(code, CraftableCategoryCode, StringComparison.Ordinal);
 
 
                 if (!DialogIsOpen(__instance))
@@ -611,14 +646,14 @@ namespace ShowCraftable
                             List<string> snapshot;
                             lock (CacheLock)
                             {
-                                snapshot = CachedPageCodes.ToList();
-                                CachedPageCodes.Clear();
+                                snapshot = ActiveCache.ToList();
+                                ActiveCache.Clear();
                             }
 
                             AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
 
                             // Restore cache for later reuse
-                            lock (CacheLock) CachedPageCodes = snapshot;
+                            lock (CacheLock) ActiveCache = snapshot;
                         }
                         catch { }
                     }, "SCClearCraftableList");
@@ -643,7 +678,7 @@ namespace ShowCraftable
 
                         // After the empty state was shown, repopulate from cache if available
                         bool haveCache;
-                        lock (CacheLock) haveCache = CachedPageCodes.Count > 0;
+                        lock (CacheLock) haveCache = ActiveCache.Count > 0;
                         if (haveCache)
                         {
                             AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
@@ -685,13 +720,13 @@ namespace ShowCraftable
                         List<string> snapshot;
                         lock (CacheLock)
                         {
-                            snapshot = CachedPageCodes.ToList();
-                            CachedPageCodes.Clear();
+                            snapshot = ActiveCache.ToList();
+                            ActiveCache.Clear();
                         }
 
                         AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
 
-                        lock (CacheLock) CachedPageCodes = snapshot;
+                        lock (CacheLock) ActiveCache = snapshot;
                     }
                     catch { }
                 }
@@ -750,10 +785,11 @@ namespace ShowCraftable
                 var capi = fiCapi?.GetValue(__instance) as ICoreClientAPI;
                 var cur = AccessTools.Field(__instance.GetType(), "currentCatgoryCode")?.GetValue(__instance) as string;
 
-                if (capi != null && string.Equals(cur, CraftableCategoryCode, StringComparison.Ordinal))
+                if (capi != null && (string.Equals(cur, CraftableCategoryCode, StringComparison.Ordinal) ||
+                                      string.Equals(cur, CraftableModsCategoryCode, StringComparison.Ordinal)))
                 {
                     AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
-                    LogEverywhere(capi, "[Craftable] AfterPagesLoaded: refreshed Craftable tab");
+                    LogEverywhere(capi, $"[Craftable] AfterPagesLoaded: refreshed {cur} tab");
                 }
             }
             catch { }
@@ -778,7 +814,8 @@ namespace ShowCraftable
             try
             {
                 string cat = (string)AccessTools.Field(__instance.GetType(), "currentCatgoryCode").GetValue(__instance);
-                if (!string.Equals(cat, CraftableCategoryCode, StringComparison.Ordinal)) return true;
+                if (!string.Equals(cat, CraftableCategoryCode, StringComparison.Ordinal) &&
+                    !string.Equals(cat, CraftableModsCategoryCode, StringComparison.Ordinal)) return true;
 
                 var fiCapi = AccessTools.Field(__instance.GetType(), "capi");
                 var fiShown = AccessTools.Field(__instance.GetType(), "shownHandbookPages");
@@ -804,7 +841,7 @@ namespace ShowCraftable
                 if (pageMap == null || allPages == null) return true;
 
                 List<string> codesSnapshot;
-                lock (CacheLock) codesSnapshot = CachedPageCodes.ToList();
+                lock (CacheLock) codesSnapshot = ActiveCache.ToList();
 
                 var resolvedPages = new List<object>();
                 int missing = 0;
@@ -909,6 +946,7 @@ namespace ShowCraftable
                 if (ms == null)
                 {
                     LastDialogPageCount = 0;
+                    LastDialogModsPageCount = 0;
                     return;
                 }
                 var fiDialog = AccessTools.Field(msType, "dialog");
@@ -916,19 +954,30 @@ namespace ShowCraftable
                 if (dlg == null)
                 {
                     LastDialogPageCount = 0;
+                    LastDialogModsPageCount = 0;
                     return;
                 }
                 var cur = AccessTools.Field(dlg.GetType(), "currentCatgoryCode")?.GetValue(dlg) as string;
-                if (!string.Equals(cur, CraftableCategoryCode, StringComparison.Ordinal))
+                bool isMods = string.Equals(cur, CraftableModsCategoryCode, StringComparison.Ordinal);
+                if (!isMods && !string.Equals(cur, CraftableCategoryCode, StringComparison.Ordinal))
                 {
                     LastDialogPageCount = 0;
+                    LastDialogModsPageCount = 0;
                     return;
                 }
 
                 int count;
-                lock (CacheLock) count = CachedPageCodes.Count;
-                if (count == LastDialogPageCount) return;
-                LastDialogPageCount = count;
+                lock (CacheLock) count = isMods ? CachedPageCodesMods.Count : CachedPageCodesVanilla.Count;
+                if (isMods)
+                {
+                    if (count == LastDialogModsPageCount) return;
+                    LastDialogModsPageCount = count;
+                }
+                else
+                {
+                    if (count == LastDialogPageCount) return;
+                    LastDialogPageCount = count;
+                }
 
                 AccessTools.Method(dlg.GetType(), "FilterItems")?.Invoke(dlg, null);
             }
@@ -1154,6 +1203,7 @@ namespace ShowCraftable
         private sealed class GridRecipeShim
         {
             public object Raw;
+            public AssetLocation Name;
             public List<GridIngredientShim> Ingredients = new();
             public List<ItemStack> Outputs = new();
         }
@@ -1167,6 +1217,18 @@ namespace ShowCraftable
             public AssetLocation PatternCode;
             public string[] Allowed;
             public EnumItemClass Type;
+        }
+
+        private static bool IsModRecipe(GridRecipeShim recipe)
+        {
+            return recipe?.Name != null &&
+                   !string.Equals(recipe.Name.Domain, "game", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool RecipeMatchesCurrentTab(GridRecipeShim recipe)
+        {
+            bool isMod = IsModRecipe(recipe);
+            return CraftableModsTabActive ? isMod : !isMod;
         }
 
         private static List<GridRecipeShim> GetAllGridRecipes(ICoreClientAPI capi, out int fetched, out int usable)
@@ -1494,6 +1556,7 @@ namespace ShowCraftable
             if (!t.Name.Contains("GridRecipe", StringComparison.OrdinalIgnoreCase)) return null;
 
             var shim = new GridRecipeShim { Raw = raw };
+            shim.Name = TryGetMember(t, raw, "Name") as AssetLocation;
 
             bool hadResolved = false;
             var resolvedIngreds = TryGetMember(t, raw, "resolvedIngredients");
@@ -1752,6 +1815,17 @@ namespace ShowCraftable
             {
                 foreach (var gr in capi.World.GridRecipes)
                 {
+                    if (CraftableModsTabActive)
+                    {
+                        if (gr?.Name == null || string.Equals(gr.Name.Domain, "game", StringComparison.OrdinalIgnoreCase))
+                            continue;
+                    }
+                    else
+                    {
+                        if (gr?.Name != null && !string.Equals(gr.Name.Domain, "game", StringComparison.OrdinalIgnoreCase))
+                            continue;
+                    }
+
                     if (!gr.ShowInCreatedBy) continue;
                     var outStack = gr.Output?.ResolvedItemstack;
                     if (outStack != null && outStack.Satisfies(stack))
@@ -1847,9 +1921,9 @@ namespace ShowCraftable
                 bool reused = false;
                 lock (CacheLock)
                 {
-                    if (ScanResultsCache.TryGetValue(sig, out cached))
+                    if (ActiveScanResultsCache.TryGetValue(sig, out cached))
                     {
-                        CachedPageCodes = cached.ToList();
+                        ActiveCache = cached.ToList();
                         reused = true;
                     }
                 }
@@ -1858,7 +1932,7 @@ namespace ShowCraftable
                 {
                     _capi.Event.EnqueueMainThreadTask(() =>
                     {
-                        LogEverywhere(_capi, $"[Craftable] Server nearby scan reused cache: pages={CachedPageCodes.Count}", toChat: true);
+                        LogEverywhere(_capi, $"[Craftable] Server nearby scan reused cache: pages={ActiveCache.Count}", toChat: true);
                         TryRefreshOpenDialog(_capi);
                         SetUpdatingText(_capi, false);
                     }, null);
@@ -1873,7 +1947,7 @@ namespace ShowCraftable
                     try
                     {
                         int pages = RebuildCacheWithPool(_capi, pool, out int outputs, out int fetched, out int usable);
-                        lock (CacheLock) ScanResultsCache[sig] = CachedPageCodes.ToList();
+                        lock (CacheLock) ActiveScanResultsCache[sig] = ActiveCache.ToList();
                         _capi.Event.EnqueueMainThreadTask(() => LogEverywhere(_capi, $"[Craftable] Server nearby scan merged: outputs={outputs}, pages={pages}, fetched={fetched}, usable={usable}", toChat: true), null);
                     }
                     catch (Exception e)
@@ -1972,6 +2046,9 @@ namespace ShowCraftable
             // Pass B: for each recipe, check needs against groupAvail (non-consuming, recipe-local)
             foreach (var kv in remaining)
             {
+                var recipe = kv.Key;
+                if (!RecipeMatchesCurrentTab(recipe)) continue;
+
                 var groups = kv.Value;
                 if (groups == null || groups.Count == 0) continue;
 
@@ -2076,6 +2153,7 @@ namespace ShowCraftable
             foreach (var kv in remaining)
             {
                 var recipe = kv.Key;
+                if (!RecipeMatchesCurrentTab(recipe)) continue;
                 var groups = kv.Value;
 
                 bool prelimOk = groups.Count > 0 && groups.All(g => g.Value <= 0);
@@ -2109,7 +2187,7 @@ namespace ShowCraftable
 
             void Flush()
             {
-                lock (CacheLock) CachedPageCodes = resultPageCodes.ToList();
+                lock (CacheLock) ActiveCache = resultPageCodes.ToList();
                 capi.Event.EnqueueMainThreadTask(() => TryRefreshOpenDialog(capi), null);
             }
 
