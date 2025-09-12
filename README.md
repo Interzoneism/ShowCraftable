@@ -1,1 +1,9 @@
-Vintage Story mod that scans what items you have on your character and in every storage container within 12 blocks, figures out what grid recipes you can build, and builds a new tab in the handbook called "Craftable" populated by the recipes respective handbook pages. Also includes a button to fetch the ingredients from storage.
+# ShowCraftable
+
+ShowCraftable is a Vintage Story mod that:
+
+- Scans items in your hotbar, crafting grid, backpack,
+  and storage containers within a 12-block radius
+- Builds a **Craftable** tab in the handbook listing grid recipes you can craft with
+  those items
+- Adds a button on recipe pages to fetch the required ingredients from nearby storage
