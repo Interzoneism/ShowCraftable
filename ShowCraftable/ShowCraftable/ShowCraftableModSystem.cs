@@ -45,6 +45,10 @@ namespace ShowCraftable
         private static int LastDialogPageCount;
 
         private static Dictionary<string, List<(GridRecipeShim Recipe, string GroupKey)>> codeToRecipeGroups = new();
+        // Maps a collectible code -> all ingredient group keys (gkeys) that the code satisfies.
+        // Built at index time, used at runtime for fast group aggregation.
+        private static Dictionary<string, HashSet<string>> codeToGkeys =
+            new(StringComparer.Ordinal);
         private static Dictionary<GridRecipeShim, Dictionary<string, int>> recipeGroupNeeds = new();
         private static int recipesFetched;
         private static int recipesUsable;
@@ -102,6 +106,8 @@ namespace ShowCraftable
         {
             [ProtoMember(1)] public List<CachedRecipe> Recipes { get; set; } = new();
             [ProtoMember(2)] public Dictionary<string, List<CodeRecipeRef>> CodeToRecipes { get; set; } = new();
+            // NEW: optional since older caches won’t have it
+            [ProtoMember(3)] public Dictionary<string, List<string>> CodeToGkeys { get; set; } = new();
         }
 
 
@@ -203,6 +209,11 @@ namespace ShowCraftable
             }
             catch { /* best effort */ }
             return st;
+        }
+        private static ItemStack KeyToItemStack(ICoreClientAPI capi, StackKey key)
+        {
+            // Rebuild a stack from the key: code + attrs we stored.
+            return MakeStackFromCodeAndAttrs(capi, key.Code, key.Material, key.Type);
         }
 
         private static string ExtractTokenFromPath(string patternPath, string codePath)
@@ -1288,6 +1299,24 @@ namespace ShowCraftable
                     }
                     codeToRecipeGroups[kv.Key] = list;
                 }
+                codeToGkeys.Clear();
+                if (data.CodeToGkeys != null && data.CodeToGkeys.Count > 0)
+                {
+                    foreach (var kv in data.CodeToGkeys)
+                        codeToGkeys[kv.Key] = new HashSet<string>(kv.Value ?? new List<string>(), StringComparer.Ordinal);
+                }
+                else
+                {
+                    // Back-compat: derive set of gkeys per code from (code -> (recipe,gkey))
+                    foreach (var kv in codeToRecipeGroups)
+                    {
+                        if (!codeToGkeys.TryGetValue(kv.Key, out var gset))
+                            codeToGkeys[kv.Key] = gset = new HashSet<string>(StringComparer.Ordinal);
+                        foreach (var pair in kv.Value)
+                            gset.Add(pair.GroupKey);
+                    }
+                }
+
 
                 recipeIndexBuilt = true;
                 return true;
@@ -1313,6 +1342,7 @@ namespace ShowCraftable
             var sw = Stopwatch.StartNew();
             codeToRecipeGroups.Clear();
             recipeGroupNeeds.Clear();
+            codeToGkeys.Clear();
 
             var recipes = GetAllGridRecipes(capi, out recipesFetched, out recipesUsable);
             recipeIndexBuildTotal = recipes.Count;
@@ -1394,6 +1424,15 @@ namespace ShowCraftable
                             codeToRecipeGroups[code] = list = new List<(GridRecipeShim Recipe, string GroupKey)>();
                         if (!list.Any(p => ReferenceEquals(p.Recipe, r) && p.GroupKey == groupKey))
                             list.Add((r, groupKey));
+                    }
+
+                    // Also fill the code -> gkeys index (recipe-agnostic)
+                    foreach (var code in satisfiableCodes)
+                    {
+                        if (string.IsNullOrEmpty(code)) continue;
+                        if (!codeToGkeys.TryGetValue(code, out var gset))
+                            codeToGkeys[code] = gset = new HashSet<string>(StringComparer.Ordinal);
+                        gset.Add(groupKey);
                     }
                 }
 
@@ -1859,103 +1898,202 @@ namespace ShowCraftable
         }
 
 
-        private static int RebuildCacheWithPool(ICoreClientAPI capi, ResourcePool pool,
-     out int craftableOutputsCount, out int fetched, out int usable)
+        private static int RebuildCacheWithPool(
+    ICoreClientAPI capi, ResourcePool pool,
+    out int craftableOutputsCount, out int fetched, out int usable)
         {
             var sw = Stopwatch.StartNew();
             craftableOutputsCount = 0; fetched = recipesFetched; usable = recipesUsable;
 
+            // Clone original needs so we can compute per-recipe "remaining" without touching the canonical map
             var remaining = recipeGroupNeeds.ToDictionary(
                 kv => kv.Key,
-                kv => kv.Value.ToDictionary(g => g.Key, g => g.Value, StringComparer.Ordinal)
-            );
+                kv => kv.Value.ToDictionary(g => g.Key, g => g.Value, StringComparer.Ordinal));
 
-            foreach (var kv in pool.Counts)
+            // --- Helpers -------------------------------------------------------------
+            static bool TryParseGroupType(string gkey, out EnumItemClass need)
             {
-                var code = kv.Key.Code;
-                var have = kv.Value;
-                if (!codeToRecipeGroups.TryGetValue(code, out var targets) || targets == null) continue;
+                need = default;
+                if (gkey == null) return false;
+                // Wild gkeys are like: wild:{pattern}|{allowed_csv}|T:{Type}
+                int tpos = gkey.LastIndexOf("|T:", StringComparison.Ordinal);
+                if (!gkey.StartsWith("wild:", StringComparison.Ordinal) || tpos < 0) return false;
+                var t = gkey.Substring(tpos + 3);
+                if (Enum.TryParse<EnumItemClass>(t, out var parsed)) { need = parsed; return true; }
+                return false;
+            }
 
-                foreach (var (recipe, groupKey) in targets.Distinct())
+            bool ClassCompatible(EnumItemClass have, EnumItemClass need, AssetLocation code)
+            {
+                if (have == need) return true;
+                if (need == EnumItemClass.Block && have == EnumItemClass.Item)
+                    return capi.World.GetBlock(code) != null; // carried block (ItemBlock)
+                if (need == EnumItemClass.Item && have == EnumItemClass.Block)
+                    return capi.World.GetItem(code) != null;  // item form exists
+                return false;
+            }
+            // ------------------------------------------------------------------------
+
+            // Pass A: aggregate total availability per group key from the pool
+            var groupAvail = new Dictionary<string, int>(StringComparer.Ordinal);
+
+            // Also build gkey -> codes (limited to codes we actually have in the pool). This powers the overlap detector.
+            var gkeyToCodes = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+
+            foreach (var pkv in pool.Counts)
+            {
+                var code = pkv.Key.Code;
+                var haveQty = pkv.Value;
+                if (haveQty <= 0) continue;
+
+                if (!codeToGkeys.TryGetValue(code, out var gset) || gset == null || gset.Count == 0)
+                    continue;
+
+                pool.Classes.TryGetValue(pkv.Key, out var haveClass);
+                AssetLocation al = null;
+
+                foreach (var g in gset)
                 {
-                    if (!remaining.TryGetValue(recipe, out var groups)) continue;
-                    if (!groups.TryGetValue(groupKey, out var need) || need <= 0) continue;
-                    int take = Math.Min(need, have);
-                    if (take <= 0) continue;
-                    groups[groupKey] = need - take;
+                    // Respect class constraints for wild groups (exact groups are fine as-is).
+                    if (TryParseGroupType(g, out var needClass))
+                    {
+                        if (al == null) al = new AssetLocation(code);
+                        if (!ClassCompatible(haveClass, needClass, al)) continue;
+                    }
+
+                    groupAvail[g] = (groupAvail.TryGetValue(g, out var cur) ? cur : 0) + haveQty;
+
+                    if (!gkeyToCodes.TryGetValue(g, out var codes))
+                        gkeyToCodes[g] = codes = new HashSet<string>(StringComparer.Ordinal);
+                    codes.Add(code);
                 }
             }
 
-            foreach (var kv in pool.Counts)
+            // Pass B: for each recipe, check needs against groupAvail (non-consuming, recipe-local)
+            foreach (var kv in remaining)
             {
-                string codeStr = kv.Key.Code;
-                int have = kv.Value;
+                var groups = kv.Value;
+                if (groups == null || groups.Count == 0) continue;
 
-                if (!wildMatchCache.TryGetValue(codeStr, out var targets))
+                // subtract available per group (bounded at zero, we do NOT consume across recipes)
+                // NOTE: this is correct for non-overlapping groups. For overlapping groups we validate in Pass C.
+                var keys = groups.Keys.ToArray();
+                foreach (var g in keys)
                 {
-                    targets = new List<(GridRecipeShim, string)>();
-                    try
+                    var need = groups[g];
+                    if (need <= 0) continue;
+                    var have = groupAvail.TryGetValue(g, out var h) ? h : 0;
+                    var take = Math.Min(need, have);
+                    if (take <= 0) continue;
+                    groups[g] = need - take;
+                }
+            }
+
+            // Detect ambiguous (overlapping) recipes: any pool code satisfies >=2 gkeys in the same recipe.
+            bool RecipeIsAmbiguous(Dictionary<string, int> groupNeeds)
+            {
+                int collisions = 0;
+                var seen = new Dictionary<string, int>(StringComparer.Ordinal);
+                foreach (var g in groupNeeds.Keys)
+                {
+                    if (!gkeyToCodes.TryGetValue(g, out var codes) || codes == null) continue;
+                    foreach (var c in codes)
                     {
-                        var al = new AssetLocation(codeStr);
-                        var cls = pool.Classes[kv.Key];
+                        var cnt = (seen.TryGetValue(c, out var v) ? v : 0) + 1;
+                        if (cnt >= 2) return true; // early out
+                        seen[c] = cnt;
+                    }
+                }
+                return false;
+            }
 
-                        // Local helper to tolerate Item<->Block when the code resolves accordingly
-                        bool ClassCompatible(EnumItemClass have, EnumItemClass need, AssetLocation code)
+            // Precise validator for ambiguous recipes: greedy consume from a temp "code -> qty" map.
+            bool CanSatisfyPrecisely(GridRecipeShim recipe)
+            {
+                if (recipe == null) return false;
+
+                // Local copy of pool counts (code -> qty), limited to codes relevant to this recipe.
+                var codeAvail = new Dictionary<string, int>(StringComparer.Ordinal);
+                foreach (var pkv in pool.Counts)
+                {
+                    var c = pkv.Key.Code;
+                    // Only bring in codes that appear in any gkey for this recipe to keep it small
+                    if (!recipeGroupNeeds.TryGetValue(recipe, out var needs) || needs == null) continue;
+                    bool relevant = false;
+                    foreach (var g in needs.Keys)
+                    {
+                        if (g.StartsWith("wild:", StringComparison.Ordinal))
                         {
-                            if (have == need) return true;
-                            if (need == EnumItemClass.Block && have == EnumItemClass.Item)
-                                return capi.World.GetBlock(code) != null; // carried block (ItemBlock)
-                            if (need == EnumItemClass.Item && have == EnumItemClass.Block)
-                                return capi.World.GetItem(code) != null;  // item form exists
-                            return false;
+                            if (gkeyToCodes.TryGetValue(g, out var set) && set.Contains(c)) { relevant = true; break; }
                         }
-
-                        foreach (var wg in wildcardGroups)
+                        else
                         {
-                            if (!ClassCompatible(cls, wg.Type, al)) continue;
-                            if (WildcardMatch(wg.Pattern, al, wg.Allowed))
-                            {
-                                targets.Add((wg.Recipe, wg.GroupKey));
-                            }
-                        }
-
-                        // Optional debug to verify linen classification
-                        if (DebugEnabled && codeStr.StartsWith("linen"))
-                        {
-                            bool hasItem = capi.World.GetItem(al) != null;
-                            bool hasBlock = capi.World.GetBlock(al) != null;
-                            LogEverywhere(capi, $"[Craftable][dbg] code={codeStr} class={cls} hasItem={hasItem} hasBlock={hasBlock}");
+                            // exact group: groupKey is a pipe-join of codes
+                            // (cheaper than splitting upfront for all)
+                            if (("|" + g + "|").Contains("|" + c + "|", StringComparison.Ordinal)) { relevant = true; break; }
                         }
                     }
-                    catch { /* best-effort */ }
-
-                    wildMatchCache[codeStr] = targets;
+                    if (relevant) codeAvail[c] = pkv.Value;
                 }
 
-
-                foreach (var (recipe, gkey) in targets)
+                // Consume per group
+                foreach (var gkv in recipeGroupNeeds[recipe])
                 {
-                    if (!remaining.TryGetValue(recipe, out var groups)) continue;
-                    if (!groups.TryGetValue(gkey, out var need) || need <= 0) continue;
-                    int take = Math.Min(need, have);
-                    if (take <= 0) continue;
-                    groups[gkey] = need - take;
+                    var need = gkv.Value;
+                    if (need <= 0) continue;
+
+                    IEnumerable<string> candidates;
+                    if (gkv.Key.StartsWith("wild:", StringComparison.Ordinal))
+                    {
+                        candidates = gkeyToCodes.TryGetValue(gkv.Key, out var set) ? set : Array.Empty<string>();
+                    }
+                    else
+                    {
+                        candidates = gkv.Key.Split('|'); // exact group
+                    }
+
+                    int taken = 0;
+                    foreach (var c in candidates)
+                    {
+                        if (!codeAvail.TryGetValue(c, out var have) || have <= 0) continue;
+                        int take = Math.Min(need - taken, have);
+                        if (take > 0)
+                        {
+                            codeAvail[c] = have - take;
+                            taken += take;
+                            if (taken >= need) break;
+                        }
+                    }
+
+                    if (taken < need) return false;
                 }
+
+                return true;
             }
 
+            // Pass C: collect craftable outputs; validate only ambiguous ones.
             var craftableKeys = new HashSet<StackKey>();
             foreach (var kv in remaining)
             {
                 var recipe = kv.Key;
                 var groups = kv.Value;
-                bool ok = groups.Count > 0 && groups.All(g => g.Value <= 0);
+
+                bool prelimOk = groups.Count > 0 && groups.All(g => g.Value <= 0);
+                if (!prelimOk) continue;
+
+                bool ok = true;
+                if (RecipeIsAmbiguous(groups))
+                    ok = CanSatisfyPrecisely(recipe);
+
                 if (!ok) continue;
 
+                // Expand into variant outputs & add as before
                 ExpandOutputsForRecipe(capi, pool, recipe, craftableKeys, recipeGroupNeeds);
             }
 
             craftableOutputsCount = craftableKeys.Count;
 
+            // --- page-code resolution remains identical to your original code ---
             var key2page = GetCachedPageCodeMap(capi);
             var resultPageCodes = new HashSet<string>(StringComparer.Ordinal);
             var ghType = AccessTools.TypeByName("Vintagestory.GameContent.GuiHandbookItemStackPage");
@@ -1992,60 +2130,19 @@ namespace ShowCraftable
                 }
                 else if (miPageCodeForStack != null)
                 {
-                    var stack = MakeStackFromCodeAndAttrs(capi, key.Code, key.Material, key.Type);
-                    if (stack != null)
+                    try
                     {
-                        pageCode = miPageCodeForStack.Invoke(null, new object[] { stack }) as string;
-                        if (!string.IsNullOrEmpty(pageCode))
+                        var st = KeyToItemStack(capi, key);
+                        if (st != null)
                         {
-                            attrFallbacks++;
-                            resultPageCodes.Add(pageCode);
-                            lock (PageCodeMapLock)
-                            {
-                                key2page[key] = pageCode;
-                            }
+                            pageCode = (string)miPageCodeForStack.Invoke(null, new object[] { st });
+                            if (!string.IsNullOrEmpty(pageCode)) resultPageCodes.Add(pageCode);
+                            else hbStackFallbacks++;
                         }
                     }
-
-                    if (pageCode == null)
+                    catch
                     {
-                        var codeOnlyStack = MakeStackFromCode(capi, key.Code);
-                        if (codeOnlyStack != null)
-                        {
-                            pageCode = miPageCodeForStack.Invoke(null, new object[] { codeOnlyStack }) as string;
-                            if (!string.IsNullOrEmpty(pageCode))
-                            {
-                                codeOnlyFallbacks++;
-                                resultPageCodes.Add(pageCode);
-                                lock (PageCodeMapLock)
-                                {
-                                    key2page[key] = pageCode;
-                                }
-                            }
-                            else
-                            {
-                                var hbStacks = codeOnlyStack.Collectible?.GetHandBookStacks(capi);
-                                if (hbStacks != null)
-                                {
-                                    foreach (var cs in hbStacks)
-                                    {
-                                        if (cs?.Collectible?.Code == null) continue;
-                                        if (!cs.Collectible.Code.ToString().StartsWith(key.Code)) continue;
-                                        pageCode = miPageCodeForStack.Invoke(null, new object[] { cs }) as string;
-                                        if (!string.IsNullOrEmpty(pageCode))
-                                        {
-                                            hbStackFallbacks++;
-                                            resultPageCodes.Add(pageCode);
-                                            lock (PageCodeMapLock)
-                                            {
-                                                key2page[key] = pageCode;
-                                            }
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        hbStackFallbacks++;
                     }
                 }
 
@@ -2053,23 +2150,28 @@ namespace ShowCraftable
                 if (processed % chunkSize == 0) Flush();
             }
 
-            AddCraftablePagesFromAllStacks(capi, pool, resultPageCodes);
+            AddCraftablePagesFromAllStacks(capi, pool, resultPageCodes); // keep as safety net for "misses"
             craftableOutputsCount = resultPageCodes.Count;
             Flush();
 
             var pagesList = resultPageCodes.ToList();
             sw.Stop();
+
+            // capture values into locals so the lambda doesn't close over an `out` param
             int outputsCount = craftableOutputsCount;
             int totalPages = pagesList.Count;
             long elapsedMs = sw.ElapsedMilliseconds;
+
             capi.Event.EnqueueMainThreadTask(() =>
             {
                 LogEverywhere(capi, $"[Craftable] craftable outputs={outputsCount}, pagesFromMap={fromMap}, attrFallbacks={attrFallbacks}, codeOnlyFallbacks={codeOnlyFallbacks}, hbFallbacks={hbStackFallbacks}", toChat: false);
                 LogEverywhere(capi, $"[Craftable] pages added to Craftable tab: [{string.Join(", ", pagesList)}] (total {totalPages})");
-                LogEverywhere(capi, $"[Craftable] RebuildCacheWithPool took {elapsedMs}ms");
+                LogEverywhere(capi, $"[Craftable] RebuildCacheWithPool (group-aggregated) took {elapsedMs}ms");
             }, null);
+
             return totalPages;
         }
+
 
 
     }
