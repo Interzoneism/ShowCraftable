@@ -93,19 +93,22 @@ namespace ShowCraftable
         private static readonly Dictionary<string, List<(GridRecipeShim Recipe, string GroupKey)>> wildMatchCache
             = new(StringComparer.Ordinal);
 
-        private static readonly string[] WoodVariants =
+        private static readonly string[] DefaultWoodVariants =
         {
             "birch", "oak", "maple", "pine", "acacia", "kapok", "aged",
             "baldcypress", "larch", "redwood", "ebony", "walnut", "purpleheart"
         };
 
-        private static readonly string[] StoneVariants =
+        private static readonly string[] DefaultStoneVariants =
         {
             "andesite", "basalt", "chalk", "chert", "conglomerate", "limestone",
             "claystone", "granite", "sandstone", "shale", "peridotite", "phyllite",
             "slate", "bauxite", "suevite", "whitemarble", "redmarble",
             "greenmarble", "kimberlite"
         };
+
+        private static string[] WoodVariants = DefaultWoodVariants;
+        private static string[] StoneVariants = DefaultStoneVariants;
 
         private static readonly string[] WoodTypedPrefixes =
         {
@@ -116,6 +119,30 @@ namespace ShowCraftable
         {
             "cobble", "bricks", "polished"
         };
+
+        private static void ReloadVariantLists(ICoreClientAPI capi)
+        {
+            WoodVariants = LoadVariantCodes(capi, "worldproperties/block/wood.json", DefaultWoodVariants);
+            StoneVariants = LoadVariantCodes(capi, "worldproperties/block/rock.json", DefaultStoneVariants);
+        }
+
+        private static string[] LoadVariantCodes(ICoreClientAPI capi, string assetPath, string[] fallback)
+        {
+            if (capi == null) return fallback;
+            try
+            {
+                var prop = capi.Assets.TryGet(assetPath)?.ToObject<StandardWorldProperty>();
+                if (prop?.Variants != null && prop.Variants.Length > 0)
+                {
+                    return prop.Variants
+                        .Select(v => v.Code?.Path)
+                        .Where(p => !string.IsNullOrEmpty(p))
+                        .ToArray();
+                }
+            }
+            catch { }
+            return fallback;
+        }
 
         private static bool IngredientUsesWoodFamily(GridIngredientShim ing)
         {
@@ -549,6 +576,7 @@ namespace ShowCraftable
         {
             _capi = capi;
             _staticCapi = capi;
+            ReloadVariantLists(capi);
             _harmony = new Harmony(HarmonyId);
 
 
@@ -1501,6 +1529,7 @@ namespace ShowCraftable
 
         private static List<GridRecipeShim> GetAllGridRecipes(ICoreClientAPI capi, out int fetched, out int usable, bool modsOnly, bool variantsOnly)
         {
+            ReloadVariantLists(capi);
             var sw = Stopwatch.StartNew();
             var list = new List<GridRecipeShim>();
             fetched = 0; usable = 0;
