@@ -117,92 +117,30 @@ namespace ShowCraftable
 
         private static bool RecipeIsVariant(GridRecipeShim r)
         {
-            bool usesWood = false, usesStone = false;
-            var woodTokens = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            var stoneTokens = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-            foreach (var ing in r.Ingredients)
-            {
-                if (!ing.IsWild || ing.PatternCode == null) continue;
-
-                if (IsWoodWildcard(ing.PatternCode))
-                {
-                    usesWood = true;
-                    if (ing.Allowed != null)
-                    {
-                        foreach (var raw in ing.Allowed)
-                        {
-                            if (string.IsNullOrEmpty(raw)) continue;
-                            bool matched = false;
-                            foreach (var token in WoodVariants)
-                            {
-                                if (raw.IndexOf(token, StringComparison.OrdinalIgnoreCase) >= 0)
-                                {
-                                    woodTokens.Add(token);
-                                    matched = true;
-                                    break;
-                                }
-                            }
-                            if (!matched) woodTokens.Add(raw);
-                        }
-                    }
-                    else
-                    {
-                        foreach (var v in WoodVariants) woodTokens.Add(v);
-                    }
-                }
-                else if (IsStoneWildcard(ing.PatternCode))
-                {
-                    usesStone = true;
-                    if (ing.Allowed != null)
-                    {
-                        foreach (var raw in ing.Allowed)
-                        {
-                            if (string.IsNullOrEmpty(raw)) continue;
-                            bool matched = false;
-                            foreach (var token in StoneVariants)
-                            {
-                                if (raw.IndexOf(token, StringComparison.OrdinalIgnoreCase) >= 0)
-                                {
-                                    stoneTokens.Add(token);
-                                    matched = true;
-                                    break;
-                                }
-                            }
-                            if (!matched) stoneTokens.Add(raw);
-                        }
-                    }
-                    else
-                    {
-                        foreach (var v in StoneVariants) stoneTokens.Add(v);
-                    }
-                }
-            }
-
-            bool woodOut = false, stoneOut = false;
             foreach (var st in r.Outputs)
             {
                 var code = st?.Collectible?.Code?.Path ?? string.Empty;
-                if (usesWood && !woodOut && woodTokens.Any(v => code.Contains(v, StringComparison.OrdinalIgnoreCase)))
-                    woodOut = true;
-                if (usesStone && !stoneOut && stoneTokens.Any(v => code.Contains(v, StringComparison.OrdinalIgnoreCase)))
-                    stoneOut = true;
+                foreach (var token in WoodVariants)
+                {
+                    if (code.Contains(token, StringComparison.OrdinalIgnoreCase)) return true;
+                }
+                foreach (var token in StoneVariants)
+                {
+                    if (code.Contains(token, StringComparison.OrdinalIgnoreCase)) return true;
+                }
 
-                if (usesWood && !woodOut)
-                {
-                    var mat = GetAttrStringSafe(st, "material") ?? GetAttrStringSafe(st, "wood");
-                    if (mat != null && woodTokens.Contains(mat)) woodOut = true;
-                }
-                if (usesStone && !stoneOut)
-                {
-                    var rock = GetAttrStringSafe(st, "rock")
-                        ?? GetAttrStringSafe(st, "rocktype")
-                        ?? GetAttrStringSafe(st, "stone");
-                    if (rock != null && stoneTokens.Contains(rock)) stoneOut = true;
-                }
+                var mat = GetAttrStringSafe(st, "material") ?? GetAttrStringSafe(st, "wood");
+                if (mat != null && WoodVariants.Any(v => string.Equals(v, mat, StringComparison.OrdinalIgnoreCase)))
+                    return true;
+
+                var rock = GetAttrStringSafe(st, "rock")
+                    ?? GetAttrStringSafe(st, "rocktype")
+                    ?? GetAttrStringSafe(st, "stone");
+                if (rock != null && StoneVariants.Any(v => string.Equals(v, rock, StringComparison.OrdinalIgnoreCase)))
+                    return true;
             }
 
-            return (usesWood && woodOut) || (usesStone && stoneOut);
+            return false;
         }
 
         [ProtoContract]
