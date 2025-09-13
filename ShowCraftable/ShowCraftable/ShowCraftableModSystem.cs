@@ -27,10 +27,12 @@ namespace ShowCraftable
 
         private static volatile bool CraftableTabActive;
         private static volatile bool CraftableModsTabActive;
+        private static volatile bool CraftableWoodStoneTabActive;
 
         public const string HarmonyId = "showcraftable.core";
         public const string CraftableCategoryCode = "craftable";
         public const string CraftableModsCategoryCode = "craftablemods";
+        public const string CraftableWoodStoneCategoryCode = "craftablewoodstone";
 
         public const string ChannelName = "showcraftablescan";
         private static int NearbyRadius = 12;
@@ -197,6 +199,36 @@ namespace ShowCraftable
         {
             try { return st?.Attributes?.GetString(key, null); } catch { return null; }
         }
+
+        private static string GetWoodRockVariant(ItemStack st)
+        {
+            try
+            {
+                var vars = st?.Collectible?.Variant;
+                if (vars != null)
+                {
+                    if (vars.TryGetValue("wood", out var w) && !string.IsNullOrEmpty(w)) return w;
+                    if (vars.TryGetValue("rock", out var r) && !string.IsNullOrEmpty(r)) return r;
+                }
+            }
+            catch { }
+            return GetAttrStringSafe(st, "material");
+        }
+
+        private static bool IngredientsContainVariant(GridRecipeShim recipe, string variant)
+        {
+            if (string.IsNullOrEmpty(variant) || recipe?.Ingredients == null) return false;
+            foreach (var ing in recipe.Ingredients)
+            {
+                if (ing?.Options == null) continue;
+                foreach (var opt in ing.Options)
+                {
+                    var ov = GetWoodRockVariant(opt);
+                    if (string.Equals(ov, variant, StringComparison.Ordinal)) return true;
+                }
+            }
+            return false;
+        }
         private static StackKey KeyFor(ItemStack st)
         {
             var code = st?.Collectible?.Code?.ToString() ?? "";
@@ -277,7 +309,8 @@ namespace ShowCraftable
             ICoreClientAPI capi,
             ResourcePool pool,
             GridRecipeShim recipe,
-            HashSet<StackKey> dest,
+            HashSet<StackKey> normalDest,
+            HashSet<StackKey> variantDest,
             Dictionary<GridRecipeShim, Dictionary<string, int>> originalNeeds)
         {
             if (recipe?.Outputs == null || recipe.Outputs.Count == 0) return;
@@ -320,12 +353,17 @@ namespace ShowCraftable
                             finalCode = finalCode.Replace(outMat, token);
                         }
 
-                        dest.Add(new StackKey(finalCode, token, outType ?? ""));
+                        bool isVariant = IngredientsContainVariant(recipe, token);
+                        var key = new StackKey(finalCode, token, outType ?? "");
+                        if (isVariant) variantDest.Add(key); else normalDest.Add(key);
                     }
                 }
                 else
                 {
-                    dest.Add(new StackKey(ocode, outMat ?? "", outType ?? ""));
+                    string variant = GetWoodRockVariant(os);
+                    bool isVariant = IngredientsContainVariant(recipe, variant);
+                    var key = new StackKey(ocode, variant ?? "", outType ?? "");
+                    if (isVariant) variantDest.Add(key); else normalDest.Add(key);
                 }
             }
         }
@@ -537,11 +575,13 @@ namespace ShowCraftable
 
                 bool craftableExists = false;
                 bool craftableModsExists = false;
+                bool craftableVariantsExists = false;
                 foreach (var t in tabs)
                 {
                     var cat = GetPF(tabType, t, "CategoryCode") as string;
                     if (string.Equals(cat, CraftableCategoryCode, StringComparison.OrdinalIgnoreCase)) craftableExists = true;
                     if (string.Equals(cat, CraftableModsCategoryCode, StringComparison.OrdinalIgnoreCase)) craftableModsExists = true;
+                    if (string.Equals(cat, CraftableWoodStoneCategoryCode, StringComparison.OrdinalIgnoreCase)) craftableVariantsExists = true;
                 }
 
                 int insertAt = Math.Min(2, tabs.Count);
@@ -564,6 +604,17 @@ namespace ShowCraftable
                     SetPF(tabType, newTabMods, "DataInt", tabs.Count);
                     SetPF(tabType, newTabMods, "PaddingTop", 20.0);
                     tabs.Insert(insertAt, newTabMods);
+                    insertAt++;
+                }
+
+                if (!craftableVariantsExists)
+                {
+                    var newTabVar = Activator.CreateInstance(tabType);
+                    SetPF(tabType, newTabVar, "Name", "Craftable Wood and Stone");
+                    SetPF(tabType, newTabVar, "CategoryCode", CraftableWoodStoneCategoryCode);
+                    SetPF(tabType, newTabVar, "DataInt", tabs.Count);
+                    SetPF(tabType, newTabVar, "PaddingTop", 20.0);
+                    tabs.Insert(insertAt, newTabVar);
                 }
 
                 __result = ToTypedArray(tabType, tabs);
@@ -593,8 +644,9 @@ namespace ShowCraftable
             {
                 CraftableTabActive = string.Equals(code, CraftableCategoryCode, StringComparison.Ordinal);
                 CraftableModsTabActive = string.Equals(code, CraftableModsCategoryCode, StringComparison.Ordinal);
+                CraftableWoodStoneTabActive = string.Equals(code, CraftableWoodStoneCategoryCode, StringComparison.Ordinal);
                 bool modsOnly = CraftableModsTabActive;
-                bool anyCraftable = CraftableTabActive || CraftableModsTabActive;
+                bool anyCraftable = CraftableTabActive || CraftableModsTabActive || CraftableWoodStoneTabActive;
 
                 if (!DialogIsOpen(__instance))
                 {
@@ -670,7 +722,7 @@ namespace ShowCraftable
                     capi.Event.EnqueueMainThreadTask(() =>
                     {
                         if (myScanId != _pendingScanId) return;
-                        if (!DialogIsOpen(__instance) || (!CraftableTabActive && !CraftableModsTabActive)) return;
+                        if (!DialogIsOpen(__instance) || (!CraftableTabActive && !CraftableModsTabActive && !CraftableWoodStoneTabActive)) return;
 
                         // After the empty state was shown, repopulate from cache if available
                         bool haveCache;
@@ -692,7 +744,7 @@ namespace ShowCraftable
                                     capi.Event.EnqueueMainThreadTask(() =>
                                     {
                                         if (myScanId != _pendingScanId) return;
-                                        if (!DialogIsOpen(__instance) || (!CraftableTabActive && !CraftableModsTabActive)) return;
+                                        if (!DialogIsOpen(__instance) || (!CraftableTabActive && !CraftableModsTabActive && !CraftableWoodStoneTabActive)) return;
                                         RequestServerScan(capi, NearbyRadius, includeCrates: true);
                                     }, "CraftableScanKickoff2");
                                 });
@@ -782,7 +834,8 @@ namespace ShowCraftable
                 var cur = AccessTools.Field(__instance.GetType(), "currentCatgoryCode")?.GetValue(__instance) as string;
 
                 if (capi != null && (string.Equals(cur, CraftableCategoryCode, StringComparison.Ordinal) ||
-                                     string.Equals(cur, CraftableModsCategoryCode, StringComparison.Ordinal)))
+                                     string.Equals(cur, CraftableModsCategoryCode, StringComparison.Ordinal) ||
+                                     string.Equals(cur, CraftableWoodStoneCategoryCode, StringComparison.Ordinal)))
                 {
                     AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
                     LogEverywhere(capi, "[Craftable] AfterPagesLoaded: refreshed Craftable tab");
@@ -811,7 +864,8 @@ namespace ShowCraftable
             {
                 string cat = (string)AccessTools.Field(__instance.GetType(), "currentCatgoryCode").GetValue(__instance);
                 if (!(string.Equals(cat, CraftableCategoryCode, StringComparison.Ordinal) ||
-                      string.Equals(cat, CraftableModsCategoryCode, StringComparison.Ordinal))) return true;
+                      string.Equals(cat, CraftableModsCategoryCode, StringComparison.Ordinal) ||
+                      string.Equals(cat, CraftableWoodStoneCategoryCode, StringComparison.Ordinal))) return true;
 
                 var fiCapi = AccessTools.Field(__instance.GetType(), "capi");
                 var fiShown = AccessTools.Field(__instance.GetType(), "shownHandbookPages");
@@ -953,7 +1007,8 @@ namespace ShowCraftable
                 }
                 var cur = AccessTools.Field(dlg.GetType(), "currentCatgoryCode")?.GetValue(dlg) as string;
                 if (!(string.Equals(cur, CraftableCategoryCode, StringComparison.Ordinal) ||
-                      string.Equals(cur, CraftableModsCategoryCode, StringComparison.Ordinal)))
+                      string.Equals(cur, CraftableModsCategoryCode, StringComparison.Ordinal) ||
+                      string.Equals(cur, CraftableWoodStoneCategoryCode, StringComparison.Ordinal)))
                 {
                     LastDialogPageCount = 0;
                     return;
@@ -2066,7 +2121,8 @@ namespace ShowCraftable
 
 
             // Pass C: collect craftable outputs; validate only ambiguous ones.
-            var craftableKeys = new HashSet<StackKey>();
+            var normalCraftableKeys = new HashSet<StackKey>();
+            var variantCraftableKeys = new HashSet<StackKey>();
             foreach (var kv in remaining)
             {
                 var recipe = kv.Key;
@@ -2078,9 +2134,10 @@ namespace ShowCraftable
                 bool ok = !ambRecipes.Contains(recipe) ? true : CanSatisfyPrecisely_NoGkeyToCodes(recipe, pool);
                 if (!ok) continue;
 
-                ExpandOutputsForRecipe(capi, pool, recipe, craftableKeys, recipeGroupNeeds);
+                ExpandOutputsForRecipe(capi, pool, recipe, normalCraftableKeys, variantCraftableKeys, recipeGroupNeeds);
             }
 
+            var craftableKeys = CraftableWoodStoneTabActive ? variantCraftableKeys : normalCraftableKeys;
 
             craftableOutputsCount = craftableKeys.Count;
 
