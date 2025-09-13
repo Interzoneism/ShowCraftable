@@ -106,6 +106,16 @@ namespace ShowCraftable
             "greenmarble", "kimberlite"
         };
 
+        private static readonly string[] WoodTypedPrefixes =
+        {
+            "door", "stairs", "slab", "fence", "fencegate", "trapdoor", "ladder"
+        };
+
+        private static readonly string[] StoneTypedPrefixes =
+        {
+            "cobble", "bricks", "polished"
+        };
+
         private static bool IsWoodWildcard(AssetLocation code)
         {
             var path = code?.Path;
@@ -125,30 +135,45 @@ namespace ShowCraftable
 
         private static bool RecipeIsVariant(GridRecipeShim r)
         {
+            bool requiresWood = r.Ingredients.Any(i => i.IsWild && IsWoodWildcard(i.PatternCode));
+            bool requiresStone = r.Ingredients.Any(i => i.IsWild && IsStoneWildcard(i.PatternCode));
+            if (!requiresWood && !requiresStone) return false;
+
             foreach (var st in r.Outputs)
             {
-                var code = st?.Collectible?.Code?.Path ?? string.Empty;
-                foreach (var token in WoodVariants)
-                {
-                    if (code.Contains(token, StringComparison.OrdinalIgnoreCase)) return true;
-                }
-                foreach (var token in StoneVariants)
-                {
-                    if (code.Contains(token, StringComparison.OrdinalIgnoreCase)) return true;
-                }
-
-                var mat = GetAttrStringSafe(st, "material") ?? GetAttrStringSafe(st, "wood");
-                if (mat != null && WoodVariants.Any(v => string.Equals(v, mat, StringComparison.OrdinalIgnoreCase)))
-                    return true;
-
-                var rock = GetAttrStringSafe(st, "rock")
-                    ?? GetAttrStringSafe(st, "rocktype")
-                    ?? GetAttrStringSafe(st, "stone");
-                if (rock != null && StoneVariants.Any(v => string.Equals(v, rock, StringComparison.OrdinalIgnoreCase)))
-                    return true;
+                if (requiresWood && OutputUsesWoodFamily(st)) return true;
+                if (requiresStone && OutputUsesStoneFamily(st)) return true;
             }
 
             return false;
+        }
+
+        private static bool OutputUsesWoodFamily(ItemStack st)
+        {
+            var code = st?.Collectible?.Code?.Path ?? string.Empty;
+            if (WoodVariants.Any(token => code.Contains(token, StringComparison.OrdinalIgnoreCase))) return true;
+
+            var mat = GetAttrStringSafe(st, "material") ?? GetAttrStringSafe(st, "wood");
+            if (mat != null && WoodVariants.Any(v => string.Equals(v, mat, StringComparison.OrdinalIgnoreCase))) return true;
+
+            return WoodTypedPrefixes.Any(p =>
+                code.StartsWith(p + "-", StringComparison.OrdinalIgnoreCase) ||
+                code.Contains("-" + p, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static bool OutputUsesStoneFamily(ItemStack st)
+        {
+            var code = st?.Collectible?.Code?.Path ?? string.Empty;
+            if (code.Contains("stonepath", StringComparison.OrdinalIgnoreCase)) return false;
+
+            if (StoneVariants.Any(token => code.Contains(token, StringComparison.OrdinalIgnoreCase))) return true;
+
+            var rock = GetAttrStringSafe(st, "rock")
+                ?? GetAttrStringSafe(st, "rocktype")
+                ?? GetAttrStringSafe(st, "stone");
+            if (rock != null && StoneVariants.Any(v => string.Equals(v, rock, StringComparison.OrdinalIgnoreCase))) return true;
+
+            return StoneTypedPrefixes.Any(p => code.Contains(p, StringComparison.OrdinalIgnoreCase));
         }
 
         [ProtoContract]
@@ -1886,6 +1911,24 @@ namespace ShowCraftable
             {
                 shim.IsMod = shim.Outputs.Any(o => o?.Collectible?.Code != null &&
                     !string.Equals(o.Collectible.Code.Domain, "game", StringComparison.Ordinal));
+            }
+
+            if (!shim.IsMod)
+            {
+                foreach (var gi in shim.Ingredients)
+                {
+                    if (gi.PatternCode != null && !string.Equals(gi.PatternCode.Domain, "game", StringComparison.Ordinal))
+                    {
+                        shim.IsMod = true;
+                        break;
+                    }
+                    if (gi.Options.Any(opt => opt?.Collectible?.Code != null &&
+                        !string.Equals(opt.Collectible.Code.Domain, "game", StringComparison.Ordinal)))
+                    {
+                        shim.IsMod = true;
+                        break;
+                    }
+                }
             }
 
             return shim;
