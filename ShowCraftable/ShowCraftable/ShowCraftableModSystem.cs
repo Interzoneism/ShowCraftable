@@ -86,17 +86,33 @@ namespace ShowCraftable
 
         private static readonly string[] WoodVariants =
         {
-            "birch", "oak", "maple", "pine", "acacia", "kapok", "aged",
-            "baldcypress", "larch", "redwood", "ebony", "walnut", "purpleheart"
+            "acacia", "aged", "baldcypress", "birch", "ebony", "kapok",
+            "larch", "maple", "oak", "pine", "purpleheart", "redwood",
+            "walnut"
         };
 
         private static readonly string[] StoneVariants =
         {
-            "andesite", "basalt", "chalk", "chert", "conglomerate", "limestone",
-            "claystone", "granite", "sandstone", "shale", "peridotite", "phyllite",
-            "slate", "bauxite", "suevite", "whitemarble", "redmarble",
-            "greenmarble", "kimberlite"
+            "andesite", "basalt", "bauxite", "chalk", "chert", "claystone",
+            "conglomerate", "granite", "greenmarble", "kimberlite",
+            "limestone", "peridotite", "phyllite", "redmarble",
+            "sandstone", "shale", "slate", "suevite", "whitemarble"
         };
+
+        private static IEnumerable<string> SortVariants(IEnumerable<string> tokens, string[] known)
+        {
+            return tokens
+                .Where(t => !string.IsNullOrEmpty(t))
+                .Select(t =>
+                {
+                    foreach (var v in known)
+                        if (t.IndexOf(v, StringComparison.OrdinalIgnoreCase) >= 0)
+                            return v;
+                    return t;
+                })
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(t => Array.IndexOf(known, t));
+        }
 
         private static bool IsWoodWildcard(AssetLocation code)
         {
@@ -130,20 +146,9 @@ namespace ShowCraftable
                     usesWood = true;
                     if (ing.Allowed != null)
                     {
-                        foreach (var raw in ing.Allowed)
+                        foreach (var token in SortVariants(ing.Allowed, WoodVariants))
                         {
-                            if (string.IsNullOrEmpty(raw)) continue;
-                            bool matched = false;
-                            foreach (var token in WoodVariants)
-                            {
-                                if (raw.IndexOf(token, StringComparison.OrdinalIgnoreCase) >= 0)
-                                {
-                                    woodTokens.Add(token);
-                                    matched = true;
-                                    break;
-                                }
-                            }
-                            if (!matched) woodTokens.Add(raw);
+                            woodTokens.Add(token);
                         }
                     }
                     else
@@ -156,20 +161,9 @@ namespace ShowCraftable
                     usesStone = true;
                     if (ing.Allowed != null)
                     {
-                        foreach (var raw in ing.Allowed)
+                        foreach (var token in SortVariants(ing.Allowed, StoneVariants))
                         {
-                            if (string.IsNullOrEmpty(raw)) continue;
-                            bool matched = false;
-                            foreach (var token in StoneVariants)
-                            {
-                                if (raw.IndexOf(token, StringComparison.OrdinalIgnoreCase) >= 0)
-                                {
-                                    stoneTokens.Add(token);
-                                    matched = true;
-                                    break;
-                                }
-                            }
-                            if (!matched) stoneTokens.Add(raw);
+                            stoneTokens.Add(token);
                         }
                     }
                     else
