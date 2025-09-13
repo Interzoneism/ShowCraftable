@@ -798,7 +798,34 @@ namespace ShowCraftable
                                     {
                                         if (myScanId != _pendingScanId) return;
                                         if (!DialogIsOpen(__instance) || (!CraftableTabActive && !CraftableModsTabActive && !CraftableVariantsTabActive)) return;
-                                        RequestServerScan(capi, NearbyRadius, includeCrates: true);
+
+                                        ResourcePool poolSnapshot;
+                                        string sigSnapshot;
+                                        lock (CacheLock)
+                                        {
+                                            poolSnapshot = LastScanPool != null ? ClonePool(LastScanPool) : null;
+                                            sigSnapshot = LastScanSignature;
+                                        }
+
+                                        if (poolSnapshot != null)
+                                        {
+                                            Task.Run(() =>
+                                            {
+                                                try
+                                                {
+                                                    int pages = RebuildCacheWithPool(capi, poolSnapshot, out int outputs, out int fetched, out int usable, modsOnly);
+                                                    lock (CacheLock) ScanResultsCache[BuildCacheKey(sigSnapshot, modsOnly, variantsOnly)] = CachedPageCodes.ToList();
+                                                }
+                                                finally
+                                                {
+                                                    capi.Event.EnqueueMainThreadTask(() => SetUpdatingText(capi, false), null);
+                                                }
+                                            });
+                                        }
+                                        else
+                                        {
+                                            RequestServerScan(capi, NearbyRadius, includeCrates: true);
+                                        }
                                     }, "CraftableScanKickoff2");
                                 });
                             }
@@ -1546,9 +1573,11 @@ namespace ShowCraftable
             lock (CacheLock)
             {
                 CachedPageCodes.Clear();
-                ScanResultsCache.Clear();
-                LastScanPool = null;
-                LastScanSignature = null;
+                if (LastScanSignature != null)
+                {
+                    var curKey = BuildCacheKey(LastScanSignature, modsOnly, variantsOnly);
+                    ScanResultsCache.Remove(curKey);
+                }
             }
             recipeIndexBuildTask = Task.Run(() =>
             {
