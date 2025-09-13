@@ -948,6 +948,22 @@ namespace ShowCraftable
             }
         }
 
+        private static string PageSortKey(ICoreClientAPI capi, object page)
+        {
+            try
+            {
+                var fiStack = AccessTools.Field(page.GetType(), "Stack");
+                if (fiStack?.GetValue(page) is ItemStack stack) return stack.GetName();
+
+                var fiTitle = AccessTools.Field(page.GetType(), "Title");
+                if (fiTitle?.GetValue(page) is string title) return Lang.Get(title);
+
+                var piCode = AccessTools.Property(page.GetType(), "PageCode");
+                if (piCode?.GetValue(page) is string code) return code;
+            }
+            catch { }
+            return string.Empty;
+        }
 
         public static bool FilterItems_Prefix(object __instance)
         {
@@ -1018,6 +1034,12 @@ namespace ShowCraftable
                 else
                 {
                     finalPages = resolvedPages;
+                    if (capi != null)
+                    {
+                        finalPages = finalPages
+                            .OrderBy(p => PageSortKey(capi, p), StringComparer.OrdinalIgnoreCase)
+                            .ToList();
+                    }
                 }
 
 
@@ -1107,7 +1129,6 @@ namespace ShowCraftable
 
                 int count;
                 lock (CacheLock) count = CachedPageCodes.Count;
-                if (count == LastDialogPageCount) return;
                 LastDialogPageCount = count;
 
                 AccessTools.Method(dlg.GetType(), "FilterItems")?.Invoke(dlg, null);
