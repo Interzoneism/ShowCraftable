@@ -76,6 +76,8 @@ namespace ShowCraftable
         private static volatile bool recipeIndexBuilt = false;
         private static volatile bool recipeIndexForMods = false;
         private static volatile bool recipeIndexForVariants = false;
+        private static volatile bool recipeIndexBuildModsOnly = false;
+        private static volatile bool recipeIndexBuildVariantsOnly = false;
 
         internal static bool DebugEnabled = true;
 
@@ -886,11 +888,12 @@ namespace ShowCraftable
                         if (!recipeIndexBuilt || recipeIndexForMods != modsOnly || recipeIndexForVariants != variantsOnly)
                         {
                             StartRecipeIndexBuild(capi, modsOnly, variantsOnly);
+                            var buildTask = recipeIndexBuildTask;
                             int total = Math.Max(1, recipeIndexBuildTotal);
                             capi.ShowChatMessage($"[Craftable] Building recipe index {recipeIndexBuildProgress}/{total}...");
-                            if (recipeIndexBuildTask != null)
+                            if (buildTask != null)
                             {
-                                recipeIndexBuildTask.ContinueWith(_ =>
+                                buildTask.ContinueWith(_ =>
                                 {
                                     capi.Event.EnqueueMainThreadTask(() =>
                                     {
@@ -1695,12 +1698,26 @@ namespace ShowCraftable
         private static void StartRecipeIndexBuild(ICoreClientAPI capi, bool modsOnly, bool variantsOnly)
         {
             if (recipeIndexBuilt && recipeIndexForMods == modsOnly && recipeIndexForVariants == variantsOnly) return;
-            if (recipeIndexBuildTask != null && !recipeIndexBuildTask.IsCompleted)
+
+            var runningTask = recipeIndexBuildTask;
+            if (runningTask != null && !runningTask.IsCompleted)
             {
-                recipeIndexBuildTask.ContinueWith(_ => StartRecipeIndexBuild(capi, modsOnly, variantsOnly));
+                if (recipeIndexBuildModsOnly == modsOnly && recipeIndexBuildVariantsOnly == variantsOnly) return;
+                recipeIndexBuildTask = runningTask
+                    .ContinueWith(_ => RunRecipeIndexBuild(capi, modsOnly, variantsOnly))
+                    .Unwrap();
                 return;
             }
+
+            recipeIndexBuildTask = RunRecipeIndexBuild(capi, modsOnly, variantsOnly);
+        }
+
+        private static Task RunRecipeIndexBuild(ICoreClientAPI capi, bool modsOnly, bool variantsOnly)
+        {
             recipeIndexBuilt = false;
+            recipeIndexBuildModsOnly = modsOnly;
+            recipeIndexBuildVariantsOnly = variantsOnly;
+
             lock (CacheLock)
             {
                 CachedPageCodes.Clear();
@@ -1715,7 +1732,8 @@ namespace ShowCraftable
                     TabCacheSignatures[suffix] = LastScanSignature;
                 }
             }
-            recipeIndexBuildTask = Task.Run(() =>
+
+            return Task.Run(() =>
             {
                 if (!LoadRecipeIndex(capi, modsOnly, variantsOnly))
                 {
