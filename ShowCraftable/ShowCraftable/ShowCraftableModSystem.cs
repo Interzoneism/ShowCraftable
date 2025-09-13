@@ -931,7 +931,7 @@ namespace ShowCraftable
                                                 {
                                                     try
                                                     {
-                                                        int pages = RebuildCacheWithPool(capi, poolSnapshot, out int outputs, out int fetched, out int usable, modsOnly);
+                                                        int pages = RebuildCacheWithPool(capi, poolSnapshot, out int outputs, out int fetched, out int usable, modsOnly, variantsOnly);
                                                         lock (CacheLock)
                                                         {
                                                             ScanResultsCache[cacheKey] = CachedPageCodes.ToList();
@@ -985,7 +985,7 @@ namespace ShowCraftable
                                 {
                                     try
                                     {
-                                        int pages = RebuildCacheWithPool(capi, poolSnapshot, out int outputs, out int fetched, out int usable, modsOnly);
+                                        int pages = RebuildCacheWithPool(capi, poolSnapshot, out int outputs, out int fetched, out int usable, modsOnly, variantsOnly);
                                         lock (CacheLock)
                                         {
                                             ScanResultsCache[cacheKey] = CachedPageCodes.ToList();
@@ -2159,8 +2159,9 @@ namespace ShowCraftable
             return true;
         }
 
-        private static List<GridRecipe> CollectGridRecipesForStack(ICoreClientAPI capi, ItemStack stack, bool modsOnly)
+        private static List<GridRecipe> CollectGridRecipesForStack(ICoreClientAPI capi, ItemStack stack, bool modsOnly, bool variantsOnly)
         {
+            ReloadVariantLists(capi);
             var list = new List<GridRecipe>();
             try
             {
@@ -2173,6 +2174,10 @@ namespace ShowCraftable
                         : gr.Output?.ResolvedItemstack?.Collectible?.Code != null &&
                           !string.Equals(gr.Output.ResolvedItemstack.Collectible.Code.Domain, "game", StringComparison.Ordinal);
                     if (modsOnly != isMod) continue;
+
+                    var shim = TryBuildGridShim(gr, capi);
+                    bool isVariant = shim != null && RecipeIsVariant(shim);
+                    if (!(modsOnly || (variantsOnly ? isVariant : !isVariant))) continue;
 
                     var outStack = gr.Output?.ResolvedItemstack;
                     if (outStack != null && outStack.Satisfies(stack))
@@ -2201,7 +2206,7 @@ namespace ShowCraftable
             return list;
         }
 
-        private static void AddCraftablePagesFromAllStacks(ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest, bool modsOnly)
+        private static void AddCraftablePagesFromAllStacks(ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest, bool modsOnly, bool variantsOnly)
         {
             try
             {
@@ -2225,7 +2230,7 @@ namespace ShowCraftable
 
                     object page = ctor.Invoke(new object[] { capi, st });
                     var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
-                    var recipes = CollectGridRecipesForStack(capi, pStack, modsOnly);
+                    var recipes = CollectGridRecipesForStack(capi, pStack, modsOnly, variantsOnly);
                     foreach (var r in recipes)
                     {
                         if (RecipeSatisfiedByPool(capi, pool, r, pStack))
@@ -2302,7 +2307,10 @@ namespace ShowCraftable
                 {
                     try
                     {
-                        int pages = RebuildCacheWithPool(_capi, pool, out int outputs, out int fetched, out int usable, CraftableModsTabActive);
+                        int pages = RebuildCacheWithPool(
+                            _capi, pool,
+                            out int outputs, out int fetched, out int usable,
+                            CraftableModsTabActive, CraftableVariantsTabActive);
                         lock (CacheLock)
                         {
                             ScanResultsCache[key] = CachedPageCodes.ToList();
@@ -2334,7 +2342,8 @@ namespace ShowCraftable
 
         private static int RebuildCacheWithPool(
     ICoreClientAPI capi, ResourcePool pool,
-    out int craftableOutputsCount, out int fetched, out int usable, bool modsOnly)
+    out int craftableOutputsCount, out int fetched, out int usable,
+    bool modsOnly, bool variantsOnly)
         {
             var sw = Stopwatch.StartNew();
             craftableOutputsCount = 0; fetched = recipesFetched; usable = recipesUsable;
@@ -2542,7 +2551,7 @@ namespace ShowCraftable
 
             if (misses > 0 && misses <= 12)  // small cap to avoid O(N×M) blowups on big modpacks
             {
-                AddCraftablePagesFromAllStacks(capi, pool, resultPageCodes, modsOnly);
+                AddCraftablePagesFromAllStacks(capi, pool, resultPageCodes, modsOnly, variantsOnly);
             }
 
             craftableOutputsCount = resultPageCodes.Count;
