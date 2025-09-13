@@ -116,27 +116,70 @@ namespace ShowCraftable
             "cobble", "bricks", "polished"
         };
 
-        private static bool IsWoodWildcard(AssetLocation code)
+        private static bool IngredientUsesWoodFamily(GridIngredientShim ing)
         {
-            var path = code?.Path;
-            if (path == null) return false;
-            return path.Contains("plank", StringComparison.Ordinal)
-                || path.Contains("log", StringComparison.Ordinal);
+            if (ing == null) return false;
+
+            var pat = ing.PatternCode?.Path;
+            if (!string.IsNullOrEmpty(pat))
+            {
+                if ((pat.Contains("plank", StringComparison.OrdinalIgnoreCase) || pat.Contains("log", StringComparison.OrdinalIgnoreCase))
+                    && WoodVariants.Any(v => pat.Contains(v, StringComparison.OrdinalIgnoreCase)))
+                    return true;
+            }
+
+            foreach (var st in ing.Options)
+            {
+                var code = st?.Collectible?.Code?.Path;
+                if (!string.IsNullOrEmpty(code))
+                {
+                    if ((code.Contains("plank", StringComparison.OrdinalIgnoreCase) || code.Contains("log", StringComparison.OrdinalIgnoreCase))
+                        && WoodVariants.Any(v => code.Contains(v, StringComparison.OrdinalIgnoreCase)))
+                        return true;
+                }
+
+                var mat = GetAttrStringSafe(st, "material") ?? GetAttrStringSafe(st, "wood");
+                if (mat != null && WoodVariants.Any(v => string.Equals(v, mat, StringComparison.OrdinalIgnoreCase))) return true;
+            }
+
+            return false;
         }
 
-        private static bool IsStoneWildcard(AssetLocation code)
+        private static bool IngredientUsesStoneFamily(GridIngredientShim ing)
         {
-            var path = code?.Path;
-            if (path == null) return false;
-            return path.Contains("stone", StringComparison.Ordinal)
-                || path.Contains("rock", StringComparison.Ordinal)
-                || path.Contains("gravel", StringComparison.Ordinal);
+            if (ing == null) return false;
+
+            var pat = ing.PatternCode?.Path;
+            if (!string.IsNullOrEmpty(pat))
+            {
+                if ((pat.Contains("stone", StringComparison.OrdinalIgnoreCase) || pat.Contains("rock", StringComparison.OrdinalIgnoreCase) || pat.Contains("gravel", StringComparison.OrdinalIgnoreCase))
+                    && StoneVariants.Any(v => pat.Contains(v, StringComparison.OrdinalIgnoreCase)))
+                    return true;
+            }
+
+            foreach (var st in ing.Options)
+            {
+                var code = st?.Collectible?.Code?.Path;
+                if (!string.IsNullOrEmpty(code))
+                {
+                    if ((code.Contains("stone", StringComparison.OrdinalIgnoreCase) || code.Contains("rock", StringComparison.OrdinalIgnoreCase) || code.Contains("gravel", StringComparison.OrdinalIgnoreCase))
+                        && StoneVariants.Any(v => code.Contains(v, StringComparison.OrdinalIgnoreCase)))
+                        return true;
+                }
+
+                var rock = GetAttrStringSafe(st, "rock")
+                    ?? GetAttrStringSafe(st, "rocktype")
+                    ?? GetAttrStringSafe(st, "stone");
+                if (rock != null && StoneVariants.Any(v => string.Equals(v, rock, StringComparison.OrdinalIgnoreCase))) return true;
+            }
+
+            return false;
         }
 
         private static bool RecipeIsVariant(GridRecipeShim r)
         {
-            bool requiresWood = r.Ingredients.Any(i => i.IsWild && IsWoodWildcard(i.PatternCode));
-            bool requiresStone = r.Ingredients.Any(i => i.IsWild && IsStoneWildcard(i.PatternCode));
+            bool requiresWood = r.Ingredients.Any(IngredientUsesWoodFamily);
+            bool requiresStone = r.Ingredients.Any(IngredientUsesStoneFamily);
             if (!requiresWood && !requiresStone) return false;
 
             foreach (var st in r.Outputs)
