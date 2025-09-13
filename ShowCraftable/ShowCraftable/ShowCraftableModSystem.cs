@@ -724,6 +724,35 @@ namespace ShowCraftable
             return mi != null && mi.ReturnType == typeof(bool) && (bool)mi.Invoke(inst, Array.Empty<object>());
         }
 
+        private static void ClearCraftableList(object inst, ICoreClientAPI capi, GuiComposer composer)
+        {
+            capi.Event.EnqueueMainThreadTask(() =>
+            {
+                try
+                {
+                    var stacklist = composer.GetFlatList("stacklist");
+                    stacklist?.Elements.Clear();
+                    stacklist?.CalcTotalHeight();
+                    var shown = AccessTools.Field(inst.GetType(), "shownHandbookPages")?.GetValue(inst) as System.Collections.IList;
+                    shown?.Clear();
+
+                    // Temporarily clear the cache so FilterItems renders an empty list
+                    List<string> snapshot;
+                    lock (CacheLock)
+                    {
+                        snapshot = CachedPageCodes.ToList();
+                        CachedPageCodes.Clear();
+                    }
+
+                    AccessTools.Method(inst.GetType(), "FilterItems")?.Invoke(inst, null);
+
+                    // Restore cache for later reuse
+                    lock (CacheLock) CachedPageCodes = snapshot;
+                }
+                catch { }
+            }, "SCClearCraftableList");
+        }
+
         public static void SelectTab_Postfix(object __instance, string code)
         {
             try
@@ -766,32 +795,7 @@ namespace ShowCraftable
 
                 if (capi != null && composer != null)
                 {
-                    // Clear the current list on the main thread and refresh the GUI to show an empty tab
-                    capi.Event.EnqueueMainThreadTask(() =>
-                    {
-                        try
-                        {
-                            var stacklist = composer.GetFlatList("stacklist");
-                            stacklist?.Elements.Clear();
-                            stacklist?.CalcTotalHeight();
-                            var shown = AccessTools.Field(__instance.GetType(), "shownHandbookPages")?.GetValue(__instance) as System.Collections.IList;
-                            shown?.Clear();
-
-                            // Temporarily empty the cache so FilterItems renders an empty list
-                            List<string> snapshot;
-                            lock (CacheLock)
-                            {
-                                snapshot = CachedPageCodes.ToList();
-                                CachedPageCodes.Clear();
-                            }
-
-                            AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
-
-                            // Restore cache for later reuse
-                            lock (CacheLock) CachedPageCodes = snapshot;
-                        }
-                        catch { }
-                    }, "SCClearCraftableList");
+                    ClearCraftableList(__instance, capi, composer);
 
                     try
                     {
