@@ -39,7 +39,15 @@ namespace ShowCraftable
 
         private static readonly object CacheLock = new();
         private static List<string> CachedPageCodes = new();
-        private static readonly Dictionary<string, List<string>> ScanResultsCache = new();
+        private static readonly Dictionary<string, List<string>> ScanResultsCache = new(StringComparer.Ordinal);
+        private static ResourcePool LastScanPool;
+        private static string LastScanSignature;
+
+        private static string BuildCacheKey(string sig, bool modsOnly, bool variantsOnly)
+        {
+            var suffix = modsOnly ? "|mods" : variantsOnly ? "|variants" : "|base";
+            return sig + suffix;
+        }
 
         private static readonly object PageCodeMapLock = new();
         private static Dictionary<StackKey, string> AllStacksPageCodeMap = new();
@@ -615,6 +623,8 @@ namespace ShowCraftable
                 {
                     CachedPageCodes.Clear();
                     ScanResultsCache.Clear();
+                    LastScanPool = null;
+                    LastScanSignature = null;
                 }
                 codeToRecipeGroups.Clear();
                 recipeGroupNeeds.Clear();
@@ -838,6 +848,42 @@ namespace ShowCraftable
                                         if (!DialogIsOpen(__instance) || (!CraftableTabActive && !CraftableModsTabActive && !CraftableVariantsTabActive)) return;
                                         RequestServerScan(capi, NearbyRadius, includeCrates: true);
                                     }, "CraftableScanKickoff2");
+                                });
+                            }
+                            return;
+                        }
+                        ResourcePool poolSnapshot;
+                        string sigSnapshot;
+                        lock (CacheLock)
+                        {
+                            poolSnapshot = LastScanPool != null ? ClonePool(LastScanPool) : null;
+                            sigSnapshot = LastScanSignature;
+                        }
+
+                        if (poolSnapshot != null)
+                        {
+                            string cacheKey = BuildCacheKey(sigSnapshot, modsOnly, variantsOnly);
+                            List<string> cached;
+                            lock (CacheLock) cached = ScanResultsCache.TryGetValue(cacheKey, out var c) ? c.ToList() : null;
+                            if (cached != null)
+                            {
+                                lock (CacheLock) CachedPageCodes = cached;
+                                AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
+                                SetUpdatingText(capi, false);
+                            }
+                            else
+                            {
+                                Task.Run(() =>
+                                {
+                                    try
+                                    {
+                                        int pages = RebuildCacheWithPool(capi, poolSnapshot, out int outputs, out int fetched, out int usable, modsOnly);
+                                        lock (CacheLock) ScanResultsCache[cacheKey] = CachedPageCodes.ToList();
+                                    }
+                                    finally
+                                    {
+                                        capi.Event.EnqueueMainThreadTask(() => SetUpdatingText(capi, false), null);
+                                    }
                                 });
                             }
                             return;
@@ -1549,6 +1595,8 @@ namespace ShowCraftable
             {
                 CachedPageCodes.Clear();
                 ScanResultsCache.Clear();
+                LastScanPool = null;
+                LastScanSignature = null;
             }
             recipeIndexBuildTask = Task.Run(() =>
             {
@@ -2067,11 +2115,14 @@ namespace ShowCraftable
                 }
 
                 string sig = pool.GetSignature();
+                string key = BuildCacheKey(sig, CraftableModsTabActive, CraftableVariantsTabActive);
                 List<string> cached;
                 bool reused = false;
                 lock (CacheLock)
                 {
-                    if (ScanResultsCache.TryGetValue(sig, out cached))
+                    LastScanPool = ClonePool(pool);
+                    LastScanSignature = sig;
+                    if (ScanResultsCache.TryGetValue(key, out cached))
                     {
                         CachedPageCodes = cached.ToList();
                         reused = true;
@@ -2097,7 +2148,7 @@ namespace ShowCraftable
                     try
                     {
                         int pages = RebuildCacheWithPool(_capi, pool, out int outputs, out int fetched, out int usable, CraftableModsTabActive);
-                        lock (CacheLock) ScanResultsCache[sig] = CachedPageCodes.ToList();
+                        lock (CacheLock) ScanResultsCache[key] = CachedPageCodes.ToList();
                         _capi.Event.EnqueueMainThreadTask(() => LogEverywhere(_capi, $"[Craftable] Server nearby scan merged: outputs={outputs}, pages={pages}, fetched={fetched}, usable={usable}", toChat: true), null);
                     }
                     catch (Exception e)
