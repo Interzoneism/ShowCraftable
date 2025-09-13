@@ -569,7 +569,8 @@ namespace ShowCraftable
             {
                 ScanInProgress = false;
                 HandbookPauseGuard.Release(capi);
-                LogEverywhere(capi, $"[Craftable] scan send failed: {e}", toChat: true);
+                capi.Event.EnqueueMainThreadTask(() => SetUpdatingText(capi, false), null);
+                LogEverywhere(capi, $"[Craftable] Failed to send server scan (is server mod installed?): {e}", toChat: true);
             }
         }
 
