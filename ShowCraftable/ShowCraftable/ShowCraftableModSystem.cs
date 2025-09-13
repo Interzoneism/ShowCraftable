@@ -757,6 +757,11 @@ namespace ShowCraftable
         {
             try
             {
+                bool prevCraftable = CraftableTabActive;
+                bool prevCraftableMods = CraftableModsTabActive;
+                bool prevCraftableVariants = CraftableVariantsTabActive;
+                bool wasCraftable = prevCraftable || prevCraftableMods || prevCraftableVariants;
+
                 CraftableTabActive = string.Equals(code, CraftableCategoryCode, StringComparison.Ordinal);
                 CraftableModsTabActive = string.Equals(code, CraftableModsCategoryCode, StringComparison.Ordinal);
                 CraftableVariantsTabActive = string.Equals(code, CraftableVariantsCategoryCode, StringComparison.Ordinal);
@@ -781,6 +786,15 @@ namespace ShowCraftable
                     ?? AccessTools.Property(__instance.GetType().BaseType, "SingleComposer");
                 try { piSingle?.SetValue(__instance, composer); } catch { }
 
+                bool cleared = false;
+                bool switchedCraftable = wasCraftable && anyCraftable &&
+                    (prevCraftable != CraftableTabActive || prevCraftableMods != CraftableModsTabActive || prevCraftableVariants != CraftableVariantsTabActive);
+                if (switchedCraftable && capi != null && composer != null)
+                {
+                    ClearCraftableList(__instance, capi, composer);
+                    cleared = true;
+                }
+
                 if (!anyCraftable)
                 {
                     _pendingScanId++;
@@ -795,7 +809,7 @@ namespace ShowCraftable
 
                 if (capi != null && composer != null)
                 {
-                    ClearCraftableList(__instance, capi, composer);
+                    if (!cleared) ClearCraftableList(__instance, capi, composer);
 
                     try
                     {
