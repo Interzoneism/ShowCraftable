@@ -220,11 +220,40 @@ namespace ShowCraftable
             if (string.IsNullOrEmpty(variant) || recipe?.Ingredients == null) return false;
             foreach (var ing in recipe.Ingredients)
             {
-                if (ing?.Options == null) continue;
-                foreach (var opt in ing.Options)
+                if (ing == null) continue;
+
+                // Non-wild ingredients may have concrete options to inspect
+                if (ing.Options != null)
                 {
-                    var ov = GetWoodRockVariant(opt);
-                    if (string.Equals(ov, variant, StringComparison.Ordinal)) return true;
+                    foreach (var opt in ing.Options)
+                    {
+                        var ov = GetWoodRockVariant(opt);
+                        if (string.Equals(ov, variant, StringComparison.Ordinal)) return true;
+                    }
+                }
+
+                // Wildcard ingredients might not expose options. Try to match
+                // against their allowed variants or pattern instead.
+                if (ing.IsWild && ing.PatternCode != null)
+                {
+                    if (ing.Allowed != null && ing.Allowed.Any(v => string.Equals(v, variant, StringComparison.Ordinal)))
+                        return true;
+
+                    try
+                    {
+                        var path = ing.PatternCode.Path ?? string.Empty;
+                        if (path.IndexOf('*') >= 0)
+                        {
+                            var candidate = new AssetLocation(ing.PatternCode.Domain, path.Replace("*", variant));
+                            if (WildcardUtil.Match(ing.PatternCode, candidate, ing.Allowed)) return true;
+                        }
+                        else if (path.Contains("{"))
+                        {
+                            var candidate = new AssetLocation(ing.PatternCode.Domain, path.Replace("{rock}", variant).Replace("{wood}", variant));
+                            if (WildcardUtil.Match(ing.PatternCode, candidate, ing.Allowed)) return true;
+                        }
+                    }
+                    catch { }
                 }
             }
             return false;
