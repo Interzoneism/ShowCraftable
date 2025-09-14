@@ -272,6 +272,20 @@ namespace ShowCraftable
             return res;
         }
 
+        private static string ReplaceWildcardPlaceholders(string input, string token)
+        {
+            if (string.IsNullOrEmpty(input) || token == null) return input;
+            string res = input;
+            int open;
+            while ((open = res.IndexOf('{')) >= 0)
+            {
+                int close = res.IndexOf('}', open + 1);
+                if (close < 0) break;
+                res = res.Substring(0, open) + token + res.Substring(close + 1);
+            }
+            return res;
+        }
+
 
         private static void ExpandOutputsForRecipe(
             ICoreClientAPI capi,
@@ -301,8 +315,19 @@ namespace ShowCraftable
                 var ocode = os?.Collectible?.Code?.ToString();
                 if (string.IsNullOrEmpty(ocode)) continue;
 
-                string outType = GetAttrStringSafe(os, "type");
-                string outMat = GetAttrStringSafe(os, "material");
+                var attrOrig = new Dictionary<string, string>(StringComparer.Ordinal);
+                try
+                {
+                    if (os.Attributes is TreeAttribute tree)
+                    {
+                        foreach (var kv in tree)
+                        {
+                            if (kv.Value is StringAttribute sa)
+                                attrOrig[kv.Key] = sa.value;
+                        }
+                    }
+                }
+                catch { }
 
                 bool canExpand = wild != null && tokenCounts != null && tokenCounts.Count > 0;
 
@@ -314,18 +339,53 @@ namespace ShowCraftable
                         int have = kv.Value;
                         if (neededFromWild > 0 && have < neededFromWild) continue;
 
-                        string finalCode = ocode;
-                        if (!string.IsNullOrEmpty(outMat) && finalCode.Contains(outMat))
+                        var attrResolved = new Dictionary<string, string>(attrOrig, StringComparer.Ordinal);
+                        foreach (var key in attrOrig.Keys.ToList())
                         {
-                            finalCode = finalCode.Replace(outMat, token);
+                            var val = attrOrig[key];
+                            bool isPlaceholder = val != null && (val.Contains("{") || ocode.Contains("{" + val + "}"));
+                            if (isPlaceholder)
+                            {
+                                var newVal = ReplaceWildcardPlaceholders(val, token);
+                                if (newVal == val) newVal = token;
+                                attrResolved[key] = newVal;
+                            }
                         }
 
-                        dest.Add(new StackKey(finalCode, token, outType ?? ""));
+                        string finalCode = ocode;
+                        bool changed;
+                        do
+                        {
+                            changed = false;
+                            string replaced = ReplaceWildcardPlaceholders(finalCode, token);
+                            if (replaced != finalCode)
+                            {
+                                finalCode = replaced;
+                                changed = true;
+                            }
+                            foreach (var kvAttr in attrOrig)
+                            {
+                                string orig = kvAttr.Value;
+                                string repl = attrResolved.TryGetValue(kvAttr.Key, out var nv) ? nv : orig;
+                                string updated = finalCode.Replace(orig, repl);
+                                if (updated != finalCode)
+                                {
+                                    finalCode = updated;
+                                    changed = true;
+                                }
+                            }
+                        } while (changed);
+
+                        string mat = attrResolved.TryGetValue("material", out var m) ? m : "";
+                        string typ = attrResolved.TryGetValue("type", out var tval) ? tval : "";
+                        dest.Add(new StackKey(finalCode, mat, typ));
                     }
                 }
                 else
                 {
-                    dest.Add(new StackKey(ocode, outMat ?? "", outType ?? ""));
+                    string mat = attrOrig.TryGetValue("material", out var m) ? m : "";
+                    string typ = attrOrig.TryGetValue("type", out var tval) ? tval : "";
+                    dest.Add(new StackKey(ocode, mat, typ));
                 }
             }
         }
