@@ -773,6 +773,51 @@ namespace ShowCraftable
             catch { }
         }
 
+        // True if the recipe belongs to a mod (domain != "game")
+        private static bool IsModRecipe(ICoreClientAPI capi, object raw)
+        {
+            if (raw == null) return false;
+            try
+            {
+                var t = raw.GetType();
+
+                // Prefer the recipe's own registry/name domain
+                var nameAl = TryGetMember(t, raw, "Name") as AssetLocation;
+                if (nameAl != null)
+                    return !string.Equals(nameAl.Domain, "game", StringComparison.Ordinal);
+
+                // Fallback: inspect outputs' domains
+                object outsObj = TryGetMember(t, raw, "ResolvedOutputs") ?? TryGetMember(t, raw, "Outputs");
+                if (outsObj is System.Collections.IEnumerable en)
+                {
+                    foreach (var o in en)
+                    {
+                        if (o == null) continue;
+
+                        ItemStack st = o as ItemStack;
+                        if (st == null)
+                        {
+                            var ot = o.GetType();
+                            st = TryGetMember(ot, o, "ResolvedItemstack") as ItemStack;
+                            if (st == null)
+                            {
+                                var code = TryGetMember(ot, o, "Code") as AssetLocation;
+                                if (code != null) st = MakeStackFromCode(capi, code.ToString());
+                            }
+                        }
+
+                        var dom = st?.Collectible?.Code?.Domain;
+                        if (!string.IsNullOrEmpty(dom) && !string.Equals(dom, "game", StringComparison.Ordinal))
+                            return true;
+                    }
+                }
+            }
+            catch { /* best-effort */ }
+
+            return false; // default to vanilla
+        }
+
+
         public static void AfterPagesLoaded_Postfix(object __instance)
         {
             try
@@ -1783,7 +1828,8 @@ namespace ShowCraftable
             return true;
         }
 
-        private static List<GridRecipe> CollectGridRecipesForStack(ICoreClientAPI capi, ItemStack stack)
+        // New overload: filter by mod origin (modsOnly==true => only mod recipes; false => only vanilla; null => all)
+        private static List<GridRecipe> CollectGridRecipesForStack(ICoreClientAPI capi, ItemStack stack, bool? modsOnly)
         {
             var list = new List<GridRecipe>();
             try
@@ -1791,14 +1837,25 @@ namespace ShowCraftable
                 foreach (var gr in capi.World.GridRecipes)
                 {
                     if (!gr.ShowInCreatedBy) continue;
+
+                    // Filter by recipe origin if requested
+                    if (modsOnly.HasValue)
+                    {
+                        bool isMod = IsModRecipe(capi, gr);
+                        if (modsOnly.Value != isMod) continue;
+                    }
+
+                    // Keep your existing matching logic
                     var outStack = gr.Output?.ResolvedItemstack;
                     if (outStack != null && outStack.Satisfies(stack))
                     {
                         list.Add(gr);
                         continue;
                     }
+
                     var ingreds = gr.resolvedIngredients?.ToArray();
                     if (ingreds == null) continue;
+
                     foreach (var ing in ingreds)
                     {
                         var ret = ing?.ReturnedStack?.ResolvedItemstack;
@@ -1814,9 +1871,15 @@ namespace ShowCraftable
                     }
                 }
             }
-            catch { }
+            catch { /* best-effort */ }
+
             return list;
         }
+
+        // Back-compat shim (null = no filter, same behavior as before)
+        private static List<GridRecipe> CollectGridRecipesForStack(ICoreClientAPI capi, ItemStack stack)
+            => CollectGridRecipesForStack(capi, stack, null);
+
 
         private static void AddCraftablePagesFromAllStacks(ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest)
         {
@@ -1836,9 +1899,13 @@ namespace ShowCraftable
                 foreach (var st in stacks)
                 {
                     if (st?.Collectible == null) continue;
+
                     object page = ctor.Invoke(new object[] { capi, st });
                     var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
-                    var recipes = CollectGridRecipesForStack(capi, pStack);
+
+                    // ONLY VANILLA recipes here
+                    var recipes = CollectGridRecipesForStack(capi, pStack, modsOnly: false);
+
                     foreach (var r in recipes)
                     {
                         if (RecipeSatisfiedByPool(capi, pool, r, pStack))
@@ -1850,8 +1917,50 @@ namespace ShowCraftable
                     }
                 }
             }
-            catch { }
+            catch { /* best-effort */ }
         }
+
+        // Identical workflow, but ONLY considers mod recipes
+        private static void AddCraftablePagesFromAllStacksFromModStacks(ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest)
+        {
+            try
+            {
+                var msType = AccessTools.TypeByName("Vintagestory.GameContent.ModSystemSurvivalHandbook");
+                var ms = msType != null ? GetModSystemByType(capi, msType) : null;
+                var stacks = AccessTools.Field(msType, "allstacks")?.GetValue(ms) as ItemStack[];
+                if (stacks == null || stacks.Length == 0) return;
+
+                var ghType = AccessTools.TypeByName("Vintagestory.GameContent.GuiHandbookItemStackPage");
+                var ctor = ghType?.GetConstructor(new[] { typeof(ICoreClientAPI), typeof(ItemStack) });
+                var fiStack = AccessTools.Field(ghType, "Stack");
+                var miPageCode = ghType?.GetMethod("PageCodeForStack", BindingFlags.Public | BindingFlags.Static);
+                if (ctor == null || miPageCode == null) return;
+
+                foreach (var st in stacks)
+                {
+                    if (st?.Collectible == null) continue;
+
+                    object page = ctor.Invoke(new object[] { capi, st });
+                    var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
+
+                    // ONLY MOD recipes here
+                    var recipes = CollectGridRecipesForStack(capi, pStack, modsOnly: true);
+
+                    foreach (var r in recipes)
+                    {
+                        if (RecipeSatisfiedByPool(capi, pool, r, pStack))
+                        {
+                            var pc = miPageCode.Invoke(null, new object[] { pStack }) as string;
+                            if (!string.IsNullOrEmpty(pc)) dest.Add(pc);
+                            break;
+                        }
+                    }
+                }
+            }
+            catch { /* best-effort */ }
+        }
+
+
 
         private void OnServerScanReply(CraftScanReply data)
         {
@@ -1880,7 +1989,7 @@ namespace ShowCraftable
                     if (st != null) pool.Add(st);
                 }
 
-                string sig = pool.GetSignature();
+                string sig = (recipeIndexForMods ? "mods|" : "van|") + pool.GetSignature();
                 List<string> cached;
                 bool reused = false;
                 lock (CacheLock)
@@ -2144,10 +2253,14 @@ namespace ShowCraftable
             // compute how many outputs didn’t resolve to a page via the fast map/fallbacks
             int misses = craftableKeys.Count - (fromMap + attrFallbacks + codeOnlyFallbacks);
 
-            if (misses > 0 && misses <= 12)  // small cap to avoid O(N×M) blowups on big modpacks
+            if (misses > 0 && misses <= 12)
             {
-                AddCraftablePagesFromAllStacks(capi, pool, resultPageCodes);
+                if (recipeIndexForMods)
+                    AddCraftablePagesFromAllStacksFromModStacks(capi, pool, resultPageCodes); // Mods tab
+                else
+                    AddCraftablePagesFromAllStacks(capi, pool, resultPageCodes);              // Vanilla tab
             }
+
 
             craftableOutputsCount = resultPageCodes.Count;
             Flush();
