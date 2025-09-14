@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Text;
+using System.Text.RegularExpressions;
 using Vintagestory.API.Client;
 using Vintagestory.API.Server;
 using Vintagestory.API.Common;
@@ -91,6 +92,7 @@ namespace ShowCraftable
             [ProtoMember(5)] public string PatternCode;
             [ProtoMember(6)] public string[] Allowed;
             [ProtoMember(7)] public EnumItemClass Type;
+            [ProtoMember(8)] public string Name;
         }
 
         [ProtoContract]
@@ -287,33 +289,64 @@ namespace ShowCraftable
         }
 
 
+        private static string GetBaseCode(string code)
+        {
+            if (string.IsNullOrEmpty(code)) return code;
+
+            // Split into segments and replace the middle part with a wildcard if possible
+            var parts = code.Split('-');
+            if (parts.Length >= 3)
+            {
+                return parts[0] + "-*-" + string.Join("-", parts.Skip(2));
+            }
+
+            return code;
+        }
+
         private static void ExpandOutputsForRecipe(
             ICoreClientAPI capi,
             ResourcePool pool,
             GridRecipeShim recipe,
             HashSet<StackKey> dest,
-            Dictionary<GridRecipeShim, Dictionary<string, int>> originalNeeds)
+            Dictionary<GridRecipeShim, Dictionary<string, int>> originalNeeds,
+            Dictionary<string, HashSet<StackKey>> baseMap)
         {
             if (recipe?.Outputs == null || recipe.Outputs.Count == 0) return;
 
-            var wild = recipe.Ingredients?.FirstOrDefault(i => i != null && i.IsWild && i.PatternCode != null);
-            string[] allowed = wild?.Allowed;
-
-            int neededFromWild = 0;
-            if (wild != null && originalNeeds != null && originalNeeds.TryGetValue(recipe, out var needMap) && needMap != null)
+            // Gather all wildcard ingredients by name
+            var wildByName = new Dictionary<string, Dictionary<string, int>>(StringComparer.Ordinal);
+            if (recipe.Ingredients != null)
             {
-                var gkey = $"wild:{wild.PatternCode}|{string.Join(",", (allowed ?? Array.Empty<string>()).OrderBy(x => x))}|T:{wild.Type}";
-                if (!needMap.TryGetValue(gkey, out neededFromWild))
-                    neededFromWild = Math.Max(1, wild.QuantityRequired);
-            }
+                foreach (var ing in recipe.Ingredients)
+                {
+                    if (ing == null || !ing.IsWild || ing.PatternCode == null || string.IsNullOrEmpty(ing.Name)) continue;
 
-            Dictionary<string, int> tokenCounts = null;
-            if (wild != null) tokenCounts = GetWildcardTokenCounts(pool, wild.PatternCode, allowed);
+                    int need = 0;
+                    var allowed = ing.Allowed;
+                    if (originalNeeds != null && originalNeeds.TryGetValue(recipe, out var needMap) && needMap != null)
+                    {
+                        var gkey = $"wild:{ing.PatternCode}|{string.Join(",", (allowed ?? Array.Empty<string>()).OrderBy(x => x))}|T:{ing.Type}";
+                        if (!needMap.TryGetValue(gkey, out need))
+                            need = Math.Max(1, ing.QuantityRequired);
+                    }
+                    else
+                    {
+                        need = Math.Max(1, ing.QuantityRequired);
+                    }
+
+                    var counts = GetWildcardTokenCounts(pool, ing.PatternCode, allowed);
+                    if (need > 0)
+                        counts = counts.Where(kv => kv.Value >= need).ToDictionary(kv => kv.Key, kv => kv.Value, StringComparer.Ordinal);
+
+                    wildByName[ing.Name] = counts;
+                }
+            }
 
             foreach (var os in recipe.Outputs)
             {
                 var ocode = os?.Collectible?.Code?.ToString();
                 if (string.IsNullOrEmpty(ocode)) continue;
+
 
                 var attrOrig = new Dictionary<string, string>(StringComparer.Ordinal);
                 try
@@ -329,15 +362,29 @@ namespace ShowCraftable
                 }
                 catch { }
 
-                bool canExpand = wild != null && tokenCounts != null && tokenCounts.Count > 0;
+                var outMat = GetAttrStringSafe(os, "material");
+                var outType = GetAttrStringSafe(os, "type");
 
-                if (canExpand)
+                // Collect placeholder names from code and attributes
+                var names = new List<string>();
+                foreach (Match m in Regex.Matches(ocode, "\\{([^}]+)\\}"))
+                    if (!names.Contains(m.Groups[1].Value)) names.Add(m.Groups[1].Value);
+                if (!string.IsNullOrEmpty(outMat))
+                    foreach (Match m in Regex.Matches(outMat, "\\{([^}]+)\\}"))
+                        if (!names.Contains(m.Groups[1].Value)) names.Add(m.Groups[1].Value);
+                if (!string.IsNullOrEmpty(outType))
+                    foreach (Match m in Regex.Matches(outType, "\\{([^}]+)\\}"))
+                        if (!names.Contains(m.Groups[1].Value)) names.Add(m.Groups[1].Value);
+
+
+                var relevant = names.Where(n => wildByName.TryGetValue(n, out var tokens) && tokens.Count > 0).ToList();
+
+
+                if (relevant.Count == 0)
                 {
-                    foreach (var kv in tokenCounts)
-                    {
-                        string token = kv.Key;
-                        int have = kv.Value;
-                        if (neededFromWild > 0 && have < neededFromWild) continue;
+                    dest.Add(new StackKey(ocode, outMat ?? "", outType ?? ""));
+                    continue;
+
 
                         var attrResolved = new Dictionary<string, string>(attrOrig, StringComparer.Ordinal);
                         foreach (var key in attrOrig.Keys.ToList())
@@ -379,14 +426,59 @@ namespace ShowCraftable
                         string mat = attrResolved.TryGetValue("material", out var m) ? m : "";
                         string typ = attrResolved.TryGetValue("type", out var tval) ? tval : "";
                         dest.Add(new StackKey(finalCode, mat, typ));
+
+                        var sk = new StackKey(finalCode, token, outType ?? "");
+                        dest.Add(sk);
+
+                        string baseCode = finalCode.Replace(token, "*");
+                        if (!baseMap.TryGetValue(baseCode, out var set))
+                        {
+                            set = new HashSet<StackKey>();
+                            baseMap[baseCode] = set;
+                        }
+                        set.Add(sk);
+
                     }
                 }
                 else
                 {
+
                     string mat = attrOrig.TryGetValue("material", out var m) ? m : "";
                     string typ = attrOrig.TryGetValue("type", out var tval) ? tval : "";
                     dest.Add(new StackKey(ocode, mat, typ));
+
+                    var sk = new StackKey(ocode, outMat ?? "", outType ?? "");
+                    dest.Add(sk);
+
+                    string baseCode = GetBaseCode(ocode);
+                    if (!baseMap.TryGetValue(baseCode, out var set))
+                    {
+                        set = new HashSet<StackKey>();
+                        baseMap[baseCode] = set;
+                    }
+                    set.Add(sk);
+
                 }
+
+                void Recurse(int idx, string curCode, string curMat, string curType)
+                {
+                    if (idx >= relevant.Count)
+                    {
+                        dest.Add(new StackKey(curCode, curMat ?? "", curType ?? ""));
+                        return;
+                    }
+                    var name = relevant[idx];
+                    var tokens = wildByName[name];
+                    foreach (var token in tokens.Keys)
+                    {
+                        var nextCode = curCode.Replace("{" + name + "}", token);
+                        var nextMat = curMat?.Replace("{" + name + "}", token);
+                        var nextType = curType?.Replace("{" + name + "}", token);
+                        Recurse(idx + 1, nextCode, nextMat, nextType);
+                    }
+                }
+
+                Recurse(0, ocode, outMat, outType);
             }
         }
 
@@ -1262,6 +1354,7 @@ namespace ShowCraftable
             public AssetLocation PatternCode;
             public string[] Allowed;
             public EnumItemClass Type;
+            public string Name;
         }
 
         private static List<GridRecipeShim> GetAllGridRecipes(ICoreClientAPI capi, out int fetched, out int usable, bool modsOnly)
@@ -1348,7 +1441,8 @@ namespace ShowCraftable
                             QuantityRequired = ci.QuantityRequired,
                             PatternCode = ci.PatternCode != null ? new AssetLocation(ci.PatternCode) : null,
                             Allowed = ci.Allowed,
-                            Type = ci.Type
+                            Type = ci.Type,
+                            Name = ci.Name
                         };
                         if (ci.Options != null)
                         {
@@ -1617,6 +1711,7 @@ namespace ShowCraftable
 
                     gi.IsTool = TryGetMember(it, ingRaw, "IsTool") as bool? ?? false;
                     gi.IsWild = TryGetMember(it, ingRaw, "IsWildCard") as bool? ?? false;
+                    gi.Name = TryGetMember(it, ingRaw, "Name") as string;
 
                     gi.PatternCode = TryGetMember(it, ingRaw, "Code") as AssetLocation;
                     var allowedObj = TryGetMember(it, ingRaw, "AllowedVariants");
@@ -1668,6 +1763,7 @@ namespace ShowCraftable
                         var gi = new GridIngredientShim();
 
                         gi.IsTool = TryGetMember(it, ingRaw, "IsTool") as bool? ?? false;
+                        gi.Name = TryGetMember(it, ingRaw, "Name") as string;
                         gi.PatternCode = TryGetMember(it, ingRaw, "Code") as AssetLocation;
                         var allowedObj = TryGetMember(it, ingRaw, "AllowedVariants");
                         gi.Allowed = allowedObj as string[];
@@ -1878,7 +1974,8 @@ namespace ShowCraftable
             return list;
         }
 
-        private static void AddCraftablePagesFromAllStacks(ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest)
+        private static void AddCraftablePagesFromAllStacks(ICoreClientAPI capi, ResourcePool pool,
+            HashSet<string> dest, HashSet<string> unresolvedBases)
         {
             try
             {
@@ -1896,6 +1993,10 @@ namespace ShowCraftable
                 foreach (var st in stacks)
                 {
                     if (st?.Collectible == null) continue;
+                    var code = st.Collectible.Code?.ToString();
+                    var baseCode = GetBaseCode(code);
+                    if (!unresolvedBases.Contains(baseCode)) continue;
+
                     object page = ctor.Invoke(new object[] { capi, st });
                     var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
                     var recipes = CollectGridRecipesForStack(capi, pStack);
@@ -1904,10 +2005,16 @@ namespace ShowCraftable
                         if (RecipeSatisfiedByPool(capi, pool, r, pStack))
                         {
                             var pc = miPageCode.Invoke(null, new object[] { pStack }) as string;
-                            if (!string.IsNullOrEmpty(pc)) dest.Add(pc);
+                            if (!string.IsNullOrEmpty(pc))
+                            {
+                                dest.Add(pc);
+                                unresolvedBases.Remove(baseCode);
+                            }
                             break;
                         }
                     }
+
+                    if (unresolvedBases.Count == 0) break;
                 }
             }
             catch { }
@@ -2127,6 +2234,7 @@ namespace ShowCraftable
 
             // Pass C: collect craftable outputs; validate only ambiguous ones.
             var craftableKeys = new HashSet<StackKey>();
+            var baseMap = new Dictionary<string, HashSet<StackKey>>(StringComparer.Ordinal);
             foreach (var kv in remaining)
             {
                 var recipe = kv.Key;
@@ -2138,13 +2246,12 @@ namespace ShowCraftable
                 bool ok = !ambRecipes.Contains(recipe) ? true : CanSatisfyPrecisely_NoGkeyToCodes(recipe, pool);
                 if (!ok) continue;
 
-                ExpandOutputsForRecipe(capi, pool, recipe, craftableKeys, recipeGroupNeeds);
+                ExpandOutputsForRecipe(capi, pool, recipe, craftableKeys, recipeGroupNeeds, baseMap);
             }
 
+            craftableOutputsCount = baseMap.Count;
 
-            craftableOutputsCount = craftableKeys.Count;
-
-            // --- page-code resolution remains identical to your original code ---
+            // --- page-code resolution with base grouping ---
             var key2page = GetCachedPageCodeMap(capi);
             var resultPageCodes = new HashSet<string>(StringComparer.Ordinal);
             var ghType = AccessTools.TypeByName("Vintagestory.GameContent.GuiHandbookItemStackPage");
@@ -2158,42 +2265,55 @@ namespace ShowCraftable
             const int chunkSize = 64;
             int processed = 0;
 
+            var resolvedBases = new HashSet<string>(StringComparer.Ordinal);
+
             void Flush()
             {
                 lock (CacheLock) CachedPageCodes = resultPageCodes.ToList();
                 capi.Event.EnqueueMainThreadTask(() => TryRefreshOpenDialog(capi), null);
             }
 
-            foreach (var key in craftableKeys)
+            foreach (var kv in baseMap)
             {
-                string pageCode = null;
-                bool found;
+                string baseCode = kv.Key;
+                foreach (var key in kv.Value)
+                {
+                    string pageCode = null;
+                    bool found;
 
-                lock (PageCodeMapLock)
-                {
-                    found = key2page.TryGetValue(key, out pageCode);
-                }
-
-                if (found)
-                {
-                    resultPageCodes.Add(pageCode);
-                    fromMap++;
-                }
-                else if (miPageCodeForStack != null)
-                {
-                    try
+                    lock (PageCodeMapLock)
                     {
-                        var st = KeyToItemStack(capi, key);
-                        if (st != null)
-                        {
-                            pageCode = (string)miPageCodeForStack.Invoke(null, new object[] { st });
-                            if (!string.IsNullOrEmpty(pageCode)) resultPageCodes.Add(pageCode);
-                            else hbStackFallbacks++;
-                        }
+                        found = key2page.TryGetValue(key, out pageCode);
                     }
-                    catch
+
+                    if (found)
                     {
-                        hbStackFallbacks++;
+                        resultPageCodes.Add(pageCode);
+                        fromMap++;
+                        resolvedBases.Add(baseCode);
+                        break;
+                    }
+                    else if (miPageCodeForStack != null)
+                    {
+                        try
+                        {
+                            var st = KeyToItemStack(capi, key);
+                            if (st != null)
+                            {
+                                pageCode = (string)miPageCodeForStack.Invoke(null, new object[] { st });
+                                if (!string.IsNullOrEmpty(pageCode))
+                                {
+                                    resultPageCodes.Add(pageCode);
+                                    resolvedBases.Add(baseCode);
+                                    break;
+                                }
+                                else hbStackFallbacks++;
+                            }
+                        }
+                        catch
+                        {
+                            hbStackFallbacks++;
+                        }
                     }
                 }
 
@@ -2202,11 +2322,13 @@ namespace ShowCraftable
             }
 
             // compute how many outputs didn’t resolve to a page via the fast map/fallbacks
-            int misses = craftableKeys.Count - (fromMap + attrFallbacks + codeOnlyFallbacks);
+            int misses = baseMap.Count - resolvedBases.Count;
 
             if (misses > 0 && misses <= 12)  // small cap to avoid O(N×M) blowups on big modpacks
             {
-                AddCraftablePagesFromAllStacks(capi, pool, resultPageCodes);
+                var unresolved = new HashSet<string>(baseMap.Keys);
+                unresolved.ExceptWith(resolvedBases);
+                AddCraftablePagesFromAllStacks(capi, pool, resultPageCodes, unresolved);
             }
 
             craftableOutputsCount = resultPageCodes.Count;
