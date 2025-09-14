@@ -27,10 +27,12 @@ namespace ShowCraftable
 
         private static volatile bool CraftableTabActive;
         private static volatile bool CraftableModsTabActive;
+        private static volatile bool CraftableTypesTabActive;
 
         public const string HarmonyId = "showcraftable.core";
         public const string CraftableCategoryCode = "craftable";
         public const string CraftableModsCategoryCode = "craftablemods";
+        public const string CraftableTypesCategoryCode = "craftabletypes";
 
         public const string ChannelName = "showcraftablescan";
         private static int NearbyRadius = 12;
@@ -221,6 +223,12 @@ namespace ShowCraftable
         {
             // Rebuild a stack from the key: code + attrs we stored.
             return MakeStackFromCodeAndAttrs(capi, key.Code, key.Material, key.Type);
+        }
+
+        private static bool IsWoodOrStoneTyped(ItemStack st)
+        {
+            var v = st?.Collectible?.Variant;
+            return v != null && (v.ContainsKey("wood") || v.ContainsKey("rock"));
         }
 
         private static string ExtractTokenFromPath(string patternPath, string codePath)
@@ -570,11 +578,13 @@ namespace ShowCraftable
 
                 bool craftableExists = false;
                 bool craftableModsExists = false;
+                bool craftableTypesExists = false;
                 foreach (var t in tabs)
                 {
                     var cat = GetPF(tabType, t, "CategoryCode") as string;
                     if (string.Equals(cat, CraftableCategoryCode, StringComparison.OrdinalIgnoreCase)) craftableExists = true;
                     if (string.Equals(cat, CraftableModsCategoryCode, StringComparison.OrdinalIgnoreCase)) craftableModsExists = true;
+                    if (string.Equals(cat, CraftableTypesCategoryCode, StringComparison.OrdinalIgnoreCase)) craftableTypesExists = true;
                 }
 
                 int insertAt = Math.Min(2, tabs.Count);
@@ -586,6 +596,17 @@ namespace ShowCraftable
                     SetPF(tabType, newTab, "DataInt", tabs.Count);
                     SetPF(tabType, newTab, "PaddingTop", 20.0);
                     tabs.Insert(insertAt, newTab);
+                    insertAt++;
+                }
+
+                if (!craftableTypesExists)
+                {
+                    var newTabTypes = Activator.CreateInstance(tabType);
+                    SetPF(tabType, newTabTypes, "Name", "Craftable Types");
+                    SetPF(tabType, newTabTypes, "CategoryCode", CraftableTypesCategoryCode);
+                    SetPF(tabType, newTabTypes, "DataInt", tabs.Count);
+                    SetPF(tabType, newTabTypes, "PaddingTop", 20.0);
+                    tabs.Insert(insertAt, newTabTypes);
                     insertAt++;
                 }
 
@@ -626,8 +647,9 @@ namespace ShowCraftable
             {
                 CraftableTabActive = string.Equals(code, CraftableCategoryCode, StringComparison.Ordinal);
                 CraftableModsTabActive = string.Equals(code, CraftableModsCategoryCode, StringComparison.Ordinal);
+                CraftableTypesTabActive = string.Equals(code, CraftableTypesCategoryCode, StringComparison.Ordinal);
                 bool modsOnly = CraftableModsTabActive;
-                bool anyCraftable = CraftableTabActive || CraftableModsTabActive;
+                bool anyCraftable = CraftableTabActive || CraftableModsTabActive || CraftableTypesTabActive;
 
                 if (!DialogIsOpen(__instance))
                 {
@@ -703,7 +725,7 @@ namespace ShowCraftable
                     capi.Event.EnqueueMainThreadTask(() =>
                     {
                         if (myScanId != _pendingScanId) return;
-                        if (!DialogIsOpen(__instance) || (!CraftableTabActive && !CraftableModsTabActive)) return;
+                        if (!DialogIsOpen(__instance) || (!CraftableTabActive && !CraftableModsTabActive && !CraftableTypesTabActive)) return;
 
                         // After the empty state was shown, repopulate from cache if available
                         bool haveCache;
@@ -725,7 +747,7 @@ namespace ShowCraftable
                                     capi.Event.EnqueueMainThreadTask(() =>
                                     {
                                         if (myScanId != _pendingScanId) return;
-                                        if (!DialogIsOpen(__instance) || (!CraftableTabActive && !CraftableModsTabActive)) return;
+                                        if (!DialogIsOpen(__instance) || (!CraftableTabActive && !CraftableModsTabActive && !CraftableTypesTabActive)) return;
                                         RequestServerScan(capi, NearbyRadius, includeCrates: true);
                                     }, "CraftableScanKickoff2");
                                 });
@@ -815,7 +837,8 @@ namespace ShowCraftable
                 var cur = AccessTools.Field(__instance.GetType(), "currentCatgoryCode")?.GetValue(__instance) as string;
 
                 if (capi != null && (string.Equals(cur, CraftableCategoryCode, StringComparison.Ordinal) ||
-                                     string.Equals(cur, CraftableModsCategoryCode, StringComparison.Ordinal)))
+                                     string.Equals(cur, CraftableModsCategoryCode, StringComparison.Ordinal) ||
+                                     string.Equals(cur, CraftableTypesCategoryCode, StringComparison.Ordinal)))
                 {
                     AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
                     LogEverywhere(capi, "[Craftable] AfterPagesLoaded: refreshed Craftable tab");
@@ -844,7 +867,8 @@ namespace ShowCraftable
             {
                 string cat = (string)AccessTools.Field(__instance.GetType(), "currentCatgoryCode").GetValue(__instance);
                 if (!(string.Equals(cat, CraftableCategoryCode, StringComparison.Ordinal) ||
-                      string.Equals(cat, CraftableModsCategoryCode, StringComparison.Ordinal))) return true;
+                      string.Equals(cat, CraftableModsCategoryCode, StringComparison.Ordinal) ||
+                      string.Equals(cat, CraftableTypesCategoryCode, StringComparison.Ordinal))) return true;
 
                 var fiCapi = AccessTools.Field(__instance.GetType(), "capi");
                 var fiShown = AccessTools.Field(__instance.GetType(), "shownHandbookPages");
@@ -986,7 +1010,8 @@ namespace ShowCraftable
                 }
                 var cur = AccessTools.Field(dlg.GetType(), "currentCatgoryCode")?.GetValue(dlg) as string;
                 if (!(string.Equals(cur, CraftableCategoryCode, StringComparison.Ordinal) ||
-                      string.Equals(cur, CraftableModsCategoryCode, StringComparison.Ordinal)))
+                      string.Equals(cur, CraftableModsCategoryCode, StringComparison.Ordinal) ||
+                      string.Equals(cur, CraftableTypesCategoryCode, StringComparison.Ordinal)))
                 {
                     LastDialogPageCount = 0;
                     return;
@@ -1925,6 +1950,9 @@ namespace ShowCraftable
                 }
 
                 string sig = pool.GetSignature();
+                if (CraftableTypesTabActive) sig += "|types";
+                else if (CraftableModsTabActive) sig += "|mods";
+                else sig += "|vanilla";
                 List<string> cached;
                 bool reused = false;
                 lock (CacheLock)
@@ -1954,7 +1982,7 @@ namespace ShowCraftable
                 {
                     try
                     {
-                        int pages = RebuildCacheWithPool(_capi, pool, out int outputs, out int fetched, out int usable);
+                        int pages = RebuildCacheWithPool(_capi, pool, out int outputs, out int fetched, out int usable, CraftableTypesTabActive);
                         lock (CacheLock) ScanResultsCache[sig] = CachedPageCodes.ToList();
                         _capi.Event.EnqueueMainThreadTask(() => LogEverywhere(_capi, $"[Craftable] Server nearby scan merged: outputs={outputs}, pages={pages}, fetched={fetched}, usable={usable}", toChat: true), null);
                     }
@@ -1982,7 +2010,7 @@ namespace ShowCraftable
 
         private static int RebuildCacheWithPool(
     ICoreClientAPI capi, ResourcePool pool,
-    out int craftableOutputsCount, out int fetched, out int usable)
+    out int craftableOutputsCount, out int fetched, out int usable, bool typesOnly)
         {
             var sw = Stopwatch.StartNew();
             craftableOutputsCount = 0; fetched = recipesFetched; usable = recipesUsable;
@@ -2124,6 +2152,29 @@ namespace ShowCraftable
                 if (!ok) continue;
 
                 ExpandOutputsForRecipe(capi, pool, recipe, craftableKeys, recipeGroupNeeds, baseMap);
+            }
+
+            if (typesOnly)
+            {
+                foreach (var kv in baseMap.ToList())
+                {
+                    var kept = kv.Value
+                        .Where(sk => IsWoodOrStoneTyped(KeyToItemStack(capi, sk)))
+                        .ToList();
+                    if (kept.Count > 0) baseMap[kv.Key] = new HashSet<StackKey>(kept);
+                    else baseMap.Remove(kv.Key);
+                }
+            }
+            else
+            {
+                foreach (var kv in baseMap.ToList())
+                {
+                    var kept = kv.Value
+                        .Where(sk => !IsWoodOrStoneTyped(KeyToItemStack(capi, sk)))
+                        .ToList();
+                    if (kept.Count > 0) baseMap[kv.Key] = new HashSet<StackKey>(kept);
+                    else baseMap.Remove(kv.Key);
+                }
             }
 
             craftableOutputsCount = baseMap.Count;
