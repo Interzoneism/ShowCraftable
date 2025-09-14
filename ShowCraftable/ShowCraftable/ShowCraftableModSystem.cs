@@ -35,16 +35,8 @@ namespace ShowCraftable
         public const string ChannelName = "showcraftablescan";
         private static int NearbyRadius = 12;
 
-        private static readonly object CacheLock = new();
-        private static List<string> CachedPageCodes = new();
-        private static readonly Dictionary<string, List<string>> ScanResultsCache = new();
-
-        private static readonly object PageCodeMapLock = new();
-        private static Dictionary<StackKey, string> AllStacksPageCodeMap = new();
-        private static ItemStack[] AllStacksPageCodeMapSource;
-
-        private static readonly Dictionary<string, Dictionary<string, int>> WildTokenCountsMemo
-    = new(StringComparer.Ordinal);
+        private static readonly object PageCodesLock = new();
+        private static List<string> CurrentPageCodes = new();
 
 
         private static bool ScanInProgress = false;
@@ -78,44 +70,6 @@ namespace ShowCraftable
 
         private static readonly List<WildGroup> wildcardGroups = new();
 
-        private static readonly Dictionary<string, List<(GridRecipeShim Recipe, string GroupKey)>> wildMatchCache
-            = new(StringComparer.Ordinal);
-
-        [ProtoContract]
-        private class CachedIngredient
-        {
-            [ProtoMember(1)] public bool IsTool;
-            [ProtoMember(2)] public bool IsWild;
-            [ProtoMember(3)] public int QuantityRequired;
-            [ProtoMember(4)] public List<byte[]> Options = new();
-            [ProtoMember(5)] public string PatternCode;
-            [ProtoMember(6)] public string[] Allowed;
-            [ProtoMember(7)] public EnumItemClass Type;
-        }
-
-        [ProtoContract]
-        private class CachedRecipe
-        {
-            [ProtoMember(1)] public List<CachedIngredient> Ingredients = new();
-            [ProtoMember(2)] public List<byte[]> Outputs = new();
-            [ProtoMember(3)] public Dictionary<string, int> Needs = new();
-        }
-
-        [ProtoContract]
-        private class CodeRecipeRef
-        {
-            [ProtoMember(1)] public int Recipe;
-            [ProtoMember(2)] public string GroupKey;
-        }
-
-        [ProtoContract]
-        private class RecipeIndexCache
-        {
-            [ProtoMember(1)] public List<CachedRecipe> Recipes { get; set; } = new();
-            [ProtoMember(2)] public Dictionary<string, List<CodeRecipeRef>> CodeToRecipes { get; set; } = new();
-            // NEW: optional since older caches won’t have it
-            [ProtoMember(3)] public Dictionary<string, List<string>> CodeToGkeys { get; set; } = new();
-        }
 
 
         private static class HandbookPauseGuard
@@ -245,12 +199,6 @@ namespace ShowCraftable
             var res = new Dictionary<string, int>(StringComparer.Ordinal);
             if (pool == null || pattern == null) return res;
 
-            string allowedCsv = (allowed != null && allowed.Length > 0) ? string.Join(",", allowed.OrderBy(x => x)) : "";
-            string memoKey = (pool.GetSignature() ?? "") + "||" + (pattern.ToString() ?? "") + "||" + allowedCsv;
-
-            lock (WildTokenCountsMemo)
-                if (WildTokenCountsMemo.TryGetValue(memoKey, out var cached)) return cached;
-
             string patPath = pattern.Path ?? pattern.ToString();
             foreach (var kv in pool.Counts)
             {
@@ -267,8 +215,6 @@ namespace ShowCraftable
                 }
                 catch { /* ignore */ }
             }
-
-            lock (WildTokenCountsMemo) WildTokenCountsMemo[memoKey] = res;
             return res;
         }
 
@@ -448,61 +394,19 @@ namespace ShowCraftable
                     return TextCommandResult.Success();
                 });
 
-            capi.ChatCommands.Create("craftabledump")
-                .WithDescription("Dump Craftable cache & resolution stats")
-                .HandleWith(args =>
-                {
-                    try
-                    {
-                        List<string> codes;
-                        lock (CacheLock) codes = CachedPageCodes.ToList();
-
-                        LogEverywhere(capi, $"[Craftable] dump: cached={codes.Count}, first10=[{string.Join(", ", codes.Take(10))}]", toChat: true);
-
-                        var msType = AccessTools.TypeByName("Vintagestory.GameContent.ModSystemSurvivalHandbook");
-                        var ms = msType != null ? GetModSystemByType(capi, msType) : null;
-                        var dlg = AccessTools.Field(msType, "dialog")?.GetValue(ms);
-                        var pageMap = dlg != null
-                            ? AccessTools.Field(dlg.GetType(), "pageNumberByPageCode")?.GetValue(dlg) as Dictionary<string, int>
-                            : null;
-
-                        if (pageMap != null)
-                        {
-                            int have = 0, miss = 0;
-                            foreach (var c in codes) { if (pageMap.ContainsKey(c)) have++; else miss++; }
-                            LogEverywhere(capi, $"[Craftable] resolve: haveInMap={have}, missingInMap={miss}", toChat: true);
-                        }
-                        else
-                        {
-                            LogEverywhere(capi, "[Craftable] resolve: page map not available (dialog not initialized?)", toChat: true);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        LogEverywhere(capi, $"[Craftable] dump failed: {e}", toChat: true);
-                    }
-                    return TextCommandResult.Success();
-                });
-
-
             capi.Event.LevelFinalize += () =>
             {
-                lock (CacheLock)
+                lock (PageCodesLock)
                 {
-                    CachedPageCodes.Clear();
-                    ScanResultsCache.Clear();
+                    CurrentPageCodes.Clear();
                 }
                 codeToRecipeGroups.Clear();
                 recipeGroupNeeds.Clear();
                 wildcardGroups.Clear();
-                wildMatchCache.Clear();
                 recipeIndexBuilt = false;
-                InvalidatePageCodeMapCache();
-                LogEverywhere(capi, "[Craftable] LevelFinalize: cache reset");
+                LogEverywhere(capi, "[Craftable] LevelFinalize: results reset");
                 StartRecipeIndexBuild(capi, false);
             };
-
-            capi.Event.LeaveWorld += InvalidatePageCodeMapCache;
         }
 
         public override void Dispose() => _harmony?.UnpatchAll(HarmonyId);
@@ -638,18 +542,9 @@ namespace ShowCraftable
                             var shown = AccessTools.Field(__instance.GetType(), "shownHandbookPages")?.GetValue(__instance) as System.Collections.IList;
                             shown?.Clear();
 
-                            // Temporarily empty the cache so FilterItems renders an empty list
-                            List<string> snapshot;
-                            lock (CacheLock)
-                            {
-                                snapshot = CachedPageCodes.ToList();
-                                CachedPageCodes.Clear();
-                            }
+                            lock (PageCodesLock) CurrentPageCodes.Clear();
 
                             AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
-
-                            // Restore cache for later reuse
-                            lock (CacheLock) CachedPageCodes = snapshot;
                         }
                         catch { }
                     }, "SCClearCraftableList");
@@ -671,14 +566,6 @@ namespace ShowCraftable
                     {
                         if (myScanId != _pendingScanId) return;
                         if (!DialogIsOpen(__instance) || (!CraftableTabActive && !CraftableModsTabActive)) return;
-
-                        // After the empty state was shown, repopulate from cache if available
-                        bool haveCache;
-                        lock (CacheLock) haveCache = CachedPageCodes.Count > 0;
-                        if (haveCache)
-                        {
-                            AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
-                        }
 
                         if (!recipeIndexBuilt || recipeIndexForMods != modsOnly)
                         {
@@ -713,16 +600,9 @@ namespace ShowCraftable
                         var shown = AccessTools.Field(__instance.GetType(), "shownHandbookPages")?.GetValue(__instance) as System.Collections.IList;
                         shown?.Clear();
 
-                        List<string> snapshot;
-                        lock (CacheLock)
-                        {
-                            snapshot = CachedPageCodes.ToList();
-                            CachedPageCodes.Clear();
-                        }
+                        lock (PageCodesLock) CurrentPageCodes.Clear();
 
                         AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
-
-                        lock (CacheLock) CachedPageCodes = snapshot;
                     }
                     catch { }
                 }
@@ -837,7 +717,7 @@ namespace ShowCraftable
                 if (pageMap == null || allPages == null) return true;
 
                 List<string> codesSnapshot;
-                lock (CacheLock) codesSnapshot = CachedPageCodes.ToList();
+                lock (PageCodesLock) codesSnapshot = CurrentPageCodes.ToList();
 
                 var resolvedPages = new List<object>();
                 int missing = 0;
@@ -854,7 +734,7 @@ namespace ShowCraftable
                 if (capi != null)
                 {
                     var sampleCodes = string.Join(", ", codesSnapshot.Take(5));
-                    LogEverywhere(capi, $"[Craftable] UI resolve: cached={codesSnapshot.Count}, resolved={resolvedPages.Count}, missing={missing}, loading={loading}, sample codes=[{sampleCodes}]");
+                    LogEverywhere(capi, $"[Craftable] UI resolve: pages={codesSnapshot.Count}, resolved={resolvedPages.Count}, missing={missing}, loading={loading}, sample codes=[{sampleCodes}]");
                 }
 
                 List<object> finalPages;
@@ -960,7 +840,7 @@ namespace ShowCraftable
                 }
 
                 int count;
-                lock (CacheLock) count = CachedPageCodes.Count;
+                lock (PageCodesLock) count = CurrentPageCodes.Count;
                 if (count == LastDialogPageCount) return;
                 LastDialogPageCount = count;
 
@@ -1029,40 +909,6 @@ namespace ShowCraftable
             catch { }
             return map;
         }
-
-        private static Dictionary<StackKey, string> GetCachedPageCodeMap(ICoreClientAPI capi)
-        {
-            try
-            {
-                var msType = AccessTools.TypeByName("Vintagestory.GameContent.ModSystemSurvivalHandbook");
-                var ms = msType != null ? GetModSystemByType(capi, msType) : null;
-                var fiAllStacks = AccessTools.Field(msType, "allstacks");
-                var arr = fiAllStacks?.GetValue(ms) as ItemStack[];
-                lock (PageCodeMapLock)
-                {
-                    if (!ReferenceEquals(arr, AllStacksPageCodeMapSource) || AllStacksPageCodeMap.Count == 0)
-                    {
-                        AllStacksPageCodeMap = BuildPageCodeMapFromAllStacks(capi);
-                        AllStacksPageCodeMapSource = arr;
-                    }
-                    return AllStacksPageCodeMap;
-                }
-            }
-            catch
-            {
-                return AllStacksPageCodeMap;
-            }
-        }
-
-        private static void InvalidatePageCodeMapCache()
-        {
-            lock (PageCodeMapLock)
-            {
-                AllStacksPageCodeMap.Clear();
-                AllStacksPageCodeMapSource = null;
-            }
-        }
-
 
         private static ItemStack MakeStackFromCode(ICoreClientAPI capi, string code)
         {
@@ -1242,125 +1088,6 @@ namespace ShowCraftable
             return list;
         }
 
-        private static string GetCachePath(ICoreClientAPI capi, bool modsOnly)
-        {
-            try
-            {
-                var m = typeof(ICoreAPI).GetMethod("GetOrCreateDataPath", BindingFlags.Public | BindingFlags.Instance);
-                var basePath = m != null ? (string)m.Invoke(capi, new object[] { "ShowCraftable" }) : null;
-                if (string.IsNullOrEmpty(basePath))
-                {
-                    basePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ShowCraftable");
-                }
-                Directory.CreateDirectory(basePath);
-                return Path.Combine(basePath, modsOnly ? "recipeindex_mods.bin" : "recipeindex.bin");
-            }
-            catch
-            {
-                return Path.Combine(Path.GetTempPath(), modsOnly ? "recipeindex_mods.bin" : "recipeindex.bin");
-            }
-        }
-
-        private static bool LoadRecipeIndex(ICoreClientAPI capi, bool modsOnly)
-        {
-            try
-            {
-                var path = GetCachePath(capi, modsOnly);
-                if (!File.Exists(path)) return false;
-                RecipeIndexCache data;
-                using (var fs = File.OpenRead(path)) data = Serializer.Deserialize<RecipeIndexCache>(fs);
-
-                codeToRecipeGroups.Clear();
-                recipeGroupNeeds.Clear();
-                wildcardGroups.Clear();
-                wildMatchCache.Clear();
-
-                var recipes = new List<GridRecipeShim>();
-                foreach (var cr in data.Recipes)
-                {
-                    var r = new GridRecipeShim();
-                    foreach (var ci in cr.Ingredients)
-                    {
-                        var gi = new GridIngredientShim
-                        {
-                            IsTool = ci.IsTool,
-                            IsWild = ci.IsWild,
-                            QuantityRequired = ci.QuantityRequired,
-                            PatternCode = ci.PatternCode != null ? new AssetLocation(ci.PatternCode) : null,
-                            Allowed = ci.Allowed,
-                            Type = ci.Type
-                        };
-                        if (ci.Options != null)
-                        {
-                            foreach (var b in ci.Options)
-                            {
-                                try
-                                {
-                                    var st = new ItemStack(b);
-                                    st.ResolveBlockOrItem(capi.World);
-                                    gi.Options.Add(st);
-                                }
-                                catch { }
-                            }
-                        }
-                        r.Ingredients.Add(gi);
-                        if (gi.IsWild && gi.PatternCode != null)
-                        {
-                            var gkey = $"wild:{gi.PatternCode}|{string.Join(",", (gi.Allowed ?? Array.Empty<string>()).OrderBy(x => x))}|T:{gi.Type}";
-                            wildcardGroups.Add(new WildGroup { Recipe = r, GroupKey = gkey, Type = gi.Type, Pattern = gi.PatternCode, Allowed = gi.Allowed });
-                        }
-                    }
-                    if (cr.Outputs != null)
-                    {
-                        foreach (var b in cr.Outputs)
-                        {
-                            try
-                            {
-                                var st = new ItemStack(b);
-                                st.ResolveBlockOrItem(capi.World);
-                                r.Outputs.Add(st);
-                            }
-                            catch { }
-                        }
-                    }
-                    recipes.Add(r);
-                    recipeGroupNeeds[r] = cr.Needs ?? new Dictionary<string, int>(StringComparer.Ordinal);
-                }
-
-                foreach (var kv in data.CodeToRecipes)
-                {
-                    var list = new List<(GridRecipeShim Recipe, string GroupKey)>();
-                    foreach (var rref in kv.Value)
-                    {
-                        if (rref.Recipe >= 0 && rref.Recipe < recipes.Count)
-                            list.Add((recipes[rref.Recipe], rref.GroupKey));
-                    }
-                    codeToRecipeGroups[kv.Key] = list;
-                }
-                codeToGkeys.Clear();
-                if (data.CodeToGkeys != null && data.CodeToGkeys.Count > 0)
-                {
-                    foreach (var kv in data.CodeToGkeys)
-                        codeToGkeys[kv.Key] = new HashSet<string>(kv.Value ?? new List<string>(), StringComparer.Ordinal);
-                }
-                else
-                {
-                    // Back-compat: derive set of gkeys per code from (code -> (recipe,gkey))
-                    foreach (var kv in codeToRecipeGroups)
-                    {
-                        if (!codeToGkeys.TryGetValue(kv.Key, out var gset))
-                            codeToGkeys[kv.Key] = gset = new HashSet<string>(StringComparer.Ordinal);
-                        foreach (var pair in kv.Value)
-                            gset.Add(pair.GroupKey);
-                    }
-                }
-
-
-                recipeIndexBuilt = true;
-                return true;
-            }
-            catch { return false; }
-        }
 
         private static void StartRecipeIndexBuild(ICoreClientAPI capi, bool modsOnly)
         {
@@ -1371,20 +1098,15 @@ namespace ShowCraftable
                 return;
             }
             recipeIndexBuilt = false;
-            lock (CacheLock)
+            lock (PageCodesLock)
             {
-                CachedPageCodes.Clear();
-                ScanResultsCache.Clear();
+                CurrentPageCodes.Clear();
             }
             recipeIndexBuildTask = Task.Run(() =>
             {
-                if (!LoadRecipeIndex(capi, modsOnly))
-                {
-                    BuildRecipeIndex(capi, modsOnly);
-                }
+                BuildRecipeIndex(capi, modsOnly);
                 recipeIndexBuilt = true;
                 recipeIndexForMods = modsOnly;
-                GetCachedPageCodeMap(capi);
             });
         }
         private static void BuildRecipeIndex(ICoreClientAPI capi, bool modsOnly)
@@ -1398,17 +1120,11 @@ namespace ShowCraftable
             recipeIndexBuildTotal = recipes.Count;
             recipeIndexBuildProgress = 0;
 
-            var wildCache = new Dictionary<string, List<string>>(StringComparer.Ordinal);
-
             IEnumerable<string> GetWildMatches(GridIngredientShim ing)
             {
                 if (ing == null || ing.PatternCode == null) return Array.Empty<string>();
 
                 var allowed = ing.Allowed ?? Array.Empty<string>();
-                string sig = $"wild:{ing.PatternCode}|{string.Join(",", allowed.OrderBy(x => x))}|T:{ing.Type}";
-
-                if (wildCache.TryGetValue(sig, out var cached)) return cached;
-
                 var results = new List<string>();
 
                 IEnumerable<CollectibleObject> coll = null;
@@ -1430,9 +1146,7 @@ namespace ShowCraftable
                     }
                 }
 
-                var distinct = results.Distinct(StringComparer.Ordinal).ToList();
-                wildCache[sig] = distinct;
-                return distinct;
+                return results.Distinct(StringComparer.Ordinal).ToList();
             }
 
             foreach (var r in recipes)
@@ -1880,38 +1594,11 @@ namespace ShowCraftable
                     if (st != null) pool.Add(st);
                 }
 
-                string sig = pool.GetSignature();
-                List<string> cached;
-                bool reused = false;
-                lock (CacheLock)
-                {
-                    if (ScanResultsCache.TryGetValue(sig, out cached))
-                    {
-                        CachedPageCodes = cached.ToList();
-                        reused = true;
-                    }
-                }
-
-                if (reused)
-                {
-                    _capi.Event.EnqueueMainThreadTask(() =>
-                    {
-                        LogEverywhere(_capi, $"[Craftable] Server nearby scan reused cache: pages={CachedPageCodes.Count}", toChat: true);
-                        TryRefreshOpenDialog(_capi);
-                        SetUpdatingText(_capi, false);
-                    }, null);
-
-                    ScanInProgress = false;
-                    HandbookPauseGuard.Release(_capi);
-                    return;
-                }
-
                 Task.Run(() =>
                 {
                     try
                     {
-                        int pages = RebuildCacheWithPool(_capi, pool, out int outputs, out int fetched, out int usable);
-                        lock (CacheLock) ScanResultsCache[sig] = CachedPageCodes.ToList();
+                        int pages = BuildPagesWithPool(_capi, pool, out int outputs, out int fetched, out int usable);
                         _capi.Event.EnqueueMainThreadTask(() => LogEverywhere(_capi, $"[Craftable] Server nearby scan merged: outputs={outputs}, pages={pages}, fetched={fetched}, usable={usable}", toChat: true), null);
                     }
                     catch (Exception e)
@@ -1936,7 +1623,7 @@ namespace ShowCraftable
         }
 
 
-        private static int RebuildCacheWithPool(
+        private static int BuildPagesWithPool(
     ICoreClientAPI capi, ResourcePool pool,
     out int craftableOutputsCount, out int fetched, out int usable)
         {
@@ -2085,7 +1772,7 @@ namespace ShowCraftable
             craftableOutputsCount = craftableKeys.Count;
 
             // --- page-code resolution remains identical to your original code ---
-            var key2page = GetCachedPageCodeMap(capi);
+            var key2page = BuildPageCodeMapFromAllStacks(capi);
             var resultPageCodes = new HashSet<string>(StringComparer.Ordinal);
             var ghType = AccessTools.TypeByName("Vintagestory.GameContent.GuiHandbookItemStackPage");
             var miPageCodeForStack = ghType?.GetMethod("PageCodeForStack", BindingFlags.Public | BindingFlags.Static);
@@ -2100,19 +1787,14 @@ namespace ShowCraftable
 
             void Flush()
             {
-                lock (CacheLock) CachedPageCodes = resultPageCodes.ToList();
+                lock (PageCodesLock) CurrentPageCodes = resultPageCodes.ToList();
                 capi.Event.EnqueueMainThreadTask(() => TryRefreshOpenDialog(capi), null);
             }
 
             foreach (var key in craftableKeys)
             {
                 string pageCode = null;
-                bool found;
-
-                lock (PageCodeMapLock)
-                {
-                    found = key2page.TryGetValue(key, out pageCode);
-                }
+                bool found = key2page.TryGetValue(key, out pageCode);
 
                 if (found)
                 {
@@ -2164,7 +1846,7 @@ namespace ShowCraftable
             {
                 LogEverywhere(capi, $"[Craftable] craftable outputs={outputsCount}, pagesFromMap={fromMap}, attrFallbacks={attrFallbacks}, codeOnlyFallbacks={codeOnlyFallbacks}, hbFallbacks={hbStackFallbacks}", toChat: false);
                 LogEverywhere(capi, $"[Craftable] pages added to Craftable tab: [{string.Join(", ", pagesList)}] (total {totalPages})");
-                LogEverywhere(capi, $"[Craftable] RebuildCacheWithPool (group-aggregated) took {elapsedMs}ms");
+                LogEverywhere(capi, $"[Craftable] BuildPagesWithPool (group-aggregated) took {elapsedMs}ms");
             }, null);
 
             return totalPages;
