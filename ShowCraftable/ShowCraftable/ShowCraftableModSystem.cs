@@ -65,6 +65,14 @@ namespace ShowCraftable
         private static volatile bool recipeIndexBuilt = false;
         private static volatile bool recipeIndexForMods = false;
 
+        // New tab
+        public const string CraftableWoodCategoryCode = "craftablewoodtypes";
+
+        // UI + index state
+        private static volatile bool CraftableWoodTabActive;
+        private static volatile bool recipeIndexForWoodOnly;
+
+
         internal static bool DebugEnabled = true;
 
         private sealed class WildGroup
@@ -330,6 +338,97 @@ namespace ShowCraftable
             }
         }
 
+        // Hard-coded wood species (source of truth)
+        private static readonly string[] WoodSpecies = new[]
+        {
+            "birch","maple","pine","acacia","kapok","baldcypress",
+            "larch","redwood","ebony","walnut","purpleheart","oak","aged"
+        };
+
+        private static bool IsSep(char c) => c == '-' || c == '_' || c == '/' || c == '.';
+
+        // boundary-aware match: (^|[-_/.])mat($|[-_/.])
+        private static bool ContainsWoodMatInCode(string code)
+        {
+            if (string.IsNullOrEmpty(code)) return false;
+            foreach (var m in WoodSpecies)
+            {
+                int idx = code.IndexOf(m, StringComparison.OrdinalIgnoreCase);
+                while (idx >= 0)
+                {
+                    bool leftOk = idx == 0 || IsSep(code[idx - 1]);
+                    int right = idx + m.Length;
+                    bool rightOk = right >= code.Length || IsSep(code[right]);
+                    if (leftOk && rightOk) return true;
+                    idx = code.IndexOf(m, idx + m.Length, StringComparison.OrdinalIgnoreCase);
+                }
+            }
+            return false;
+        }
+
+        private static bool ContainsWoodMatInAttributes(string s)
+        {
+            if (string.IsNullOrEmpty(s)) return false;
+
+            // Normalize: lowercase + strip whitespace
+            var buf = new char[s.Length];
+            int j = 0;
+            for (int i = 0; i < s.Length; i++)
+            {
+                char c = s[i];
+                if (!char.IsWhiteSpace(c)) buf[j++] = char.ToLowerInvariant(c);
+            }
+            string t = new string(buf, 0, j);
+
+            // Extract un/quoted value after key:
+            // material:foo   material:"foo"   type:wood-foo  type:"wood-foo"
+            static string ExtractValue(string text, string key)
+            {
+                int i = text.IndexOf(key + ":", StringComparison.Ordinal);
+                if (i < 0) return null;
+                i += key.Length + 1;
+                if (i >= text.Length) return null;
+
+                char qc = (text[i] == '"' || text[i] == '\'') ? text[i++] : '\0';
+                int start = i;
+
+                while (i < text.Length)
+                {
+                    char c = text[i];
+                    if ((qc != '\0' && c == qc) || (qc == '\0' && (c == ',' || c == '}' || c == ']')))
+                        break;
+                    i++;
+                }
+                return text.Substring(start, i - start); // already lowercase/whitespace-free
+            }
+
+            // Unresolved tokens
+            var mval = ExtractValue(t, "material");
+            if (mval != null)
+            {
+                if (mval == "{wood}") return true; // material:{wood} OR material:"{wood}"
+                foreach (var m in WoodSpecies) if (mval == m) return true; // material:maple
+            }
+
+            var typeVal = ExtractValue(t, "type");
+            if (typeVal != null)
+            {
+                if (typeVal == "wood-{wood}") return true; // type:wood-{wood}
+                foreach (var m in WoodSpecies) if (typeVal == "wood-" + m) return true; // type:wood-maple
+            }
+
+            // Tolerant fallback
+            foreach (var m in WoodSpecies)
+            {
+                if (t.IndexOf("wood-" + m, StringComparison.Ordinal) >= 0) return true;
+            }
+
+            return false;
+        }
+
+
+
+
         private static void LogEverywhere(ICoreClientAPI capi, string msg, bool toChat = false)
         {
             if (!DebugEnabled) return;
@@ -499,7 +598,7 @@ namespace ShowCraftable
                 recipeIndexBuilt = false;
                 InvalidatePageCodeMapCache();
                 LogEverywhere(capi, "[Craftable] LevelFinalize: cache reset");
-                StartRecipeIndexBuild(capi, false);
+                StartRecipeIndexBuild(capi, false, false);
             };
 
             capi.Event.LeaveWorld += InvalidatePageCodeMapCache;
@@ -544,6 +643,16 @@ namespace ShowCraftable
                     if (string.Equals(cat, CraftableModsCategoryCode, StringComparison.OrdinalIgnoreCase)) craftableModsExists = true;
                 }
 
+                bool craftableWoodExists = false;
+                foreach (var t in tabs)
+                {
+                    var cat = GetPF(tabType, t, "CategoryCode") as string;
+                    if (string.Equals(cat, CraftableCategoryCode, StringComparison.OrdinalIgnoreCase)) craftableExists = true;
+                    if (string.Equals(cat, CraftableModsCategoryCode, StringComparison.OrdinalIgnoreCase)) craftableModsExists = true;
+                    if (string.Equals(cat, CraftableWoodCategoryCode, StringComparison.OrdinalIgnoreCase)) craftableWoodExists = true;
+                }
+
+
                 int insertAt = Math.Min(2, tabs.Count);
                 if (!craftableExists)
                 {
@@ -565,6 +674,18 @@ namespace ShowCraftable
                     SetPF(tabType, newTabMods, "PaddingTop", 20.0);
                     tabs.Insert(insertAt, newTabMods);
                 }
+
+                if (!craftableWoodExists)
+                {
+                    var woodTab = Activator.CreateInstance(tabType);
+                    SetPF(tabType, woodTab, "Name", "Craftable Wood Types");
+                    SetPF(tabType, woodTab, "CategoryCode", CraftableWoodCategoryCode);
+                    SetPF(tabType, woodTab, "DataInt", tabs.Count);
+                    SetPF(tabType, woodTab, "PaddingTop", 20.0);
+                    tabs.Insert(insertAt, woodTab);
+                }
+
+
 
                 __result = ToTypedArray(tabType, tabs);
             }
@@ -593,8 +714,12 @@ namespace ShowCraftable
             {
                 CraftableTabActive = string.Equals(code, CraftableCategoryCode, StringComparison.Ordinal);
                 CraftableModsTabActive = string.Equals(code, CraftableModsCategoryCode, StringComparison.Ordinal);
+                CraftableWoodTabActive = string.Equals(code, CraftableWoodCategoryCode, StringComparison.Ordinal);
+
                 bool modsOnly = CraftableModsTabActive;
-                bool anyCraftable = CraftableTabActive || CraftableModsTabActive;
+                bool woodOnly = CraftableWoodTabActive;
+                bool anyCraftable = CraftableTabActive || CraftableModsTabActive || CraftableWoodTabActive;
+
 
                 if (!DialogIsOpen(__instance))
                 {
@@ -670,7 +795,7 @@ namespace ShowCraftable
                     capi.Event.EnqueueMainThreadTask(() =>
                     {
                         if (myScanId != _pendingScanId) return;
-                        if (!DialogIsOpen(__instance) || (!CraftableTabActive && !CraftableModsTabActive)) return;
+                        if (!DialogIsOpen(__instance) || (!CraftableTabActive && !CraftableModsTabActive && !CraftableWoodTabActive)) return;
 
                         // After the empty state was shown, repopulate from cache if available
                         bool haveCache;
@@ -680,9 +805,9 @@ namespace ShowCraftable
                             AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
                         }
 
-                        if (!recipeIndexBuilt || recipeIndexForMods != modsOnly)
+                        if (!recipeIndexBuilt || recipeIndexForMods != modsOnly || recipeIndexForWoodOnly != woodOnly)
                         {
-                            StartRecipeIndexBuild(capi, modsOnly);
+                            StartRecipeIndexBuild(capi, modsOnly, woodOnly);
                             int total = Math.Max(1, recipeIndexBuildTotal);
                             capi.ShowChatMessage($"[Craftable] Building recipe index {recipeIndexBuildProgress}/{total}...");
                             if (recipeIndexBuildTask != null)
@@ -692,7 +817,7 @@ namespace ShowCraftable
                                     capi.Event.EnqueueMainThreadTask(() =>
                                     {
                                         if (myScanId != _pendingScanId) return;
-                                        if (!DialogIsOpen(__instance) || (!CraftableTabActive && !CraftableModsTabActive)) return;
+                                        if (!DialogIsOpen(__instance) || (!CraftableTabActive && !CraftableModsTabActive && !CraftableWoodTabActive)) return;
                                         RequestServerScan(capi, NearbyRadius, includeCrates: true);
                                     }, "CraftableScanKickoff2");
                                 });
@@ -773,6 +898,52 @@ namespace ShowCraftable
             catch { }
         }
 
+        private static bool IsWoodRecipe(object recipeOrOutput)
+        {
+            if (recipeOrOutput == null) return false;
+
+            bool CheckOne(object o)
+            {
+                if (o == null) return false;
+                var t = o.GetType();
+
+                // Try get Code as AssetLocation or string
+                var al = TryGetMember(t, o, "Code") as AssetLocation;
+                string code = al?.ToString() ?? TryGetMember(t, o, "code") as string;
+
+                if (!string.IsNullOrEmpty(code))
+                {
+                    if (code.IndexOf("{wood}", StringComparison.OrdinalIgnoreCase) >= 0) return true;
+                    if (ContainsWoodMatInCode(code)) return true;
+                }
+
+                // Attributes may be a TreeAttribute or already stringified; ToString() covers both in your codebase
+                var attrsObj = TryGetMember(t, o, "Attributes");
+                string attrs = attrsObj?.ToString();
+                if (!string.IsNullOrEmpty(attrs))
+                {
+                    if (attrs.IndexOf("{wood}", StringComparison.OrdinalIgnoreCase) >= 0) return true;
+                    if (ContainsWoodMatInAttributes(attrs)) return true;
+                }
+
+                return false;
+            }
+
+            // Check single output
+            var rt = recipeOrOutput.GetType();
+            var outOne = TryGetMember(rt, recipeOrOutput, "Output");
+            if (CheckOne(outOne)) return true;
+
+            // Check multi-outputs
+            var outs = TryGetMember(rt, recipeOrOutput, "Outputs") as System.Collections.IEnumerable;
+            if (outs != null) foreach (var o in outs) if (CheckOne(o)) return true;
+
+            // If caller passed an output-like object directly
+            return CheckOne(recipeOrOutput);
+        }
+
+
+
         // True if the recipe belongs to a mod (domain != "game")
         private static bool IsModRecipe(ICoreClientAPI capi, object raw)
         {
@@ -826,12 +997,14 @@ namespace ShowCraftable
                 var capi = fiCapi?.GetValue(__instance) as ICoreClientAPI;
                 var cur = AccessTools.Field(__instance.GetType(), "currentCatgoryCode")?.GetValue(__instance) as string;
 
-                if (capi != null && (string.Equals(cur, CraftableCategoryCode, StringComparison.Ordinal) ||
-                                     string.Equals(cur, CraftableModsCategoryCode, StringComparison.Ordinal)))
+                if (capi != null && (
+                    string.Equals(cur, CraftableCategoryCode, StringComparison.Ordinal) ||
+                    string.Equals(cur, CraftableModsCategoryCode, StringComparison.Ordinal) ||
+                    string.Equals(cur, CraftableWoodCategoryCode, StringComparison.Ordinal)))
                 {
                     AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
-                    LogEverywhere(capi, "[Craftable] AfterPagesLoaded: refreshed Craftable tab");
                 }
+
             }
             catch { }
         }
@@ -856,7 +1029,9 @@ namespace ShowCraftable
             {
                 string cat = (string)AccessTools.Field(__instance.GetType(), "currentCatgoryCode").GetValue(__instance);
                 if (!(string.Equals(cat, CraftableCategoryCode, StringComparison.Ordinal) ||
-                      string.Equals(cat, CraftableModsCategoryCode, StringComparison.Ordinal))) return true;
+                      string.Equals(cat, CraftableModsCategoryCode, StringComparison.Ordinal) ||
+                      string.Equals(cat, CraftableWoodCategoryCode, StringComparison.Ordinal))) return true;
+
 
                 var fiCapi = AccessTools.Field(__instance.GetType(), "capi");
                 var fiShown = AccessTools.Field(__instance.GetType(), "shownHandbookPages");
@@ -998,11 +1173,13 @@ namespace ShowCraftable
                 }
                 var cur = AccessTools.Field(dlg.GetType(), "currentCatgoryCode")?.GetValue(dlg) as string;
                 if (!(string.Equals(cur, CraftableCategoryCode, StringComparison.Ordinal) ||
-                      string.Equals(cur, CraftableModsCategoryCode, StringComparison.Ordinal)))
+                      string.Equals(cur, CraftableModsCategoryCode, StringComparison.Ordinal) ||
+                      string.Equals(cur, CraftableWoodCategoryCode, StringComparison.Ordinal)))
                 {
                     LastDialogPageCount = 0;
                     return;
                 }
+
 
                 int count;
                 lock (CacheLock) count = CachedPageCodes.Count;
@@ -1287,30 +1464,28 @@ namespace ShowCraftable
             return list;
         }
 
-        private static string GetCachePath(ICoreClientAPI capi, bool modsOnly)
+        private static string GetCachePath(ICoreClientAPI capi, bool modsOnly, bool woodOnly)
         {
+            string basePath;
             try
             {
                 var m = typeof(ICoreAPI).GetMethod("GetOrCreateDataPath", BindingFlags.Public | BindingFlags.Instance);
-                var basePath = m != null ? (string)m.Invoke(capi, new object[] { "ShowCraftable" }) : null;
-                if (string.IsNullOrEmpty(basePath))
-                {
-                    basePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ShowCraftable");
-                }
-                Directory.CreateDirectory(basePath);
-                return Path.Combine(basePath, modsOnly ? "recipeindex_mods.bin" : "recipeindex.bin");
+                basePath = m != null ? (string)m.Invoke(capi, new object[] { "ShowCraftable" }) : null;
             }
-            catch
-            {
-                return Path.Combine(Path.GetTempPath(), modsOnly ? "recipeindex_mods.bin" : "recipeindex.bin");
-            }
+            catch { basePath = null; }
+            if (string.IsNullOrEmpty(basePath))
+                basePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ShowCraftable");
+            Directory.CreateDirectory(basePath);
+            string name = modsOnly ? "recipeindex_mods.bin" : (woodOnly ? "recipeindex_wood.bin" : "recipeindex_vanilla.bin");
+            return Path.Combine(basePath, name);
         }
 
-        private static bool LoadRecipeIndex(ICoreClientAPI capi, bool modsOnly)
+
+        private static bool LoadRecipeIndex(ICoreClientAPI capi, bool modsOnly, bool woodOnly)
         {
             try
             {
-                var path = GetCachePath(capi, modsOnly);
+                var path = GetCachePath(capi, modsOnly, woodOnly);
                 if (!File.Exists(path)) return false;
                 RecipeIndexCache data;
                 using (var fs = File.OpenRead(path)) data = Serializer.Deserialize<RecipeIndexCache>(fs);
@@ -1407,32 +1582,26 @@ namespace ShowCraftable
             catch { return false; }
         }
 
-        private static void StartRecipeIndexBuild(ICoreClientAPI capi, bool modsOnly)
+        private static void StartRecipeIndexBuild(ICoreClientAPI capi, bool modsOnly, bool woodOnly)
         {
-            if (recipeIndexBuilt && recipeIndexForMods == modsOnly) return;
+            if (recipeIndexBuilt && recipeIndexForMods == modsOnly && recipeIndexForWoodOnly == woodOnly) return;
             if (recipeIndexBuildTask != null && !recipeIndexBuildTask.IsCompleted)
             {
-                recipeIndexBuildTask.ContinueWith(_ => StartRecipeIndexBuild(capi, modsOnly));
+                recipeIndexBuildTask.ContinueWith(_ => StartRecipeIndexBuild(capi, modsOnly, woodOnly));
                 return;
             }
             recipeIndexBuilt = false;
-            lock (CacheLock)
-            {
-                CachedPageCodes.Clear();
-                ScanResultsCache.Clear();
-            }
+            lock (CacheLock) { CachedPageCodes.Clear(); ScanResultsCache.Clear(); }
             recipeIndexBuildTask = Task.Run(() =>
             {
-                if (!LoadRecipeIndex(capi, modsOnly))
-                {
-                    BuildRecipeIndex(capi, modsOnly);
-                }
+                if (!LoadRecipeIndex(capi, modsOnly, woodOnly)) BuildRecipeIndex(capi, modsOnly, woodOnly);
                 recipeIndexBuilt = true;
                 recipeIndexForMods = modsOnly;
+                recipeIndexForWoodOnly = woodOnly;
                 GetCachedPageCodeMap(capi);
             });
         }
-        private static void BuildRecipeIndex(ICoreClientAPI capi, bool modsOnly)
+        private static void BuildRecipeIndex(ICoreClientAPI capi, bool modsOnly, bool woodOnly)
         {
             var sw = Stopwatch.StartNew();
             codeToRecipeGroups.Clear();
@@ -1440,6 +1609,11 @@ namespace ShowCraftable
             codeToGkeys.Clear();
 
             var recipes = GetAllGridRecipes(capi, out recipesFetched, out recipesUsable, modsOnly);
+            if (woodOnly)
+                recipes = recipes.Where(r => !r.IsMod && IsWoodRecipe(r.Raw)).ToList();
+            else if (!modsOnly)
+                recipes = recipes.Where(r => !r.IsMod && !IsWoodRecipe(r.Raw)).ToList();
+
             recipeIndexBuildTotal = recipes.Count;
             recipeIndexBuildProgress = 0;
 
@@ -1903,11 +2077,10 @@ namespace ShowCraftable
                     object page = ctor.Invoke(new object[] { capi, st });
                     var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
 
-                    // ONLY VANILLA recipes here
-                    var recipes = CollectGridRecipesForStack(capi, pStack, modsOnly: false);
-
+                    var recipes = CollectGridRecipesForStack(capi, pStack, modsOnly: false);  // vanilla only
                     foreach (var r in recipes)
                     {
+                        if (IsWoodRecipe(r)) continue;                      // <-- exclude wood here
                         if (RecipeSatisfiedByPool(capi, pool, r, pStack))
                         {
                             var pc = miPageCode.Invoke(null, new object[] { pStack }) as string;
@@ -1960,6 +2133,43 @@ namespace ShowCraftable
             catch { /* best-effort */ }
         }
 
+        private static void AddCraftablePagesFromAllStacks_WoodOnly(ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest)
+        {
+            try
+            {
+                var msType = AccessTools.TypeByName("Vintagestory.GameContent.ModSystemSurvivalHandbook");
+                var ms = msType != null ? GetModSystemByType(capi, msType) : null;
+                var stacks = AccessTools.Field(msType, "allstacks")?.GetValue(ms) as ItemStack[];
+                if (stacks == null || stacks.Length == 0) return;
+
+                var ghType = AccessTools.TypeByName("Vintagestory.GameContent.GuiHandbookItemStackPage");
+                var ctor = ghType?.GetConstructor(new[] { typeof(ICoreClientAPI), typeof(ItemStack) });
+                var fiStack = AccessTools.Field(ghType, "Stack");
+                var miPageCode = ghType?.GetMethod("PageCodeForStack", BindingFlags.Public | BindingFlags.Static);
+                if (ctor == null || miPageCode == null) return;
+
+                foreach (var st in stacks)
+                {
+                    if (st?.Collectible == null) continue;
+                    object page = ctor.Invoke(new object[] { capi, st });
+                    var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
+
+                    // vanilla only, then wood only
+                    var recipes = CollectGridRecipesForStack(capi, pStack, modsOnly: false);
+                    foreach (var r in recipes)
+                    {
+                        if (!IsWoodRecipe(r)) continue;
+                        if (RecipeSatisfiedByPool(capi, pool, r, pStack))
+                        {
+                            var pc = miPageCode.Invoke(null, new object[] { pStack }) as string;
+                            if (!string.IsNullOrEmpty(pc)) dest.Add(pc);
+                            break;
+                        }
+                    }
+                }
+            }
+            catch { /* best-effort */ }
+        }
 
 
         private void OnServerScanReply(CraftScanReply data)
@@ -1988,8 +2198,9 @@ namespace ShowCraftable
                     }
                     if (st != null) pool.Add(st);
                 }
+                string sigPrefix = recipeIndexForMods ? "mods|" : (recipeIndexForWoodOnly ? "wood|" : "van|");
+                string sig = sigPrefix + pool.GetSignature();
 
-                string sig = (recipeIndexForMods ? "mods|" : "van|") + pool.GetSignature();
                 List<string> cached;
                 bool reused = false;
                 lock (CacheLock)
@@ -2256,10 +2467,13 @@ namespace ShowCraftable
             if (misses > 0 && misses <= 12)
             {
                 if (recipeIndexForMods)
-                    AddCraftablePagesFromAllStacksFromModStacks(capi, pool, resultPageCodes); // Mods tab
+                    AddCraftablePagesFromAllStacksFromModStacks(capi, pool, resultPageCodes);
+                else if (recipeIndexForWoodOnly)
+                    AddCraftablePagesFromAllStacks_WoodOnly(capi, pool, resultPageCodes);
                 else
-                    AddCraftablePagesFromAllStacks(capi, pool, resultPageCodes);              // Vanilla tab
+                    AddCraftablePagesFromAllStacks(capi, pool, resultPageCodes);
             }
+
 
 
             craftableOutputsCount = resultPageCodes.Count;
