@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Text;
+using System.Text.RegularExpressions;
 using Vintagestory.API.Client;
 using Vintagestory.API.Server;
 using Vintagestory.API.Common;
@@ -91,6 +92,7 @@ namespace ShowCraftable
             [ProtoMember(5)] public string PatternCode;
             [ProtoMember(6)] public string[] Allowed;
             [ProtoMember(7)] public EnumItemClass Type;
+            [ProtoMember(8)] public string Name;
         }
 
         [ProtoContract]
@@ -297,43 +299,61 @@ namespace ShowCraftable
         {
             if (recipe?.Outputs == null || recipe.Outputs.Count == 0) return;
 
-            var wild = recipe.Ingredients?.FirstOrDefault(i => i != null && i.IsWild && i.PatternCode != null);
-            string[] allowed = wild?.Allowed;
-
-            int neededFromWild = 0;
-            if (wild != null && originalNeeds != null && originalNeeds.TryGetValue(recipe, out var needMap) && needMap != null)
+            // Gather all wildcard ingredients by name
+            var wildByName = new Dictionary<string, Dictionary<string, int>>(StringComparer.Ordinal);
+            if (recipe.Ingredients != null)
             {
-                var gkey = $"wild:{wild.PatternCode}|{string.Join(",", (allowed ?? Array.Empty<string>()).OrderBy(x => x))}|T:{wild.Type}";
-                if (!needMap.TryGetValue(gkey, out neededFromWild))
-                    neededFromWild = Math.Max(1, wild.QuantityRequired);
-            }
+                foreach (var ing in recipe.Ingredients)
+                {
+                    if (ing == null || !ing.IsWild || ing.PatternCode == null || string.IsNullOrEmpty(ing.Name)) continue;
 
-            Dictionary<string, int> tokenCounts = null;
-            if (wild != null) tokenCounts = GetWildcardTokenCounts(pool, wild.PatternCode, allowed);
+                    int need = 0;
+                    var allowed = ing.Allowed;
+                    if (originalNeeds != null && originalNeeds.TryGetValue(recipe, out var needMap) && needMap != null)
+                    {
+                        var gkey = $"wild:{ing.PatternCode}|{string.Join(",", (allowed ?? Array.Empty<string>()).OrderBy(x => x))}|T:{ing.Type}";
+                        if (!needMap.TryGetValue(gkey, out need))
+                            need = Math.Max(1, ing.QuantityRequired);
+                    }
+                    else
+                    {
+                        need = Math.Max(1, ing.QuantityRequired);
+                    }
+
+                    var counts = GetWildcardTokenCounts(pool, ing.PatternCode, allowed);
+                    if (need > 0)
+                        counts = counts.Where(kv => kv.Value >= need).ToDictionary(kv => kv.Key, kv => kv.Value, StringComparer.Ordinal);
+
+                    wildByName[ing.Name] = counts;
+                }
+            }
 
             foreach (var os in recipe.Outputs)
             {
                 var ocode = os?.Collectible?.Code?.ToString();
                 if (string.IsNullOrEmpty(ocode)) continue;
 
-                string outType = GetAttrStringSafe(os, "type");
-                string outMat = GetAttrStringSafe(os, "material");
+                var outMat = GetAttrStringSafe(os, "material");
+                var outType = GetAttrStringSafe(os, "type");
 
-                bool canExpand = wild != null && tokenCounts != null && tokenCounts.Count > 0;
+                // Collect placeholder names from code and attributes
+                var names = new List<string>();
+                foreach (Match m in Regex.Matches(ocode, "\\{([^}]+)\\}"))
+                    if (!names.Contains(m.Groups[1].Value)) names.Add(m.Groups[1].Value);
+                if (!string.IsNullOrEmpty(outMat))
+                    foreach (Match m in Regex.Matches(outMat, "\\{([^}]+)\\}"))
+                        if (!names.Contains(m.Groups[1].Value)) names.Add(m.Groups[1].Value);
+                if (!string.IsNullOrEmpty(outType))
+                    foreach (Match m in Regex.Matches(outType, "\\{([^}]+)\\}"))
+                        if (!names.Contains(m.Groups[1].Value)) names.Add(m.Groups[1].Value);
 
-                if (canExpand)
+                var relevant = names.Where(n => wildByName.TryGetValue(n, out var tokens) && tokens.Count > 0).ToList();
+
+
+                if (relevant.Count == 0)
                 {
-                    foreach (var kv in tokenCounts)
-                    {
-                        string token = kv.Key;
-                        int have = kv.Value;
-                        if (neededFromWild > 0 && have < neededFromWild) continue;
-
-                        string finalCode = ocode;
-                        if (!string.IsNullOrEmpty(outMat) && finalCode.Contains(outMat))
-                        {
-                            finalCode = finalCode.Replace(outMat, token);
-                        }
+                    dest.Add(new StackKey(ocode, outMat ?? "", outType ?? ""));
+                    continue;
 
                         var sk = new StackKey(finalCode, token, outType ?? "");
                         dest.Add(sk);
@@ -359,7 +379,28 @@ namespace ShowCraftable
                         baseMap[baseCode] = set;
                     }
                     set.Add(sk);
+
                 }
+
+                void Recurse(int idx, string curCode, string curMat, string curType)
+                {
+                    if (idx >= relevant.Count)
+                    {
+                        dest.Add(new StackKey(curCode, curMat ?? "", curType ?? ""));
+                        return;
+                    }
+                    var name = relevant[idx];
+                    var tokens = wildByName[name];
+                    foreach (var token in tokens.Keys)
+                    {
+                        var nextCode = curCode.Replace("{" + name + "}", token);
+                        var nextMat = curMat?.Replace("{" + name + "}", token);
+                        var nextType = curType?.Replace("{" + name + "}", token);
+                        Recurse(idx + 1, nextCode, nextMat, nextType);
+                    }
+                }
+
+                Recurse(0, ocode, outMat, outType);
             }
         }
 
@@ -1235,6 +1276,7 @@ namespace ShowCraftable
             public AssetLocation PatternCode;
             public string[] Allowed;
             public EnumItemClass Type;
+            public string Name;
         }
 
         private static List<GridRecipeShim> GetAllGridRecipes(ICoreClientAPI capi, out int fetched, out int usable, bool modsOnly)
@@ -1321,7 +1363,8 @@ namespace ShowCraftable
                             QuantityRequired = ci.QuantityRequired,
                             PatternCode = ci.PatternCode != null ? new AssetLocation(ci.PatternCode) : null,
                             Allowed = ci.Allowed,
-                            Type = ci.Type
+                            Type = ci.Type,
+                            Name = ci.Name
                         };
                         if (ci.Options != null)
                         {
@@ -1590,6 +1633,7 @@ namespace ShowCraftable
 
                     gi.IsTool = TryGetMember(it, ingRaw, "IsTool") as bool? ?? false;
                     gi.IsWild = TryGetMember(it, ingRaw, "IsWildCard") as bool? ?? false;
+                    gi.Name = TryGetMember(it, ingRaw, "Name") as string;
 
                     gi.PatternCode = TryGetMember(it, ingRaw, "Code") as AssetLocation;
                     var allowedObj = TryGetMember(it, ingRaw, "AllowedVariants");
@@ -1641,6 +1685,7 @@ namespace ShowCraftable
                         var gi = new GridIngredientShim();
 
                         gi.IsTool = TryGetMember(it, ingRaw, "IsTool") as bool? ?? false;
+                        gi.Name = TryGetMember(it, ingRaw, "Name") as string;
                         gi.PatternCode = TryGetMember(it, ingRaw, "Code") as AssetLocation;
                         var allowedObj = TryGetMember(it, ingRaw, "AllowedVariants");
                         gi.Allowed = allowedObj as string[];
