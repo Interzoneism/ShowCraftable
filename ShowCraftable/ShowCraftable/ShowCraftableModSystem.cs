@@ -558,25 +558,6 @@ namespace ShowCraftable
                     return TextCommandResult.Success();
                 });
 
-            capi.ChatCommands.Create("craftabledump")
-                .WithDescription("Dump Craftable cache & resolution stats")
-                .HandleWith(args =>
-                {
-                    try
-                    {
-                        List<string> codes;
-                        lock (CacheLock) codes = CachedPageCodes.ToList();
-
-                        LogEverywhere(capi, $"[Craftable] dump: cached={codes.Count}, first10=[{string.Join(", ", codes.Take(10))}]", toChat: true);
-                    }
-                    catch (Exception e)
-                    {
-                        LogEverywhere(capi, $"[Craftable] dump failed: {e}", toChat: true);
-                    }
-                    return TextCommandResult.Success();
-                });
-
-
             capi.Event.LevelFinalize += () =>
             {
                 lock (CacheLock)
