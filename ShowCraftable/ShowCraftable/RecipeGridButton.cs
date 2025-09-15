@@ -32,7 +32,7 @@ public class RecipeGridButton : ButtonFetch
             {
                 if (ShowCraftableSystem.DebugEnabled)
                 {
-                    api.ShowChatMessage("[ShowCraftable] Open a handbook recipe with a crafting grid first.");
+                    api.ShowChatMessage("[ShowCraftable] RecipeGridButton.OnClick: open a handbook recipe with a crafting grid first.");
                 }
                 return;
             }
@@ -42,7 +42,7 @@ public class RecipeGridButton : ButtonFetch
             {
                 if (ShowCraftableSystem.DebugEnabled)
                 {
-                    api.ShowChatMessage("[ShowCraftable] No recipe variants found for this grid.");
+                    api.ShowChatMessage("[ShowCraftable] RecipeGridButton.OnClick: no recipe variants found for this grid.");
                 }
                 return;
             }
@@ -68,7 +68,7 @@ public class RecipeGridButton : ButtonFetch
             {
                 if (ShowCraftableSystem.DebugEnabled)
                 {
-                    api.ShowChatMessage("[ShowCraftable] Could not summarize ingredients for this recipe.");
+                    api.ShowChatMessage("[ShowCraftable] RecipeGridButton.OnClick: could not summarize ingredients for this recipe.");
                 }
                 return;
             }
@@ -110,7 +110,7 @@ public class RecipeGridButton : ButtonFetch
                 }
                 if (ShowCraftableSystem.DebugEnabled)
                 {
-                    api.ShowChatMessage("[ShowCraftable] Fetch request failed: " + e.Message);
+                    api.ShowChatMessage("[ShowCraftable] RecipeGridButton.OnClick: fetch request failed: " + e.Message);
                 }
             }
             finally
@@ -125,7 +125,7 @@ public class RecipeGridButton : ButtonFetch
         {
             if (ShowCraftableSystem.DebugEnabled)
             {
-                api.ShowChatMessage("[ShowCraftable] Ingredient listing failed: " + e.Message);
+                api.ShowChatMessage("[ShowCraftable] RecipeGridButton.OnClick: ingredient listing failed: " + e.Message);
             }
         }
     }
