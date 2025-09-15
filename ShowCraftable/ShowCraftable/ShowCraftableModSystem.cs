@@ -384,9 +384,20 @@ namespace ShowCraftable
             // material:foo   material:"foo"   type:wood-foo  type:"wood-foo"
             static string ExtractValue(string text, string key)
             {
+                // support material:foo, "material":foo, and 'material':foo
                 int i = text.IndexOf(key + ":", StringComparison.Ordinal);
-                if (i < 0) return null;
-                i += key.Length + 1;
+                if (i >= 0)
+                {
+                    i += key.Length + 1;
+                }
+                else
+                {
+                    i = text.IndexOf("\"" + key + "\":", StringComparison.Ordinal);
+                    if (i < 0) i = text.IndexOf("'" + key + "':", StringComparison.Ordinal);
+                    if (i < 0) return null;
+                    i += key.Length + 3; // skip the quote, key, quote and colon
+                }
+
                 if (i >= text.Length) return null;
 
                 char qc = (text[i] == '"' || text[i] == '\'') ? text[i++] : '\0';
