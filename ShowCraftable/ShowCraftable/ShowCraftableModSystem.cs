@@ -2144,22 +2144,21 @@ namespace ShowCraftable
                 int baseSize = stacks.Length / partitions;
                 int extra = stacks.Length % partitions;
 
-                var tasks = new List<Task<HashSet<string>>>(partitions);
+                var tasks = new Task<HashSet<string>>[partitions];
                 int offset = 0;
 
                 for (int p = 0; p < partitions; p++)
                 {
                     int len = baseSize + (p < extra ? 1 : 0);
-                    int start = offset;
-                    offset += len;
+                    int sliceStart = offset;
+                    int sliceEnd = sliceStart + len;
+                    offset = sliceEnd;
 
-                    tasks.Add(Task.Run(() =>
+                    tasks[p] = Task.Run(() =>
                     {
                         var local = new HashSet<string>(StringComparer.Ordinal);
 
-                        // Process this slice
-                        int end = start + len;
-                        for (int i = start; i < end; i++)
+                        for (int i = sliceStart; i < sliceEnd; i++)
                         {
                             var st = stacks[i];
                             if (st?.Collectible == null) continue;
@@ -2181,10 +2180,10 @@ namespace ShowCraftable
                         }
 
                         return local;
-                    }));
+                    });
                 }
 
-                Task.WaitAll(tasks.ToArray());
+                Task.WaitAll(tasks);
 
                 // Merge results back into caller-owned set
                 foreach (var t in tasks)
