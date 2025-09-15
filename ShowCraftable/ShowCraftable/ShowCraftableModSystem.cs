@@ -75,6 +75,7 @@ namespace ShowCraftable
         private static volatile bool CraftableWoodTabActive;
         private static volatile bool recipeIndexForWoodOnly;
 
+        private static readonly object LogFileLock = new();
 
         internal static bool DebugEnabled = true;
 
@@ -459,14 +460,15 @@ namespace ShowCraftable
                 var m = typeof(ICoreAPI).GetMethod("GetOrCreateDataPath", BindingFlags.Public | BindingFlags.Instance);
                 if (m != null) basePath = (string)m.Invoke(capi, new object[] { "ShowCraftable" });
                 if (string.IsNullOrEmpty(basePath))
-                {
                     basePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ShowCraftable");
-                }
                 Directory.CreateDirectory(basePath);
                 var f = Path.Combine(basePath, "craftable.log");
-                File.AppendAllText(f, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} {fullMsg}\n");
+                lock (LogFileLock)
+                {
+                    File.AppendAllText(f, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} [Craftable] {caller}: {msg}\n");
+                }
             }
-            catch { }
+            catch { /* keep best-effort */ }
         }
 
 
