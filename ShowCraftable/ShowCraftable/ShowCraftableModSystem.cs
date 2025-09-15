@@ -2083,42 +2083,46 @@ namespace ShowCraftable
             => CollectGridRecipesForStack(capi, stack, null);
 
 
-        // Drop-in replacement: same name/signature
+        // Choose your default here (or wire to a config)
+        private const int DefaultAllStacksPartitions = 4;
+
+        // Backward-compatible entrypoint
         private static void AddCraftablePagesFromAllStacks(ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest)
+        {
+            AddCraftablePagesFromAllStacks(capi, pool, dest, DefaultAllStacksPartitions);
+        }
+
+        // Parallelizable overload (you control `partitions`)
+        private static void AddCraftablePagesFromAllStacks(ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest, int partitions)
         {
             try
             {
-                // --- Snapshot handbook stacks once ---
+                // Snapshot handbook stacks once
                 var msType = AccessTools.TypeByName("Vintagestory.GameContent.ModSystemSurvivalHandbook");
                 var ms = msType != null ? GetModSystemByType(capi, msType) : null;
                 var stacks = AccessTools.Field(msType, "allstacks")?.GetValue(ms) as ItemStack[];
                 if (stacks == null || stacks.Length == 0) return;
 
-                // --- Reflect once ---
+                // Reflect once per call
                 var ghType = AccessTools.TypeByName("Vintagestory.GameContent.GuiHandbookItemStackPage");
                 var ctor = ghType?.GetConstructor(new[] { typeof(ICoreClientAPI), typeof(ItemStack) });
                 var fiStack = AccessTools.Field(ghType, "Stack");
                 var miPageCode = ghType?.GetMethod("PageCodeForStack", BindingFlags.Public | BindingFlags.Static);
                 if (ctor == null || miPageCode == null) return;
 
-                // Partition into two roughly equal halves
-                const int degree = 2;
-                int partSize = (stacks.Length + degree - 1) / degree;
-
-                Task<HashSet<string>> RunPartition(int start, int len) => Task.Run(() =>
+                // Normalize partitions
+                if (partitions < 1) partitions = 1;
+                if (partitions == 1 || stacks.Length < 2)
                 {
-                    var local = new HashSet<string>(StringComparer.Ordinal);
-                    int end = start + len;
-                    for (int i = start; i < end; i++)
+                    // Serial path (same logic as before)
+                    for (int i = 0; i < stacks.Length; i++)
                     {
                         var st = stacks[i];
                         if (st?.Collectible == null) continue;
 
-                        // Build the page (keeps your current behavior)
                         object page = ctor.Invoke(new object[] { capi, st });
                         var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
 
-                        // VANILLA only here, and skip wood recipes (as you do today)
                         var recipes = CollectGridRecipesForStack(capi, pStack, modsOnly: false);
                         foreach (var r in recipes)
                         {
@@ -2126,26 +2130,73 @@ namespace ShowCraftable
                             if (RecipeSatisfiedByPool(capi, pool, r, pStack))
                             {
                                 var pc = miPageCode.Invoke(null, new object[] { pStack }) as string;
-                                if (!string.IsNullOrEmpty(pc)) local.Add(pc);
-                                break; // same early-exit as current code
+                                if (!string.IsNullOrEmpty(pc)) dest.Add(pc);
+                                break;
                             }
                         }
                     }
-                    return local;
-                });
+                    return;
+                }
 
-                // Kick both shards
-                var t0 = RunPartition(0, Math.Min(partSize, stacks.Length));
-                var t1 = RunPartition(partSize, Math.Max(0, stacks.Length - partSize));
+                partitions = Math.Min(partitions, stacks.Length);
 
-                Task.WaitAll(t0, t1);
+                // Evenly distribute remainder across the first `extra` partitions
+                int baseSize = stacks.Length / partitions;
+                int extra = stacks.Length % partitions;
 
-                // Union into caller-owned set (single-threaded merge)
-                foreach (var pc in t0.Result) dest.Add(pc);
-                foreach (var pc in t1.Result) dest.Add(pc);
+                var tasks = new List<Task<HashSet<string>>>(partitions);
+                int offset = 0;
+
+                for (int p = 0; p < partitions; p++)
+                {
+                    int len = baseSize + (p < extra ? 1 : 0);
+                    int start = offset;
+                    offset += len;
+
+                    tasks.Add(Task.Run(() =>
+                    {
+                        var local = new HashSet<string>(StringComparer.Ordinal);
+
+                        // Process this slice
+                        int end = start + len;
+                        for (int i = start; i < end; i++)
+                        {
+                            var st = stacks[i];
+                            if (st?.Collectible == null) continue;
+
+                            object page = ctor.Invoke(new object[] { capi, st });
+                            var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
+
+                            var recipes = CollectGridRecipesForStack(capi, pStack, modsOnly: false);
+                            foreach (var r in recipes)
+                            {
+                                if (IsWoodRecipe(r)) continue;
+                                if (RecipeSatisfiedByPool(capi, pool, r, pStack))
+                                {
+                                    var pc = miPageCode.Invoke(null, new object[] { pStack }) as string;
+                                    if (!string.IsNullOrEmpty(pc)) local.Add(pc);
+                                    break;
+                                }
+                            }
+                        }
+
+                        return local;
+                    }));
+                }
+
+                Task.WaitAll(tasks.ToArray());
+
+                // Merge results back into caller-owned set
+                foreach (var t in tasks)
+                    foreach (var pc in t.Result)
+                        dest.Add(pc);
             }
-            catch { /* best-effort, same as before */ }
+            catch
+            {
+                // best-effort, match your existing error handling style
+            }
         }
+
 
 
         // Identical workflow, but ONLY considers mod recipes
