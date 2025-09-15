@@ -2684,17 +2684,10 @@ namespace ShowCraftable
             {
                 foreach (var key in unresolved)
                 {
-                    try
-                    {
-                        var st = KeyToItemStack(capi, key);
-                        string cls = st?.Class.ToString() ?? "?";
-                        string collType = st?.Collectible?.GetType()?.FullName ?? "?";
-                        LogEverywhere(capi, $"Missing page for code={key.Code}, material='{key.Material}', type='{key.Type}', class={cls}, collType={collType}");
-                    }
-                    catch
-                    {
-                        LogEverywhere(capi, $"Missing page for code={key.Code}, material='{key.Material}', type='{key.Type}' (failed to reconstruct stack)");
-                    }
+                    var st = KeyToItemStack(capi, key);
+                    string cls = st?.Class.ToString() ?? "?";
+                    string collType = st?.Collectible?.GetType()?.FullName ?? "?";
+                    LogEverywhere(capi, $"Missing page for code={key.Code}, material='{key.Material}', type='{key.Type}', class={cls}, collType={collType}");
                 }
             }
 
