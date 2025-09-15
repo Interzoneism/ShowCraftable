@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Text;
+using System.Runtime.CompilerServices;
 using Vintagestory.API.Client;
 using Vintagestory.API.Server;
 using Vintagestory.API.Common;
@@ -440,13 +441,15 @@ namespace ShowCraftable
 
 
 
-        private static void LogEverywhere(ICoreClientAPI capi, string msg, bool toChat = false)
+        private static void LogEverywhere(ICoreClientAPI capi, string msg, bool toChat = false, [CallerMemberName] string caller = null)
         {
             if (!DebugEnabled) return;
 
-            try { capi.Logger?.Notification(msg); } catch { }
-            try { capi.World?.Logger?.Notification(msg); } catch { }
-            if (toChat) { try { capi.ShowChatMessage(msg); } catch { } }
+            string fullMsg = $"[Craftable] {caller}: {msg}";
+
+            try { capi.Logger?.Notification(fullMsg); } catch { }
+            try { capi.World?.Logger?.Notification(fullMsg); } catch { }
+            if (toChat) { try { capi.ShowChatMessage(fullMsg); } catch { } }
 
             try
             {
@@ -459,7 +462,7 @@ namespace ShowCraftable
                 }
                 Directory.CreateDirectory(basePath);
                 var f = Path.Combine(basePath, "craftable.log");
-                File.AppendAllText(f, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} {msg}\n");
+                File.AppendAllText(f, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} {fullMsg}\n");
             }
             catch { }
         }
@@ -505,13 +508,13 @@ namespace ShowCraftable
                     Radius = radius,
                     IncludeCrates = includeCrates
                 });
-                LogEverywhere(capi, $"[Craftable] Requested server scan (r={radius}, crates={includeCrates})");
+                LogEverywhere(capi, $"Requested server scan (radius={radius}, includeCrates={includeCrates})");
             }
             catch (Exception e)
             {
                 ScanInProgress = false;
                 HandbookPauseGuard.Release(capi);
-                LogEverywhere(capi, $"[Craftable] scan send failed: {e}", toChat: true);
+                LogEverywhere(capi, $"Failed to send scan request: {e}", toChat: true);
             }
         }
 
@@ -571,7 +574,7 @@ namespace ShowCraftable
                 wildMatchCache.Clear();
                 recipeIndexBuilt = false;
                 InvalidatePageCodeMapCache();
-                LogEverywhere(capi, "[Craftable] LevelFinalize: cache reset");
+                LogEverywhere(capi, "Cleared caches on level finalize", caller: "LevelFinalize");
                 StartRecipeIndexBuild(capi, false, false);
             };
 
@@ -705,11 +708,11 @@ namespace ShowCraftable
                 var capi = fiCapi?.GetValue(__instance) as ICoreClientAPI ?? _staticCapi;
 
                 if (CraftableTabActive)
-                    LogEverywhere(capi, "[Craftable] Craftable tab selected by user");
+                    LogEverywhere(capi, "Craftable tab selected by user");
                 else if (CraftableModsTabActive)
-                    LogEverywhere(capi, "[Craftable] Craftable (Mods) tab selected by user");
+                    LogEverywhere(capi, "Craftable (Mods) tab selected by user");
                 else if (CraftableWoodTabActive)
-                    LogEverywhere(capi, "[Craftable] Craftable Wood Types tab selected by user");
+                    LogEverywhere(capi, "Craftable Wood Types tab selected by user");
 
                 var fiOverview = AccessTools.Field(__instance.GetType(), "overviewGui");
                 var composer = fiOverview?.GetValue(__instance) as GuiComposer;
@@ -1463,7 +1466,7 @@ namespace ShowCraftable
             }
 
             sw.Stop();
-            LogEverywhere(capi, $"[Craftable] Grid recipes fetched={fetched}, usable={usable}, ms={sw.ElapsedMilliseconds}, gridMemberFound={gridMemberFound}, usedWorldList={usedGridRecipes}");
+            LogEverywhere(capi, $"Fetched {fetched} grid recipes, {usable} usable, gridMemberFound={gridMemberFound}, usedWorldList={usedGridRecipes}, elapsedMs={sw.ElapsedMilliseconds}");
             return list;
         }
 
@@ -1715,7 +1718,7 @@ namespace ShowCraftable
             sw.Stop();
             long elapsedMs = sw.ElapsedMilliseconds;
             capi.Event.EnqueueMainThreadTask(() =>
-                LogEverywhere(capi, $"[Craftable] BuildRecipeIndex took {elapsedMs}ms"), null);
+                LogEverywhere(capi, $"Recipe index build processed {recipeIndexBuildProgress}/{recipeIndexBuildTotal} recipes in {elapsedMs}ms", caller: nameof(BuildRecipeIndex)), null);
         }
 
         private static IEnumerable<object> FetchGridRecipesMulti(ICoreClientAPI capi)
@@ -2114,7 +2117,7 @@ namespace ShowCraftable
                     }
 
                     swTotal.Stop();
-                    LogEverywhere(capi, $"[Craftable] Partitioned scan processed {stacks.Length} stacks serially in {swTotal.ElapsedMilliseconds}ms");
+                    LogEverywhere(capi, $"Processed {stacks.Length} item stacks serially in {swTotal.ElapsedMilliseconds}ms");
                     return;
                 }
 
@@ -2163,7 +2166,7 @@ namespace ShowCraftable
                         }
 
                         swPart.Stop();
-                        LogEverywhere(capi, $"[Craftable] Partition {partIndex + 1}/{partitions} processed {localLen} stacks in {swPart.ElapsedMilliseconds}ms");
+                        LogEverywhere(capi, $"Partition {partIndex + 1}/{partitions} processed {localLen} item stacks in {swPart.ElapsedMilliseconds}ms", caller: nameof(AddCraftablePagesFromAllStacks));
                         return local;
                     });
                 }
@@ -2171,7 +2174,7 @@ namespace ShowCraftable
                 Task.WaitAll(tasks);
 
                 swTotal.Stop();
-                LogEverywhere(capi, $"[Craftable] Partitioned scan processed {stacks.Length} stacks in {swTotal.ElapsedMilliseconds}ms using {partitions} partitions");
+                LogEverywhere(capi, $"Processed {stacks.Length} item stacks in {swTotal.ElapsedMilliseconds}ms using {partitions} partitions");
 
                 // Merge results back into caller-owned set
                 foreach (var t in tasks)
@@ -2309,7 +2312,7 @@ namespace ShowCraftable
                 {
                     _capi.Event.EnqueueMainThreadTask(() =>
                     {
-                        LogEverywhere(_capi, $"[Craftable] Server nearby scan reused cache: pages={CachedPageCodes.Count}", toChat: true);
+                        LogEverywhere(_capi, $"Server scan reused cache with {CachedPageCodes.Count} page codes", toChat: true, caller: nameof(OnServerScanReply));
                         TryRefreshOpenDialog(_capi);
                         SetUpdatingText(_capi, false);
                     }, null);
@@ -2325,11 +2328,11 @@ namespace ShowCraftable
                     {
                         int pages = RebuildCacheWithPool(_capi, pool, out int outputs, out int fetched, out int usable);
                         lock (CacheLock) ScanResultsCache[sig] = CachedPageCodes.ToList();
-                        _capi.Event.EnqueueMainThreadTask(() => LogEverywhere(_capi, $"[Craftable] Server nearby scan merged: outputs={outputs}, pages={pages}, fetched={fetched}, usable={usable}", toChat: true), null);
+                        _capi.Event.EnqueueMainThreadTask(() => LogEverywhere(_capi, $"Merged server scan results: outputs={outputs}, pages={pages}, fetched={fetched}, usable={usable}", toChat: true, caller: nameof(OnServerScanReply)), null);
                     }
                     catch (Exception e)
                     {
-                        _capi.Event.EnqueueMainThreadTask(() => LogEverywhere(_capi, $"[Craftable] OnServerScanReply error: {e}", toChat: true), null);
+                        _capi.Event.EnqueueMainThreadTask(() => LogEverywhere(_capi, $"Error processing server scan reply: {e}", toChat: true, caller: nameof(OnServerScanReply)), null);
                     }
                     finally
                     {
@@ -2341,7 +2344,7 @@ namespace ShowCraftable
             }
             catch (Exception e)
             {
-                LogEverywhere(_capi, $"[Craftable] OnServerScanReply error: {e}", toChat: true);
+                LogEverywhere(_capi, $"Error processing server scan reply: {e}", toChat: true);
                 ScanInProgress = false;
                 HandbookPauseGuard.Release(_capi);
                 _capi.Event.EnqueueMainThreadTask(() => SetUpdatingText(_capi, false), null);
