@@ -1133,11 +1133,17 @@ namespace ShowCraftable
                         float w = mi == null ? 0f : (float)mi.Invoke(p, new object[] { s });
                         if (w > 0) weighted.Add((p, w));
                     }
-                    finalPages = weighted.OrderByDescending(x => x.W).Select(x => x.Page).ToList();
+                    finalPages = weighted
+                        .OrderByDescending(x => x.W)
+                        .ThenBy(x => GetPageTitle(x.Page), StringComparer.OrdinalIgnoreCase)
+                        .Select(x => x.Page)
+                        .ToList();
                 }
                 else
                 {
-                    finalPages = resolvedPages;
+                    finalPages = resolvedPages
+                        .OrderBy(p => GetPageTitle(p), StringComparer.OrdinalIgnoreCase)
+                        .ToList();
                 }
 
 
