@@ -2194,11 +2194,10 @@ namespace ShowCraftable
 
                 var swTotal = Stopwatch.StartNew();
 
-                // Normalize partitions
                 if (partitions < 1) partitions = 1;
                 if (partitions == 1 || stacks.Length < 2)
                 {
-                    // Serial path (same logic as before)
+                    // Serial path (unchanged)
                     for (int i = 0; i < stacks.Length; i++)
                     {
                         var st = stacks[i];
@@ -2225,69 +2224,71 @@ namespace ShowCraftable
                 }
 
                 partitions = Math.Min(partitions, stacks.Length);
-
-                // Evenly distribute remainder across the first `extra` partitions
-                int baseSize = stacks.Length / partitions;
-                int extra = stacks.Length % partitions;
-
                 var tasks = new Task<HashSet<string>>[partitions];
-                int offset = 0;
 
+                // Dynamic scheduler
+                int next = 0;
+                const int chunk = 64; // tune: 32–128 usually good
                 for (int p = 0; p < partitions; p++)
                 {
-                    int len = baseSize + (p < extra ? 1 : 0);
-                    int sliceStart = offset;
-                    int sliceEnd = sliceStart + len;
-                    offset = sliceEnd;
                     int partIndex = p;
-                    int localLen = len;
-
                     tasks[p] = Task.Run(() =>
                     {
                         var swPart = Stopwatch.StartNew();
                         var local = new HashSet<string>(StringComparer.Ordinal);
+                        int processed = 0;
 
-                        for (int i = sliceStart; i < sliceEnd; i++)
+                        while (true)
                         {
-                            var st = stacks[i];
-                            if (st?.Collectible == null) continue;
+                            int start = Interlocked.Add(ref next, chunk) - chunk;
+                            if (start >= stacks.Length) break;
+                            int end = Math.Min(start + chunk, stacks.Length);
 
-                            object page = ctor.Invoke(new object[] { capi, st });
-                            var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
-
-                            foreach (var shim in CandidateShimsForStack(capi, pStack, modsOnly: false))
+                            for (int i = start; i < end; i++)
                             {
-                                if (IsWoodRecipe(shim.Raw)) continue;
-                                if (RecipeSatisfiedByPool(capi, pool, shim, pStack))
+                                var st = stacks[i];
+                                if (st?.Collectible == null) continue;
+
+                                object page = ctor.Invoke(new object[] { capi, st });
+                                var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
+
+                                foreach (var shim in CandidateShimsForStack(capi, pStack, modsOnly: false))
                                 {
-                                    var pc = miPageCode.Invoke(null, new object[] { pStack }) as string;
-                                    if (!string.IsNullOrEmpty(pc)) dest.Add(pc);
-                                    break;
+                                    if (IsWoodRecipe(shim.Raw)) continue;
+                                    if (RecipeSatisfiedByPool(capi, pool, shim, pStack))
+                                    {
+                                        var pc = miPageCode.Invoke(null, new object[] { pStack }) as string;
+                                        if (!string.IsNullOrEmpty(pc)) local.Add(pc);
+                                        break;
+                                    }
                                 }
+
+                                processed++;
                             }
                         }
 
                         swPart.Stop();
-                        LogEverywhere(capi, $"Partition {partIndex + 1}/{partitions} processed {localLen} item stacks in {swPart.ElapsedMilliseconds}ms", caller: nameof(AddCraftablePagesFromAllStacks));
+                        LogEverywhere(capi, $"Partition {partIndex + 1}/{partitions} processed ~{processed} item stacks in {swPart.ElapsedMilliseconds}ms", caller: nameof(AddCraftablePagesFromAllStacks));
                         return local;
                     });
                 }
 
                 Task.WaitAll(tasks);
 
-                swTotal.Stop();
-                LogEverywhere(capi, $"Processed {stacks.Length} item stacks in {swTotal.ElapsedMilliseconds}ms using {partitions} partitions");
-
-                // Merge results back into caller-owned set
+                // Merge back safely
                 foreach (var t in tasks)
                     foreach (var pc in t.Result)
                         dest.Add(pc);
+
+                swTotal.Stop();
+                LogEverywhere(capi, $"Processed {stacks.Length} item stacks in {swTotal.ElapsedMilliseconds}ms using {partitions} partitions");
             }
             catch
             {
-                // best-effort, match your existing error handling style
+                // best-effort
             }
         }
+
 
 
 
