@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "CakeBuild": {
+      "commandName": "Project",
+      "commandLineArgs": "dotnet run --project .\\build\\CakeBuild.csproj -- \\\r\n  --target=Default --configuration=Release \\\r\n  --copyZipTo \"D:\\VS\\ModDrops\""
+    }
+  }
+}

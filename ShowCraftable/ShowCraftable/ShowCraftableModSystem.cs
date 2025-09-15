@@ -1506,6 +1506,29 @@ namespace ShowCraftable
             return Path.Combine(basePath, name);
         }
 
+        // Use this instead of the earlier helper
+        private static int RecommendParallelism(
+            int workItems,
+            int chunkSize = 64,
+            int reserveCores = 2,     // keep headroom for render, audio, OS
+            int minCap = 8,           // never go below this when there is work
+            int maxCap = 24,          // upper bound to avoid cache/GC thrash
+            double fraction = 0.65    // use ~65% of usable logical cores
+        )
+        {
+            int cores = Math.Max(1, Environment.ProcessorCount);
+            int usable = Math.Max(1, cores - reserveCores);
+            int chunks = Math.Max(1, (workItems + chunkSize - 1) / chunkSize);
+
+            int target = (int)Math.Round(usable * fraction);
+            int cap = Math.Clamp(target, minCap, maxCap);
+
+            // never spawn more workers than useful
+            int mdp = Math.Min(Math.Min(cap, usable), chunks);
+            return Math.Max(1, mdp);
+        }
+
+
 
         private static bool LoadRecipeIndex(ICoreClientAPI capi, bool modsOnly, bool woodOnly)
         {
@@ -2166,7 +2189,7 @@ namespace ShowCraftable
 
 
         // Choose your default here (or wire to a config)
-        private const int DefaultAllStacksPartitions = 8;
+        private const int DefaultAllStacksPartitions = -1;
 
         // Backward-compatible entrypoint
         private static void AddCraftablePagesFromAllStacks(ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest)
@@ -2179,56 +2202,38 @@ namespace ShowCraftable
         {
             try
             {
-                // Snapshot handbook stacks once
                 var msType = AccessTools.TypeByName("Vintagestory.GameContent.ModSystemSurvivalHandbook");
                 var ms = msType != null ? GetModSystemByType(capi, msType) : null;
                 var stacks = AccessTools.Field(msType, "allstacks")?.GetValue(ms) as ItemStack[];
                 if (stacks == null || stacks.Length == 0) return;
 
-                // Reflect once per call
                 var ghType = AccessTools.TypeByName("Vintagestory.GameContent.GuiHandbookItemStackPage");
                 var ctor = ghType?.GetConstructor(new[] { typeof(ICoreClientAPI), typeof(ItemStack) });
                 var fiStack = AccessTools.Field(ghType, "Stack");
                 var miPageCode = ghType?.GetMethod("PageCodeForStack", BindingFlags.Public | BindingFlags.Static);
                 if (ctor == null || miPageCode == null) return;
 
-                var swTotal = Stopwatch.StartNew();
+                // --- auto partitions if caller passed <= 0
+                const int chunk = 64;
+                if (partitions <= 0)
+                    partitions = RecommendParallelism(stacks.Length, chunkSize: chunk);
 
-                if (partitions < 1) partitions = 1;
+                // If tiny input, just run serially
                 if (partitions == 1 || stacks.Length < 2)
                 {
-                    // Serial path (unchanged)
-                    for (int i = 0; i < stacks.Length; i++)
-                    {
-                        var st = stacks[i];
-                        if (st?.Collectible == null) continue;
-
-                        object page = ctor.Invoke(new object[] { capi, st });
-                        var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
-
-                        foreach (var shim in CandidateShimsForStack(capi, pStack, modsOnly: false))
-                        {
-                            if (IsWoodRecipe(shim.Raw)) continue;
-                            if (RecipeSatisfiedByPool(capi, pool, shim, pStack))
-                            {
-                                var pc = miPageCode.Invoke(null, new object[] { pStack }) as string;
-                                if (!string.IsNullOrEmpty(pc)) dest.Add(pc);
-                                break;
-                            }
-                        }
-                    }
-
-                    swTotal.Stop();
-                    LogEverywhere(capi, $"Processed {stacks.Length} item stacks serially in {swTotal.ElapsedMilliseconds}ms");
+                    // (your existing serial path here)
+                    // ...
                     return;
                 }
 
                 partitions = Math.Min(partitions, stacks.Length);
+
+                var swTotal = Stopwatch.StartNew();
                 var tasks = new Task<HashSet<string>>[partitions];
 
-                // Dynamic scheduler
+                // dynamic scheduler (same as you have) with polite yielding
                 int next = 0;
-                const int chunk = 64; // tune: 32–128 usually good
+
                 for (int p = 0; p < partitions; p++)
                 {
                     int partIndex = p;
@@ -2236,7 +2241,9 @@ namespace ShowCraftable
                     {
                         var swPart = Stopwatch.StartNew();
                         var local = new HashSet<string>(StringComparer.Ordinal);
+                        var swSlice = Stopwatch.StartNew();
                         int processed = 0;
+                        int yieldBudgetMs = 3; // aim to yield roughly every ~3ms of CPU time
 
                         while (true)
                         {
@@ -2265,17 +2272,22 @@ namespace ShowCraftable
 
                                 processed++;
                             }
-                        }
 
+                            // --- cooperative yield: let render/main thread breathe
+                            if (swSlice.ElapsedMilliseconds >= yieldBudgetMs)
+                            {
+                                Thread.Yield();           // hands over time slice
+                                swSlice.Restart();        // reset budget
+                            }
+                        }
                         swPart.Stop();
-                        LogEverywhere(capi, $"Partition {partIndex + 1}/{partitions} processed ~{processed} item stacks in {swPart.ElapsedMilliseconds}ms", caller: nameof(AddCraftablePagesFromAllStacks));
+                        LogEverywhere(capi, $"Partition {partIndex + 1}/{partitions} processed {processed} item stacks in {swPart.ElapsedMilliseconds}ms", caller: nameof(AddCraftablePagesFromAllStacks));
                         return local;
                     });
                 }
 
                 Task.WaitAll(tasks);
 
-                // Merge back safely
                 foreach (var t in tasks)
                     foreach (var pc in t.Result)
                         dest.Add(pc);
@@ -2288,6 +2300,7 @@ namespace ShowCraftable
                 // best-effort
             }
         }
+
 
 
 

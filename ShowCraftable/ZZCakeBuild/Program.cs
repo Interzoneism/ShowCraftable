@@ -51,10 +51,13 @@ namespace CakeBuild
         
         public string VS120_VersionOverride { get; }
         public string VS121_VersionOverride { get; }
-
+        public string ZipCopyTo { get; }   
         public BuildContext(ICakeContext ctx) : base(ctx)
         {
             BuildConfiguration = ctx.Argument("configuration", "Release");
+
+            ZipCopyTo = ctx.Argument("copyZipTo", (string)null)
+                    ?? ctx.EnvironmentVariable("COPY_ZIP_TO");
 
             var projArg = ctx.Argument("project", (string)null);
 
@@ -232,7 +235,7 @@ namespace CakeBuild
             }
         }
     }
-
+    
     [TaskName("Default")]
     [IsDependentOn(typeof(PackageTask))]
     public class DefaultTask : FrostingTask { }
