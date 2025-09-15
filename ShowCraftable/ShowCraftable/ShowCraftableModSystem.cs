@@ -2084,7 +2084,7 @@ namespace ShowCraftable
 
 
         // Choose your default here (or wire to a config)
-        private const int DefaultAllStacksPartitions = 4;
+        private const int DefaultAllStacksPartitions = 8;
 
         // Backward-compatible entrypoint
         private static void AddCraftablePagesFromAllStacks(ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest)
@@ -2569,7 +2569,7 @@ namespace ShowCraftable
             // compute how many outputs didn’t resolve to a page via the fast map/fallbacks
             int misses = craftableKeys.Count - (fromMap + attrFallbacks + codeOnlyFallbacks);
 
-            if (misses > 0 && misses <= 12)
+            if (misses > 0 && misses <= 42)
             {
                 if (recipeIndexForMods)
                     AddCraftablePagesFromAllStacksFromModStacks(capi, pool, resultPageCodes);
