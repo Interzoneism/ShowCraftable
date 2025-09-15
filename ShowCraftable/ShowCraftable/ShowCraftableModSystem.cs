@@ -747,7 +747,7 @@ namespace ShowCraftable
 
                 if (capi != null && composer != null)
                 {
-                    // Clear the current list on the main thread and refresh the GUI to show an empty tab
+                    // Clear the current list on the main thread so the tab immediately appears empty
                     capi.Event.EnqueueMainThreadTask(() =>
                     {
                         try
@@ -758,18 +758,14 @@ namespace ShowCraftable
                             var shown = AccessTools.Field(__instance.GetType(), "shownHandbookPages")?.GetValue(__instance) as System.Collections.IList;
                             shown?.Clear();
 
-                            // Temporarily empty the cache so FilterItems renders an empty list
-                            List<string> snapshot;
-                            lock (CacheLock)
+                            var scrollbar = composer.GetScrollbar("scrollbar");
+                            if (scrollbar != null && stacklist != null)
                             {
-                                snapshot = CachedPageCodes.ToList();
-                                CachedPageCodes.Clear();
+                                scrollbar.SetHeights(500f, (float)stacklist.insideBounds.fixedHeight);
+                                scrollbar.CurrentYPosition = 0;
                             }
 
-                            AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
-
-                            // Restore cache for later reuse
-                            lock (CacheLock) CachedPageCodes = snapshot;
+                            LastDialogPageCount = -1;
                         }
                         catch { }
                     }, "SCClearCraftableList");
@@ -791,14 +787,6 @@ namespace ShowCraftable
                     {
                         if (myScanId != _pendingScanId) return;
                         if (!DialogIsOpen(__instance) || (!CraftableTabActive && !CraftableModsTabActive && !CraftableWoodTabActive)) return;
-
-                        // After the empty state was shown, repopulate from cache if available
-                        bool haveCache;
-                        lock (CacheLock) haveCache = CachedPageCodes.Count > 0;
-                        if (haveCache)
-                        {
-                            AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
-                        }
 
                         if (!recipeIndexBuilt || recipeIndexForMods != modsOnly || recipeIndexForWoodOnly != woodOnly)
                         {
@@ -833,16 +821,14 @@ namespace ShowCraftable
                         var shown = AccessTools.Field(__instance.GetType(), "shownHandbookPages")?.GetValue(__instance) as System.Collections.IList;
                         shown?.Clear();
 
-                        List<string> snapshot;
-                        lock (CacheLock)
+                        var scrollbar = composer?.GetScrollbar("scrollbar");
+                        if (scrollbar != null && stacklist != null)
                         {
-                            snapshot = CachedPageCodes.ToList();
-                            CachedPageCodes.Clear();
+                            scrollbar.SetHeights(500f, (float)stacklist.insideBounds.fixedHeight);
+                            scrollbar.CurrentYPosition = 0;
                         }
 
-                        AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
-
-                        lock (CacheLock) CachedPageCodes = snapshot;
+                        LastDialogPageCount = -1;
                     }
                     catch { }
                 }
