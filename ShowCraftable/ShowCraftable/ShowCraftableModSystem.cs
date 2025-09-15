@@ -490,31 +490,38 @@ namespace ShowCraftable
 
         private static void RequestServerScan(ICoreClientAPI capi, int radius, bool includeCrates)
         {
-
-            var now = DateTime.UtcNow;
-            if ((now - _lastScanAt).TotalMilliseconds < 400) return;
-            _lastScanAt = now;
-
-            if (ScanInProgress) return;
-            ScanInProgress = true;
-
-
-            HandbookPauseGuard.Acquire(capi);
-
+            var sw = Stopwatch.StartNew();
             try
             {
-                capi.Network.GetChannel(ChannelName).SendPacket(new CraftScanRequest
+                var now = DateTime.UtcNow;
+                if ((now - _lastScanAt).TotalMilliseconds < 400) return;
+                _lastScanAt = now;
+
+                if (ScanInProgress) return;
+                ScanInProgress = true;
+
+                HandbookPauseGuard.Acquire(capi);
+
+                try
                 {
-                    Radius = radius,
-                    IncludeCrates = includeCrates
-                });
-                LogEverywhere(capi, $"Requested server scan (radius={radius}, includeCrates={includeCrates})");
+                    capi.Network.GetChannel(ChannelName).SendPacket(new CraftScanRequest
+                    {
+                        Radius = radius,
+                        IncludeCrates = includeCrates
+                    });
+                    LogEverywhere(capi, $"Requested server scan (radius={radius}, includeCrates={includeCrates})");
+                }
+                catch (Exception e)
+                {
+                    ScanInProgress = false;
+                    HandbookPauseGuard.Release(capi);
+                    LogEverywhere(capi, $"Failed to send scan request: {e}", toChat: true);
+                }
             }
-            catch (Exception e)
+            finally
             {
-                ScanInProgress = false;
-                HandbookPauseGuard.Release(capi);
-                LogEverywhere(capi, $"Failed to send scan request: {e}", toChat: true);
+                sw.Stop();
+                LogEverywhere(capi, $"RequestServerScan completed in {sw.ElapsedMilliseconds}ms", caller: nameof(RequestServerScan));
             }
         }
 
@@ -687,6 +694,8 @@ namespace ShowCraftable
 
         public static void SelectTab_Postfix(object __instance, string code)
         {
+            ICoreClientAPI capi = null;
+            var sw = Stopwatch.StartNew();
             try
             {
                 CraftableTabActive = string.Equals(code, CraftableCategoryCode, StringComparison.Ordinal);
@@ -705,7 +714,7 @@ namespace ShowCraftable
                 }
 
                 var fiCapi = AccessTools.Field(__instance.GetType(), "capi");
-                var capi = fiCapi?.GetValue(__instance) as ICoreClientAPI ?? _staticCapi;
+                capi = fiCapi?.GetValue(__instance) as ICoreClientAPI ?? _staticCapi;
 
                 if (CraftableTabActive)
                     LogEverywhere(capi, "Craftable tab selected by user");
@@ -836,7 +845,16 @@ namespace ShowCraftable
                     catch { }
                 }
             }
-            catch (Exception) { }
+            catch (Exception e)
+            {
+                LogEverywhere(capi ?? _staticCapi, $"Error in SelectTab_Postfix: {e}");
+            }
+            finally
+            {
+                sw.Stop();
+                var logApi = capi ?? _staticCapi;
+                if (logApi != null) LogEverywhere(logApi, $"SelectTab_Postfix completed in {sw.ElapsedMilliseconds}ms", caller: nameof(SelectTab_Postfix));
+            }
         }
 
         private static void SetUpdatingText(ICoreClientAPI capi, bool show)
@@ -1590,22 +1608,31 @@ namespace ShowCraftable
 
         private static void StartRecipeIndexBuild(ICoreClientAPI capi, bool modsOnly, bool woodOnly)
         {
-            if (recipeIndexBuilt && recipeIndexForMods == modsOnly && recipeIndexForWoodOnly == woodOnly) return;
-            if (recipeIndexBuildTask != null && !recipeIndexBuildTask.IsCompleted)
+            var sw = Stopwatch.StartNew();
+            try
             {
-                recipeIndexBuildTask.ContinueWith(_ => StartRecipeIndexBuild(capi, modsOnly, woodOnly));
-                return;
+                if (recipeIndexBuilt && recipeIndexForMods == modsOnly && recipeIndexForWoodOnly == woodOnly) return;
+                if (recipeIndexBuildTask != null && !recipeIndexBuildTask.IsCompleted)
+                {
+                    recipeIndexBuildTask.ContinueWith(_ => StartRecipeIndexBuild(capi, modsOnly, woodOnly));
+                    return;
+                }
+                recipeIndexBuilt = false;
+                lock (CacheLock) { CachedPageCodes.Clear(); ScanResultsCache.Clear(); }
+                recipeIndexBuildTask = Task.Run(() =>
+                {
+                    if (!LoadRecipeIndex(capi, modsOnly, woodOnly)) BuildRecipeIndex(capi, modsOnly, woodOnly);
+                    recipeIndexBuilt = true;
+                    recipeIndexForMods = modsOnly;
+                    recipeIndexForWoodOnly = woodOnly;
+                    GetCachedPageCodeMap(capi);
+                });
             }
-            recipeIndexBuilt = false;
-            lock (CacheLock) { CachedPageCodes.Clear(); ScanResultsCache.Clear(); }
-            recipeIndexBuildTask = Task.Run(() =>
+            finally
             {
-                if (!LoadRecipeIndex(capi, modsOnly, woodOnly)) BuildRecipeIndex(capi, modsOnly, woodOnly);
-                recipeIndexBuilt = true;
-                recipeIndexForMods = modsOnly;
-                recipeIndexForWoodOnly = woodOnly;
-                GetCachedPageCodeMap(capi);
-            });
+                sw.Stop();
+                LogEverywhere(capi, $"StartRecipeIndexBuild completed in {sw.ElapsedMilliseconds}ms", caller: nameof(StartRecipeIndexBuild));
+            }
         }
         private static void BuildRecipeIndex(ICoreClientAPI capi, bool modsOnly, bool woodOnly)
         {
@@ -2192,6 +2219,7 @@ namespace ShowCraftable
         // Identical workflow, but ONLY considers mod recipes
         private static void AddCraftablePagesFromAllStacksFromModStacks(ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest)
         {
+            var sw = Stopwatch.StartNew();
             try
             {
                 var msType = AccessTools.TypeByName("Vintagestory.GameContent.ModSystemSurvivalHandbook");
@@ -2227,10 +2255,16 @@ namespace ShowCraftable
                 }
             }
             catch { /* best-effort */ }
+            finally
+            {
+                sw.Stop();
+                LogEverywhere(capi, $"AddCraftablePagesFromAllStacksFromModStacks completed in {sw.ElapsedMilliseconds}ms", caller: nameof(AddCraftablePagesFromAllStacksFromModStacks));
+            }
         }
 
         private static void AddCraftablePagesFromAllStacks_WoodOnly(ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest)
         {
+            var sw = Stopwatch.StartNew();
             try
             {
                 var msType = AccessTools.TypeByName("Vintagestory.GameContent.ModSystemSurvivalHandbook");
@@ -2265,6 +2299,11 @@ namespace ShowCraftable
                 }
             }
             catch { /* best-effort */ }
+            finally
+            {
+                sw.Stop();
+                LogEverywhere(capi, $"AddCraftablePagesFromAllStacks_WoodOnly completed in {sw.ElapsedMilliseconds}ms", caller: nameof(AddCraftablePagesFromAllStacks_WoodOnly));
+            }
         }
 
 
@@ -2576,6 +2615,7 @@ namespace ShowCraftable
             Flush();
 
             sw.Stop();
+            LogEverywhere(capi, $"RebuildCacheWithPool completed in {sw.ElapsedMilliseconds}ms", caller: nameof(RebuildCacheWithPool));
 
             return resultPageCodes.Count;
         }
