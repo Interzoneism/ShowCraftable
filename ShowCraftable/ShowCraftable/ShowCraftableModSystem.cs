@@ -1034,11 +1034,42 @@ namespace ShowCraftable
                     string.Equals(cur, CraftableModsCategoryCode, StringComparison.Ordinal) ||
                     string.Equals(cur, CraftableWoodCategoryCode, StringComparison.Ordinal)))
                 {
+                    var fiPages = AccessTools.Field(__instance.GetType(), "allHandbookPages");
+                    var fiDict = AccessTools.Field(__instance.GetType(), "pageNumberByPageCode");
+                    var pages = fiPages?.GetValue(__instance) as System.Collections.IList;
+                    var dict = fiDict?.GetValue(__instance) as System.Collections.IDictionary;
+                    if (pages != null && dict != null)
+                    {
+                        var sorted = pages.Cast<object>()
+                            .OrderBy(p => GetPageTitle(p), StringComparer.OrdinalIgnoreCase)
+                            .ToList();
+                        pages.Clear();
+                        dict.Clear();
+                        for (int i = 0; i < sorted.Count; i++)
+                        {
+                            var page = sorted[i];
+                            pages.Add(page);
+                            var piCode = AccessTools.Property(page.GetType(), "PageCode");
+                            var code = piCode?.GetValue(page) as string;
+                            if (code != null) dict[code] = i;
+                            AccessTools.Field(page.GetType(), "PageNumber")?.SetValue(page, i);
+                        }
+                    }
+
                     AccessTools.Method(__instance.GetType(), "FilterItems")?.Invoke(__instance, null);
                 }
 
             }
             catch { }
+        }
+
+        private static string GetPageTitle(object page)
+        {
+            var fiTitle = AccessTools.Field(page.GetType(), "TextCacheTitle");
+            var title = fiTitle?.GetValue(page) as string;
+            if (!string.IsNullOrEmpty(title)) return title;
+            var piCode = AccessTools.Property(page.GetType(), "PageCode");
+            return piCode?.GetValue(page) as string ?? string.Empty;
         }
 
         private static void AddRecipeButton_Postfix(List<RichTextComponentBase> components)
