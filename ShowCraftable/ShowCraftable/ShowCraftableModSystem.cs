@@ -2560,6 +2560,8 @@ namespace ShowCraftable
             // compute how many outputs didn’t resolve to a page via the fast map/fallbacks
             int misses = craftableKeys.Count - (fromMap + attrFallbacks + codeOnlyFallbacks);
 
+            LogEverywhere(capi, $"[Craftable] Misses: {misses}, hbStackFallbacks: {hbStackFallbacks}");
+
             if (misses > 0 && misses <= 42)
             {
                 if (recipeIndexForMods)
