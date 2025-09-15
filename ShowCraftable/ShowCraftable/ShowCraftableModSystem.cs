@@ -47,6 +47,8 @@ namespace ShowCraftable
         private static readonly Dictionary<string, Dictionary<string, int>> WildTokenCountsMemo
     = new(StringComparer.Ordinal);
 
+        private static readonly Dictionary<StackKey, List<GridRecipeShim>> outputsIndex = new();
+
 
         private static bool ScanInProgress = false;
         private static int LastDialogPageCount;
@@ -1599,7 +1601,7 @@ namespace ShowCraftable
                     }
                 }
 
-
+                RebuildOutputsIndexFrom(recipes);
                 recipeIndexBuilt = true;
                 return true;
             }
@@ -1649,6 +1651,7 @@ namespace ShowCraftable
 
             recipeIndexBuildTotal = recipes.Count;
             recipeIndexBuildProgress = 0;
+            RebuildOutputsIndexFrom(recipes);
 
             var wildCache = new Dictionary<string, List<string>>(StringComparer.Ordinal);
 
@@ -1967,6 +1970,23 @@ namespace ShowCraftable
 
             return shim;
         }
+        private static void RebuildOutputsIndexFrom(List<GridRecipeShim> recipes)
+        {
+            outputsIndex.Clear();
+            foreach (var r in recipes)
+            {
+                if (r?.Outputs == null) continue;
+                foreach (var o in r.Outputs)
+                {
+                    if (o?.Collectible?.Code == null) continue;
+                    var key = KeyFor(o); // uses your existing StackKey helpers
+                    if (!outputsIndex.TryGetValue(key, out var list))
+                        outputsIndex[key] = list = new List<GridRecipeShim>(2);
+                    list.Add(r);
+                }
+            }
+        }
+
 
         private static object TryGetMember(Type t, object obj, string name)
         {
@@ -2034,6 +2054,63 @@ namespace ShowCraftable
 
             return true;
         }
+
+        private static bool RecipeSatisfiedByPool(ICoreClientAPI capi, ResourcePool pool, GridRecipeShim shim, ItemStack desired)
+        {
+            if (shim == null) return false;
+
+            string target = desired == null ? null :
+                ((desired.Collectible?.Code?.ToString() ?? "") + " " + ((desired.Attributes as TreeAttribute)?.ToJsonToken() ?? ""));
+
+            var temp = ClonePool(pool);
+            foreach (var ing in shim.Ingredients)
+            {
+                if (ing == null) continue;
+                if (ing.IsWild)
+                {
+                    string[] allowed = ing.Allowed;
+                    if (target != null && allowed != null && allowed.Length > 0)
+                    {
+                        string match = allowed.FirstOrDefault(v => target.Contains(v));
+                        if (match != null) allowed = new[] { match };
+                    }
+                    if (!temp.TryConsumeWildcard(ing.Type, ing.PatternCode, allowed, Math.Max(1, ing.QuantityRequired), true))
+                        return false;
+                }
+                else
+                {
+                    if (!temp.TryConsumeAny(ing.Options, Math.Max(1, ing.QuantityRequired), true))
+                        return false;
+                }
+            }
+
+            if (desired != null)
+            {
+                bool match = false;
+                foreach (var st in shim.Outputs)
+                {
+                    if (st != null && st.Satisfies(desired) && desired.Satisfies(st)) { match = true; break; }
+                }
+                if (!match) return false;
+            }
+            return true;
+        }
+
+
+        // Fast path: find recipe shims that *produce* the desired stack via the outputs index
+        private static IEnumerable<GridRecipeShim> CandidateShimsForStack(ICoreClientAPI capi, ItemStack desired, bool? modsOnly)
+        {
+            var key = KeyFor(desired);
+            if (!outputsIndex.TryGetValue(key, out var list) || list == null) yield break;
+
+            foreach (var shim in list)
+            {
+                if (shim == null) continue;
+                if (modsOnly.HasValue && (modsOnly.Value != shim.IsMod)) continue;
+                yield return shim;
+            }
+        }
+
 
         // New overload: filter by mod origin (modsOnly==true => only mod recipes; false => only vanilla; null => all)
         private static List<GridRecipe> CollectGridRecipesForStack(ICoreClientAPI capi, ItemStack stack, bool? modsOnly)
@@ -2130,11 +2207,10 @@ namespace ShowCraftable
                         object page = ctor.Invoke(new object[] { capi, st });
                         var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
 
-                        var recipes = CollectGridRecipesForStack(capi, pStack, modsOnly: false);
-                        foreach (var r in recipes)
+                        foreach (var shim in CandidateShimsForStack(capi, pStack, modsOnly: false))
                         {
-                            if (IsWoodRecipe(r)) continue;
-                            if (RecipeSatisfiedByPool(capi, pool, r, pStack))
+                            if (IsWoodRecipe(shim.Raw)) continue;
+                            if (RecipeSatisfiedByPool(capi, pool, shim, pStack))
                             {
                                 var pc = miPageCode.Invoke(null, new object[] { pStack }) as string;
                                 if (!string.IsNullOrEmpty(pc)) dest.Add(pc);
@@ -2179,14 +2255,13 @@ namespace ShowCraftable
                             object page = ctor.Invoke(new object[] { capi, st });
                             var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
 
-                            var recipes = CollectGridRecipesForStack(capi, pStack, modsOnly: false);
-                            foreach (var r in recipes)
+                            foreach (var shim in CandidateShimsForStack(capi, pStack, modsOnly: false))
                             {
-                                if (IsWoodRecipe(r)) continue;
-                                if (RecipeSatisfiedByPool(capi, pool, r, pStack))
+                                if (IsWoodRecipe(shim.Raw)) continue;
+                                if (RecipeSatisfiedByPool(capi, pool, shim, pStack))
                                 {
                                     var pc = miPageCode.Invoke(null, new object[] { pStack }) as string;
-                                    if (!string.IsNullOrEmpty(pc)) local.Add(pc);
+                                    if (!string.IsNullOrEmpty(pc)) dest.Add(pc);
                                     break;
                                 }
                             }
@@ -2240,12 +2315,9 @@ namespace ShowCraftable
                     object page = ctor.Invoke(new object[] { capi, st });
                     var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
 
-                    // ONLY MOD recipes here
-                    var recipes = CollectGridRecipesForStack(capi, pStack, modsOnly: true);
-
-                    foreach (var r in recipes)
+                    foreach (var shim in CandidateShimsForStack(capi, pStack, modsOnly: true))
                     {
-                        if (RecipeSatisfiedByPool(capi, pool, r, pStack))
+                        if (RecipeSatisfiedByPool(capi, pool, shim, pStack))
                         {
                             var pc = miPageCode.Invoke(null, new object[] { pStack }) as string;
                             if (!string.IsNullOrEmpty(pc)) dest.Add(pc);
@@ -2284,12 +2356,10 @@ namespace ShowCraftable
                     object page = ctor.Invoke(new object[] { capi, st });
                     var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
 
-                    // vanilla only, then wood only
-                    var recipes = CollectGridRecipesForStack(capi, pStack, modsOnly: false);
-                    foreach (var r in recipes)
+                    foreach (var shim in CandidateShimsForStack(capi, pStack, modsOnly: false))
                     {
-                        if (!IsWoodRecipe(r)) continue;
-                        if (RecipeSatisfiedByPool(capi, pool, r, pStack))
+                        if (!IsWoodRecipe(shim.Raw)) continue;
+                        if (RecipeSatisfiedByPool(capi, pool, shim, pStack))
                         {
                             var pc = miPageCode.Invoke(null, new object[] { pStack }) as string;
                             if (!string.IsNullOrEmpty(pc)) dest.Add(pc);
@@ -2601,7 +2671,7 @@ namespace ShowCraftable
 
             LogEverywhere(capi, $"[Craftable] Misses: {misses}, hbStackFallbacks: {hbStackFallbacks}");
 
-            if (misses > 0 && misses <= 42)
+            if (misses > 0 && misses <= 100)
             {
                 if (recipeIndexForMods)
                     AddCraftablePagesFromAllStacksFromModStacks(capi, pool, resultPageCodes);
