@@ -231,6 +231,32 @@ namespace CakeBuild
                     var zipPath = Path.Combine(releasesRoot, $"{modId}_{versionForThis}_{label}.zip");
                     ctx.Information($"Zipping {modId} {label} → {zipPath}");
                     ctx.Zip(outDir, zipPath);
+                    // Efter zippning:
+                    if (!string.IsNullOrWhiteSpace(ctx.ZipCopyTo))
+                    {
+                        // Kopiera ENDAST för VS1.21 / net8.0
+                        bool is121 = label.Equals("VS1.21", StringComparison.OrdinalIgnoreCase)
+                                  || string.Equals(tfm, "net8.0", StringComparison.OrdinalIgnoreCase);
+
+                        if (is121)
+                        {
+                            var targetDir = Path.GetFullPath(ctx.ZipCopyTo);
+                            ctx.EnsureDirectoryExists(targetDir);
+
+                            var destPath = Path.Combine(targetDir, Path.GetFileName(zipPath));
+
+                            if (ctx.FileExists(destPath))
+                                ctx.DeleteFile(destPath);      // copy & replace
+
+                            ctx.CopyFile(zipPath, destPath);
+                            ctx.Information($"Copied ZIP (net8/VS1.21) to: {destPath}");
+                        }
+                        else
+                        {
+                            ctx.Verbose($"Skipping copy for {label}/{tfm} (only copying VS1.21/net8).");
+                        }
+                    }
+
                 }
             }
         }

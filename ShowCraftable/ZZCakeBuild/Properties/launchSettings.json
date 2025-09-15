@@ -2,7 +2,11 @@
   "profiles": {
     "CakeBuild": {
       "commandName": "Project",
-      "commandLineArgs": "dotnet run --project .\\build\\CakeBuild.csproj -- \\\r\n  --target=Default --configuration=Release \\\r\n  --copyZipTo \"D:\\VS\\ModDrops\""
+      "workingDirectory": "$(MSBuildProjectDirectory)",
+      "commandLineArgs": "--target=Default --configuration=Release --copyZipTo \"C:\\Games\\Vintagestorydata\\Mods\"",
+      "environmentVariables": {
+        "COPY_ZIP_TO": "C:\\Games\\Vintagestorydata\\Mods"
+      }
     }
   }
 }
