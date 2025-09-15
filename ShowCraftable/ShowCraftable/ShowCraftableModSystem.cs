@@ -905,11 +905,42 @@ namespace ShowCraftable
             bool CheckOne(object o)
             {
                 if (o == null) return false;
-                var t = o.GetType();
 
-                // Try get Code as AssetLocation or string
-                var al = TryGetMember(t, o, "Code") as AssetLocation;
-                string code = al?.ToString() ?? TryGetMember(t, o, "code") as string;
+                string code = null;
+                string attrs = null;
+
+                // Direct ItemStack support
+                if (o is ItemStack stack)
+                {
+                    code = stack.Collectible?.Code?.ToString();
+                    attrs = stack.Attributes?.ToJsonToken()?.ToString();
+                }
+                else
+                {
+                    var t = o.GetType();
+
+                    // Try get Code as AssetLocation or string
+                    var al = TryGetMember(t, o, "Code") as AssetLocation;
+                    code = al?.ToString() ?? TryGetMember(t, o, "code") as string;
+
+                    // Attributes may be a TreeAttribute or already stringified; ToString() covers both in your codebase
+                    var attrsObj = TryGetMember(t, o, "Attributes");
+                    if (attrsObj == null)
+                    {
+                        // Some recipe structures move attributes to a resolved item stack
+                        var rst = TryGetMember(t, o, "ResolvedItemstack") as ItemStack;
+                        if (rst != null)
+                        {
+                            code ??= rst.Collectible?.Code?.ToString();
+                            attrsObj = rst.Attributes;
+                        }
+                    }
+
+                    if (attrsObj is IAttribute attr)
+                        attrs = attr.ToJsonToken();
+                    else
+                        attrs = attrsObj?.ToString();
+                }
 
                 if (!string.IsNullOrEmpty(code))
                 {
@@ -917,9 +948,6 @@ namespace ShowCraftable
                     if (ContainsWoodMatInCode(code)) return true;
                 }
 
-                // Attributes may be a TreeAttribute or already stringified; ToString() covers both in your codebase
-                var attrsObj = TryGetMember(t, o, "Attributes");
-                string attrs = attrsObj?.ToString();
                 if (!string.IsNullOrEmpty(attrs))
                 {
                     if (attrs.IndexOf("{wood}", StringComparison.OrdinalIgnoreCase) >= 0) return true;
