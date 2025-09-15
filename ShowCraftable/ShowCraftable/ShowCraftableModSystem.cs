@@ -2549,6 +2549,7 @@ namespace ShowCraftable
             int attrFallbacks = 0;
             int codeOnlyFallbacks = 0;
             int hbStackFallbacks = 0;
+            var unresolved = new List<StackKey>();
 
             const int chunkSize = 64;
             int processed = 0;
@@ -2563,6 +2564,7 @@ namespace ShowCraftable
             {
                 string pageCode = null;
                 bool found;
+                bool resolved = false;
 
                 lock (PageCodeMapLock)
                 {
@@ -2573,6 +2575,7 @@ namespace ShowCraftable
                 {
                     resultPageCodes.Add(pageCode);
                     fromMap++;
+                    resolved = true;
                 }
                 else if (miPageCodeForStack != null)
                 {
@@ -2582,7 +2585,11 @@ namespace ShowCraftable
                         if (st != null)
                         {
                             pageCode = (string)miPageCodeForStack.Invoke(null, new object[] { st });
-                            if (!string.IsNullOrEmpty(pageCode)) resultPageCodes.Add(pageCode);
+                            if (!string.IsNullOrEmpty(pageCode))
+                            {
+                                resultPageCodes.Add(pageCode);
+                                resolved = true;
+                            }
                             else hbStackFallbacks++;
                         }
                     }
@@ -2592,14 +2599,27 @@ namespace ShowCraftable
                     }
                 }
 
+                if (!resolved)
+                    unresolved.Add(key);
+
                 processed++;
                 if (processed % chunkSize == 0) Flush();
             }
 
             // compute how many outputs didn’t resolve to a page via the fast map/fallbacks
-            int misses = craftableKeys.Count - (fromMap + attrFallbacks + codeOnlyFallbacks);
+            int misses = unresolved.Count;
 
             LogEverywhere(capi, $"[Craftable] Misses: {misses}, hbStackFallbacks: {hbStackFallbacks}");
+            if (misses > 0)
+            {
+                foreach (var key in unresolved)
+                {
+                    var st = KeyToItemStack(capi, key);
+                    string cls = st?.Class.ToString() ?? "?";
+                    string collType = st?.Collectible?.GetType()?.FullName ?? "?";
+                    LogEverywhere(capi, $"Missing page for code={key.Code}, material='{key.Material}', type='{key.Type}', class={cls}, collType={collType}");
+                }
+            }
 
             if (misses > 0 && misses <= 42)
             {
