@@ -2055,43 +2055,70 @@ namespace ShowCraftable
             => CollectGridRecipesForStack(capi, stack, null);
 
 
+        // Drop-in replacement: same name/signature
         private static void AddCraftablePagesFromAllStacks(ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest)
         {
             try
             {
+                // --- Snapshot handbook stacks once ---
                 var msType = AccessTools.TypeByName("Vintagestory.GameContent.ModSystemSurvivalHandbook");
                 var ms = msType != null ? GetModSystemByType(capi, msType) : null;
                 var stacks = AccessTools.Field(msType, "allstacks")?.GetValue(ms) as ItemStack[];
                 if (stacks == null || stacks.Length == 0) return;
 
+                // --- Reflect once ---
                 var ghType = AccessTools.TypeByName("Vintagestory.GameContent.GuiHandbookItemStackPage");
                 var ctor = ghType?.GetConstructor(new[] { typeof(ICoreClientAPI), typeof(ItemStack) });
                 var fiStack = AccessTools.Field(ghType, "Stack");
                 var miPageCode = ghType?.GetMethod("PageCodeForStack", BindingFlags.Public | BindingFlags.Static);
                 if (ctor == null || miPageCode == null) return;
 
-                foreach (var st in stacks)
+                // Partition into two roughly equal halves
+                const int degree = 2;
+                int partSize = (stacks.Length + degree - 1) / degree;
+
+                Task<HashSet<string>> RunPartition(int start, int len) => Task.Run(() =>
                 {
-                    if (st?.Collectible == null) continue;
-
-                    object page = ctor.Invoke(new object[] { capi, st });
-                    var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
-
-                    var recipes = CollectGridRecipesForStack(capi, pStack, modsOnly: false);  // vanilla only
-                    foreach (var r in recipes)
+                    var local = new HashSet<string>(StringComparer.Ordinal);
+                    int end = start + len;
+                    for (int i = start; i < end; i++)
                     {
-                        if (IsWoodRecipe(r)) continue;                      // <-- exclude wood here
-                        if (RecipeSatisfiedByPool(capi, pool, r, pStack))
+                        var st = stacks[i];
+                        if (st?.Collectible == null) continue;
+
+                        // Build the page (keeps your current behavior)
+                        object page = ctor.Invoke(new object[] { capi, st });
+                        var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
+
+                        // VANILLA only here, and skip wood recipes (as you do today)
+                        var recipes = CollectGridRecipesForStack(capi, pStack, modsOnly: false);
+                        foreach (var r in recipes)
                         {
-                            var pc = miPageCode.Invoke(null, new object[] { pStack }) as string;
-                            if (!string.IsNullOrEmpty(pc)) dest.Add(pc);
-                            break;
+                            if (IsWoodRecipe(r)) continue;
+                            if (RecipeSatisfiedByPool(capi, pool, r, pStack))
+                            {
+                                var pc = miPageCode.Invoke(null, new object[] { pStack }) as string;
+                                if (!string.IsNullOrEmpty(pc)) local.Add(pc);
+                                break; // same early-exit as current code
+                            }
                         }
                     }
-                }
+                    return local;
+                });
+
+                // Kick both shards
+                var t0 = RunPartition(0, Math.Min(partSize, stacks.Length));
+                var t1 = RunPartition(partSize, Math.Max(0, stacks.Length - partSize));
+
+                Task.WaitAll(t0, t1);
+
+                // Union into caller-owned set (single-threaded merge)
+                foreach (var pc in t0.Result) dest.Add(pc);
+                foreach (var pc in t1.Result) dest.Add(pc);
             }
-            catch { /* best-effort */ }
+            catch { /* best-effort, same as before */ }
         }
+
 
         // Identical workflow, but ONLY considers mod recipes
         private static void AddCraftablePagesFromAllStacksFromModStacks(ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest)
