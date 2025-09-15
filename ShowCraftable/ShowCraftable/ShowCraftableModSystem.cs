@@ -557,24 +557,6 @@ namespace ShowCraftable
                         lock (CacheLock) codes = CachedPageCodes.ToList();
 
                         LogEverywhere(capi, $"[Craftable] dump: cached={codes.Count}, first10=[{string.Join(", ", codes.Take(10))}]", toChat: true);
-
-                        var msType = AccessTools.TypeByName("Vintagestory.GameContent.ModSystemSurvivalHandbook");
-                        var ms = msType != null ? GetModSystemByType(capi, msType) : null;
-                        var dlg = AccessTools.Field(msType, "dialog")?.GetValue(ms);
-                        var pageMap = dlg != null
-                            ? AccessTools.Field(dlg.GetType(), "pageNumberByPageCode")?.GetValue(dlg) as Dictionary<string, int>
-                            : null;
-
-                        if (pageMap != null)
-                        {
-                            int have = 0, miss = 0;
-                            foreach (var c in codes) { if (pageMap.ContainsKey(c)) have++; else miss++; }
-                            LogEverywhere(capi, $"[Craftable] resolve: haveInMap={have}, missingInMap={miss}", toChat: true);
-                        }
-                        else
-                        {
-                            LogEverywhere(capi, "[Craftable] resolve: page map not available (dialog not initialized?)", toChat: true);
-                        }
                     }
                     catch (Exception e)
                     {
@@ -728,7 +710,14 @@ namespace ShowCraftable
                 }
 
                 var fiCapi = AccessTools.Field(__instance.GetType(), "capi");
-                var capi = fiCapi?.GetValue(__instance) as ICoreClientAPI;
+                var capi = fiCapi?.GetValue(__instance) as ICoreClientAPI ?? _staticCapi;
+
+                if (CraftableTabActive)
+                    LogEverywhere(capi, "[Craftable] Craftable tab selected by user");
+                else if (CraftableModsTabActive)
+                    LogEverywhere(capi, "[Craftable] Craftable (Mods) tab selected by user");
+                else if (CraftableWoodTabActive)
+                    LogEverywhere(capi, "[Craftable] Craftable Wood Types tab selected by user");
 
                 var fiOverview = AccessTools.Field(__instance.GetType(), "overviewGui");
                 var composer = fiOverview?.GetValue(__instance) as GuiComposer;
@@ -1097,12 +1086,6 @@ namespace ShowCraftable
                         if (pg != null) resolvedPages.Add(pg);
                     }
                     else missing++;
-                }
-
-                if (capi != null)
-                {
-                    var sampleCodes = string.Join(", ", codesSnapshot.Take(5));
-                    LogEverywhere(capi, $"[Craftable] UI resolve: cached={codesSnapshot.Count}, resolved={resolvedPages.Count}, missing={missing}, loading={loading}, sample codes=[{sampleCodes}]");
                 }
 
                 List<object> finalPages;
@@ -2110,6 +2093,8 @@ namespace ShowCraftable
                 var miPageCode = ghType?.GetMethod("PageCodeForStack", BindingFlags.Public | BindingFlags.Static);
                 if (ctor == null || miPageCode == null) return;
 
+                var swTotal = Stopwatch.StartNew();
+
                 // Normalize partitions
                 if (partitions < 1) partitions = 1;
                 if (partitions == 1 || stacks.Length < 2)
@@ -2135,6 +2120,9 @@ namespace ShowCraftable
                             }
                         }
                     }
+
+                    swTotal.Stop();
+                    LogEverywhere(capi, $"[Craftable] Partitioned scan processed {stacks.Length} stacks serially in {swTotal.ElapsedMilliseconds}ms");
                     return;
                 }
 
@@ -2153,9 +2141,12 @@ namespace ShowCraftable
                     int sliceStart = offset;
                     int sliceEnd = sliceStart + len;
                     offset = sliceEnd;
+                    int partIndex = p;
+                    int localLen = len;
 
                     tasks[p] = Task.Run(() =>
                     {
+                        var swPart = Stopwatch.StartNew();
                         var local = new HashSet<string>(StringComparer.Ordinal);
 
                         for (int i = sliceStart; i < sliceEnd; i++)
@@ -2179,11 +2170,16 @@ namespace ShowCraftable
                             }
                         }
 
+                        swPart.Stop();
+                        LogEverywhere(capi, $"[Craftable] Partition {partIndex + 1}/{partitions} processed {localLen} stacks in {swPart.ElapsedMilliseconds}ms");
                         return local;
                     });
                 }
 
                 Task.WaitAll(tasks);
+
+                swTotal.Stop();
+                LogEverywhere(capi, $"[Craftable] Partitioned scan processed {stacks.Length} stacks in {swTotal.ElapsedMilliseconds}ms using {partitions} partitions");
 
                 // Merge results back into caller-owned set
                 foreach (var t in tasks)
@@ -2584,22 +2580,9 @@ namespace ShowCraftable
             craftableOutputsCount = resultPageCodes.Count;
             Flush();
 
-            var pagesList = resultPageCodes.ToList();
             sw.Stop();
 
-            // capture values into locals so the lambda doesn't close over an `out` param
-            int outputsCount = craftableOutputsCount;
-            int totalPages = pagesList.Count;
-            long elapsedMs = sw.ElapsedMilliseconds;
-
-            capi.Event.EnqueueMainThreadTask(() =>
-            {
-                LogEverywhere(capi, $"[Craftable] craftable outputs={outputsCount}, pagesFromMap={fromMap}, attrFallbacks={attrFallbacks}, codeOnlyFallbacks={codeOnlyFallbacks}, hbFallbacks={hbStackFallbacks}", toChat: false);
-                LogEverywhere(capi, $"[Craftable] pages added to Craftable tab: [{string.Join(", ", pagesList)}] (total {totalPages})");
-                LogEverywhere(capi, $"[Craftable] RebuildCacheWithPool (group-aggregated) took {elapsedMs}ms");
-            }, null);
-
-            return totalPages;
+            return resultPageCodes.Count;
         }
 
 
