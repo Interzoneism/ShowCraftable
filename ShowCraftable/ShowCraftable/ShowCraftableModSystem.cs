@@ -80,7 +80,7 @@ namespace ShowCraftable
         private static int recipesFetched;
         private static int recipesUsable;
 
-        private static Task recipeIndexBuildTask;
+        private static Task<bool> recipeIndexBuildTask;
         private static volatile int recipeIndexBuildTotal;
         private static volatile int recipeIndexBuildProgress;
         private static volatile bool recipeIndexBuilt = false;
@@ -1149,7 +1149,7 @@ namespace ShowCraftable
                         // collection is being iterated for event propagation. Defer
                         // the update to the main thread to avoid modifying the
                         // collection while it is in use.
-                        capi.Event.EnqueueMainThreadTask(() => SetUpdatingText(capi, true), "SCUpdatingText");
+                        capi.Event.EnqueueMainThreadTask(() => SetUpdatingText(capi, !hasCache), "SCUpdatingText");
                     }
                     catch { }
 
@@ -1160,27 +1160,67 @@ namespace ShowCraftable
                         if (myScanId != _pendingScanId) return;
                         if (!DialogIsOpen(__instance) || (!CraftableTabActive && !CraftableModsTabActive && !CraftableWoodTabActive && !CraftableStoneTabActive)) return;
 
-                        if (!recipeIndexBuilt || recipeIndexForMods != modsOnly || recipeIndexForWoodOnly != woodOnly || recipeIndexForStoneOnly != stoneOnly)
+                        bool needsIndex = !recipeIndexBuilt
+                            || recipeIndexForMods != modsOnly
+                            || recipeIndexForWoodOnly != woodOnly
+                            || recipeIndexForStoneOnly != stoneOnly;
+
+                        if (needsIndex)
                         {
                             StartRecipeIndexBuild(capi, modsOnly, woodOnly, stoneOnly);
                             int total = Math.Max(1, recipeIndexBuildTotal);
                             capi.ShowChatMessage($"[Craftable] Building recipe index {recipeIndexBuildProgress}/{total}...");
                             if (recipeIndexBuildTask != null)
                             {
-                                recipeIndexBuildTask.ContinueWith(_ =>
+                                recipeIndexBuildTask.ContinueWith(task =>
                                 {
+                                    bool rebuilt = true;
+                                    if (task.Status == TaskStatus.RanToCompletion)
+                                    {
+                                        try { rebuilt = task.Result; }
+                                        catch (Exception e)
+                                        {
+                                            rebuilt = true;
+                                            LogEverywhere(capi, $"Failed to read recipe index build result: {e}");
+                                        }
+                                    }
+                                    else if (task.IsFaulted)
+                                    {
+                                        LogEverywhere(capi, $"Recipe index build failed: {task.Exception}", toChat: true);
+                                    }
+
                                     capi.Event.EnqueueMainThreadTask(() =>
                                     {
                                         if (myScanId != _pendingScanId) return;
                                         if (!DialogIsOpen(__instance) || (!CraftableTabActive && !CraftableModsTabActive && !CraftableWoodTabActive && !CraftableStoneTabActive)) return;
-                                        RequestServerScan(capi, NearbyRadius, includeCrates: true, modsOnly, woodOnly, stoneOnly);
+
+                                        bool shouldScan = !hasCache || rebuilt;
+                                        if (shouldScan)
+                                        {
+                                            SetUpdatingText(capi, true);
+                                            RequestServerScan(capi, NearbyRadius, includeCrates: true, modsOnly, woodOnly, stoneOnly);
+                                        }
+                                        else
+                                        {
+                                            SetUpdatingText(capi, false);
+                                            TryRefreshOpenDialog(capi);
+                                        }
                                     }, "CraftableScanKickoff2");
                                 });
                             }
                             return;
                         }
 
-                        RequestServerScan(capi, NearbyRadius, includeCrates: true, modsOnly, woodOnly, stoneOnly);
+                        if (!hasCache)
+                        {
+                            SetUpdatingText(capi, true);
+                            RequestServerScan(capi, NearbyRadius, includeCrates: true, modsOnly, woodOnly, stoneOnly);
+                        }
+                        else
+                        {
+                            SetUpdatingText(capi, false);
+                            TryRefreshOpenDialog(capi);
+                        }
                     }, "CraftableScanKickoff");
                 }
                 else
@@ -2001,11 +2041,6 @@ namespace ShowCraftable
                 }
                 recipeIndexBuilt = false;
                 var variantKey = GetVariantKey(modsOnly, woodOnly, stoneOnly);
-                lock (CacheLock)
-                {
-                    CachedPageCodes.Clear();
-                    LatestTabCache.Remove(variantKey);
-                }
                 recipeIndexBuildTask = Task.Run(() =>
                 {
                     bool rebuilt = false;
@@ -2029,6 +2064,7 @@ namespace ShowCraftable
                     recipeIndexForWoodOnly = woodOnly;
                     recipeIndexForStoneOnly = stoneOnly;
                     GetCachedPageCodeMap(capi);
+                    return rebuilt;
                 });
             }
             finally
