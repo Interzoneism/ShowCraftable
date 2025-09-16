@@ -804,7 +804,7 @@ namespace ShowCraftable
 
         private static DateTime _lastScanAt = DateTime.MinValue;
 
-        private static void RequestServerScan(ICoreClientAPI capi, int radius, bool includeCrates, bool modsOnly, bool woodOnly, bool stoneOnly)
+        private static void RequestServerScan(ICoreClientAPI capi, int radius, bool modsOnly, bool woodOnly, bool stoneOnly)
         {
             var sw = Stopwatch.StartNew();
             try
@@ -825,10 +825,9 @@ namespace ShowCraftable
                 {
                     capi.Network.GetChannel(ChannelName).SendPacket(new CraftScanRequest
                     {
-                        Radius = radius,
-                        IncludeCrates = includeCrates
+                        Radius = radius
                     });
-                    LogEverywhere(capi, $"Requested server scan (radius={radius}, includeCrates={includeCrates}, variant={variantKey})");
+                    LogEverywhere(capi, $"Requested server scan (radius={radius}, variant={variantKey})");
                 }
                 catch (Exception e)
                 {
@@ -1198,7 +1197,7 @@ namespace ShowCraftable
                                         if (shouldScan)
                                         {
                                             SetUpdatingText(capi, true);
-                                            RequestServerScan(capi, NearbyRadius, includeCrates: true, modsOnly, woodOnly, stoneOnly);
+                                            RequestServerScan(capi, NearbyRadius, modsOnly, woodOnly, stoneOnly);
                                         }
                                         else
                                         {
@@ -1214,7 +1213,7 @@ namespace ShowCraftable
                         if (!hasCache)
                         {
                             SetUpdatingText(capi, true);
-                            RequestServerScan(capi, NearbyRadius, includeCrates: true, modsOnly, woodOnly, stoneOnly);
+                            RequestServerScan(capi, NearbyRadius, modsOnly, woodOnly, stoneOnly);
                         }
                         else
                         {
@@ -3240,9 +3239,8 @@ namespace ShowCraftable
     public class CraftScanRequest
     {
         [ProtoMember(1)] public int Radius { get; set; }
-        [ProtoMember(2)] public bool IncludeCrates { get; set; }
-        [ProtoMember(3)] public bool CollectItems { get; set; }
-        [ProtoMember(4)] public List<CraftIngredientList> Variants { get; set; } = new();
+        [ProtoMember(2)] public bool CollectItems { get; set; }
+        [ProtoMember(3)] public List<CraftIngredientList> Variants { get; set; } = new();
     }
 
     [ProtoContract]
@@ -3651,7 +3649,6 @@ namespace ShowCraftable
 
                         var inv = ShowCraftableSystem.TryGetInventoryFromBE(be);
                         if (inv == null) continue;
-                        if (be is BlockEntityCrate && !req.IncludeCrates) continue;
 
                         for (int i = 0; i < inv.Count; i++)
                         {
