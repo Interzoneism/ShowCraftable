@@ -40,6 +40,8 @@ namespace ShowCraftable
         public const string CraftableModsCategoryCode = "craftablemods";
 
         public const string ChannelName = "showcraftablescan";
+        private const string ConfigFileName = "ShowCraftable.json";
+        private static ShowCraftableConfig Config = new();
         private static int NearbyRadius = 20;
 
         private static readonly object CacheLock = new();
@@ -845,6 +847,46 @@ namespace ShowCraftable
         }
 
 
+        public override void Start(ICoreAPI api)
+        {
+            base.Start(api);
+            LoadConfig(api);
+        }
+
+        private static void LoadConfig(ICoreAPI api)
+        {
+            if (api == null) return;
+
+            ShowCraftableConfig config = null;
+            try
+            {
+                config = api.LoadModConfig<ShowCraftableConfig>(ConfigFileName);
+            }
+            catch (Exception e)
+            {
+                api.Logger?.Warning("[ShowCraftable] Failed to load config {0}: {1}", ConfigFileName, e);
+            }
+
+            if (config == null)
+            {
+                config = new ShowCraftableConfig();
+            }
+
+            config.Normalize();
+
+            Config = config;
+            NearbyRadius = Math.Max(0, Config.SearchDistanceItems);
+
+            try
+            {
+                api.StoreModConfig(Config, ConfigFileName);
+            }
+            catch (Exception e)
+            {
+                api.Logger?.Warning("[ShowCraftable] Failed to save config {0}: {1}", ConfigFileName, e);
+            }
+        }
+
         public override void StartClientSide(ICoreClientAPI capi)
         {
             _capi = capi;
@@ -1426,6 +1468,7 @@ namespace ShowCraftable
         private static void AddRecipeButton_Postfix(List<RichTextComponentBase> components)
         {
             if (_staticCapi == null || components == null) return;
+            if (!Config.EnableFetchButton) return;
             for (int i = 0; i < components.Count; i++)
             {
                 if (components[i] is SlideshowGridRecipeTextComponent slide)
