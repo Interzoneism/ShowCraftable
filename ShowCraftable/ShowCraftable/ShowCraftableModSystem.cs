@@ -654,7 +654,6 @@ namespace ShowCraftable
             return CheckOne(recipeOrOutput);
         }
 
-        // Lägg i klassen ShowCraftableSystem
         private static string GetCraftableLogPath(ICoreClientAPI capi)
         {
             try
@@ -2467,49 +2466,6 @@ namespace ShowCraftable
             return res;
         }
 
-        private static bool RecipeSatisfiedByPool(ICoreClientAPI capi, ResourcePool pool, GridRecipe recipe, ItemStack desired)
-        {
-            var shim = TryBuildGridShim(recipe, capi);
-            if (shim == null) return false;
-
-            string target = desired == null ? null :
-                ((desired.Collectible?.Code?.ToString() ?? "") + " " + ((desired.Attributes as TreeAttribute)?.ToJsonToken() ?? ""));
-
-            var temp = ClonePool(pool);
-            foreach (var ing in shim.Ingredients)
-            {
-                if (ing == null) continue;
-                if (ing.IsWild)
-                {
-                    string[] allowed = ing.Allowed;
-                    if (target != null && allowed != null && allowed.Length > 0)
-                    {
-                        string match = allowed.FirstOrDefault(v => target.Contains(v));
-                        if (match != null) allowed = new[] { match };
-                    }
-                    if (!temp.TryConsumeWildcard(ing.Type, ing.PatternCode, allowed, Math.Max(1, ing.QuantityRequired), true))
-                        return false;
-                }
-                else
-                {
-                    if (!temp.TryConsumeAny(ing.Options, Math.Max(1, ing.QuantityRequired), true))
-                        return false;
-                }
-            }
-
-            if (desired != null)
-            {
-                bool match = false;
-                foreach (var st in shim.Outputs)
-                {
-                    if (st != null && st.Satisfies(desired) && desired.Satisfies(st)) { match = true; break; }
-                }
-                if (!match) return false;
-            }
-
-            return true;
-        }
-
         private static bool RecipeSatisfiedByPool(ICoreClientAPI capi, ResourcePool pool, GridRecipeShim shim, ItemStack desired)
         {
             if (shim == null) return false;
@@ -2567,59 +2523,6 @@ namespace ShowCraftable
         }
 
 
-        // New overload: filter by mod origin (modsOnly==true => only mod recipes; false => only vanilla; null => all)
-        private static List<GridRecipe> CollectGridRecipesForStack(ICoreClientAPI capi, ItemStack stack, bool? modsOnly)
-        {
-            var list = new List<GridRecipe>();
-            try
-            {
-                foreach (var gr in capi.World.GridRecipes)
-                {
-                    if (!gr.ShowInCreatedBy) continue;
-
-                    // Filter by recipe origin if requested
-                    if (modsOnly.HasValue)
-                    {
-                        bool isMod = IsModRecipe(capi, gr);
-                        if (modsOnly.Value != isMod) continue;
-                    }
-
-                    // Keep your existing matching logic
-                    var outStack = gr.Output?.ResolvedItemstack;
-                    if (outStack != null && outStack.Satisfies(stack))
-                    {
-                        list.Add(gr);
-                        continue;
-                    }
-
-                    var ingreds = gr.resolvedIngredients?.ToArray();
-                    if (ingreds == null) continue;
-
-                    foreach (var ing in ingreds)
-                    {
-                        var ret = ing?.ReturnedStack?.ResolvedItemstack;
-                        if (ret != null && ret.Satisfies(stack))
-                        {
-                            var resStack = ing.ResolvedItemstack;
-                            if (resStack != null && !resStack.Satisfies(stack))
-                            {
-                                list.Add(gr);
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-            catch { /* best-effort */ }
-
-            return list;
-        }
-
-        // Back-compat shim (null = no filter, same behavior as before)
-        private static List<GridRecipe> CollectGridRecipesForStack(ICoreClientAPI capi, ItemStack stack)
-            => CollectGridRecipesForStack(capi, stack, null);
-
-
         // Choose your default here (or wire to a config)
         private const int DefaultAllStacksPartitions = -1;
 
@@ -2651,12 +2554,7 @@ namespace ShowCraftable
                     partitions = RecommendParallelism(stacks.Length, chunkSize: chunk);
 
                 // If tiny input, just run serially
-                if (partitions == 1 || stacks.Length < 2)
-                {
-                    // (your existing serial path here)
-                    // ...
-                    return;
-                }
+                if (partitions == 1 || stacks.Length < 2) return;
 
                 // ==== HEAVY-FIRST ORDER (feed “hard” stacks earlier)
                 int[] order;
