@@ -40,7 +40,7 @@ namespace ShowCraftable
         public const string CraftableModsCategoryCode = "craftablemods";
 
         public const string ChannelName = "showcraftablescan";
-        private static int NearbyRadius = 12;
+        private static int NearbyRadius = 20;
 
         private static readonly object CacheLock = new();
         private static List<string> CachedPageCodes = new();
@@ -292,11 +292,11 @@ namespace ShowCraftable
 
 
         private static void ExpandOutputsForRecipe(
-            ICoreClientAPI capi,
-            ResourcePool pool,
-            GridRecipeShim recipe,
-            HashSet<StackKey> dest,
-            Dictionary<GridRecipeShim, Dictionary<string, int>> originalNeeds)
+    ICoreClientAPI capi,
+    ResourcePool pool,
+    GridRecipeShim recipe,
+    HashSet<StackKey> dest,
+    Dictionary<GridRecipeShim, Dictionary<string, int>> originalNeeds)
         {
             if (recipe?.Outputs == null || recipe.Outputs.Count == 0) return;
 
@@ -332,21 +332,53 @@ namespace ShowCraftable
                         int have = kv.Value;
                         if (neededFromWild > 0 && have < neededFromWild) continue;
 
+                        // Start from original output code
                         string finalCode = ocode;
+
+                        // (A) Om materialsträngen förekommer i koden: byt ut den mot token
                         if (!string.IsNullOrEmpty(outMat) && finalCode.Contains(outMat))
-                        {
                             finalCode = finalCode.Replace(outMat, token);
+
+                        // (B) NYTT: ersätt platshållare i kodsträngen
+                        finalCode = finalCode
+                            .Replace("{wood}", token)
+                            .Replace("{rock}", token);
+
+                        // (C) NYTT: ersätt platshållare i attributes
+                        string mat2 = outMat;
+                        if (!string.IsNullOrEmpty(mat2))
+                            mat2 = mat2.Replace("{wood}", token).Replace("{rock}", token);
+
+                        string type2 = outType;
+                        if (!string.IsNullOrEmpty(type2))
+                            type2 = type2.Replace("{wood}", token).Replace("{rock}", token);
+
+                        // (D) NYTT: debug-logg för varje konkret variant
+                        if (DebugEnabled)
+                        {
+                            bool changed = !string.Equals(finalCode, ocode, StringComparison.Ordinal);
+                            bool lookedLikeVariant =
+                                (ocode?.Contains("{wood}") == true) || (ocode?.Contains("{rock}") == true) ||
+                                (outMat?.Contains("{wood}") == true) || (outMat?.Contains("{rock}") == true);
+
+                            if (changed || lookedLikeVariant)
+                            {
+                                LogEverywhere(capi, $"Expanded: {ocode} -> {finalCode} (token={token}, material={(mat2 ?? outMat ?? "<null>")}, type={(type2 ?? outType ?? "<null>")})", caller: nameof(BuildRecipeIndex));
+                            }
                         }
 
-                        dest.Add(new StackKey(finalCode, token, outType ?? ""));
+                        // Lägg den konkreta nyckeln
+                        dest.Add(new StackKey(finalCode, mat2 ?? token, type2 ?? ""));
                     }
                 }
                 else
                 {
+                    // Inga wildcard → lägg som den är
                     dest.Add(new StackKey(ocode, outMat ?? "", outType ?? ""));
                 }
             }
         }
+
 
         // Hard-coded wood species (source of truth)
         private static readonly string[] WoodSpecies = new[]
@@ -3184,8 +3216,7 @@ namespace ShowCraftable
                 }
             }
 
-            if (misses > 0 && misses <= 100)
-            {
+
                 if (recipeIndexForMods)
                     AddCraftablePagesFromAllStacksFromModStacks(capi, pool, resultPageCodes);
                 else if (recipeIndexForWoodOnly)
@@ -3194,7 +3225,7 @@ namespace ShowCraftable
                     AddCraftablePagesFromAllStacks_StoneOnly(capi, pool, resultPageCodes);
                 else
                     AddCraftablePagesFromAllStacks(capi, pool, resultPageCodes);
-            }
+            
 
 
 
