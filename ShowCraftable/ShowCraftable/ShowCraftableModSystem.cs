@@ -1332,53 +1332,6 @@ namespace ShowCraftable
             return CheckOne(recipeOrOutput);
         }
 
-
-
-        // True if the recipe belongs to a mod (domain != "game")
-        private static bool IsModRecipe(ICoreClientAPI capi, object raw)
-        {
-            if (raw == null) return false;
-            try
-            {
-                var t = raw.GetType();
-
-                // Prefer the recipe's own registry/name domain
-                var nameAl = TryGetMember(t, raw, "Name") as AssetLocation;
-                if (nameAl != null)
-                    return !string.Equals(nameAl.Domain, "game", StringComparison.Ordinal);
-
-                // Fallback: inspect outputs' domains
-                object outsObj = TryGetMember(t, raw, "ResolvedOutputs") ?? TryGetMember(t, raw, "Outputs");
-                if (outsObj is System.Collections.IEnumerable en)
-                {
-                    foreach (var o in en)
-                    {
-                        if (o == null) continue;
-
-                        ItemStack st = o as ItemStack;
-                        if (st == null)
-                        {
-                            var ot = o.GetType();
-                            st = TryGetMember(ot, o, "ResolvedItemstack") as ItemStack;
-                            if (st == null)
-                            {
-                                var code = TryGetMember(ot, o, "Code") as AssetLocation;
-                                if (code != null) st = MakeStackFromCode(capi, code.ToString());
-                            }
-                        }
-
-                        var dom = st?.Collectible?.Code?.Domain;
-                        if (!string.IsNullOrEmpty(dom) && !string.Equals(dom, "game", StringComparison.Ordinal))
-                            return true;
-                    }
-                }
-            }
-            catch { /* best-effort */ }
-
-            return false; // default to vanilla
-        }
-
-
         public static void AfterPagesLoaded_Postfix(object __instance)
         {
             try
@@ -1665,10 +1618,8 @@ namespace ShowCraftable
                     var pc = miPageCodeForStack.Invoke(null, new object[] { s }) as string;
                     if (string.IsNullOrEmpty(pc)) continue;
 
-                    // NOTE: if duplicates exist, keep the first
                     if (!map.ContainsKey(key)) map[key] = pc;
 
-                    // Also add a forgiving code-only key (helps when attrs live on block variants)
                     var codeOnly = new StackKey(key.Code, "", "");
                     if (!map.ContainsKey(codeOnly)) map[codeOnly] = pc;
                 }
@@ -3009,29 +2960,6 @@ namespace ShowCraftable
             foreach (var r in candidates)
                 remaining[r] = recipeGroupNeeds[r].ToDictionary(g => g.Key, g => g.Value, StringComparer.Ordinal);
 
-            // --- Helpers -------------------------------------------------------------
-            static bool TryParseGroupType(string gkey, out EnumItemClass need)
-            {
-                need = default;
-                if (gkey == null) return false;
-                // Wild gkeys are like: wild:{pattern}|{allowed_csv}|T:{Type}
-                int tpos = gkey.LastIndexOf("|T:", StringComparison.Ordinal);
-                if (!gkey.StartsWith("wild:", StringComparison.Ordinal) || tpos < 0) return false;
-                var t = gkey.Substring(tpos + 3);
-                if (Enum.TryParse<EnumItemClass>(t, out var parsed)) { need = parsed; return true; }
-                return false;
-            }
-
-            bool ClassCompatible(EnumItemClass have, EnumItemClass need, AssetLocation code)
-            {
-                if (have == need) return true;
-                if (need == EnumItemClass.Block && have == EnumItemClass.Item)
-                    return capi.World.GetBlock(code) != null; // carried block (ItemBlock)
-                if (need == EnumItemClass.Item && have == EnumItemClass.Block)
-                    return capi.World.GetItem(code) != null;  // item form exists
-                return false;
-            }
-            // ------------------------------------------------------------------------
 
             // Pass A: aggregate total availability per group key from the pool
             var groupAvail = new Dictionary<string, int>(StringComparer.Ordinal);
