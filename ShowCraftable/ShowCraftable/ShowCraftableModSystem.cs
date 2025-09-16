@@ -44,21 +44,42 @@ namespace ShowCraftable
         private static ShowCraftableConfig Config = new();
         private static int NearbyRadius = 20;
 
+        private const string TabKeyCraftable = "craftableTab";
+        private const string TabKeyMods = "modsTab";
+        private const string TabKeyWood = "woodTab";
+        private const string TabKeyStone = "stoneTab";
+
         private static readonly object CacheLock = new();
         private static List<string> CachedPageCodes = new();
-        private sealed class TabCacheEntry
+
+        private sealed class TabPageCache
         {
             public string Signature;
             public List<string> PageCodes = new();
         }
 
-        private static readonly Dictionary<string, TabCacheEntry> LatestTabCache
-            = new(StringComparer.Ordinal);
+        private static readonly TabPageCache craftableTabCache = new();
+        private static readonly TabPageCache modTabCache = new();
+        private static readonly TabPageCache woodTypeTabCache = new();
+        private static readonly TabPageCache stoneTypeTabCache = new();
 
-        private static readonly Dictionary<string, Dictionary<string, List<string>>> ScanResultsCache
-            = new(StringComparer.Ordinal);
+        private static string ScanResultCacheSignature;
+
         private static readonly object PendingScanLock = new();
-        private static string PendingScanVariantKey;
+        private static string PendingScanTabKey;
+
+        private struct QueuedScanRequest
+        {
+            public int Radius;
+            public bool ModsOnly;
+            public bool WoodOnly;
+            public bool StoneOnly;
+            public string TabKey;
+        }
+
+        private static readonly object ScanQueueLock = new();
+        private static QueuedScanRequest? queuedScanRequest;
+        private static bool queueCheckScheduled;
 
         private static readonly object PageCodeMapLock = new();
         private static Dictionary<StackKey, string> AllStacksPageCodeMap = new();
@@ -230,6 +251,57 @@ namespace ShowCraftable
             if (woodOnly) return "wood";
             if (stoneOnly) return "stone";
             return "van";
+        }
+
+        private static string GetTabKey(bool modsOnly, bool woodOnly, bool stoneOnly)
+        {
+            if (modsOnly) return TabKeyMods;
+            if (woodOnly) return TabKeyWood;
+            if (stoneOnly) return TabKeyStone;
+            return TabKeyCraftable;
+        }
+
+        private static string TabKeyFromVariant(string variantKey)
+        {
+            return variantKey switch
+            {
+                "mods" => TabKeyMods,
+                "wood" => TabKeyWood,
+                "stone" => TabKeyStone,
+                _ => TabKeyCraftable
+            };
+        }
+
+        private static TabPageCache GetTabCacheByKey(string tabKey)
+        {
+            return tabKey switch
+            {
+                TabKeyMods => modTabCache,
+                TabKeyWood => woodTypeTabCache,
+                TabKeyStone => stoneTypeTabCache,
+                TabKeyCraftable => craftableTabCache,
+                _ => craftableTabCache
+            };
+        }
+
+        private static void InvalidateTabCache(TabPageCache cache)
+        {
+            if (cache == null) return;
+            cache.Signature = null;
+            cache.PageCodes.Clear();
+        }
+
+        private static void InvalidateAllTabCaches()
+        {
+            InvalidateTabCache(craftableTabCache);
+            InvalidateTabCache(modTabCache);
+            InvalidateTabCache(woodTypeTabCache);
+            InvalidateTabCache(stoneTypeTabCache);
+        }
+
+        private static void InvalidateTabCacheForVariant(string variantKey)
+        {
+            InvalidateTabCache(GetTabCacheByKey(TabKeyFromVariant(variantKey)));
         }
 
         private static string GetCurrentVariantKey()
@@ -806,43 +878,147 @@ namespace ShowCraftable
 
         private static DateTime _lastScanAt = DateTime.MinValue;
 
-        private static void RequestServerScan(ICoreClientAPI capi, int radius, bool modsOnly, bool woodOnly, bool stoneOnly)
+        private static void RequestServerScan(ICoreClientAPI capi, int radius, bool modsOnly, bool woodOnly, bool stoneOnly, string tabKey)
         {
             var sw = Stopwatch.StartNew();
+            var api = capi ?? _staticCapi;
             try
             {
+                if (api == null) return;
+
                 var now = DateTime.UtcNow;
-                if ((now - _lastScanAt).TotalMilliseconds < 400) return;
-                _lastScanAt = now;
+                bool queued;
 
-                if (ScanInProgress) return;
-                ScanInProgress = true;
-
-                var variantKey = GetVariantKey(modsOnly, woodOnly, stoneOnly);
-                lock (PendingScanLock) PendingScanVariantKey = variantKey;
-
-                HandbookPauseGuard.Acquire(capi);
-
-                try
+                lock (ScanQueueLock)
                 {
-                    capi.Network.GetChannel(ChannelName).SendPacket(new CraftScanRequest
+                    if (ScanInProgress || (now - _lastScanAt).TotalMilliseconds < 400)
                     {
-                        Radius = radius
-                    });
-                    LogEverywhere(capi, $"Requested server scan (radius={radius}, variant={variantKey})");
+                        queuedScanRequest = new QueuedScanRequest
+                        {
+                            Radius = radius,
+                            ModsOnly = modsOnly,
+                            WoodOnly = woodOnly,
+                            StoneOnly = stoneOnly,
+                            TabKey = tabKey
+                        };
+                        queued = true;
+                    }
+                    else
+                    {
+                        ScanInProgress = true;
+                        _lastScanAt = now;
+                        queued = false;
+                    }
                 }
-                catch (Exception e)
+
+                if (queued)
                 {
-                    lock (PendingScanLock) PendingScanVariantKey = null;
-                    ScanInProgress = false;
-                    HandbookPauseGuard.Release(capi);
-                    LogEverywhere(capi, $"Failed to send scan request: {e}", toChat: true);
+                    LogEverywhere(api, $"Queued server scan request for tab {tabKey}");
+                    EnsureQueueProcessing(api);
+                    return;
                 }
+
+                StartServerScan(api, radius, modsOnly, woodOnly, stoneOnly, tabKey);
             }
             finally
             {
                 sw.Stop();
-                LogEverywhere(capi, $"RequestServerScan completed in {sw.ElapsedMilliseconds}ms", caller: nameof(RequestServerScan));
+                if (api != null) LogEverywhere(api, $"RequestServerScan completed in {sw.ElapsedMilliseconds}ms", caller: nameof(RequestServerScan));
+            }
+        }
+
+        private static void StartServerScan(ICoreClientAPI capi, int radius, bool modsOnly, bool woodOnly, bool stoneOnly, string tabKey)
+        {
+            if (capi == null)
+            {
+                lock (ScanQueueLock) ScanInProgress = false;
+                EnsureQueueProcessing(_staticCapi);
+                return;
+            }
+
+            var variantKey = GetVariantKey(modsOnly, woodOnly, stoneOnly);
+            lock (PendingScanLock) PendingScanTabKey = tabKey;
+
+            HandbookPauseGuard.Acquire(capi);
+
+            try
+            {
+                capi.Network.GetChannel(ChannelName).SendPacket(new CraftScanRequest
+                {
+                    Radius = radius
+                });
+                LogEverywhere(capi, $"Requested server scan (radius={radius}, tab={tabKey}, variant={variantKey})");
+            }
+            catch (Exception e)
+            {
+                lock (PendingScanLock) PendingScanTabKey = null;
+                lock (ScanQueueLock) ScanInProgress = false;
+                HandbookPauseGuard.Release(capi);
+                LogEverywhere(capi, $"Failed to send scan request: {e}", toChat: true);
+                EnsureQueueProcessing(capi);
+            }
+        }
+
+        private static void EnsureQueueProcessing(ICoreClientAPI capi)
+        {
+            var api = capi ?? _staticCapi;
+            if (api == null) return;
+
+            bool shouldSchedule;
+            lock (ScanQueueLock)
+            {
+                shouldSchedule = queuedScanRequest.HasValue && !queueCheckScheduled;
+                if (shouldSchedule) queueCheckScheduled = true;
+            }
+
+            if (shouldSchedule)
+            {
+                api.Event.RegisterCallback(_ => ProcessScanQueue(api), 300);
+            }
+        }
+
+        private static void ProcessScanQueue(ICoreClientAPI capi)
+        {
+            var api = capi ?? _staticCapi;
+            if (api == null) return;
+
+            QueuedScanRequest? requestToRun = null;
+
+            lock (ScanQueueLock)
+            {
+                if (!ScanInProgress && queuedScanRequest.HasValue)
+                {
+                    var now = DateTime.UtcNow;
+                    if ((now - _lastScanAt).TotalMilliseconds >= 400)
+                    {
+                        requestToRun = queuedScanRequest;
+                        queuedScanRequest = null;
+                        queueCheckScheduled = false;
+                        ScanInProgress = true;
+                        _lastScanAt = now;
+                    }
+                }
+            }
+
+            if (requestToRun.HasValue)
+            {
+                StartServerScan(api, requestToRun.Value.Radius, requestToRun.Value.ModsOnly, requestToRun.Value.WoodOnly, requestToRun.Value.StoneOnly, requestToRun.Value.TabKey);
+                return;
+            }
+
+            bool shouldContinue;
+            lock (ScanQueueLock)
+            {
+                shouldContinue = queuedScanRequest.HasValue;
+                if (!shouldContinue)
+                {
+                    queueCheckScheduled = false;
+                }
+            }
+
+            if (shouldContinue)
+            {
+                api.Event.RegisterCallback(_ => ProcessScanQueue(api), 300);
             }
         }
 
@@ -941,9 +1117,15 @@ namespace ShowCraftable
                 lock (CacheLock)
                 {
                     CachedPageCodes.Clear();
-                    ScanResultsCache.Clear();
-                    LatestTabCache.Clear();
+                    ScanResultCacheSignature = null;
+                    InvalidateAllTabCaches();
                 }
+                lock (ScanQueueLock)
+                {
+                    queuedScanRequest = null;
+                    queueCheckScheduled = false;
+                }
+                lock (PendingScanLock) PendingScanTabKey = null;
                 codeToRecipeGroups.Clear();
                 recipeGroupNeeds.Clear();
                 wildcardGroups.Clear();
@@ -1091,6 +1273,7 @@ namespace ShowCraftable
 
                 bool anyCraftable = CraftableTabActive || CraftableModsTabActive || CraftableWoodTabActive || CraftableStoneTabActive;
                 string variantKey = GetVariantKey(modsOnly, woodOnly, stoneOnly);
+                string tabKey = GetTabKey(modsOnly, woodOnly, stoneOnly);
                 bool hasCachedPages = false;
 
 
@@ -1137,12 +1320,12 @@ namespace ShowCraftable
                 {
                     lock (CacheLock)
                     {
-                        if (LatestTabCache.TryGetValue(variantKey, out var entry) && entry != null)
+                        var cache = GetTabCacheByKey(tabKey);
+                        if (cache?.PageCodes != null &&
+                            cache.Signature != null &&
+                            string.Equals(cache.Signature, ScanResultCacheSignature, StringComparison.Ordinal))
                         {
-                            if (entry.PageCodes != null)
-                                CachedPageCodes = new List<string>(entry.PageCodes);
-                            else
-                                CachedPageCodes = new List<string>();
+                            CachedPageCodes = new List<string>(cache.PageCodes);
                             hasCachedPages = true;
                         }
                         else
@@ -1239,7 +1422,7 @@ namespace ShowCraftable
                                         if (shouldScan)
                                         {
                                             SetUpdatingText(capi, true);
-                                            RequestServerScan(capi, NearbyRadius, modsOnly, woodOnly, stoneOnly);
+                                            RequestServerScan(capi, NearbyRadius, modsOnly, woodOnly, stoneOnly, tabKey);
                                         }
                                         else
                                         {
@@ -1255,7 +1438,7 @@ namespace ShowCraftable
                         if (!hasCache)
                         {
                             SetUpdatingText(capi, true);
-                            RequestServerScan(capi, NearbyRadius, modsOnly, woodOnly, stoneOnly);
+                            RequestServerScan(capi, NearbyRadius, modsOnly, woodOnly, stoneOnly, tabKey);
                         }
                         else
                         {
@@ -2096,8 +2279,7 @@ namespace ShowCraftable
                     {
                         lock (CacheLock)
                         {
-                            ScanResultsCache.Remove(variantKey);
-                            LatestTabCache.Remove(variantKey);
+                            InvalidateTabCacheForVariant(variantKey);
                         }
                     }
 
@@ -2918,13 +3100,13 @@ namespace ShowCraftable
                     }
                     if (st != null) pool.Add(st);
                 }
-                string variantKey;
+                string tabKey;
                 lock (PendingScanLock)
                 {
-                    variantKey = PendingScanVariantKey ?? GetCurrentVariantKey();
-                    PendingScanVariantKey = null;
+                    tabKey = PendingScanTabKey ?? TabKeyFromVariant(GetCurrentVariantKey());
+                    PendingScanTabKey = null;
                 }
-                variantKey ??= "van";
+                tabKey ??= TabKeyCraftable;
 
                 string poolSignature = pool.GetSignature() ?? string.Empty;
 
@@ -2932,30 +3114,25 @@ namespace ShowCraftable
                 List<string> reusedPages = null;
                 lock (CacheLock)
                 {
-                    if (LatestTabCache.TryGetValue(variantKey, out var latest) &&
-                        latest != null && string.Equals(latest.Signature, poolSignature, StringComparison.Ordinal))
+                    bool poolChanged = !string.Equals(ScanResultCacheSignature, poolSignature, StringComparison.Ordinal);
+                    if (poolChanged)
                     {
-                        reusedPages = latest.PageCodes != null
-                            ? new List<string>(latest.PageCodes)
-                            : new List<string>();
-                    }
-                    else if (ScanResultsCache.TryGetValue(variantKey, out var variantCache) &&
-                             variantCache.TryGetValue(poolSignature, out var cached))
-                    {
-                        reusedPages = cached != null
-                            ? new List<string>(cached)
-                            : new List<string>();
+                        ScanResultCacheSignature = poolSignature;
+                        InvalidateAllTabCaches();
                     }
 
-                    if (reusedPages != null)
+                    var cache = GetTabCacheByKey(tabKey);
+                    if (!poolChanged && cache?.PageCodes != null &&
+                        cache.Signature != null &&
+                        string.Equals(cache.Signature, poolSignature, StringComparison.Ordinal))
                     {
+                        reusedPages = new List<string>(cache.PageCodes);
                         CachedPageCodes = new List<string>(reusedPages);
-                        LatestTabCache[variantKey] = new TabCacheEntry
-                        {
-                            Signature = poolSignature,
-                            PageCodes = reusedPages
-                        };
                         reused = true;
+                    }
+                    else
+                    {
+                        CachedPageCodes = new List<string>();
                     }
                 }
 
@@ -2963,14 +3140,15 @@ namespace ShowCraftable
                 {
                     _capi.Event.EnqueueMainThreadTask(() =>
                     {
-                        LogEverywhere(_capi, $"Server scan reused cache (variant={variantKey}) with {CachedPageCodes.Count} page codes", toChat: true, caller: nameof(OnServerScanReply));
+                        LogEverywhere(_capi, $"Server scan reused cache (tab={tabKey}) with {CachedPageCodes.Count} page codes", toChat: true, caller: nameof(OnServerScanReply));
                         LastDialogPageCount = -1;
                         TryRefreshOpenDialog(_capi);
                         SetUpdatingText(_capi, false);
                     }, null);
 
-                    ScanInProgress = false;
+                    lock (ScanQueueLock) ScanInProgress = false;
                     HandbookPauseGuard.Release(_capi);
+                    EnsureQueueProcessing(_capi);
                     return;
                 }
 
@@ -2978,48 +3156,35 @@ namespace ShowCraftable
                 {
                     try
                     {
-                        int pages = RebuildCacheWithPool(_capi, pool, out int outputs, out int fetched, out int usable);
-                        lock (CacheLock)
-                        {
-                            if (!ScanResultsCache.TryGetValue(variantKey, out var variantCache))
-                            {
-                                variantCache = new Dictionary<string, List<string>>(StringComparer.Ordinal);
-                                ScanResultsCache[variantKey] = variantCache;
-                            }
-                            var snapshot = CachedPageCodes.ToList();
-                            variantCache[poolSignature] = new List<string>(snapshot);
-                            LatestTabCache[variantKey] = new TabCacheEntry
-                            {
-                                Signature = poolSignature,
-                                PageCodes = snapshot
-                            };
-                        }
-                        _capi.Event.EnqueueMainThreadTask(() => LogEverywhere(_capi, $"Merged server scan results: outputs={outputs}, pages={pages}, fetched={fetched}, usable={usable}", toChat: true, caller: nameof(OnServerScanReply)), null);
+                        int pages = RebuildCacheWithPool(_capi, pool, tabKey, poolSignature, out int outputs, out int fetched, out int usable);
+                        _capi.Event.EnqueueMainThreadTask(() => LogEverywhere(_capi, $"Merged server scan results (tab={tabKey}): outputs={outputs}, pages={pages}, fetched={fetched}, usable={usable}", toChat: true, caller: nameof(OnServerScanReply)), null);
                     }
                     catch (Exception e)
                     {
-                        _capi.Event.EnqueueMainThreadTask(() => LogEverywhere(_capi, $"Error processing server scan reply: {e}", toChat: true, caller: nameof(OnServerScanReply)), null);
+                        _capi.Event.EnqueueMainThreadTask(() => LogEverywhere(_capi, $"Error processing server scan reply (tab={tabKey}): {e}", toChat: true, caller: nameof(OnServerScanReply)), null);
                     }
                     finally
                     {
-                        ScanInProgress = false;
+                        lock (ScanQueueLock) ScanInProgress = false;
                         HandbookPauseGuard.Release(_capi);
                         _capi.Event.EnqueueMainThreadTask(() => SetUpdatingText(_capi, false), null);
+                        EnsureQueueProcessing(_capi);
                     }
                 });
             }
             catch (Exception e)
             {
-                LogEverywhere(_capi, $"Error processing server scan reply: {e}", toChat: true);
-                ScanInProgress = false;
+                LogEverywhere(_capi, $"Error processing server scan reply (tab={tabKey}): {e}", toChat: true);
+                lock (ScanQueueLock) ScanInProgress = false;
                 HandbookPauseGuard.Release(_capi);
                 _capi.Event.EnqueueMainThreadTask(() => SetUpdatingText(_capi, false), null);
+                EnsureQueueProcessing(_capi);
             }
         }
 
 
         private static int RebuildCacheWithPool(
-    ICoreClientAPI capi, ResourcePool pool,
+    ICoreClientAPI capi, ResourcePool pool, string tabKey, string poolSignature,
     out int craftableOutputsCount, out int fetched, out int usable)
         {
             var sw = Stopwatch.StartNew();
@@ -3159,7 +3324,16 @@ namespace ShowCraftable
 
             void Flush()
             {
-                lock (CacheLock) CachedPageCodes = resultPageCodes.ToList();
+                lock (CacheLock)
+                {
+                    CachedPageCodes = resultPageCodes.ToList();
+                    var cache = GetTabCacheByKey(tabKey);
+                    if (cache != null)
+                    {
+                        cache.Signature = poolSignature ?? string.Empty;
+                        cache.PageCodes = new List<string>(CachedPageCodes);
+                    }
+                }
                 capi.Event.EnqueueMainThreadTask(() => TryRefreshOpenDialog(capi), null);
             }
 
