@@ -44,6 +44,15 @@ namespace ShowCraftable
 
         private static readonly object CacheLock = new();
         private static List<string> CachedPageCodes = new();
+        private sealed class TabCacheEntry
+        {
+            public string Signature;
+            public List<string> PageCodes = new();
+        }
+
+        private static readonly Dictionary<string, TabCacheEntry> LatestTabCache
+            = new(StringComparer.Ordinal);
+
         private static readonly Dictionary<string, Dictionary<string, List<string>>> ScanResultsCache
             = new(StringComparer.Ordinal);
         private static readonly object PendingScanLock = new();
@@ -893,6 +902,7 @@ namespace ShowCraftable
                 {
                     CachedPageCodes.Clear();
                     ScanResultsCache.Clear();
+                    LatestTabCache.Clear();
                 }
                 codeToRecipeGroups.Clear();
                 recipeGroupNeeds.Clear();
@@ -1040,6 +1050,8 @@ namespace ShowCraftable
                 bool stoneOnly = CraftableStoneTabActive;
 
                 bool anyCraftable = CraftableTabActive || CraftableModsTabActive || CraftableWoodTabActive || CraftableStoneTabActive;
+                string variantKey = GetVariantKey(modsOnly, woodOnly, stoneOnly);
+                bool hasCachedPages = false;
 
 
 
@@ -1083,25 +1095,50 @@ namespace ShowCraftable
 
                 if (capi != null && composer != null)
                 {
-                    // Clear the current list on the main thread so the tab immediately appears empty
+                    lock (CacheLock)
+                    {
+                        if (LatestTabCache.TryGetValue(variantKey, out var entry) && entry != null)
+                        {
+                            if (entry.PageCodes != null)
+                                CachedPageCodes = new List<string>(entry.PageCodes);
+                            else
+                                CachedPageCodes = new List<string>();
+                            hasCachedPages = true;
+                        }
+                        else
+                        {
+                            CachedPageCodes = new List<string>();
+                        }
+                    }
+
+                    bool hasCache = hasCachedPages;
+                    // Update the list on the main thread: clear when we have no cache, otherwise refresh the cached view
                     capi.Event.EnqueueMainThreadTask(() =>
                     {
                         try
                         {
                             var stacklist = composer.GetFlatList("stacklist");
-                            stacklist?.Elements.Clear();
-                            stacklist?.CalcTotalHeight();
-                            var shown = AccessTools.Field(__instance.GetType(), "shownHandbookPages")?.GetValue(__instance) as System.Collections.IList;
-                            shown?.Clear();
-
-                            var scrollbar = composer.GetScrollbar("scrollbar");
-                            if (scrollbar != null && stacklist != null)
+                            if (!hasCache)
                             {
-                                scrollbar.SetHeights(500f, (float)stacklist.insideBounds.fixedHeight);
-                                scrollbar.CurrentYPosition = 0;
+                                stacklist?.Elements.Clear();
+                                stacklist?.CalcTotalHeight();
+                                var shown = AccessTools.Field(__instance.GetType(), "shownHandbookPages")?.GetValue(__instance) as System.Collections.IList;
+                                shown?.Clear();
+
+                                var scrollbar = composer.GetScrollbar("scrollbar");
+                                if (scrollbar != null && stacklist != null)
+                                {
+                                    scrollbar.SetHeights(500f, (float)stacklist.insideBounds.fixedHeight);
+                                    scrollbar.CurrentYPosition = 0;
+                                }
+                            }
+                            else
+                            {
+                                stacklist?.CalcTotalHeight();
                             }
 
                             LastDialogPageCount = -1;
+                            if (hasCache) TryRefreshOpenDialog(capi);
                         }
                         catch { }
                     }, "SCClearCraftableList");
@@ -2017,6 +2054,7 @@ namespace ShowCraftable
                 lock (CacheLock)
                 {
                     CachedPageCodes.Clear();
+                    LatestTabCache.Remove(variantKey);
                 }
                 recipeIndexBuildTask = Task.Run(() =>
                 {
@@ -2032,6 +2070,7 @@ namespace ShowCraftable
                         lock (CacheLock)
                         {
                             ScanResultsCache.Remove(variantKey);
+                            LatestTabCache.Remove(variantKey);
                         }
                     }
 
@@ -2962,14 +3001,33 @@ namespace ShowCraftable
 
                 string poolSignature = pool.GetSignature() ?? string.Empty;
 
-                List<string> cached = null;
                 bool reused = false;
+                List<string> reusedPages = null;
                 lock (CacheLock)
                 {
-                    if (ScanResultsCache.TryGetValue(variantKey, out var variantCache) &&
-                        variantCache.TryGetValue(poolSignature, out cached))
+                    if (LatestTabCache.TryGetValue(variantKey, out var latest) &&
+                        latest != null && string.Equals(latest.Signature, poolSignature, StringComparison.Ordinal))
                     {
-                        CachedPageCodes = cached.ToList();
+                        reusedPages = latest.PageCodes != null
+                            ? new List<string>(latest.PageCodes)
+                            : new List<string>();
+                    }
+                    else if (ScanResultsCache.TryGetValue(variantKey, out var variantCache) &&
+                             variantCache.TryGetValue(poolSignature, out var cached))
+                    {
+                        reusedPages = cached != null
+                            ? new List<string>(cached)
+                            : new List<string>();
+                    }
+
+                    if (reusedPages != null)
+                    {
+                        CachedPageCodes = new List<string>(reusedPages);
+                        LatestTabCache[variantKey] = new TabCacheEntry
+                        {
+                            Signature = poolSignature,
+                            PageCodes = reusedPages
+                        };
                         reused = true;
                     }
                 }
@@ -2979,6 +3037,7 @@ namespace ShowCraftable
                     _capi.Event.EnqueueMainThreadTask(() =>
                     {
                         LogEverywhere(_capi, $"Server scan reused cache (variant={variantKey}) with {CachedPageCodes.Count} page codes", toChat: true, caller: nameof(OnServerScanReply));
+                        LastDialogPageCount = -1;
                         TryRefreshOpenDialog(_capi);
                         SetUpdatingText(_capi, false);
                     }, null);
@@ -3000,7 +3059,13 @@ namespace ShowCraftable
                                 variantCache = new Dictionary<string, List<string>>(StringComparer.Ordinal);
                                 ScanResultsCache[variantKey] = variantCache;
                             }
-                            variantCache[poolSignature] = CachedPageCodes.ToList();
+                            var snapshot = CachedPageCodes.ToList();
+                            variantCache[poolSignature] = new List<string>(snapshot);
+                            LatestTabCache[variantKey] = new TabCacheEntry
+                            {
+                                Signature = poolSignature,
+                                PageCodes = snapshot
+                            };
                         }
                         _capi.Event.EnqueueMainThreadTask(() => LogEverywhere(_capi, $"Merged server scan results: outputs={outputs}, pages={pages}, fetched={fetched}, usable={usable}", toChat: true, caller: nameof(OnServerScanReply)), null);
                     }
