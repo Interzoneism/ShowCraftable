@@ -161,10 +161,10 @@ namespace ShowCraftable
 
         private static readonly (string VariantKey, bool ModsOnly, bool WoodOnly, bool StoneOnly)[] RecipeIndexVariants =
         {
-            ("van", modsOnly: false, woodOnly: false, stoneOnly: false),
-            ("mods", modsOnly: true, woodOnly: false, stoneOnly: false),
-            ("wood", modsOnly: false, woodOnly: true, stoneOnly: false),
-            ("stone", modsOnly: false, woodOnly: false, stoneOnly: true)
+            ("van", ModsOnly: false, WoodOnly: false, StoneOnly: false),
+            ("mods", ModsOnly: true, WoodOnly: false, StoneOnly: false),
+            ("wood", ModsOnly: false, WoodOnly: true, StoneOnly: false),
+            ("stone", ModsOnly: false, WoodOnly: false, StoneOnly: true)
         };
 
         [ProtoContract]
