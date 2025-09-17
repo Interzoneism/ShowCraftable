@@ -3476,6 +3476,10 @@ namespace ShowCraftable
             {
                 throw new InvalidOperationException($"Recipe index variant '{variantKey}' not ready");
             }
+
+            bool variantModsOnly = string.Equals(variantKey, "mods", StringComparison.Ordinal);
+            bool variantWoodOnly = string.Equals(variantKey, "wood", StringComparison.Ordinal);
+            bool variantStoneOnly = string.Equals(variantKey, "stone", StringComparison.Ordinal);
             craftableOutputsCount = 0; fetched = recipesFetched; usable = recipesUsable;
 
             // Clone original needs so we can compute per-recipe "remaining" without touching the canonical map
@@ -3689,11 +3693,11 @@ namespace ShowCraftable
             }
 
 
-                if (recipeIndexForMods)
+                if (variantModsOnly)
                     AddCraftablePagesFromAllStacksFromModStacks(capi, pool, resultPageCodes);
-                else if (recipeIndexForWoodOnly)
+                else if (variantWoodOnly)
                     AddCraftablePagesFromAllStacks_WoodOnly(capi, pool, resultPageCodes);
-                else if (recipeIndexForStoneOnly)
+                else if (variantStoneOnly)
                     AddCraftablePagesFromAllStacks_StoneOnly(capi, pool, resultPageCodes);
                 else
                     AddCraftablePagesFromAllStacks(capi, pool, resultPageCodes);
