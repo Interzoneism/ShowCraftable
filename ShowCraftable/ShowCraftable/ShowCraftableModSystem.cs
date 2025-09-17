@@ -413,13 +413,40 @@ namespace ShowCraftable
             return false;
         }
 
+        private static bool IsKnownTabKey(string tabKey)
+        {
+            return string.Equals(tabKey, ModTabKeyName, StringComparison.Ordinal)
+                || string.Equals(tabKey, WoodTabKeyName, StringComparison.Ordinal)
+                || string.Equals(tabKey, StoneTabKeyName, StringComparison.Ordinal)
+                || string.Equals(tabKey, CraftableTabKeyName, StringComparison.Ordinal);
+        }
+
         private static List<string> GetTabCache(string tabKey)
         {
             if (string.Equals(tabKey, ModTabKeyName, StringComparison.Ordinal)) return ModTabCache;
             if (string.Equals(tabKey, WoodTabKeyName, StringComparison.Ordinal)) return WoodTypeTabCache;
             if (string.Equals(tabKey, StoneTabKeyName, StringComparison.Ordinal)) return StoneTypeTabCache;
-            return CraftableTabCache;
+            if (string.Equals(tabKey, CraftableTabKeyName, StringComparison.Ordinal)) return CraftableTabCache;
+
+            // Unknown key → return empty snapshot (don’t bleed into Craftable)
+            return s_EmptyPages ??= new List<string>();
         }
+
+        private static void SetTabCache(string tabKey, IEnumerable<string> pages)
+        {
+            if (!IsKnownTabKey(tabKey))
+            {
+                LogEverywhere(_staticCapi, $"[Cache] Ignoring SetTabCache for unknown tabKey='{tabKey}'", toChat: true);
+                return;
+            }
+
+            var list = pages != null ? new List<string>(pages) : new List<string>();
+            if (string.Equals(tabKey, ModTabKeyName, StringComparison.Ordinal)) ModTabCache = list;
+            else if (string.Equals(tabKey, WoodTabKeyName, StringComparison.Ordinal)) WoodTypeTabCache = list;
+            else if (string.Equals(tabKey, StoneTabKeyName, StringComparison.Ordinal)) StoneTypeTabCache = list;
+            else CraftableTabCache = list;
+        }
+
 
         private static List<string> GetTabCacheSnapshot(string tabKey)
         {
@@ -482,29 +509,7 @@ namespace ShowCraftable
             return $"dna={dnaText}, cachePages={cachePages}";
         }
 
-        private static void SetTabCache(string tabKey, IEnumerable<string> pages)
-        {
-            var list = pages != null ? new List<string>(pages) : new List<string>();
-            if (string.Equals(tabKey, ModTabKeyName, StringComparison.Ordinal))
-                ModTabCache = list;
-            else if (string.Equals(tabKey, WoodTabKeyName, StringComparison.Ordinal))
-                WoodTypeTabCache = list;
-            else if (string.Equals(tabKey, StoneTabKeyName, StringComparison.Ordinal))
-                StoneTypeTabCache = list;
-            else
-                CraftableTabCache = list;
-        }
 
-        private static void ClearTabCache(string tabKey)
-        {
-            SetTabCache(tabKey, Array.Empty<string>());
-            SetTabReadyToUpdateUI(tabKey, false);
-        }
-
-        private static string GetCurrentVariantKey()
-        {
-            return GetVariantKey(recipeIndexForMods, recipeIndexForWoodOnly, recipeIndexForStoneOnly);
-        }
 
         private readonly record struct StackKey(string Code, string Material, string Type);
         private static string GetAttrStringSafe(ItemStack st, string key)
@@ -2944,11 +2949,20 @@ namespace ShowCraftable
         }
 
 
-        // Fast path: find recipe shims that *produce* the desired stack via the outputs index
+        // Back-compat. Avoid this in rebuild paths; pass an index explicitly instead.
         private static IEnumerable<GridRecipeShim> CandidateShimsForStack(ICoreClientAPI capi, ItemStack desired, bool? modsOnly)
         {
+            return CandidateShimsForStack(capi, desired, modsOnly, outputsIndex);
+        }
+
+        private static IEnumerable<GridRecipeShim> CandidateShimsForStack(
+            ICoreClientAPI capi,
+            ItemStack desired,
+            bool? modsOnly,
+            Dictionary<StackKey, List<GridRecipeShim>> index)
+        {
             var key = KeyFor(desired);
-            if (!outputsIndex.TryGetValue(key, out var list) || list == null) yield break;
+            if (index == null || !index.TryGetValue(key, out var list) || list == null) yield break;
 
             foreach (var shim in list)
             {
@@ -2959,17 +2973,23 @@ namespace ShowCraftable
         }
 
 
+
+
         // Choose your default here (or wire to a config)
         private const int DefaultAllStacksPartitions = -1;
 
-        // Backward-compatible entrypoint
-        private static void AddCraftablePagesFromAllStacks(ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest)
+        // Wrapper matching the old 3-arg signature but with an explicit index.
+        private static void AddCraftablePagesFromAllStacks(
+            ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest,
+            Dictionary<StackKey, List<GridRecipeShim>> index)
         {
-            AddCraftablePagesFromAllStacks(capi, pool, dest, DefaultAllStacksPartitions);
+            AddCraftablePagesFromAllStacks(capi, pool, dest, DefaultAllStacksPartitions, index);
         }
 
-        // Parallelizable overload (you control `partitions`)
-        private static void AddCraftablePagesFromAllStacks(ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest, int partitions)
+        // Partitioned overload that uses the provided index for heavy-first + shim lookup.
+        private static void AddCraftablePagesFromAllStacks(
+            ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest, int partitions,
+            Dictionary<StackKey, List<GridRecipeShim>> index)
         {
             try
             {
@@ -2984,42 +3004,55 @@ namespace ShowCraftable
                 var miPageCode = ghType?.GetMethod("PageCodeForStack", BindingFlags.Public | BindingFlags.Static);
                 if (ctor == null || miPageCode == null) return;
 
-                // --- auto partitions if caller passed <= 0
                 const int chunk = 32;
-                if (partitions <= 0)
-                    partitions = RecommendParallelism(stacks.Length, chunkSize: chunk);
+                if (partitions <= 0) partitions = RecommendParallelism(stacks.Length, chunkSize: chunk);
+                if (partitions == 1 || stacks.Length < 2)
+                {
+                    // serial fallback
+                    foreach (var st in stacks)
+                    {
+                        if (st?.Collectible == null) continue;
+                        object page = ctor.Invoke(new object[] { capi, st });
+                        var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
 
-                // If tiny input, just run serially
-                if (partitions == 1 || stacks.Length < 2) return;
+                        foreach (var shim in CandidateShimsForStack(capi, pStack, modsOnly: false, index))
+                        {
+                            if (IsWoodRecipe(shim.Raw)) continue; // vanilla tab excludes Wood-only groupings
+                            if (RecipeSatisfiedByPool(capi, pool, shim, pStack))
+                            {
+                                var pc = miPageCode.Invoke(null, new object[] { pStack }) as string;
+                                if (!string.IsNullOrEmpty(pc)) dest.Add(pc);
+                                break;
+                            }
+                        }
+                    }
+                    return;
+                }
 
-                // ==== HEAVY-FIRST ORDER (feed “hard” stacks earlier)
+                // Heavy-first ordering using the provided index
                 int[] order;
-                if (outputsIndex != null && outputsIndex.Count > 0)
+                if (index != null && index.Count > 0)
                 {
                     order = Enumerable.Range(0, stacks.Length)
                         .Select(i =>
                         {
                             var st = stacks[i];
-                            var key = KeyFor(st); // ok if st is null; KeyFor handles it
-                            return (i, weight: outputsIndex.TryGetValue(key, out var list) ? list.Count : 0);
+                            var key = KeyFor(st);
+                            return (i, weight: index.TryGetValue(key, out var list) ? list.Count : 0);
                         })
-                        .OrderByDescending(t => t.weight)  // heavy first
+                        .OrderByDescending(t => t.weight)
                         .Select(t => t.i)
                         .ToArray();
                 }
                 else
                 {
-                    // fallback: keep original order if no index yet
                     order = Enumerable.Range(0, stacks.Length).ToArray();
                 }
-
 
                 partitions = Math.Min(partitions, stacks.Length);
 
                 var swTotal = Stopwatch.StartNew();
                 var tasks = new Task<HashSet<string>>[partitions];
-
-                // dynamic scheduler (same as you have) with polite yielding
                 int next = 0;
 
                 for (int p = 0; p < partitions; p++)
@@ -3027,11 +3060,10 @@ namespace ShowCraftable
                     int partIndex = p;
                     tasks[p] = Task.Run(() =>
                     {
-                        var swPart = Stopwatch.StartNew();
                         var local = new HashSet<string>(StringComparer.Ordinal);
+                        var swPart = Stopwatch.StartNew();
                         var swSlice = Stopwatch.StartNew();
                         int processed = 0;
-                        int yieldBudgetMs = 3; // aim to yield roughly every ~3ms of CPU time
 
                         while (true)
                         {
@@ -3048,64 +3080,58 @@ namespace ShowCraftable
                                 object page = ctor.Invoke(new object[] { capi, st });
                                 var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
 
-                                // hoist once per Task, not per item
+                                // use snapshot for both candidate selection and page map
                                 var key2page = GetCachedPageCodeMap(capi);
 
-                                foreach (var shim in CandidateShimsForStack(capi, pStack, modsOnly: false))
+                                foreach (var shim in CandidateShimsForStack(capi, pStack, modsOnly: false, index))
                                 {
                                     if (IsWoodRecipe(shim.Raw)) continue;
                                     if (RecipeSatisfiedByPool(capi, pool, shim, pStack))
                                     {
-                                        // Use the map only to fetch the page code fast, not to accept the page
                                         if (!key2page.TryGetValue(KeyFor(pStack), out var pageCode))
-                                        {
                                             pageCode = miPageCode.Invoke(null, new object[] { pStack }) as string;
-                                        }
 
                                         if (!string.IsNullOrEmpty(pageCode)) local.Add(pageCode);
                                         break;
                                     }
                                 }
                                 processed++;
-
                             }
 
-                            // --- cooperative yield: let render/main thread breathe
-                            if (swSlice.ElapsedMilliseconds >= yieldBudgetMs)
+                            if (swSlice.ElapsedMilliseconds >= 3)
                             {
-                                Thread.Yield();           // hands over time slice
-                                swSlice.Restart();        // reset budget
+                                Thread.Yield();
+                                swSlice.Restart();
                             }
                         }
+
                         swPart.Stop();
-                        LogEverywhere(capi, $"Partition {partIndex + 1}/{partitions} processed {processed} item stacks in {swPart.ElapsedMilliseconds}ms", caller: nameof(AddCraftablePagesFromAllStacks));
+                        LogEverywhere(capi, $"Partition {partIndex + 1}/{partitions} processed {processed} item stacks in {swPart.ElapsedMilliseconds}ms",
+                            caller: nameof(AddCraftablePagesFromAllStacks));
                         return local;
                     });
                 }
 
                 Task.WaitAll(tasks);
-
-                foreach (var t in tasks)
-                    foreach (var pc in t.Result)
-                        dest.Add(pc);
+                foreach (var t in tasks) foreach (var pc in t.Result) dest.Add(pc);
 
                 swTotal.Stop();
-                LogEverywhere(capi, $"Processed {stacks.Length} item stacks in {swTotal.ElapsedMilliseconds}ms using {partitions} partitions");
+                LogEverywhere(capi, $"Processed {stacks.Length} item stacks in {swTotal.ElapsedMilliseconds}ms using {partitions} partitions",
+                    caller: nameof(AddCraftablePagesFromAllStacks));
             }
-            catch
-            {
-                // best-effort
-            }
+            catch { /* best-effort */ }
         }
 
-        // OLD signature keeps working
-        private static void AddCraftablePagesFromAllStacksFromModStacks(ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest)
+        private static void AddCraftablePagesFromAllStacksFromModStacks(
+    ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest,
+    Dictionary<StackKey, List<GridRecipeShim>> index)
         {
-            AddCraftablePagesFromAllStacksFromModStacks(capi, pool, dest, DefaultAllStacksPartitions);
+            AddCraftablePagesFromAllStacksFromModStacks(capi, pool, dest, DefaultAllStacksPartitions, index);
         }
 
-        // NEW overload: partitioned mods-only scan
-        private static void AddCraftablePagesFromAllStacksFromModStacks(ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest, int partitions)
+        private static void AddCraftablePagesFromAllStacksFromModStacks(
+            ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest, int partitions,
+            Dictionary<StackKey, List<GridRecipeShim>> index)
         {
             var swTotal = Stopwatch.StartNew();
             try
@@ -3122,20 +3148,16 @@ namespace ShowCraftable
                 if (ctor == null || miPageCode == null) return;
 
                 const int chunk = 64;
-                if (partitions <= 0)
-                    partitions = RecommendParallelism(stacks.Length, chunkSize: chunk);   // ← same heuristic as vanilla
-
+                if (partitions <= 0) partitions = RecommendParallelism(stacks.Length, chunkSize: chunk);
                 if (partitions == 1 || stacks.Length < 2)
                 {
-                    // serial fallback (what you had before)
                     foreach (var st in stacks)
                     {
                         if (st?.Collectible == null) continue;
-
                         object page = ctor.Invoke(new object[] { capi, st });
                         var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
 
-                        foreach (var shim in CandidateShimsForStack(capi, pStack, modsOnly: true))
+                        foreach (var shim in CandidateShimsForStack(capi, pStack, modsOnly: true, index))
                         {
                             if (RecipeSatisfiedByPool(capi, pool, shim, pStack))
                             {
@@ -3161,7 +3183,6 @@ namespace ShowCraftable
                         var swPart = Stopwatch.StartNew();
                         var swSlice = Stopwatch.StartNew();
                         int processed = 0;
-                        int yieldBudgetMs = 3;
 
                         while (true)
                         {
@@ -3177,8 +3198,7 @@ namespace ShowCraftable
                                 object page = ctor.Invoke(new object[] { capi, st });
                                 var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
 
-                                // modsOnly: true (no wood filtering here; mods tab shows all mod recipes)
-                                foreach (var shim in CandidateShimsForStack(capi, pStack, modsOnly: true))
+                                foreach (var shim in CandidateShimsForStack(capi, pStack, modsOnly: true, index))
                                 {
                                     if (RecipeSatisfiedByPool(capi, pool, shim, pStack))
                                     {
@@ -3190,7 +3210,7 @@ namespace ShowCraftable
                                 processed++;
                             }
 
-                            if (swSlice.ElapsedMilliseconds >= yieldBudgetMs)
+                            if (swSlice.ElapsedMilliseconds >= 3)
                             {
                                 Thread.Yield();
                                 swSlice.Restart();
@@ -3198,23 +3218,27 @@ namespace ShowCraftable
                         }
 
                         swPart.Stop();
-                        LogEverywhere(capi, $"Partition {partIndex + 1}/{partitions} processed {processed} item stacks in {swPart.ElapsedMilliseconds}ms", caller: nameof(AddCraftablePagesFromAllStacksFromModStacks));
+                        LogEverywhere(capi, $"Partition {partIndex + 1}/{partitions} processed {processed} item stacks in {swPart.ElapsedMilliseconds}ms",
+                            caller: nameof(AddCraftablePagesFromAllStacksFromModStacks));
                         return local;
                     });
                 }
 
                 Task.WaitAll(tasks);
-                foreach (var t in tasks)
-                    foreach (var pc in t.Result)
-                        dest.Add(pc);
+                foreach (var t in tasks) foreach (var pc in t.Result) dest.Add(pc);
 
                 swTotal.Stop();
-                LogEverywhere(capi, $"Processed {stacks.Length} item stacks in {swTotal.ElapsedMilliseconds}ms using {partitions} partitions", caller: nameof(AddCraftablePagesFromAllStacksFromModStacks));
+                LogEverywhere(capi, $"Processed {stacks.Length} item stacks in {swTotal.ElapsedMilliseconds}ms using {partitions} partitions",
+                    caller: nameof(AddCraftablePagesFromAllStacksFromModStacks));
             }
             catch { /* best-effort */ }
         }
 
-        private static void AddCraftablePagesFromAllStacks_WoodOnly(ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest)
+
+
+        private static void AddCraftablePagesFromAllStacks_WoodOnly(
+    ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest,
+    Dictionary<StackKey, List<GridRecipeShim>> index)
         {
             var sw = Stopwatch.StartNew();
             try
@@ -3236,7 +3260,7 @@ namespace ShowCraftable
                     object page = ctor.Invoke(new object[] { capi, st });
                     var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
 
-                    foreach (var shim in CandidateShimsForStack(capi, pStack, modsOnly: false))
+                    foreach (var shim in CandidateShimsForStack(capi, pStack, modsOnly: false, index))
                     {
                         if (!IsWoodRecipe(shim.Raw)) continue;
                         if (RecipeSatisfiedByPool(capi, pool, shim, pStack))
@@ -3252,11 +3276,15 @@ namespace ShowCraftable
             finally
             {
                 sw.Stop();
-                LogEverywhere(capi, $"AddCraftablePagesFromAllStacks_WoodOnly completed in {sw.ElapsedMilliseconds}ms", caller: nameof(AddCraftablePagesFromAllStacks_WoodOnly));
+                LogEverywhere(capi, $"AddCraftablePagesFromAllStacks_WoodOnly completed in {sw.ElapsedMilliseconds}ms",
+                    caller: nameof(AddCraftablePagesFromAllStacks_WoodOnly));
             }
         }
 
-        private static void AddCraftablePagesFromAllStacks_StoneOnly(ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest)
+
+        private static void AddCraftablePagesFromAllStacks_StoneOnly(
+    ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest,
+    Dictionary<StackKey, List<GridRecipeShim>> index)
         {
             var sw = Stopwatch.StartNew();
             try
@@ -3278,7 +3306,7 @@ namespace ShowCraftable
                     object page = ctor.Invoke(new object[] { capi, st });
                     var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
 
-                    foreach (var shim in CandidateShimsForStack(capi, pStack, modsOnly: false))
+                    foreach (var shim in CandidateShimsForStack(capi, pStack, modsOnly: false, index))
                     {
                         if (!IsStoneRecipe(shim.Raw)) continue;
                         if (RecipeSatisfiedByPool(capi, pool, shim, pStack))
@@ -3294,9 +3322,11 @@ namespace ShowCraftable
             finally
             {
                 sw.Stop();
-                LogEverywhere(capi, $"AddCraftablePagesFromAllStacks_StoneOnly completed in {sw.ElapsedMilliseconds}ms", caller: nameof(AddCraftablePagesFromAllStacks_StoneOnly));
+                LogEverywhere(capi, $"AddCraftablePagesFromAllStacks_StoneOnly completed in {sw.ElapsedMilliseconds}ms",
+                    caller: nameof(AddCraftablePagesFromAllStacks_StoneOnly));
             }
         }
+
 
 
         private void OnServerScanReply(CraftScanReply data)
@@ -3612,8 +3642,6 @@ namespace ShowCraftable
             var miPageCodeForStack = ghType?.GetMethod("PageCodeForStack", BindingFlags.Public | BindingFlags.Static);
 
             int fromMap = 0;
-            int attrFallbacks = 0;
-            int codeOnlyFallbacks = 0;
             int hbStackFallbacks = 0;
 
             const int chunkSize = 64;
@@ -3664,49 +3692,22 @@ namespace ShowCraftable
                 if (processed % chunkSize == 0) Flush();
             }
 
-            // compute how many outputs didn’t resolve to a page via the fast map/fallbacks
-            int misses = craftableKeys.Count - (fromMap + attrFallbacks + codeOnlyFallbacks);
+            // Use the *tab's* prebuilt index (no globals).
+            if (!TryGetRecipeIndex(variantKey, out var idxData))
+                throw new InvalidOperationException($"Recipe index variant '{variantKey}' not ready");
+            var indexSnapshot = idxData.OutputsIndex ?? new Dictionary<StackKey, List<GridRecipeShim>>();
 
-            // NEW: Samla ihop de verkligt olösta nycklarna och dumpa detaljer
-            if (misses > 0)
-            {
-                // Bygg lista över nycklar som varken fanns i kartan eller gav PageCodeFromStack
-                var unresolved = new List<StackKey>();
-                foreach (var key in craftableKeys)
-                {
-                    bool mapHit;
-                    lock (PageCodeMapLock) mapHit = key2page.ContainsKey(key);
-                    if (mapHit) continue;
-
-                    // Re-provkör HB-fallbacken här bara för debug (vi testar fåtal ~7 st)
-                    string tmpPc = null;
-                    try
-                    {
-                        var st = KeyToItemStack(capi, key);
-                        if (st != null) tmpPc = (string)miPageCodeForStack?.Invoke(null, new object[] { st });
-                    }
-                    catch { }
-
-                    if (string.IsNullOrEmpty(tmpPc)) unresolved.Add(key);
-                }
-
-                if (unresolved.Count > 0)
-                {
-                    LogEverywhere(capi, $"[Craftable] Unresolved stacks: {unresolved.Count}/{misses}  (dumping details)", toChat: true);
-                    DebugDumpUnresolvedStacks(capi, unresolved, key2page, miPageCodeForStack);
-                }
-            }
+            if (variantModsOnly)
+                AddCraftablePagesFromAllStacksFromModStacks(capi, pool, resultPageCodes, indexSnapshot);
+            else if (variantWoodOnly)
+                AddCraftablePagesFromAllStacks_WoodOnly(capi, pool, resultPageCodes, indexSnapshot);
+            else if (variantStoneOnly)
+                AddCraftablePagesFromAllStacks_StoneOnly(capi, pool, resultPageCodes, indexSnapshot);
+            else
+                AddCraftablePagesFromAllStacks(capi, pool, resultPageCodes, indexSnapshot);
 
 
-                if (variantModsOnly)
-                    AddCraftablePagesFromAllStacksFromModStacks(capi, pool, resultPageCodes);
-                else if (variantWoodOnly)
-                    AddCraftablePagesFromAllStacks_WoodOnly(capi, pool, resultPageCodes);
-                else if (variantStoneOnly)
-                    AddCraftablePagesFromAllStacks_StoneOnly(capi, pool, resultPageCodes);
-                else
-                    AddCraftablePagesFromAllStacks(capi, pool, resultPageCodes);
-            
+
 
 
 
