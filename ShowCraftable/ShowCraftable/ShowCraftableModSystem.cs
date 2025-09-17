@@ -1675,23 +1675,6 @@ namespace ShowCraftable
             }
         }
 
-        private static void OpenCraftableTab(ICoreClientAPI capi)
-        {
-            try
-            {
-                var msType = AccessTools.TypeByName("Vintagestory.GameContent.ModSystemSurvivalHandbook");
-                if (msType == null) return;
-                var ms = GetModSystemByType(capi, msType);
-                if (ms == null) { capi.Event.RegisterCallback(_ => OpenCraftableTab(capi), 100, permittedWhilePaused: true); return; }
-                var fiDialog = AccessTools.Field(msType, "dialog");
-                var dlg = fiDialog?.GetValue(ms);
-                if (dlg == null) { capi.Event.RegisterCallback(_ => OpenCraftableTab(capi), 100, permittedWhilePaused: true); return; }
-                dlg.GetType().GetMethod("TryOpen")?.Invoke(dlg, null);
-                dlg.GetType().GetMethod("selectTab")?.Invoke(dlg, new object[] { CraftableCategoryCode });
-            }
-            catch { }
-        }
-
         private static void TryRefreshOpenDialog(ICoreClientAPI capi)
         {
             try
