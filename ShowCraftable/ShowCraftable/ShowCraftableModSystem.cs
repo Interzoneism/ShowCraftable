@@ -53,7 +53,10 @@ namespace ShowCraftable
 
         private static readonly object CacheLock = new();
         private static List<string> CachedPageCodes = new();
-        private static List<string> s_EmptyPages;   
+        private static List<string> s_EmptyPages;
+
+        private static readonly object TabUiStateLock = new();
+        private static readonly Dictionary<string, bool> TabReadyToUpdateUi = new(StringComparer.Ordinal);
 
         private static List<string> CraftableTabCache = new();
         private static List<string> WoodTypeTabCache = new();
@@ -413,6 +416,29 @@ namespace ShowCraftable
             return cache != null ? new List<string>(cache) : new List<string>();
         }
 
+        private static void SetTabReadyToUpdateUI(string tabKey, bool ready)
+        {
+            if (string.IsNullOrEmpty(tabKey)) return;
+            lock (TabUiStateLock)
+            {
+                TabReadyToUpdateUi[tabKey] = ready;
+            }
+        }
+
+        private static bool ConsumeTabReadyToUpdateUI(string tabKey)
+        {
+            if (string.IsNullOrEmpty(tabKey)) return false;
+            lock (TabUiStateLock)
+            {
+                if (TabReadyToUpdateUi.TryGetValue(tabKey, out var ready) && ready)
+                {
+                    TabReadyToUpdateUi[tabKey] = false;
+                    return true;
+                }
+                return false;
+            }
+        }
+
         private static string FormatTabScanState(string tabKey)
         {
             if (string.IsNullOrEmpty(tabKey)) return "dna=<none>, cachePages=0";
@@ -451,6 +477,7 @@ namespace ShowCraftable
         private static void ClearTabCache(string tabKey)
         {
             SetTabCache(tabKey, Array.Empty<string>());
+            SetTabReadyToUpdateUI(tabKey, false);
         }
 
         private static string GetCurrentVariantKey()
@@ -1458,6 +1485,7 @@ namespace ShowCraftable
                 }
                 LastDialogPageCount = -1;
                 TryRefreshOpenDialog(capi);  // non-destructive UI refresh
+                TryUpdateActiveTabFromCache(capi, tabKey);
 
                 // Kick (or re-kick) recipe index build if needed, but never block the scan
                 bool needsIndex = !recipeIndexBuilt
@@ -1540,6 +1568,22 @@ namespace ShowCraftable
                 }, 1); // tiny delay → next tick/frame
             }
             catch { /* best-effort */ }
+        }
+
+        private static bool TryUpdateActiveTabFromCache(ICoreClientAPI capi, string tabKey)
+        {
+            if (!IsTabActive(tabKey)) return false;
+            if (!ConsumeTabReadyToUpdateUI(tabKey)) return false;
+
+            lock (CacheLock)
+            {
+                CachedPageCodes = GetTabCacheSnapshot(tabKey);
+            }
+
+            LastDialogPageCount = -1;
+            TryRefreshOpenDialog(capi);
+            SetUpdatingText(capi, false);
+            return true;
         }
 
 
@@ -3163,17 +3207,7 @@ namespace ShowCraftable
                     recipeStoneOnly = string.Equals(variantKey, "stone", StringComparison.Ordinal);
                 }
 
-                // 3) Ignore if reply is not for currently active tab
-                var activeTab = GetActiveTabKey();
-                if (!string.Equals(tabKey, activeTab, StringComparison.Ordinal))
-                {
-                    ScanInProgress = false;
-                    HandbookPauseGuard.Release(_capi);
-                    _capi.Event.EnqueueMainThreadTask(() => TryProcessQueuedScan(_capi), "SCPostScanIgnore");
-                    return;
-                }
-
-                // 4) DNA compare (pool signature)
+                // 3) DNA compare (pool signature) and inspect cache state
                 ulong dna = ComputeResourcePoolDNA(pool);
                 bool dnaMatch;
                 ulong prev;
@@ -3182,33 +3216,35 @@ namespace ShowCraftable
                     dnaMatch = TabPoolDNA.TryGetValue(tabKey, out prev) && prev == dna;
                 }
 
-                // Defensive: if it's a "match" but the cache snapshot is empty, force a rebuild.
-                List<string> snap = null;
-                if (dnaMatch)
+                int cachedPages;
+                lock (CacheLock)
                 {
-                    lock (CacheLock) { snap = GetTabCacheSnapshot(tabKey); }
-                    if (snap == null || snap.Count == 0) dnaMatch = false;
+                    var cache = GetTabCache(tabKey);
+                    cachedPages = cache?.Count ?? 0;
                 }
+                bool cacheEmpty = cachedPages == 0;
 
-                if (dnaMatch)
+                if (dnaMatch && !cacheEmpty)
                 {
-                    lock (CacheLock) { CachedPageCodes = snap; }
+                    SetTabReadyToUpdateUI(tabKey, true);
                     _capi.Event.EnqueueMainThreadTask(() =>
                     {
-                        LogEverywhere(_capi, $"[Scan] ← #{data.ScanId} DNA MATCH tab={tabKey} dna=0x{dna:X16} pages={snap.Count}", toChat: true);
-                        LastDialogPageCount = -1;
-                        TryRefreshOpenDialog(_capi);
-                        SetUpdatingText(_capi, false);
+                        LogEverywhere(_capi, $"[Scan] ← #{data.ScanId} DNA MATCH tab={tabKey} dna=0x{dna:X16} pages={cachedPages}", toChat: true);
+                        TryUpdateActiveTabFromCache(_capi, tabKey);
                         TryProcessQueuedScan(_capi);
-                    }, null);
+                    }, "SCScanMatch");
                     ScanInProgress = false;
                     HandbookPauseGuard.Release(_capi);
                     return;
                 }
 
+                string rebuildReason = dnaMatch ? "CACHE EMPTY" : "DNA MISMATCH";
+                SetTabReadyToUpdateUI(tabKey, false);
 
-                // 4b) DNA != DNA → keep current cache visible, show Updating..., then rebuild & swap atomically
-                _capi.Event.EnqueueMainThreadTask(() => SetUpdatingText(_capi, true), "SCSetUpdating");
+                _capi.Event.EnqueueMainThreadTask(() =>
+                {
+                    if (IsTabActive(tabKey)) SetUpdatingText(_capi, true);
+                }, "SCSetUpdating");
 
                 Task.Run(() =>
                 {
@@ -3216,23 +3252,18 @@ namespace ShowCraftable
                     {
                         // Build new cache for THIS TAB using THIS POOL
                         int pages = RebuildCacheWithPool(_capi, pool, tabKey,
-                            out int outputs, out int fetched, out int usable, out List<string> generatedPageCodes);
+                            out int outputs, out int fetched, out int usable, out _);
 
-                        // Atomically replace DNA first, then install the new cache
+                        // Atomically replace DNA first, then flag for UI update
                         lock (DnaLock) { TabPoolDNA[tabKey] = dna; }
-                        lock (CacheLock) { SetTabCache(tabKey, generatedPageCodes); }
+                        SetTabReadyToUpdateUI(tabKey, true);
 
-                        // If still on this tab, show it
                         _capi.Event.EnqueueMainThreadTask(() =>
                         {
-                            LogEverywhere(_capi, $"[Scan] ← #{data.ScanId} DNA MISMATCH → rebuilt tab={tabKey} dna=0x{dna:X16} outputs={outputs}, pages={pages}, fetched={fetched}, usable={usable}", toChat: true);
-                            if (IsTabActive(tabKey))
-                            {
-                                lock (CacheLock) { CachedPageCodes = GetTabCacheSnapshot(tabKey); }
-                                LastDialogPageCount = -1;
-                                TryRefreshOpenDialog(_capi);
-                            }
-                            SetUpdatingText(_capi, false);
+                            LogEverywhere(_capi,
+                                $"[Scan] ← #{data.ScanId} REBUILD ({rebuildReason}) tab={tabKey} dna=0x{dna:X16} outputs={outputs}, pages={pages}, fetched={fetched}, usable={usable}",
+                                toChat: true);
+                            TryUpdateActiveTabFromCache(_capi, tabKey);
                             TryProcessQueuedScan(_capi);
                         }, "SCShowNewCache");
                     }
@@ -3499,10 +3530,6 @@ namespace ShowCraftable
             lock (CacheLock)
             {
                 SetTabCache(tabKey, finalPages);
-                if (IsTabActive(tabKey))
-                {
-                    CachedPageCodes = new List<string>(finalPages);
-                }
             }
 
             sw.Stop();
