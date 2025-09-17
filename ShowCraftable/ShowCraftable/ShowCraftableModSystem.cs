@@ -2047,7 +2047,9 @@ namespace ShowCraftable
         {
             lock (PageCodeMapLock)
             {
-                AllStacksPageCodeMap.Clear();
+                // Replace with a fresh dictionary instead of clearing the existing instance so
+                // any readers that already captured a reference can continue reading safely.
+                AllStacksPageCodeMap = new Dictionary<StackKey, string>();
                 AllStacksPageCodeMapSource = null;
             }
         }
