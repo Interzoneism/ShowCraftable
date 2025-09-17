@@ -24,148 +24,69 @@ namespace ShowCraftable
     {
         private Harmony _harmony;
         private ICoreClientAPI _capi;
-        private static ICoreClientAPI _staticCapi;
-
-        private static volatile bool CraftableTabActive;
-        private static volatile bool CraftableModsTabActive;
-
-        public const string CraftableStoneCategoryCode = "craftablestonetypes";
-
-        private static volatile bool CraftableStoneTabActive;
-        private static volatile bool recipeIndexForStoneOnly;
-
-
         public const string HarmonyId = "showcraftable.core";
-        public const string CraftableCategoryCode = "craftable";
-        public const string CraftableModsCategoryCode = "craftablemods";
-
-        private const string CraftableTabKeyName = "craftableTab";
-        private const string WoodTabKeyName = "woodTab";
-        private const string StoneTabKeyName = "stoneTab";
-        private const string ModTabKeyName = "modTab";
-
-        public const string ChannelName = "showcraftablescan";
-        private const string ConfigFileName = "ShowCraftable.json";
-        private static ShowCraftableConfig Config = new();
-        private static int NearbyRadius = 20;
-
+        internal static bool DebugEnabled = true;
         internal static int ConfiguredSearchRadius => Math.Max(0, Config?.SearchDistanceItems ?? 20);
-
-        private static readonly object CacheLock = new();
-        private static List<string> CachedPageCodes = new();
-        private static List<string> s_EmptyPages;
-
-        private static readonly object TabUiStateLock = new();
-        private static readonly Dictionary<string, bool> TabReadyToUpdateUi = new(StringComparer.Ordinal);
-
-        private static List<string> CraftableTabCache = new();
-        private static List<string> WoodTypeTabCache = new();
-        private static List<string> StoneTypeTabCache = new();
-        private static List<string> ModTabCache = new();
-
-
-        // NEW: correlate ScanId -> (which tab & which variant flags triggered it)
-        private static readonly object InflightMapLock = new();
-        private static readonly Dictionary<int, ScanRequestInfo> InflightById = new();
-
-        // NEW: simple counter for unique scan ids
-        private static int ScanSeq;
-
-        // NEW: DNA tracking (per-tab) + lock
-        private static readonly object DnaLock = new();
-        private static readonly Dictionary<string, ulong> TabPoolDNA = new(StringComparer.Ordinal);
-
-
-        private static readonly Dictionary<string, string> ScanResultCache
-            = new(StringComparer.Ordinal);
-
-        private static readonly object PendingScanLock = new();
-        private static string PendingScanVariantKey;
-        private static string PendingScanTabKey;
-
-        private struct ScanRequestInfo
-        {
-            public bool ModsOnly;
-            public bool WoodOnly;
-            public bool StoneOnly;
-            public string TabKey;
-
-            public ScanRequestInfo(bool modsOnly, bool woodOnly, bool stoneOnly, string tabKey)
-            {
-                ModsOnly = modsOnly;
-                WoodOnly = woodOnly;
-                StoneOnly = stoneOnly;
-                TabKey = tabKey;
-            }
-        }
-
-        private static readonly object ScanQueueLock = new();
-        private static ScanRequestInfo? QueuedScanRequest;
+        private const string ConfigFileName = "ShowCraftable.json";
+        private const string CraftableTabKeyName = "craftableTab";
+        private const string ModTabKeyName = "modTab";
+        private const string StoneTabKeyName = "stoneTab";
+        private const string WoodTabKeyName = "woodTab";
         private static bool ScanQueueCheckScheduled;
-
-        private static readonly object PageCodeMapLock = new();
-        private static Dictionary<StackKey, string> AllStacksPageCodeMap = new();
-        private static ItemStack[] AllStacksPageCodeMapSource;
-
-        private static readonly Dictionary<string, Dictionary<string, int>> WildTokenCountsMemo
-    = new(StringComparer.Ordinal);
-
-        private static Dictionary<StackKey, List<GridRecipeShim>> outputsIndex = new();
-
-
-        private static volatile bool ScanInProgress = false;
-        private static int LastDialogPageCount;
-
-        private static Dictionary<string, List<(GridRecipeShim Recipe, string GroupKey)>> codeToRecipeGroups = new();
-        // Maps a collectible code -> all ingredient group keys (gkeys) that the code satisfies.
-        // Built at index time, used at runtime for fast group aggregation.
-        private static Dictionary<string, HashSet<string>> codeToGkeys =
-            new(StringComparer.Ordinal);
         private static Dictionary<GridRecipeShim, Dictionary<string, int>> recipeGroupNeeds = new();
+        private static Dictionary<StackKey, List<GridRecipeShim>> outputsIndex = new();
+        private static Dictionary<StackKey, string> AllStacksPageCodeMap = new();
+        private static Dictionary<string, HashSet<string>> codeToGkeys = new(StringComparer.Ordinal);
+        private static Dictionary<string, List<(GridRecipeShim Recipe, string GroupKey)>> codeToRecipeGroups = new();
+        private static Dictionary<string, List<(GridRecipeShim Recipe, string GroupKey)>> wildMatchCache = new(StringComparer.Ordinal);
+        private static ICoreClientAPI _staticCapi;
+        private static int LastDialogPageCount;
+        private static int NearbyRadius = 20;
         private static int recipesFetched;
         private static int recipesUsable;
-
+        private static int ScanSeq;
+        private static ItemStack[] AllStacksPageCodeMapSource;
+        private static List<string> CachedPageCodes = new();
+        private static List<string> CraftableTabCache = new();
+        private static List<string> ModTabCache = new();
+        private static List<string> s_EmptyPages;
+        private static List<string> StoneTypeTabCache = new();
+        private static List<string> WoodTypeTabCache = new();
+        private static List<WildGroup> wildcardGroups = new();
+        private static readonly Dictionary<int, ScanRequestInfo> InflightById = new();
+        private static readonly Dictionary<string, bool> TabReadyToUpdateUi = new(StringComparer.Ordinal);
+        private static readonly Dictionary<string, Dictionary<string, int>> WildTokenCountsMemo = new(StringComparer.Ordinal);
+        private static readonly Dictionary<string, RecipeIndexData> recipeIndexByVariant = new(StringComparer.Ordinal);
+        private static readonly Dictionary<string, ulong> TabPoolDNA = new(StringComparer.Ordinal);
+        private static readonly object CacheLock = new();
+        private static readonly object DnaLock = new();
+        private static readonly object InflightMapLock = new();
+        private static readonly object LogFileLock = new();
+        private static readonly object PageCodeMapLock = new();
+        private static readonly object PendingScanLock = new();
+        private static readonly object ScanQueueLock = new();
+        private static readonly object TabUiStateLock = new();
+        private static ScanRequestInfo? QueuedScanRequest;
+        private static ShowCraftableConfig Config = new();
+        private static string PendingScanTabKey;
+        private static string PendingScanVariantKey;
         private static Task recipeIndexBuildTask;
-        private static volatile int recipeIndexBuildTotal;
-        private static volatile int recipeIndexBuildProgress;
+        private static volatile bool CraftableModsTabActive;
+        private static volatile bool CraftableStoneTabActive;
+        private static volatile bool CraftableTabActive;
+        private static volatile bool CraftableWoodTabActive;
         private static volatile bool recipeIndexBuilt = false;
         private static volatile bool recipeIndexForMods = false;
-
-        // New tab
-        public const string CraftableWoodCategoryCode = "craftablewoodtypes";
-
-        // UI + index state
-        private static volatile bool CraftableWoodTabActive;
+        private static volatile bool recipeIndexForStoneOnly;
         private static volatile bool recipeIndexForWoodOnly;
-
-        private static readonly object LogFileLock = new();
-
-        internal static bool DebugEnabled = true;
-
-        private sealed class WildGroup
-        {
-            public GridRecipeShim Recipe;
-            public string GroupKey;
-            public EnumItemClass Type;
-            public AssetLocation Pattern;
-            public string[] Allowed;
-        }
-
-        private static List<WildGroup> wildcardGroups = new();
-
-        private static Dictionary<string, List<(GridRecipeShim Recipe, string GroupKey)>> wildMatchCache
-            = new(StringComparer.Ordinal);
-
-        private static readonly Dictionary<string, RecipeIndexData> recipeIndexByVariant
-            = new(StringComparer.Ordinal);
-
-        private static readonly (string VariantKey, bool ModsOnly, bool WoodOnly, bool StoneOnly)[] RecipeIndexVariants =
-        {
-            ("van", ModsOnly: false, WoodOnly: false, StoneOnly: false),
-            ("mods", ModsOnly: true, WoodOnly: false, StoneOnly: false),
-            ("wood", ModsOnly: false, WoodOnly: true, StoneOnly: false),
-            ("stone", ModsOnly: false, WoodOnly: false, StoneOnly: true)
-        };
+        private static volatile bool ScanInProgress = false;
+        private static volatile int recipeIndexBuildProgress;
+        private static volatile int recipeIndexBuildTotal;
+        public const string ChannelName = "showcraftablescan";
+        public const string CraftableCategoryCode = "craftable";
+        public const string CraftableModsCategoryCode = "craftablemods";
+        public const string CraftableStoneCategoryCode = "craftablestonetypes";
+        public const string CraftableWoodCategoryCode = "craftablewoodtypes";
 
         [ProtoContract]
         private class CachedIngredient
@@ -202,6 +123,38 @@ namespace ShowCraftable
             // NEW: optional since older caches won’t have it
             [ProtoMember(3)] public Dictionary<string, List<string>> CodeToGkeys { get; set; } = new();
         }
+        private struct ScanRequestInfo
+        {
+            public bool ModsOnly;
+            public bool WoodOnly;
+            public bool StoneOnly;
+            public string TabKey;
+
+            public ScanRequestInfo(bool modsOnly, bool woodOnly, bool stoneOnly, string tabKey)
+            {
+                ModsOnly = modsOnly;
+                WoodOnly = woodOnly;
+                StoneOnly = stoneOnly;
+                TabKey = tabKey;
+            }
+        }
+
+        private sealed class WildGroup
+        {
+            public GridRecipeShim Recipe;
+            public string GroupKey;
+            public EnumItemClass Type;
+            public AssetLocation Pattern;
+            public string[] Allowed;
+        }
+
+        private static readonly (string VariantKey, bool ModsOnly, bool WoodOnly, bool StoneOnly)[] RecipeIndexVariants =
+{
+            ("van", ModsOnly: false, WoodOnly: false, StoneOnly: false),
+            ("mods", ModsOnly: true, WoodOnly: false, StoneOnly: false),
+            ("wood", ModsOnly: false, WoodOnly: true, StoneOnly: false),
+            ("stone", ModsOnly: false, WoodOnly: false, StoneOnly: true)
+        };
 
         private static ulong ComputeResourcePoolDNA(ResourcePool pool)
         {
