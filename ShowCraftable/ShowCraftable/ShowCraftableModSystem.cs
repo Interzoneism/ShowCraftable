@@ -113,7 +113,7 @@ namespace ShowCraftable
         private static Dictionary<StackKey, List<GridRecipeShim>> outputsIndex = new();
 
 
-        private static bool ScanInProgress = false;
+        private static volatile bool ScanInProgress = false;
         private static int LastDialogPageCount;
 
         private static Dictionary<string, List<(GridRecipeShim Recipe, string GroupKey)>> codeToRecipeGroups = new();
@@ -436,16 +436,26 @@ namespace ShowCraftable
             }
         }
 
-        private static bool ConsumeTabReadyToUpdateUI(string tabKey)
+        private static bool TryAcquireTabUpdateTicket(string tabKey, bool requireReadyFlag)
         {
             if (string.IsNullOrEmpty(tabKey)) return false;
+
             lock (TabUiStateLock)
             {
+                if (!IsTabActive(tabKey)) return false;
+
                 if (TabReadyToUpdateUi.TryGetValue(tabKey, out var ready) && ready)
                 {
                     TabReadyToUpdateUi[tabKey] = false;
                     return true;
                 }
+
+                if (!requireReadyFlag)
+                {
+                    TabReadyToUpdateUi[tabKey] = false;
+                    return true;
+                }
+
                 return false;
             }
         }
@@ -1158,8 +1168,7 @@ namespace ShowCraftable
                     }
                     lock (InflightMapLock) InflightById.Remove(scanId);
 
-                    ScanInProgress = false;
-                    HandbookPauseGuard.Release(capi);
+                    FinishScan(capi);
                     LogEverywhere(capi, $"Failed to send scan request: {e}", toChat: true);
                     capi.Event.EnqueueMainThreadTask(() => TryProcessQueuedScan(capi), "SCProcessScanQueueFail");
                 }
@@ -1231,6 +1240,18 @@ namespace ShowCraftable
             {
                 EnsureQueueCheckScheduled(capi);
             }
+        }
+
+        private static void FinishScan(ICoreClientAPI capi)
+        {
+            ScanInProgress = false;
+            HandbookPauseGuard.Release(capi);
+        }
+
+        private static void FinishScanAndProcessQueue(ICoreClientAPI capi)
+        {
+            FinishScan(capi);
+            TryProcessQueuedScan(capi);
         }
 
 
@@ -1535,7 +1556,7 @@ namespace ShowCraftable
                 }
                 LastDialogPageCount = -1;
                 TryRefreshOpenDialog(capi);  // non-destructive UI refresh
-                TryUpdateActiveTabFromCache(capi, tabKey);
+                TryUpdateActiveTabFromCache(capi, tabKey, requireReadyFlag: false);
 
                 // ALWAYS run a server scan for items and include tab name string
                 var myScanId = ++_pendingScanId;
@@ -1613,10 +1634,9 @@ namespace ShowCraftable
             catch { /* best-effort */ }
         }
 
-        private static bool TryUpdateActiveTabFromCache(ICoreClientAPI capi, string tabKey)
+        private static bool TryUpdateActiveTabFromCache(ICoreClientAPI capi, string tabKey, bool requireReadyFlag = true)
         {
-            if (!IsTabActive(tabKey)) return false;
-            if (!ConsumeTabReadyToUpdateUI(tabKey)) return false;
+            if (!TryAcquireTabUpdateTicket(tabKey, requireReadyFlag)) return false;
 
             lock (CacheLock)
             {
@@ -3348,12 +3368,16 @@ namespace ShowCraftable
                     SetTabReadyToUpdateUI(tabKey, true);
                     _capi.Event.EnqueueMainThreadTask(() =>
                     {
-                        LogEverywhere(_capi, $"[Scan] ← #{data.ScanId} DNA MATCH tab={tabKey} dna=0x{dna:X16} pages={cachedPages}", toChat: true);
-                        TryUpdateActiveTabFromCache(_capi, tabKey);
-                        TryProcessQueuedScan(_capi);
+                        try
+                        {
+                            LogEverywhere(_capi, $"[Scan] ← #{data.ScanId} DNA MATCH tab={tabKey} dna=0x{dna:X16} pages={cachedPages}", toChat: true);
+                            TryUpdateActiveTabFromCache(_capi, tabKey);
+                        }
+                        finally
+                        {
+                            FinishScanAndProcessQueue(_capi);
+                        }
                     }, "SCScanMatch");
-                    ScanInProgress = false;
-                    HandbookPauseGuard.Release(_capi);
                     return;
                 }
 
@@ -3379,30 +3403,40 @@ namespace ShowCraftable
 
                         _capi.Event.EnqueueMainThreadTask(() =>
                         {
-                            LogEverywhere(_capi,
-                                $"[Scan] ← #{data.ScanId} REBUILD ({rebuildReason}) tab={tabKey} dna=0x{dna:X16} outputs={outputs}, pages={pages}, fetched={fetched}, usable={usable}",
-                                toChat: true);
-                            TryUpdateActiveTabFromCache(_capi, tabKey);
-                            TryProcessQueuedScan(_capi);
+                            try
+                            {
+                                LogEverywhere(_capi,
+                                    $"[Scan] ← #{data.ScanId} REBUILD ({rebuildReason}) tab={tabKey} dna=0x{dna:X16} outputs={outputs}, pages={pages}, fetched={fetched}, usable={usable}",
+                                    toChat: true);
+                                TryUpdateActiveTabFromCache(_capi, tabKey);
+                            }
+                            finally
+                            {
+                                FinishScanAndProcessQueue(_capi);
+                            }
                         }, "SCShowNewCache");
                     }
                     catch (Exception ex)
                     {
                         _capi.Event.EnqueueMainThreadTask(() =>
-                            LogEverywhere(_capi, $"Rebuild failed: {ex}", toChat: true), "SCRebuildFail");
-                    }
-                    finally
-                    {
-                        ScanInProgress = false;
-                        HandbookPauseGuard.Release(_capi);
+                        {
+                            try
+                            {
+                                LogEverywhere(_capi, $"Rebuild failed: {ex}", toChat: true);
+                            }
+                            finally
+                            {
+                                FinishScanAndProcessQueue(_capi);
+                            }
+                        }, "SCRebuildFail");
                     }
                 });
             }
             catch (Exception e)
             {
                 LogEverywhere(_capi, $"OnServerScanReply error: {e}", toChat: true);
-                ScanInProgress = false;
-                HandbookPauseGuard.Release(_capi);
+                FinishScan(_capi);
+                _capi?.Event.EnqueueMainThreadTask(() => TryProcessQueuedScan(_capi), "SCScanReplyError");
             }
         }
 
