@@ -411,6 +411,28 @@ namespace ShowCraftable
             return cache != null ? new List<string>(cache) : new List<string>();
         }
 
+        private static string FormatTabScanState(string tabKey)
+        {
+            if (string.IsNullOrEmpty(tabKey)) return "dna=<none>, cachePages=0";
+
+            ulong dna;
+            bool hasDna;
+            lock (DnaLock)
+            {
+                hasDna = TabPoolDNA.TryGetValue(tabKey, out dna);
+            }
+
+            int cachePages;
+            lock (CacheLock)
+            {
+                var cache = GetTabCache(tabKey);
+                cachePages = cache?.Count ?? 0;
+            }
+
+            string dnaText = hasDna ? $"0x{dna:X16}" : "<none>";
+            return $"dna={dnaText}, cachePages={cachePages}";
+        }
+
         private static void SetTabCache(string tabKey, IEnumerable<string> pages)
         {
             var list = pages != null ? new List<string>(pages) : new List<string>();
@@ -1419,10 +1441,12 @@ namespace ShowCraftable
                 var fiCapi = AccessTools.Field(__instance.GetType(), "capi");
                 capi = fiCapi?.GetValue(__instance) as ICoreClientAPI ?? _staticCapi;
 
-                if (CraftableTabActive) LogEverywhere(capi, "Craftable tab selected by user");
-                else if (CraftableModsTabActive) LogEverywhere(capi, "Craftable (Mods) tab selected by user");
-                else if (CraftableWoodTabActive) LogEverywhere(capi, "Craftable Wood Types tab selected by user");
-                else if (CraftableStoneTabActive) LogEverywhere(capi, "Craftable Stone Types tab selected by user");
+                string diagnosticsSuffix = anyCraftable ? $" ({FormatTabScanState(tabKey)})" : string.Empty;
+
+                if (CraftableTabActive) LogEverywhere(capi, $"Craftable tab selected by user{diagnosticsSuffix}");
+                else if (CraftableModsTabActive) LogEverywhere(capi, $"Craftable (Mods) tab selected by user{diagnosticsSuffix}");
+                else if (CraftableWoodTabActive) LogEverywhere(capi, $"Craftable Wood Types tab selected by user{diagnosticsSuffix}");
+                else if (CraftableStoneTabActive) LogEverywhere(capi, $"Craftable Stone Types tab selected by user{diagnosticsSuffix}");
 
                 var fiOverview = AccessTools.Field(__instance.GetType(), "overviewGui");
                 var composer = fiOverview?.GetValue(__instance) as GuiComposer;
