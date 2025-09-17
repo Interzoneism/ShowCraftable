@@ -91,7 +91,7 @@ public class RecipeGridButton : ButtonFetch
                 {
                     var req = new CraftScanRequest
                     {
-                        Radius = 20,
+                        Radius = ShowCraftableSystem.ConfiguredSearchRadius,
                         CollectItems = true,
                         Variants = reqVariants
                     };
