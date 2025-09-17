@@ -167,7 +167,7 @@ namespace ShowCraftable
                 {
                     if (pool.Classes.TryGetValue(kv.Key, out var ecl)) cls = (int)ecl;
                 }
-                catch { /* best effort */ }
+                catch { }
                 entries.Add((code, qty, cls));
             }
 
@@ -261,7 +261,6 @@ namespace ShowCraftable
                     {
                         capi.Settings.Bool["noHandbookPause"] = _savedNoHandbookPause;
 
-
                         if (IsHandbookOpen(capi) && !_savedNoHandbookPause)
                         {
                             capi.PauseGame(true);
@@ -288,7 +287,6 @@ namespace ShowCraftable
 
                     bool shouldBePaused = !capi.Settings.Bool["noHandbookPause"];
 
-
                     var tDlg = typeof(GuiDialogHandbook);
                     var overview = tDlg.GetField("overviewGui", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)?.GetValue(dlg) as GuiComposer;
                     var detail = tDlg.GetField("detailViewGui", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)?.GetValue(dlg) as GuiComposer;
@@ -301,7 +299,7 @@ namespace ShowCraftable
         }
 
         internal static void AcquireHandbookPauseGuard(ICoreClientAPI capi) => HandbookPauseGuard.Acquire(capi);
-        
+
         internal static void ReleaseHandbookPauseGuard(ICoreClientAPI capi) => HandbookPauseGuard.Release(capi);
 
         private static string GetVariantKey(bool modsOnly, bool woodOnly, bool stoneOnly)
@@ -453,12 +451,12 @@ namespace ShowCraftable
         }
 
         private readonly record struct StackKey(string Code, string Material, string Type);
-        
+
         private static string GetAttrStringSafe(ItemStack st, string key)
         {
             try { return st?.Attributes?.GetString(key, null); } catch { return null; }
         }
-        
+
         private static StackKey KeyFor(ItemStack st)
         {
             var code = st?.Collectible?.Code?.ToString() ?? "";
@@ -476,10 +474,10 @@ namespace ShowCraftable
                 if (!string.IsNullOrEmpty(material)) st.Attributes.SetString("material", material);
                 if (!string.IsNullOrEmpty(type)) st.Attributes.SetString("type", type);
             }
-            catch { /* best effort */ }
+            catch { }
             return st;
         }
-        
+
         private static ItemStack KeyToItemStack(ICoreClientAPI capi, StackKey key)
         {
             return MakeStackFromCodeAndAttrs(capi, key.Code, key.Material, key.Type);
@@ -551,7 +549,7 @@ namespace ShowCraftable
 
                     res[token] = res.TryGetValue(token, out var cur) ? cur + kv.Value : kv.Value;
                 }
-                catch { /* ignore */ }
+                catch { }
             }
 
             lock (WildTokenCountsMemo) WildTokenCountsMemo[memoKey] = res;
@@ -720,17 +718,16 @@ namespace ShowCraftable
             if (mval != null)
             {
                 if (mval == "{wood}") return true; 
-                foreach (var m in WoodSpecies) if (mval == m) return true; // material:maple
+                foreach (var m in WoodSpecies) if (mval == m) return true;
             }
 
             var typeVal = ExtractValue(t, "type");
             if (typeVal != null)
             {
-                if (typeVal == "wood-{wood}") return true; // type:wood-{wood}
-                foreach (var m in WoodSpecies) if (typeVal == "wood-" + m) return true; // type:wood-maple
+                if (typeVal == "wood-{wood}") return true;
+                foreach (var m in WoodSpecies) if (typeVal == "wood-" + m) return true;
             }
 
-            // Tolerant fallback
             foreach (var m in WoodSpecies)
             {
                 if (t.IndexOf("wood-" + m, StringComparison.Ordinal) >= 0) return true;
@@ -761,7 +758,6 @@ namespace ShowCraftable
         {
             if (string.IsNullOrEmpty(s)) return false;
 
-            // Normalize: lowercase + strip whitespace
             var buf = new char[s.Length];
             int j = 0;
             for (int i = 0; i < s.Length; i++)
@@ -771,8 +767,6 @@ namespace ShowCraftable
             }
             string t = new string(buf, 0, j);
 
-            // Extract un/quoted value after key:
-            // material:foo  material:"foo"  type:stone-foo  type:"stone-foo"
             static string ExtractValue(string text, string key)
             {
                 int i = text.IndexOf(key + ":", StringComparison.Ordinal);
@@ -800,16 +794,15 @@ namespace ShowCraftable
             var mval = ExtractValue(t, "material");
             if (mval != null)
             {
-                foreach (var m in StoneSpecies) if (mval == m) return true;   // material:andesite
+                foreach (var m in StoneSpecies) if (mval == m) return true;
             }
 
             var typeVal = ExtractValue(t, "type");
             if (typeVal != null)
             {
-                foreach (var m in StoneSpecies) if (typeVal == "stone-" + m) return true; // type:stone-andesite
+                foreach (var m in StoneSpecies) if (typeVal == "stone-" + m) return true;
             }
 
-            // Tolerant fallback
             foreach (var m in StoneSpecies)
             {
                 if (t.IndexOf("stone-" + m, StringComparison.Ordinal) >= 0) return true;
@@ -915,7 +908,7 @@ namespace ShowCraftable
                     File.AppendAllText(f, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} [Craftable] {caller}: {msg}\n");
                 }
             }
-            catch { /* keep best-effort */ }
+            catch { }
         }
 
         internal static IInventory TryGetInventoryFromBE(BlockEntity be)
@@ -951,7 +944,6 @@ namespace ShowCraftable
             {
                 if (capi == null) return;
 
-                // Gentle coalesce & single-flight
                 var now = DateTime.UtcNow;
                 if ((now - _lastScanAt).TotalMilliseconds < 400 && allowQueue)
                 {
@@ -970,14 +962,12 @@ namespace ShowCraftable
 
                 var variantKey = GetVariantKey(modsOnly, woodOnly, stoneOnly);
 
-                // Back-compat fallback (kept)
                 lock (PendingScanLock)
                 {
                     PendingScanVariantKey = variantKey;
                     PendingScanTabKey = tabKey;
                 }
 
-                // Track in-flight by id
                 int scanId = Interlocked.Increment(ref ScanSeq);
                 lock (InflightMapLock)
                 {
@@ -990,9 +980,9 @@ namespace ShowCraftable
                     {
                         Radius = radius,
                         CollectItems = true,
-                        Variants = new List<CraftIngredientList>(),   // reserved
+                        Variants = new List<CraftIngredientList>(),
                         ScanId = scanId,
-                        TabKey = tabKey                               // ← include tab name string
+                        TabKey = tabKey
                     });
                     LogEverywhere(capi, $"[Scan] → sent ScanId={scanId} (radius={radius}, variant={variantKey}, tab={tabKey})");
                 }
@@ -1134,13 +1124,11 @@ namespace ShowCraftable
             _staticCapi = capi;
             _harmony = new Harmony(HarmonyId);
 
-
             capi.Network
                 .RegisterChannel(ChannelName)
                 .RegisterMessageType(typeof(CraftScanRequest))
                 .RegisterMessageType(typeof(CraftScanReply))
                 .SetMessageHandler<CraftScanReply>(OnServerScanReply);
-
 
             var tSurv = AccessTools.TypeByName("Vintagestory.GameContent.GuiDialogSurvivalHandbook");
             var miGenTabs = AccessTools.Method(tSurv, "genTabs");
@@ -1160,8 +1148,6 @@ namespace ShowCraftable
             var miAddInfo = AccessTools.Method(tBeh, "addCreatedByInfo");
             _harmony.Patch(miAddInfo, postfix: new HarmonyMethod(typeof(ShowCraftableSystem), nameof(AddRecipeButton_Postfix)));
 
-
-
             capi.ChatCommands.Create("craftable")
                 .WithDescription("Open Survival Handbook at the Craftable tab (no rescan)")
                 .HandleWith(args =>
@@ -1179,16 +1165,13 @@ namespace ShowCraftable
 
             capi.Event.LevelFinalize += () =>
             {
-                // Keep only ephemeral safety resets; do not clear tab caches, DNA, or the recipe index
                 lock (ScanQueueLock) { QueuedScanRequest = null; ScanQueueCheckScheduled = false; }
                 lock (PendingScanLock) { PendingScanVariantKey = null; PendingScanTabKey = null; }
                 lock (InflightMapLock) InflightById.Clear();
                 ScanInProgress = false;
 
-                // Optional: Invalidate only the Handbook’s pagecode map to force GUI to rebind widgets.
                 InvalidatePageCodeMapCache();
 
-                // Build index once for this world-load; harmless no-op if already built.
                 StartRecipeIndexBuild(capi);
 
             };
@@ -1204,7 +1187,6 @@ namespace ShowCraftable
             {
                 var tabs = ((Array)__result)?.Cast<object>().ToList() ?? new List<object>();
                 if (tabs.Count == 0) return;
-
 
                 var tabType = AccessTools.TypeByName("Vintagestory.GameContent.HandbookTab")
                            ?? AccessTools.TypeByName("Vintagestory.GameContent.GuiTab");
@@ -1244,7 +1226,6 @@ namespace ShowCraftable
                     if (string.Equals(cat, CraftableWoodCategoryCode, StringComparison.OrdinalIgnoreCase)) craftableWoodExists = true;
                     if (string.Equals(cat, CraftableStoneCategoryCode, StringComparison.OrdinalIgnoreCase)) craftableStoneExists = true;
                 }
-
 
                 int insertAt = tabs.Count;
                 if (!craftableExists)
@@ -1316,7 +1297,6 @@ namespace ShowCraftable
             var sw = Stopwatch.StartNew();
             try
             {
-                // Figure out which tab is active
                 CraftableTabActive = string.Equals(code, CraftableCategoryCode, StringComparison.Ordinal);
                 CraftableModsTabActive = string.Equals(code, CraftableModsCategoryCode, StringComparison.Ordinal);
                 CraftableWoodTabActive = string.Equals(code, CraftableWoodCategoryCode, StringComparison.Ordinal);
@@ -1359,7 +1339,6 @@ namespace ShowCraftable
                     return;
                 }
 
-                // Reset search text but keep visible list intact
                 var miGetTextInput = composer?.GetType().GetMethod("GetTextInput");
                 var searchInput = miGetTextInput?.Invoke(composer, new object[] { "searchField" });
                 searchInput?.GetType().GetMethod("SetValue")?.Invoke(searchInput, new object[] { "", true });
@@ -1379,16 +1358,14 @@ namespace ShowCraftable
                     StartRecipeIndexBuild(capi);
                 }
 
-                // Show whatever cache we have for this tab immediately (no flicker)
                 lock (CacheLock)
                 {
                     CachedPageCodes = GetTabCacheSnapshot(tabKey);
                 }
                 LastDialogPageCount = -1;
-                TryRefreshOpenDialog(capi);  // non-destructive UI refresh
+                TryRefreshOpenDialog(capi);
                 TryUpdateActiveTabFromCache(capi, tabKey, requireReadyFlag: false);
 
-                // ALWAYS run a server scan for items and include tab name string
                 var myScanId = ++_pendingScanId;
                 capi.Event.EnqueueMainThreadTask(() =>
                 {
@@ -1413,8 +1390,6 @@ namespace ShowCraftable
         {
             try
             {
-                // Defer all GUI mutations to the next frame to avoid modifying
-                // the composer while OnMouseDown is enumerating its elements.
                 capi?.Event?.RegisterCallback(_ =>
                 {
                     try
@@ -1457,10 +1432,10 @@ namespace ShowCraftable
 
                         if (needsRecompose) composer.ReCompose();
                     }
-                    catch { /* best-effort */ }
-                }, 1); // tiny delay → next tick/frame
+                    catch { }
+                }, 1);
             }
-            catch { /* best-effort */ }
+            catch { }
         }
 
         private static bool TryUpdateActiveTabFromCache(ICoreClientAPI capi, string tabKey, bool requireReadyFlag = true)
@@ -1489,7 +1464,6 @@ namespace ShowCraftable
                 string code = null;
                 string attrs = null;
 
-                // Direct ItemStack support
                 if (o is ItemStack stack)
                 {
                     code = stack.Collectible?.Code?.ToString();
@@ -1499,15 +1473,12 @@ namespace ShowCraftable
                 {
                     var t = o.GetType();
 
-                    // Try get Code as AssetLocation or string
                     var al = TryGetMember(t, o, "Code") as AssetLocation;
                     code = al?.ToString() ?? TryGetMember(t, o, "code") as string;
 
-                    // Attributes may be a TreeAttribute or already stringified; ToString() covers both in your codebase
                     var attrsObj = TryGetMember(t, o, "Attributes");
                     if (attrsObj == null)
                     {
-                        // Some recipe structures move attributes to a resolved item stack
                         var rst = TryGetMember(t, o, "ResolvedItemstack") as ItemStack;
                         if (rst != null)
                         {
@@ -1537,16 +1508,13 @@ namespace ShowCraftable
                 return false;
             }
 
-            // Check single output
             var rt = recipeOrOutput.GetType();
             var outOne = TryGetMember(rt, recipeOrOutput, "Output");
             if (CheckOne(outOne)) return true;
 
-            // Check multi-outputs
             var outs = TryGetMember(rt, recipeOrOutput, "Outputs") as System.Collections.IEnumerable;
             if (outs != null) foreach (var o in outs) if (CheckOne(o)) return true;
 
-            // If caller passed an output-like object directly
             return CheckOne(recipeOrOutput);
         }
 
@@ -1626,8 +1594,6 @@ namespace ShowCraftable
                       string.Equals(cat, CraftableWoodCategoryCode, StringComparison.Ordinal) ||
                       string.Equals(cat, CraftableStoneCategoryCode, StringComparison.Ordinal))) return true;
 
-
-
                 var fiCapi = AccessTools.Field(__instance.GetType(), "capi");
                 var fiShown = AccessTools.Field(__instance.GetType(), "shownHandbookPages");
                 var fiOverview = AccessTools.Field(__instance.GetType(), "overviewGui");
@@ -1690,7 +1656,6 @@ namespace ShowCraftable
                         .ToList();
                 }
 
-
                 foreach (var p in finalPages)
                 {
                     var visProp = p.GetType().GetProperty("Visible", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
@@ -1699,7 +1664,6 @@ namespace ShowCraftable
 
                 shown.Clear();
                 foreach (var p in finalPages) shown.Add(p);
-
 
                 double listHeight = 500d;
 
@@ -1774,7 +1738,6 @@ namespace ShowCraftable
                     LastDialogPageCount = 0;
                     return;
                 }
-
 
                 int count;
                 lock (CacheLock) count = CachedPageCodes.Count;
@@ -1911,12 +1874,9 @@ namespace ShowCraftable
                 var k = new Key { Code = coll.Code.ToString() };
                 int addQty = Math.Max(1, stack.StackSize);
 
-                // Accumulate quantity
                 if (Counts.TryGetValue(k, out var cur)) Counts[k] = cur + addQty;
                 else Counts[k] = addQty;
 
-                // Record effective class once.
-                // Treat carried blocks (ItemBlock stacks) as Block so block-typed wildcards can match.
                 if (!Classes.ContainsKey(k))
                 {
                     var eff = stack.Class;
@@ -1936,7 +1896,6 @@ namespace ShowCraftable
                 }
                 return sb.ToString();
             }
-
 
             public bool TryConsumeAny(IEnumerable<ItemStack> options, int quantity, bool consume)
             {
@@ -2080,10 +2039,10 @@ namespace ShowCraftable
         private static int RecommendParallelism(
             int workItems,
             int chunkSize = 64,
-            int reserveCores = 2,     // keep headroom for render, audio, OS
-            int minCap = 8,           // never go below this when there is work
-            int maxCap = 24,          // upper bound to avoid cache/GC thrash
-            double fraction = 0.65    // use ~65% of usable logical cores
+            int reserveCores = 2,
+            int minCap = 8,
+            int maxCap = 24,
+            double fraction = 0.65
         )
         {
             int cores = Math.Max(1, Environment.ProcessorCount);
@@ -2255,7 +2214,6 @@ namespace ShowCraftable
                 }
                 else
                 {
-                    // Back-compat: derive set of gkeys per code from (code -> (recipe,gkey))
                     foreach (var kv in index.CodeToRecipeGroups)
                     {
                         if (!index.CodeToGkeys.TryGetValue(kv.Key, out var gset))
@@ -2335,7 +2293,7 @@ namespace ShowCraftable
                 LogEverywhere(capi, $"StartRecipeIndexBuild completed in {sw.ElapsedMilliseconds}ms", caller: nameof(StartRecipeIndexBuild));
             }
         }
-        
+
         private static RecipeIndexData BuildRecipeIndex(ICoreClientAPI capi, bool modsOnly, bool woodOnly, bool stoneOnly)
         {
             var sw = Stopwatch.StartNew();
@@ -2385,7 +2343,7 @@ namespace ShowCraftable
                             var al = new AssetLocation(code);
                             if (WildcardUtil.Match(ing.PatternCode, al, allowed)) results.Add(code);
                         }
-                        catch { /* best-effort */ }
+                        catch { }
                     }
                 }
 
@@ -2494,7 +2452,7 @@ namespace ShowCraftable
                     foreach (var r in en) if (r != null && seen.Add(r)) yield return r;
             }
         }
-        
+
         private sealed class ReferenceEqualityComparer : IEqualityComparer<object>
         {
             public static readonly ReferenceEqualityComparer Instance = new();
@@ -2810,7 +2768,6 @@ namespace ShowCraftable
                 if (partitions <= 0) partitions = RecommendParallelism(stacks.Length, chunkSize: chunk);
                 if (partitions == 1 || stacks.Length < 2)
                 {
-                    // serial fallback
                     foreach (var st in stacks)
                     {
                         if (st?.Collectible == null) continue;
@@ -2819,7 +2776,7 @@ namespace ShowCraftable
 
                         foreach (var shim in CandidateShimsForStack(capi, pStack, modsOnly: false, index))
                         {
-                            if (IsWoodRecipe(shim.Raw)) continue; // vanilla tab excludes Wood-only groupings
+                            if (IsWoodRecipe(shim.Raw)) continue;
                             if (RecipeSatisfiedByPool(capi, pool, shim, pStack))
                             {
                                 var pc = miPageCode.Invoke(null, new object[] { pStack }) as string;
@@ -2831,7 +2788,6 @@ namespace ShowCraftable
                     return;
                 }
 
-                // Heavy-first ordering using the provided index
                 int[] order;
                 if (index != null && index.Count > 0)
                 {
@@ -2882,7 +2838,6 @@ namespace ShowCraftable
                                 object page = ctor.Invoke(new object[] { capi, st });
                                 var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
 
-                                // use snapshot for both candidate selection and page map
                                 var key2page = GetCachedPageCodeMap(capi);
 
                                 foreach (var shim in CandidateShimsForStack(capi, pStack, modsOnly: false, index))
@@ -2921,7 +2876,7 @@ namespace ShowCraftable
                 LogEverywhere(capi, $"Processed {stacks.Length} item stacks in {swTotal.ElapsedMilliseconds}ms using {partitions} partitions",
                     caller: nameof(AddCraftablePagesFromAllStacks));
             }
-            catch { /* best-effort */ }
+            catch { }
         }
 
         private static void AddCraftablePagesFromAllStacksFromModStacks(
@@ -3033,7 +2988,7 @@ namespace ShowCraftable
                 LogEverywhere(capi, $"Processed {stacks.Length} item stacks in {swTotal.ElapsedMilliseconds}ms using {partitions} partitions",
                     caller: nameof(AddCraftablePagesFromAllStacksFromModStacks));
             }
-            catch { /* best-effort */ }
+            catch { }
         }
 
         private static void AddCraftablePagesFromAllStacks_WoodOnly(
@@ -3072,7 +3027,7 @@ namespace ShowCraftable
                     }
                 }
             }
-            catch { /* best-effort */ }
+            catch { }
             finally
             {
                 sw.Stop();
@@ -3117,7 +3072,7 @@ namespace ShowCraftable
                     }
                 }
             }
-            catch { /* best-effort */ }
+            catch { }
             finally
             {
                 sw.Stop();
@@ -3130,7 +3085,6 @@ namespace ShowCraftable
         {
             try
             {
-                // 1) Build ResourcePool from reply
                 var pool = new ResourcePool();
                 for (int i = 0; i < data.Codes.Count; i++)
                 {
@@ -3153,7 +3107,6 @@ namespace ShowCraftable
                     if (st != null) pool.Add(st);
                 }
 
-                // 2) Resolve which tab this reply belongs to (prefer explicit data.TabKey)
                 string tabKey = data.TabKey;
                 string variantKey = null;
                 bool recipeModsOnly = false, recipeWoodOnly = false, recipeStoneOnly = false;
@@ -3162,7 +3115,6 @@ namespace ShowCraftable
                 bool haveInfo = false;
                 if (data.ScanId != 0)
                 {
-                    // Always clear out the inflight map entry for this response to prevent leaks.
                     lock (InflightMapLock)
                     {
                         if (InflightById.TryGetValue(data.ScanId, out info))
@@ -3182,7 +3134,6 @@ namespace ShowCraftable
                     variantKey = GetVariantKey(recipeModsOnly, recipeWoodOnly, recipeStoneOnly);
                 }
 
-                // back-compat: still try last pending or active tab
                 if (string.IsNullOrEmpty(tabKey))
                 {
                     lock (PendingScanLock)
@@ -3201,7 +3152,6 @@ namespace ShowCraftable
                     recipeStoneOnly = string.Equals(variantKey, "stone", StringComparison.Ordinal);
                 }
 
-                // 3) DNA compare (pool signature) and inspect cache state
                 ulong dna = ComputeResourcePoolDNA(pool);
                 bool dnaMatch;
                 ulong prev;
@@ -3248,11 +3198,9 @@ namespace ShowCraftable
                 {
                     try
                     {
-                        // Build new cache for THIS TAB using THIS POOL
                         int pages = RebuildCacheWithPool(_capi, pool, tabKey,
                             out int outputs, out int fetched, out int usable, out _);
 
-                        // Atomically replace DNA first, then flag for UI update
                         lock (DnaLock) { TabPoolDNA[tabKey] = dna; }
                         SetTabReadyToUpdateUI(tabKey, true);
 
@@ -3312,7 +3260,6 @@ namespace ShowCraftable
             bool variantStoneOnly = string.Equals(variantKey, "stone", StringComparison.Ordinal);
             craftableOutputsCount = 0; fetched = recipesFetched; usable = recipesUsable;
 
-            // Clone original needs so we can compute per-recipe "remaining" without touching the canonical map
             var candidates = new HashSet<GridRecipeShim>(ReferenceEqualityComparer.Instance);
             foreach (var pkv in pool.Counts)
             {
@@ -3325,13 +3272,8 @@ namespace ShowCraftable
             foreach (var r in candidates)
                 remaining[r] = recipeGroupNeeds[r].ToDictionary(g => g.Key, g => g.Value, StringComparer.Ordinal);
 
-
-            // Pass A: aggregate total availability per group key from the pool
             var groupAvail = new Dictionary<string, int>(StringComparer.Ordinal);
 
-            // Also build gkey -> codes (limited to codes we actually have in the pool). This powers the overlap detector.
-            // NEW Pass A': subtract per code + detect ambiguity per code.
-            // We no longer build groupAvail or gkey->codes. We subtract straight into `remaining`.
             var ambRecipes = new HashSet<GridRecipeShim>(ReferenceEqualityComparer.Instance);
 
             foreach (var pkv in pool.Counts)
@@ -3343,7 +3285,6 @@ namespace ShowCraftable
                 if (!codeToRecipeGroups.TryGetValue(code, out var uses) || uses == null || uses.Count == 0)
                     continue;
 
-                // For this specific code, track how many distinct gkeys each recipe hit.
                 var hitsPerRecipe = new Dictionary<GridRecipeShim, int>(ReferenceEqualityComparer.Instance);
 
                 foreach (var (recipe, gkey) in uses)
@@ -3354,7 +3295,6 @@ namespace ShowCraftable
                     int take = Math.Min(need, haveQty);
                     if (take > 0) groups[gkey] = need - take;
 
-                    // Ambiguity = this code satisfies >=2 distinct gkeys in the SAME recipe
                     hitsPerRecipe[recipe] = (hitsPerRecipe.TryGetValue(recipe, out var c) ? c : 0) + 1;
                 }
 
@@ -3362,13 +3302,10 @@ namespace ShowCraftable
                     if (kv2.Value >= 2) ambRecipes.Add(kv2.Key);
             }
 
-            // No Pass B, no RecipeIsAmbiguous() needed anymore.
-
             bool CanSatisfyPrecisely_NoGkeyToCodes(GridRecipeShim recipe, ResourcePool poolLocal)
             {
                 if (recipe == null) return false;
 
-                // Local copy (code -> qty). Start from pool counts so we don't rebuild a filtered map first.
                 var codeAvail = new Dictionary<string, int>(StringComparer.Ordinal);
                 foreach (var pkv in poolLocal.Counts) codeAvail[pkv.Key.Code] = pkv.Value;
 
@@ -3380,13 +3317,11 @@ namespace ShowCraftable
                     IEnumerable<string> candidates;
                     if (gkv.Key.StartsWith("wild:", StringComparison.Ordinal))
                     {
-                        // Filter *only* the player's codes by membership in this gkey to keep it small
                         candidates = codeAvail.Keys.Where(c =>
                             codeToGkeys.TryGetValue(c, out var set) && set != null && set.Contains(gkv.Key));
                     }
                     else
                     {
-                        // Exact group: groupKey is a '|'-joined code list
                         candidates = gkv.Key.Split('|').Where(c => codeAvail.ContainsKey(c));
                     }
 
@@ -3410,8 +3345,6 @@ namespace ShowCraftable
                 return true;
             }
 
-
-            // Pass C: collect craftable outputs; validate only ambiguous ones.
             var craftableKeys = new HashSet<StackKey>();
             foreach (var kv in remaining)
             {
@@ -3427,10 +3360,8 @@ namespace ShowCraftable
                 ExpandOutputsForRecipe(capi, pool, recipe, craftableKeys, recipeGroupNeeds);
             }
 
-
             craftableOutputsCount = craftableKeys.Count;
 
-            // --- page-code resolution remains identical to your original code ---
             var key2page = GetCachedPageCodeMap(capi);
             var resultPageCodes = new HashSet<string>(StringComparer.Ordinal);
             var ghType = AccessTools.TypeByName("Vintagestory.GameContent.GuiHandbookItemStackPage");
@@ -3487,7 +3418,6 @@ namespace ShowCraftable
                 if (processed % chunkSize == 0) Flush();
             }
 
-            // Use the *tab's* prebuilt index (no globals).
             if (!TryGetRecipeIndex(variantKey, out var idxData))
                 throw new InvalidOperationException($"Recipe index variant '{variantKey}' not ready");
             var indexSnapshot = idxData.OutputsIndex ?? new Dictionary<StackKey, List<GridRecipeShim>>();
@@ -3500,12 +3430,6 @@ namespace ShowCraftable
                 AddCraftablePagesFromAllStacks_StoneOnly(capi, pool, resultPageCodes, indexSnapshot);
             else
                 AddCraftablePagesFromAllStacks(capi, pool, resultPageCodes, indexSnapshot);
-
-
-
-
-
-
 
             craftableOutputsCount = resultPageCodes.Count;
             Flush();
@@ -3550,7 +3474,7 @@ namespace ShowCraftable
         [ProtoMember(2)] public bool CollectItems { get; set; }
         [ProtoMember(3)] public List<CraftIngredientList> Variants { get; set; } = new();
         [ProtoMember(4)] public int ScanId { get; set; }
-        [ProtoMember(5)] public string TabKey { get; set; }              // NEW: explicit tab routing
+        [ProtoMember(5)] public string TabKey { get; set; }
     }
 
     [ProtoContract]
@@ -3560,7 +3484,7 @@ namespace ShowCraftable
         [ProtoMember(2)] public List<int> Counts { get; set; } = new();
         [ProtoMember(3)] public List<EnumItemClass> Classes { get; set; } = new();
         [ProtoMember(4)] public int ScanId { get; set; }
-        [ProtoMember(5)] public string TabKey { get; set; }              // NEW: echoes request.TabKey
+        [ProtoMember(5)] public string TabKey { get; set; }
     }
 
     public class ShowCraftableServerSystem : ModSystem
@@ -3941,7 +3865,6 @@ namespace ShowCraftable
                     int add = Math.Max(1, st.StackSize);
                     var cls = (st.Class == EnumItemClass.Item && st.Block != null) ? EnumItemClass.Block : st.Class;
 
-
                     if (sum.TryGetValue(code, out var cur)) sum[code] = (cur.count + add, cls); else sum[code] = (add, cls);
                     if (playerCounts.TryGetValue(code, out var pc)) playerCounts[code] = pc + add; else playerCounts[code] = add;
                 }
@@ -3972,7 +3895,6 @@ namespace ShowCraftable
                             string code = st.Collectible.Code.ToString();
                             int add = Math.Max(1, st.StackSize);
                             var cls = (st.Class == EnumItemClass.Item && st.Block != null) ? EnumItemClass.Block : st.Class;
-
 
                             if (sum.TryGetValue(code, out var cur)) sum[code] = (cur.count + add, cls); else sum[code] = (add, cls);
 
@@ -4060,9 +3982,7 @@ namespace ShowCraftable
             };
             sapi.Network.GetChannel(ShowCraftableSystem.ChannelName).SendPacket(reply, fromPlayer);
 
-
         }
-
 
     }
 }
