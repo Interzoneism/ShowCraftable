@@ -49,6 +49,8 @@ namespace ShowCraftable
         private static ShowCraftableConfig Config = new();
         private static int NearbyRadius = 20;
 
+        internal static int ConfiguredSearchRadius => Math.Max(0, Config?.SearchDistanceItems ?? 20);
+
         private static readonly object CacheLock = new();
         private static List<string> CachedPageCodes = new();
         private static List<string> s_EmptyPages;   
@@ -1198,7 +1200,7 @@ namespace ShowCraftable
             config.Normalize();
 
             Config = config;
-            NearbyRadius = Math.Max(0, Config.SearchDistanceItems);
+            NearbyRadius = ConfiguredSearchRadius;
 
             try
             {
