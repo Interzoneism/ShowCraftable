@@ -2267,50 +2267,73 @@ namespace ShowCraftable
             }
         }
 
-        private static bool ApplyRecipeIndexVariant(string variantKey)
+        private static bool TryGetRecipeIndex(string variantKey, out RecipeIndexData data)
         {
+            data = null;
             if (string.IsNullOrEmpty(variantKey)) return false;
 
-            RecipeIndexData data;
             lock (recipeIndexByVariant)
             {
-                recipeIndexByVariant.TryGetValue(variantKey, out data);
+                if (recipeIndexByVariant.TryGetValue(variantKey, out var existing))
+                {
+                    data = existing;
+                    return data != null;
+                }
             }
 
-            bool hasData = data != null;
+            return false;
+        }
 
-            codeToRecipeGroups = hasData
-                ? data.CodeToRecipeGroups ?? new Dictionary<string, List<(GridRecipeShim Recipe, string GroupKey)>>(StringComparer.Ordinal)
-                : new Dictionary<string, List<(GridRecipeShim Recipe, string GroupKey)>>(StringComparer.Ordinal);
+        private static bool ApplyRecipeIndexVariant(string variantKey)
+        {
+            if (!TryGetRecipeIndex(variantKey, out var data)) return false;
 
-            recipeGroupNeeds = hasData
-                ? data.RecipeGroupNeeds ?? new Dictionary<GridRecipeShim, Dictionary<string, int>>()
-                : new Dictionary<GridRecipeShim, Dictionary<string, int>>();
+            codeToRecipeGroups = data.CodeToRecipeGroups ?? new Dictionary<string, List<(GridRecipeShim Recipe, string GroupKey)>>(StringComparer.Ordinal);
 
-            codeToGkeys = hasData
-                ? data.CodeToGkeys ?? new Dictionary<string, HashSet<string>>(StringComparer.Ordinal)
-                : new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+            recipeGroupNeeds = data.RecipeGroupNeeds ?? new Dictionary<GridRecipeShim, Dictionary<string, int>>();
 
-            wildcardGroups = hasData
-                ? data.WildcardGroups ?? new List<WildGroup>()
-                : new List<WildGroup>();
+            codeToGkeys = data.CodeToGkeys ?? new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
 
-            wildMatchCache = hasData
-                ? data.WildMatchCache ?? new Dictionary<string, List<(GridRecipeShim Recipe, string GroupKey)>>(StringComparer.Ordinal)
-                : new Dictionary<string, List<(GridRecipeShim Recipe, string GroupKey)>>(StringComparer.Ordinal);
+            wildcardGroups = data.WildcardGroups ?? new List<WildGroup>();
 
-            outputsIndex = hasData
-                ? data.OutputsIndex ?? new Dictionary<StackKey, List<GridRecipeShim>>()
-                : new Dictionary<StackKey, List<GridRecipeShim>>();
+            wildMatchCache = data.WildMatchCache ?? new Dictionary<string, List<(GridRecipeShim Recipe, string GroupKey)>>(StringComparer.Ordinal);
 
-            recipesFetched = hasData ? data.RecipesFetched : 0;
-            recipesUsable = hasData ? data.RecipesUsable : 0;
+            outputsIndex = data.OutputsIndex ?? new Dictionary<StackKey, List<GridRecipeShim>>();
+
+            recipesFetched = data.RecipesFetched;
+            recipesUsable = data.RecipesUsable;
 
             recipeIndexForMods = string.Equals(variantKey, "mods", StringComparison.Ordinal);
             recipeIndexForWoodOnly = string.Equals(variantKey, "wood", StringComparison.Ordinal);
             recipeIndexForStoneOnly = string.Equals(variantKey, "stone", StringComparison.Ordinal);
 
-            return hasData;
+            return true;
+        }
+
+        private static bool EnsureRecipeIndexVariantReady(ICoreClientAPI capi, string variantKey, int timeoutMs = 15000)
+        {
+            if (string.IsNullOrEmpty(variantKey)) return false;
+
+            if (TryGetRecipeIndex(variantKey, out _))
+            {
+                return ApplyRecipeIndexVariant(variantKey);
+            }
+
+            StartRecipeIndexBuild(capi);
+
+            var sw = Stopwatch.StartNew();
+            while (sw.ElapsedMilliseconds < timeoutMs)
+            {
+                Thread.Sleep(50);
+
+                if (TryGetRecipeIndex(variantKey, out _))
+                {
+                    return ApplyRecipeIndexVariant(variantKey);
+                }
+            }
+
+            LogEverywhere(capi ?? _staticCapi, $"Recipe index variant {variantKey} not ready after waiting {timeoutMs}ms", caller: nameof(EnsureRecipeIndexVariantReady));
+            return false;
         }
 
         private static RecipeIndexData LoadRecipeIndex(ICoreClientAPI capi, bool modsOnly, bool woodOnly, bool stoneOnly)
@@ -3415,7 +3438,10 @@ namespace ShowCraftable
         {
             var sw = Stopwatch.StartNew();
             var variantKey = VariantKeyFromTabKey(tabKey);
-            ApplyRecipeIndexVariant(variantKey);
+            if (!EnsureRecipeIndexVariantReady(capi, variantKey))
+            {
+                throw new InvalidOperationException($"Recipe index variant '{variantKey}' not ready");
+            }
             craftableOutputsCount = 0; fetched = recipesFetched; usable = recipesUsable;
 
             // Clone original needs so we can compute per-recipe "remaining" without touching the canonical map
