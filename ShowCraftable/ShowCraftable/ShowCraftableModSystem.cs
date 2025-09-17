@@ -3331,23 +3331,28 @@ namespace ShowCraftable
                 string variantKey = null;
                 bool recipeModsOnly = false, recipeWoodOnly = false, recipeStoneOnly = false;
 
-                if (string.IsNullOrEmpty(tabKey) && data.ScanId != 0)
+                ScanRequestInfo info = default;
+                bool haveInfo = false;
+                if (data.ScanId != 0)
                 {
-                    // fall back to in-flight map
-                    ScanRequestInfo info;
+                    // Always clear out the inflight map entry for this response to prevent leaks.
                     lock (InflightMapLock)
                     {
-                        if (!InflightById.TryGetValue(data.ScanId, out info)) info = default;
-                        else InflightById.Remove(data.ScanId);
+                        if (InflightById.TryGetValue(data.ScanId, out info))
+                        {
+                            InflightById.Remove(data.ScanId);
+                            haveInfo = true;
+                        }
                     }
-                    if (!string.IsNullOrEmpty(info.TabKey))
-                    {
-                        tabKey = info.TabKey;
-                        recipeModsOnly = info.ModsOnly;
-                        recipeWoodOnly = info.WoodOnly;
-                        recipeStoneOnly = info.StoneOnly;
-                        variantKey = GetVariantKey(recipeModsOnly, recipeWoodOnly, recipeStoneOnly);
-                    }
+                }
+
+                if (string.IsNullOrEmpty(tabKey) && haveInfo && !string.IsNullOrEmpty(info.TabKey))
+                {
+                    tabKey = info.TabKey;
+                    recipeModsOnly = info.ModsOnly;
+                    recipeWoodOnly = info.WoodOnly;
+                    recipeStoneOnly = info.StoneOnly;
+                    variantKey = GetVariantKey(recipeModsOnly, recipeWoodOnly, recipeStoneOnly);
                 }
 
                 // back-compat: still try last pending or active tab
