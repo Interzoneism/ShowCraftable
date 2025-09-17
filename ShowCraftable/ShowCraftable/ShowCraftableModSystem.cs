@@ -110,7 +110,7 @@ namespace ShowCraftable
         private static readonly Dictionary<string, Dictionary<string, int>> WildTokenCountsMemo
     = new(StringComparer.Ordinal);
 
-        private static readonly Dictionary<StackKey, List<GridRecipeShim>> outputsIndex = new();
+        private static Dictionary<StackKey, List<GridRecipeShim>> outputsIndex = new();
 
 
         private static bool ScanInProgress = false;
@@ -125,7 +125,7 @@ namespace ShowCraftable
         private static int recipesFetched;
         private static int recipesUsable;
 
-        private static Task<bool> recipeIndexBuildTask;
+        private static Task recipeIndexBuildTask;
         private static volatile int recipeIndexBuildTotal;
         private static volatile int recipeIndexBuildProgress;
         private static volatile bool recipeIndexBuilt = false;
@@ -151,10 +151,21 @@ namespace ShowCraftable
             public string[] Allowed;
         }
 
-        private static readonly List<WildGroup> wildcardGroups = new();
+        private static List<WildGroup> wildcardGroups = new();
 
-        private static readonly Dictionary<string, List<(GridRecipeShim Recipe, string GroupKey)>> wildMatchCache
+        private static Dictionary<string, List<(GridRecipeShim Recipe, string GroupKey)>> wildMatchCache
             = new(StringComparer.Ordinal);
+
+        private static readonly Dictionary<string, RecipeIndexData> recipeIndexByVariant
+            = new(StringComparer.Ordinal);
+
+        private static readonly (string VariantKey, bool ModsOnly, bool WoodOnly, bool StoneOnly)[] RecipeIndexVariants =
+        {
+            ("van", modsOnly: false, woodOnly: false, stoneOnly: false),
+            ("mods", modsOnly: true, woodOnly: false, stoneOnly: false),
+            ("wood", modsOnly: false, woodOnly: true, stoneOnly: false),
+            ("stone", modsOnly: false, woodOnly: false, stoneOnly: true)
+        };
 
         [ProtoContract]
         private class CachedIngredient
@@ -514,6 +525,30 @@ namespace ShowCraftable
         {
             // Rebuild a stack from the key: code + attrs we stored.
             return MakeStackFromCodeAndAttrs(capi, key.Code, key.Material, key.Type);
+        }
+
+        private sealed class RecipeIndexData
+        {
+            public Dictionary<string, List<(GridRecipeShim Recipe, string GroupKey)>> CodeToRecipeGroups { get; }
+                = new(StringComparer.Ordinal);
+
+            public Dictionary<string, HashSet<string>> CodeToGkeys { get; }
+                = new(StringComparer.Ordinal);
+
+            public Dictionary<GridRecipeShim, Dictionary<string, int>> RecipeGroupNeeds { get; }
+                = new();
+
+            public List<WildGroup> WildcardGroups { get; }
+                = new();
+
+            public Dictionary<string, List<(GridRecipeShim Recipe, string GroupKey)>> WildMatchCache { get; }
+                = new(StringComparer.Ordinal);
+
+            public Dictionary<StackKey, List<GridRecipeShim>> OutputsIndex { get; set; }
+                = new();
+
+            public int RecipesFetched { get; set; }
+            public int RecipesUsable { get; set; }
         }
 
         private static string ExtractTokenFromPath(string patternPath, string codePath)
@@ -1300,7 +1335,7 @@ namespace ShowCraftable
                 InvalidatePageCodeMapCache();
 
                 // Build index once for this world-load; harmless no-op if already built.
-                StartRecipeIndexBuild(capi, false, false, false);
+                StartRecipeIndexBuild(capi);
 
             };
 
@@ -1442,6 +1477,7 @@ namespace ShowCraftable
 
                 bool anyCraftable = CraftableTabActive || CraftableModsTabActive || CraftableWoodTabActive || CraftableStoneTabActive;
                 string tabKey = GetTabKey(modsOnly, woodOnly, stoneOnly);
+                string variantKey = GetVariantKey(modsOnly, woodOnly, stoneOnly);
 
                 if (!DialogIsOpen(__instance))
                 {
@@ -1478,6 +1514,20 @@ namespace ShowCraftable
                 searchInput?.GetType().GetMethod("SetValue")?.Invoke(searchInput, new object[] { "", true });
                 AccessTools.Field(__instance.GetType(), "currentSearchText")?.SetValue(__instance, null);
 
+                bool variantReady;
+                lock (recipeIndexByVariant)
+                {
+                    variantReady = recipeIndexByVariant.ContainsKey(variantKey);
+                }
+                if (variantReady)
+                {
+                    ApplyRecipeIndexVariant(variantKey);
+                }
+                else
+                {
+                    StartRecipeIndexBuild(capi);
+                }
+
                 // Show whatever cache we have for this tab immediately (no flicker)
                 lock (CacheLock)
                 {
@@ -1486,13 +1536,6 @@ namespace ShowCraftable
                 LastDialogPageCount = -1;
                 TryRefreshOpenDialog(capi);  // non-destructive UI refresh
                 TryUpdateActiveTabFromCache(capi, tabKey);
-
-                // Kick (or re-kick) recipe index build if needed, but never block the scan
-                bool needsIndex = !recipeIndexBuilt
-                    || recipeIndexForMods != modsOnly
-                    || recipeIndexForWoodOnly != woodOnly
-                    || recipeIndexForStoneOnly != stoneOnly;
-                if (needsIndex) StartRecipeIndexBuild(capi, modsOnly, woodOnly, stoneOnly);
 
                 // ALWAYS run a server scan for items and include tab name string
                 var myScanId = ++_pendingScanId;
@@ -2215,21 +2258,73 @@ namespace ShowCraftable
 
 
 
-        private static bool LoadRecipeIndex(ICoreClientAPI capi, bool modsOnly, bool woodOnly, bool stoneOnly)
+        private static void StoreRecipeIndex(string variantKey, RecipeIndexData data)
+        {
+            if (string.IsNullOrEmpty(variantKey) || data == null) return;
+            lock (recipeIndexByVariant)
+            {
+                recipeIndexByVariant[variantKey] = data;
+            }
+        }
+
+        private static bool ApplyRecipeIndexVariant(string variantKey)
+        {
+            if (string.IsNullOrEmpty(variantKey)) return false;
+
+            RecipeIndexData data;
+            lock (recipeIndexByVariant)
+            {
+                recipeIndexByVariant.TryGetValue(variantKey, out data);
+            }
+
+            bool hasData = data != null;
+
+            codeToRecipeGroups = hasData
+                ? data.CodeToRecipeGroups ?? new Dictionary<string, List<(GridRecipeShim Recipe, string GroupKey)>>(StringComparer.Ordinal)
+                : new Dictionary<string, List<(GridRecipeShim Recipe, string GroupKey)>>(StringComparer.Ordinal);
+
+            recipeGroupNeeds = hasData
+                ? data.RecipeGroupNeeds ?? new Dictionary<GridRecipeShim, Dictionary<string, int>>()
+                : new Dictionary<GridRecipeShim, Dictionary<string, int>>();
+
+            codeToGkeys = hasData
+                ? data.CodeToGkeys ?? new Dictionary<string, HashSet<string>>(StringComparer.Ordinal)
+                : new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+
+            wildcardGroups = hasData
+                ? data.WildcardGroups ?? new List<WildGroup>()
+                : new List<WildGroup>();
+
+            wildMatchCache = hasData
+                ? data.WildMatchCache ?? new Dictionary<string, List<(GridRecipeShim Recipe, string GroupKey)>>(StringComparer.Ordinal)
+                : new Dictionary<string, List<(GridRecipeShim Recipe, string GroupKey)>>(StringComparer.Ordinal);
+
+            outputsIndex = hasData
+                ? data.OutputsIndex ?? new Dictionary<StackKey, List<GridRecipeShim>>()
+                : new Dictionary<StackKey, List<GridRecipeShim>>();
+
+            recipesFetched = hasData ? data.RecipesFetched : 0;
+            recipesUsable = hasData ? data.RecipesUsable : 0;
+
+            recipeIndexForMods = string.Equals(variantKey, "mods", StringComparison.Ordinal);
+            recipeIndexForWoodOnly = string.Equals(variantKey, "wood", StringComparison.Ordinal);
+            recipeIndexForStoneOnly = string.Equals(variantKey, "stone", StringComparison.Ordinal);
+
+            return hasData;
+        }
+
+        private static RecipeIndexData LoadRecipeIndex(ICoreClientAPI capi, bool modsOnly, bool woodOnly, bool stoneOnly)
         {
             try
             {
                 var path = GetCachePath(capi, modsOnly, woodOnly, stoneOnly);
-                if (!File.Exists(path)) return false;
+                if (!File.Exists(path)) return null;
                 RecipeIndexCache data;
                 using (var fs = File.OpenRead(path)) data = Serializer.Deserialize<RecipeIndexCache>(fs);
 
-                codeToRecipeGroups.Clear();
-                recipeGroupNeeds.Clear();
-                wildcardGroups.Clear();
-                wildMatchCache.Clear();
-
+                var index = new RecipeIndexData();
                 var recipes = new List<GridRecipeShim>();
+
                 foreach (var cr in data.Recipes)
                 {
                     var r = new GridRecipeShim();
@@ -2261,7 +2356,7 @@ namespace ShowCraftable
                         if (gi.IsWild && gi.PatternCode != null)
                         {
                             var gkey = $"wild:{gi.PatternCode}|{string.Join(",", (gi.Allowed ?? Array.Empty<string>()).OrderBy(x => x))}|T:{gi.Type}";
-                            wildcardGroups.Add(new WildGroup { Recipe = r, GroupKey = gkey, Type = gi.Type, Pattern = gi.PatternCode, Allowed = gi.Allowed });
+                            index.WildcardGroups.Add(new WildGroup { Recipe = r, GroupKey = gkey, Type = gi.Type, Pattern = gi.PatternCode, Allowed = gi.Allowed });
                         }
                     }
                     if (cr.Outputs != null)
@@ -2278,7 +2373,7 @@ namespace ShowCraftable
                         }
                     }
                     recipes.Add(r);
-                    recipeGroupNeeds[r] = cr.Needs ?? new Dictionary<string, int>(StringComparer.Ordinal);
+                    index.RecipeGroupNeeds[r] = cr.Needs ?? new Dictionary<string, int>(StringComparer.Ordinal);
                 }
 
                 foreach (var kv in data.CodeToRecipes)
@@ -2289,69 +2384,87 @@ namespace ShowCraftable
                         if (rref.Recipe >= 0 && rref.Recipe < recipes.Count)
                             list.Add((recipes[rref.Recipe], rref.GroupKey));
                     }
-                    codeToRecipeGroups[kv.Key] = list;
+                    index.CodeToRecipeGroups[kv.Key] = list;
                 }
-                codeToGkeys.Clear();
                 if (data.CodeToGkeys != null && data.CodeToGkeys.Count > 0)
                 {
                     foreach (var kv in data.CodeToGkeys)
-                        codeToGkeys[kv.Key] = new HashSet<string>(kv.Value ?? new List<string>(), StringComparer.Ordinal);
+                        index.CodeToGkeys[kv.Key] = new HashSet<string>(kv.Value ?? new List<string>(), StringComparer.Ordinal);
                 }
                 else
                 {
                     // Back-compat: derive set of gkeys per code from (code -> (recipe,gkey))
-                    foreach (var kv in codeToRecipeGroups)
+                    foreach (var kv in index.CodeToRecipeGroups)
                     {
-                        if (!codeToGkeys.TryGetValue(kv.Key, out var gset))
-                            codeToGkeys[kv.Key] = gset = new HashSet<string>(StringComparer.Ordinal);
+                        if (!index.CodeToGkeys.TryGetValue(kv.Key, out var gset))
+                            index.CodeToGkeys[kv.Key] = gset = new HashSet<string>(StringComparer.Ordinal);
                         foreach (var pair in kv.Value)
                             gset.Add(pair.GroupKey);
                     }
                 }
 
-                RebuildOutputsIndexFrom(recipes);
-                recipeIndexBuilt = true;
-                return true;
+                index.OutputsIndex = BuildOutputsIndexFrom(recipes);
+                index.RecipesFetched = recipes.Count;
+                index.RecipesUsable = recipes.Count;
+                return index;
             }
-            catch { return false; }
+            catch { return null; }
         }
 
-        private static void StartRecipeIndexBuild(ICoreClientAPI capi, bool modsOnly, bool woodOnly, bool stoneOnly)
+        private static void StartRecipeIndexBuild(ICoreClientAPI capi)
         {
             var sw = Stopwatch.StartNew();
             try
             {
-                if (recipeIndexBuilt && recipeIndexForMods == modsOnly && recipeIndexForWoodOnly == woodOnly && recipeIndexForStoneOnly == stoneOnly) return;
+                bool allPresent;
+                lock (recipeIndexByVariant)
+                {
+                    allPresent = RecipeIndexVariants.All(v => recipeIndexByVariant.ContainsKey(v.VariantKey));
+                }
+
+                if (recipeIndexBuilt && allPresent) return;
+
                 if (recipeIndexBuildTask != null && !recipeIndexBuildTask.IsCompleted)
                 {
-                    recipeIndexBuildTask.ContinueWith(_ => StartRecipeIndexBuild(capi, modsOnly, woodOnly, stoneOnly));
+                    recipeIndexBuildTask.ContinueWith(_ => StartRecipeIndexBuild(capi));
                     return;
                 }
+
                 recipeIndexBuilt = false;
-                var variantKey = GetVariantKey(modsOnly, woodOnly, stoneOnly);
-                var tabKey = GetTabKey(modsOnly, woodOnly, stoneOnly);
+
                 recipeIndexBuildTask = Task.Run(() =>
                 {
-                    bool rebuilt = false;
-                    if (!LoadRecipeIndex(capi, modsOnly, woodOnly, stoneOnly))
+                    foreach (var variant in RecipeIndexVariants)
                     {
-                        BuildRecipeIndex(capi, modsOnly, woodOnly, stoneOnly);
-                        rebuilt = true;
-                    }
+                        var variantKey = variant.VariantKey;
+                        var data = LoadRecipeIndex(capi, variant.ModsOnly, variant.WoodOnly, variant.StoneOnly);
+                        bool rebuilt = false;
+                        if (data == null)
+                        {
+                            data = BuildRecipeIndex(capi, variant.ModsOnly, variant.WoodOnly, variant.StoneOnly);
+                            rebuilt = true;
+                        }
 
-                    if (rebuilt)
-                    {
-                        LogEverywhere(capi,
-                        $"Recipe index rebuilt for variant={variantKey}; keeping DNA & cache. Next scan will decide.",
-                        caller: nameof(StartRecipeIndexBuild));
+                        StoreRecipeIndex(variantKey, data);
+
+                        if (rebuilt)
+                        {
+                            LogEverywhere(capi,
+                                $"Recipe index rebuilt for variant={variantKey}; keeping DNA & cache. Next scan will decide.",
+                                caller: nameof(StartRecipeIndexBuild));
+                        }
+
+                        var activeTab = GetActiveTabKey();
+                        if (string.Equals(activeTab, TabKeyFromVariant(variantKey), StringComparison.Ordinal))
+                        {
+                            ApplyRecipeIndexVariant(variantKey);
+                        }
                     }
 
                     recipeIndexBuilt = true;
-                    recipeIndexForMods = modsOnly;
-                    recipeIndexForWoodOnly = woodOnly;
-                    recipeIndexForStoneOnly = stoneOnly;
+                    var activeVariantFinal = VariantKeyFromTabKey(GetActiveTabKey());
+                    ApplyRecipeIndexVariant(activeVariantFinal);
                     GetCachedPageCodeMap(capi);
-                    return rebuilt;
                 });
             }
             finally
@@ -2360,14 +2473,12 @@ namespace ShowCraftable
                 LogEverywhere(capi, $"StartRecipeIndexBuild completed in {sw.ElapsedMilliseconds}ms", caller: nameof(StartRecipeIndexBuild));
             }
         }
-        private static void BuildRecipeIndex(ICoreClientAPI capi, bool modsOnly, bool woodOnly, bool stoneOnly)
+        private static RecipeIndexData BuildRecipeIndex(ICoreClientAPI capi, bool modsOnly, bool woodOnly, bool stoneOnly)
         {
             var sw = Stopwatch.StartNew();
-            codeToRecipeGroups.Clear();
-            recipeGroupNeeds.Clear();
-            codeToGkeys.Clear();
+            var index = new RecipeIndexData();
 
-            var recipes = GetAllGridRecipes(capi, out recipesFetched, out recipesUsable, modsOnly);
+            var recipes = GetAllGridRecipes(capi, out var fetched, out var usable, modsOnly);
 
             if (woodOnly)
                 recipes = recipes.Where(r => !r.IsMod && IsWoodRecipe(r.Raw)).ToList();
@@ -2376,10 +2487,12 @@ namespace ShowCraftable
             else if (!modsOnly)
                 recipes = recipes.Where(r => !r.IsMod && !IsWoodRecipe(r.Raw) && !IsStoneRecipe(r.Raw)).ToList();
 
+            index.RecipesFetched = fetched;
+            index.RecipesUsable = usable;
 
             recipeIndexBuildTotal = recipes.Count;
             recipeIndexBuildProgress = 0;
-            RebuildOutputsIndexFrom(recipes);
+            index.OutputsIndex = BuildOutputsIndexFrom(recipes);
 
             var wildCache = new Dictionary<string, List<string>>(StringComparer.Ordinal);
 
@@ -2433,7 +2546,11 @@ namespace ShowCraftable
                     {
                         var allowed = ing.Allowed ?? Array.Empty<string>();
                         groupKey = $"wild:{ing.PatternCode}|{string.Join(",", allowed.OrderBy(x => x))}|T:{ing.Type}";
-                        satisfiableCodes = GetWildMatches(ing);   
+                        satisfiableCodes = GetWildMatches(ing);
+                        if (ing.PatternCode != null)
+                        {
+                            index.WildcardGroups.Add(new WildGroup { Recipe = r, GroupKey = groupKey, Type = ing.Type, Pattern = ing.PatternCode, Allowed = ing.Allowed });
+                        }
                     }
                     else
                     {
@@ -2453,23 +2570,22 @@ namespace ShowCraftable
                     foreach (var code in satisfiableCodes)
                     {
                         if (string.IsNullOrEmpty(code)) continue;
-                        if (!codeToRecipeGroups.TryGetValue(code, out var list))
-                            codeToRecipeGroups[code] = list = new List<(GridRecipeShim Recipe, string GroupKey)>();
+                        if (!index.CodeToRecipeGroups.TryGetValue(code, out var list))
+                            index.CodeToRecipeGroups[code] = list = new List<(GridRecipeShim Recipe, string GroupKey)>();
                         if (!list.Any(p => ReferenceEquals(p.Recipe, r) && p.GroupKey == groupKey))
                             list.Add((r, groupKey));
                     }
 
-                    // Also fill the code -> gkeys index (recipe-agnostic)
                     foreach (var code in satisfiableCodes)
                     {
                         if (string.IsNullOrEmpty(code)) continue;
-                        if (!codeToGkeys.TryGetValue(code, out var gset))
-                            codeToGkeys[code] = gset = new HashSet<string>(StringComparer.Ordinal);
+                        if (!index.CodeToGkeys.TryGetValue(code, out var gset))
+                            index.CodeToGkeys[code] = gset = new HashSet<string>(StringComparer.Ordinal);
                         gset.Add(groupKey);
                     }
                 }
 
-                recipeGroupNeeds[r] = groups;
+                index.RecipeGroupNeeds[r] = groups;
                 recipeIndexBuildProgress++;
             }
 
@@ -2477,6 +2593,8 @@ namespace ShowCraftable
             long elapsedMs = sw.ElapsedMilliseconds;
             capi.Event.EnqueueMainThreadTask(() =>
                 LogEverywhere(capi, $"Recipe index build processed {recipeIndexBuildProgress}/{recipeIndexBuildTotal} recipes in {elapsedMs}ms", caller: nameof(BuildRecipeIndex)), null);
+
+            return index;
         }
 
         private static IEnumerable<object> FetchGridRecipesMulti(ICoreClientAPI capi)
@@ -2698,21 +2816,22 @@ namespace ShowCraftable
 
             return shim;
         }
-        private static void RebuildOutputsIndexFrom(List<GridRecipeShim> recipes)
+        private static Dictionary<StackKey, List<GridRecipeShim>> BuildOutputsIndexFrom(List<GridRecipeShim> recipes)
         {
-            outputsIndex.Clear();
+            var index = new Dictionary<StackKey, List<GridRecipeShim>>();
             foreach (var r in recipes)
             {
                 if (r?.Outputs == null) continue;
                 foreach (var o in r.Outputs)
                 {
                     if (o?.Collectible?.Code == null) continue;
-                    var key = KeyFor(o); // uses your existing StackKey helpers
-                    if (!outputsIndex.TryGetValue(key, out var list))
-                        outputsIndex[key] = list = new List<GridRecipeShim>(2);
+                    var key = KeyFor(o);
+                    if (!index.TryGetValue(key, out var list))
+                        index[key] = list = new List<GridRecipeShim>(2);
                     list.Add(r);
                 }
             }
+            return index;
         }
 
 
@@ -3295,6 +3414,8 @@ namespace ShowCraftable
     out List<string> generatedPageCodes)
         {
             var sw = Stopwatch.StartNew();
+            var variantKey = VariantKeyFromTabKey(tabKey);
+            ApplyRecipeIndexVariant(variantKey);
             craftableOutputsCount = 0; fetched = recipesFetched; usable = recipesUsable;
 
             // Clone original needs so we can compute per-recipe "remaining" without touching the canonical map
