@@ -1261,36 +1261,18 @@ namespace ShowCraftable
 
             capi.Event.LevelFinalize += () =>
             {
-                lock (CacheLock)
-                {
-                    CachedPageCodes.Clear();
-                    CraftableTabCache = new List<string>();
-                    WoodTypeTabCache = new List<string>();
-                    StoneTypeTabCache = new List<string>();
-                    ModTabCache = new List<string>();
-                    ScanResultCache.Clear();
-
-                }
-                lock (ScanQueueLock)
-                {
-                    QueuedScanRequest = null;
-                    ScanQueueCheckScheduled = false;
-                }
-                lock (PendingScanLock)
-                {
-                    PendingScanVariantKey = null;
-                    PendingScanTabKey = null;
-                }
+                // Keep only ephemeral safety resets; do not clear tab caches, DNA, or the recipe index
+                lock (ScanQueueLock) { QueuedScanRequest = null; ScanQueueCheckScheduled = false; }
+                lock (PendingScanLock) { PendingScanVariantKey = null; PendingScanTabKey = null; }
                 lock (InflightMapLock) InflightById.Clear();
                 ScanInProgress = false;
-                codeToRecipeGroups.Clear();
-                recipeGroupNeeds.Clear();
-                wildcardGroups.Clear();
-                wildMatchCache.Clear();
-                recipeIndexBuilt = false;
+
+                // Optional: Invalidate only the Handbook’s pagecode map to force GUI to rebind widgets.
                 InvalidatePageCodeMapCache();
-                LogEverywhere(capi, "Cleared caches on level finalize", caller: "LevelFinalize");
+
+                // Build index once for this world-load; harmless no-op if already built.
                 StartRecipeIndexBuild(capi, false, false, false);
+
             };
 
             capi.Event.LeaveWorld += InvalidatePageCodeMapCache;
@@ -3198,24 +3180,17 @@ namespace ShowCraftable
                     dnaMatch = TabPoolDNA.TryGetValue(tabKey, out prev) && prev == dna;
                 }
 
-                // --- Defensive guard: if match but snapshot is empty, treat as mismatch and rebuild ---
+                // Defensive: if it's a "match" but the cache snapshot is empty, force a rebuild.
                 List<string> snap = null;
                 if (dnaMatch)
                 {
-                    lock (CacheLock)
-                    {
-                        snap = GetTabCacheSnapshot(tabKey);
-                        if (snap == null || snap.Count == 0) dnaMatch = false;
-                    }
+                    lock (CacheLock) { snap = GetTabCacheSnapshot(tabKey); }
+                    if (snap == null || snap.Count == 0) dnaMatch = false;
                 }
 
                 if (dnaMatch)
                 {
-                    lock (CacheLock)
-                    {
-                        // reuse verified non-empty snapshot
-                        CachedPageCodes = snap;
-                    }
+                    lock (CacheLock) { CachedPageCodes = snap; }
                     _capi.Event.EnqueueMainThreadTask(() =>
                     {
                         LogEverywhere(_capi, $"[Scan] ← #{data.ScanId} DNA MATCH tab={tabKey} dna=0x{dna:X16} pages={snap.Count}", toChat: true);
@@ -3224,11 +3199,11 @@ namespace ShowCraftable
                         SetUpdatingText(_capi, false);
                         TryProcessQueuedScan(_capi);
                     }, null);
-
                     ScanInProgress = false;
                     HandbookPauseGuard.Release(_capi);
                     return;
                 }
+
 
                 // 4b) DNA != DNA → keep current cache visible, show Updating..., then rebuild & swap atomically
                 _capi.Event.EnqueueMainThreadTask(() => SetUpdatingText(_capi, true), "SCSetUpdating");
