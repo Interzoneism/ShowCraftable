@@ -91,7 +91,7 @@ public class RecipeGridButton : ButtonFetch
                 {
                     var req = new CraftScanRequest
                     {
-                        Radius = 12,
+                        Radius = 20,
                         CollectItems = true,
                         Variants = reqVariants
                     };

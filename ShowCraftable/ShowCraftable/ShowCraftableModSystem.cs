@@ -51,11 +51,25 @@ namespace ShowCraftable
 
         private static readonly object CacheLock = new();
         private static List<string> CachedPageCodes = new();
+        private static List<string> s_EmptyPages;   
 
         private static List<string> CraftableTabCache = new();
         private static List<string> WoodTypeTabCache = new();
         private static List<string> StoneTypeTabCache = new();
         private static List<string> ModTabCache = new();
+
+
+        // NEW: correlate ScanId -> (which tab & which variant flags triggered it)
+        private static readonly object InflightMapLock = new();
+        private static readonly Dictionary<int, ScanRequestInfo> InflightById = new();
+
+        // NEW: simple counter for unique scan ids
+        private static int ScanSeq;
+
+        // NEW: DNA tracking (per-tab) + lock
+        private static readonly object DnaLock = new();
+        private static readonly Dictionary<string, ulong> TabPoolDNA = new(StringComparer.Ordinal);
+
 
         private static readonly Dictionary<string, string> ScanResultCache
             = new(StringComparer.Ordinal);
@@ -172,6 +186,87 @@ namespace ShowCraftable
             // NEW: optional since older caches won’t have it
             [ProtoMember(3)] public Dictionary<string, List<string>> CodeToGkeys { get; set; } = new();
         }
+
+        private static ulong ComputeResourcePoolDNA(ResourcePool pool)
+        {
+            if (pool == null) return 0UL;
+
+            // Collect (code, class, qty)
+            var entries = new List<(string Code, int Qty, int Cls)>();
+            foreach (var kv in pool.Counts)
+            {
+                var code = kv.Key.Code ?? "";
+                var qty = Math.Max(0, kv.Value);
+                int cls = 0;
+                try
+                {
+                    if (pool.Classes.TryGetValue(kv.Key, out var ecl)) cls = (int)ecl;
+                }
+                catch { /* best effort */ }
+                entries.Add((code, qty, cls));
+            }
+
+            // Sort by code to be order-insensitive
+            entries.Sort((a, b) => string.CompareOrdinal(a.Code, b.Code));
+
+            // FNV-1a 64-bit
+            const ulong FNV_OFFSET = 14695981039346656037UL;
+            const ulong FNV_PRIME = 1099511628211UL;
+            ulong h = FNV_OFFSET;
+
+            foreach (var (code, qty, cls) in entries)
+            {
+                h = FnvAddStr(h, code ?? "");
+                h = FnvAddChar(h, '|');
+                h = FnvAddInt(h, cls);
+                h = FnvAddChar(h, '|');
+                h = FnvAddInt(h, qty);
+            }
+
+            return h;
+
+            // ---- local helpers (unique names; no overloading) ----
+            static ulong FnvAddStr(ulong h, string s)
+            {
+                if (s == null) return h;
+                unchecked
+                {
+                    for (int i = 0; i < s.Length; i++)
+                    {
+                        h ^= (byte)s[i];
+                        h *= FNV_PRIME;
+                    }
+                }
+                return h;
+            }
+
+            static ulong FnvAddInt(ulong h, int v)
+            {
+                unchecked
+                {
+                    h ^= (byte)(v);
+                    h *= FNV_PRIME;
+                    h ^= (byte)(v >> 8);
+                    h *= FNV_PRIME;
+                    h ^= (byte)(v >> 16);
+                    h *= FNV_PRIME;
+                    h ^= (byte)(v >> 24);
+                    h *= FNV_PRIME;
+                }
+                return h;
+            }
+
+            static ulong FnvAddChar(ulong h, char c)
+            {
+                unchecked
+                {
+                    h ^= (byte)c;
+                    h *= FNV_PRIME;
+                }
+                return h;
+            }
+        }
+
 
 
         private static class HandbookPauseGuard
@@ -906,14 +1001,24 @@ namespace ShowCraftable
         }
 
 
+        // FULL REPLACEMENT
         private static DateTime _lastScanAt = DateTime.MinValue;
 
-        private static void RequestServerScan(ICoreClientAPI capi, int radius, bool modsOnly, bool woodOnly, bool stoneOnly, string tabKey, bool allowQueue = true)
+        private static void RequestServerScan(
+            ICoreClientAPI capi,
+            int radius,
+            bool modsOnly,
+            bool woodOnly,
+            bool stoneOnly,
+            string tabKey,
+            bool allowQueue = true)
         {
             var sw = Stopwatch.StartNew();
             try
             {
                 if (capi == null) return;
+
+                // Gentle coalesce & single-flight
                 var now = DateTime.UtcNow;
                 if ((now - _lastScanAt).TotalMilliseconds < 400 && allowQueue)
                 {
@@ -924,30 +1029,39 @@ namespace ShowCraftable
 
                 if (ScanInProgress)
                 {
-                    if (allowQueue)
-                    {
-                        EnqueueScanRequest(capi, modsOnly, woodOnly, stoneOnly, tabKey);
-                    }
+                    if (allowQueue) EnqueueScanRequest(capi, modsOnly, woodOnly, stoneOnly, tabKey);
                     return;
                 }
                 ScanInProgress = true;
+                HandbookPauseGuard.Acquire(capi);
 
                 var variantKey = GetVariantKey(modsOnly, woodOnly, stoneOnly);
+
+                // Back-compat fallback (kept)
                 lock (PendingScanLock)
                 {
                     PendingScanVariantKey = variantKey;
                     PendingScanTabKey = tabKey;
                 }
 
-                HandbookPauseGuard.Acquire(capi);
+                // Track in-flight by id
+                int scanId = Interlocked.Increment(ref ScanSeq);
+                lock (InflightMapLock)
+                {
+                    InflightById[scanId] = new ScanRequestInfo(modsOnly, woodOnly, stoneOnly, tabKey);
+                }
 
                 try
                 {
                     capi.Network.GetChannel(ChannelName).SendPacket(new CraftScanRequest
                     {
-                        Radius = radius
+                        Radius = radius,
+                        CollectItems = true,
+                        Variants = new List<CraftIngredientList>(),   // reserved
+                        ScanId = scanId,
+                        TabKey = tabKey                               // ← include tab name string
                     });
-                    LogEverywhere(capi, $"Requested server scan (radius={radius}, variant={variantKey}, tab={tabKey})");
+                    LogEverywhere(capi, $"[Scan] → sent ScanId={scanId} (radius={radius}, variant={variantKey}, tab={tabKey})");
                 }
                 catch (Exception e)
                 {
@@ -956,6 +1070,8 @@ namespace ShowCraftable
                         PendingScanVariantKey = null;
                         PendingScanTabKey = null;
                     }
+                    lock (InflightMapLock) InflightById.Remove(scanId);
+
                     ScanInProgress = false;
                     HandbookPauseGuard.Release(capi);
                     LogEverywhere(capi, $"Failed to send scan request: {e}", toChat: true);
@@ -968,6 +1084,9 @@ namespace ShowCraftable
                 LogEverywhere(capi, $"RequestServerScan completed in {sw.ElapsedMilliseconds}ms", caller: nameof(RequestServerScan));
             }
         }
+
+
+
 
         private static void EnqueueScanRequest(ICoreClientAPI capi, bool modsOnly, bool woodOnly, bool stoneOnly, string tabKey)
         {
@@ -1128,6 +1247,7 @@ namespace ShowCraftable
                     StoneTypeTabCache = new List<string>();
                     ModTabCache = new List<string>();
                     ScanResultCache.Clear();
+
                 }
                 lock (ScanQueueLock)
                 {
@@ -1139,6 +1259,7 @@ namespace ShowCraftable
                     PendingScanVariantKey = null;
                     PendingScanTabKey = null;
                 }
+                lock (InflightMapLock) InflightById.Clear();
                 ScanInProgress = false;
                 codeToRecipeGroups.Clear();
                 recipeGroupNeeds.Clear();
@@ -1276,6 +1397,7 @@ namespace ShowCraftable
             var sw = Stopwatch.StartNew();
             try
             {
+                // Figure out which tab is active
                 CraftableTabActive = string.Equals(code, CraftableCategoryCode, StringComparison.Ordinal);
                 CraftableModsTabActive = string.Equals(code, CraftableModsCategoryCode, StringComparison.Ordinal);
                 CraftableWoodTabActive = string.Equals(code, CraftableWoodCategoryCode, StringComparison.Ordinal);
@@ -1287,9 +1409,6 @@ namespace ShowCraftable
 
                 bool anyCraftable = CraftableTabActive || CraftableModsTabActive || CraftableWoodTabActive || CraftableStoneTabActive;
                 string tabKey = GetTabKey(modsOnly, woodOnly, stoneOnly);
-                bool hasCachedPages = false;
-
-
 
                 if (!DialogIsOpen(__instance))
                 {
@@ -1300,21 +1419,16 @@ namespace ShowCraftable
                 var fiCapi = AccessTools.Field(__instance.GetType(), "capi");
                 capi = fiCapi?.GetValue(__instance) as ICoreClientAPI ?? _staticCapi;
 
-                if (CraftableTabActive)
-                    LogEverywhere(capi, "Craftable tab selected by user");
-                else if (CraftableModsTabActive)
-                    LogEverywhere(capi, "Craftable (Mods) tab selected by user");
-                else if (CraftableWoodTabActive)
-                    LogEverywhere(capi, "Craftable Wood Types tab selected by user");
-                else if (CraftableStoneTabActive)
-                    LogEverywhere(capi, "Craftable Stone Types tab selected by user");
+                if (CraftableTabActive) LogEverywhere(capi, "Craftable tab selected by user");
+                else if (CraftableModsTabActive) LogEverywhere(capi, "Craftable (Mods) tab selected by user");
+                else if (CraftableWoodTabActive) LogEverywhere(capi, "Craftable Wood Types tab selected by user");
+                else if (CraftableStoneTabActive) LogEverywhere(capi, "Craftable Stone Types tab selected by user");
 
                 var fiOverview = AccessTools.Field(__instance.GetType(), "overviewGui");
                 var composer = fiOverview?.GetValue(__instance) as GuiComposer;
 
-                var piSingle =
-                    AccessTools.Property(__instance.GetType(), "SingleComposer")
-                    ?? AccessTools.Property(__instance.GetType().BaseType, "SingleComposer");
+                var piSingle = AccessTools.Property(__instance.GetType(), "SingleComposer")
+                             ?? AccessTools.Property(__instance.GetType().BaseType, "SingleComposer");
                 try { piSingle?.SetValue(__instance, composer); } catch { }
 
                 if (!anyCraftable)
@@ -1323,154 +1437,35 @@ namespace ShowCraftable
                     return;
                 }
 
+                // Reset search text but keep visible list intact
                 var miGetTextInput = composer?.GetType().GetMethod("GetTextInput");
                 var searchInput = miGetTextInput?.Invoke(composer, new object[] { "searchField" });
                 searchInput?.GetType().GetMethod("SetValue")?.Invoke(searchInput, new object[] { "", true });
-
                 AccessTools.Field(__instance.GetType(), "currentSearchText")?.SetValue(__instance, null);
 
-                if (capi != null && composer != null)
+                // Show whatever cache we have for this tab immediately (no flicker)
+                lock (CacheLock)
                 {
-                    lock (CacheLock)
-                    {
-                        CachedPageCodes = GetTabCacheSnapshot(tabKey);
-                        hasCachedPages = ScanResultCache.ContainsKey(tabKey);
-                    }
-
-                    bool hasCache = hasCachedPages;
-                    // Update the list on the main thread: clear when we have no cache, otherwise refresh the cached view
-                    capi.Event.EnqueueMainThreadTask(() =>
-                    {
-                        try
-                        {
-                            var stacklist = composer.GetFlatList("stacklist");
-                            if (!hasCache)
-                            {
-                                stacklist?.Elements.Clear();
-                                stacklist?.CalcTotalHeight();
-                                var shown = AccessTools.Field(__instance.GetType(), "shownHandbookPages")?.GetValue(__instance) as System.Collections.IList;
-                                shown?.Clear();
-
-                                var scrollbar = composer.GetScrollbar("scrollbar");
-                                if (scrollbar != null && stacklist != null)
-                                {
-                                    scrollbar.SetHeights(500f, (float)stacklist.insideBounds.fixedHeight);
-                                    scrollbar.CurrentYPosition = 0;
-                                }
-                            }
-                            else
-                            {
-                                stacklist?.CalcTotalHeight();
-                            }
-
-                            LastDialogPageCount = -1;
-                            if (hasCache) TryRefreshOpenDialog(capi);
-                        }
-                        catch { }
-                    }, "SCClearCraftableList");
-
-                    try
-                    {
-                        // Adding or modifying GUI elements during tab selection can
-                        // trigger an InvalidOperationException because the element
-                        // collection is being iterated for event propagation. Defer
-                        // the update to the main thread to avoid modifying the
-                        // collection while it is in use.
-                        capi.Event.EnqueueMainThreadTask(() => SetUpdatingText(capi, !hasCache), "SCUpdatingText");
-                    }
-                    catch { }
-
-                    var myScanId = ++_pendingScanId;
-
-                    capi.Event.EnqueueMainThreadTask(() =>
-                    {
-                        if (myScanId != _pendingScanId) return;
-                        if (!DialogIsOpen(__instance) || (!CraftableTabActive && !CraftableModsTabActive && !CraftableWoodTabActive && !CraftableStoneTabActive)) return;
-
-                        bool needsIndex = !recipeIndexBuilt
-                            || recipeIndexForMods != modsOnly
-                            || recipeIndexForWoodOnly != woodOnly
-                            || recipeIndexForStoneOnly != stoneOnly;
-
-                        if (needsIndex)
-                        {
-                            StartRecipeIndexBuild(capi, modsOnly, woodOnly, stoneOnly);
-                            int total = Math.Max(1, recipeIndexBuildTotal);
-                            capi.ShowChatMessage($"[Craftable] Building recipe index {recipeIndexBuildProgress}/{total}...");
-                            if (recipeIndexBuildTask != null)
-                            {
-                                recipeIndexBuildTask.ContinueWith(task =>
-                                {
-                                    bool rebuilt = true;
-                                    if (task.Status == TaskStatus.RanToCompletion)
-                                    {
-                                        try { rebuilt = task.Result; }
-                                        catch (Exception e)
-                                        {
-                                            rebuilt = true;
-                                            LogEverywhere(capi, $"Failed to read recipe index build result: {e}");
-                                        }
-                                    }
-                                    else if (task.IsFaulted)
-                                    {
-                                        LogEverywhere(capi, $"Recipe index build failed: {task.Exception}", toChat: true);
-                                    }
-
-                                    capi.Event.EnqueueMainThreadTask(() =>
-                                    {
-                                        if (myScanId != _pendingScanId) return;
-                                        if (!DialogIsOpen(__instance) || (!CraftableTabActive && !CraftableModsTabActive && !CraftableWoodTabActive && !CraftableStoneTabActive)) return;
-
-                                        bool shouldScan = !hasCache || rebuilt;
-                                        if (shouldScan)
-                                        {
-                                            SetUpdatingText(capi, true);
-                                            RequestServerScan(capi, NearbyRadius, modsOnly, woodOnly, stoneOnly, tabKey);
-                                        }
-                                        else
-                                        {
-                                            SetUpdatingText(capi, false);
-                                            TryRefreshOpenDialog(capi);
-                                        }
-                                    }, "CraftableScanKickoff2");
-                                });
-                            }
-                            return;
-                        }
-
-                        if (!hasCache)
-                        {
-                            SetUpdatingText(capi, true);
-                            RequestServerScan(capi, NearbyRadius, modsOnly, woodOnly, stoneOnly, tabKey);
-                        }
-                        else
-                        {
-                            SetUpdatingText(capi, false);
-                            TryRefreshOpenDialog(capi);
-                        }
-                    }, "CraftableScanKickoff");
+                    CachedPageCodes = GetTabCacheSnapshot(tabKey);
                 }
-                else
+                LastDialogPageCount = -1;
+                TryRefreshOpenDialog(capi);  // non-destructive UI refresh
+
+                // Kick (or re-kick) recipe index build if needed, but never block the scan
+                bool needsIndex = !recipeIndexBuilt
+                    || recipeIndexForMods != modsOnly
+                    || recipeIndexForWoodOnly != woodOnly
+                    || recipeIndexForStoneOnly != stoneOnly;
+                if (needsIndex) StartRecipeIndexBuild(capi, modsOnly, woodOnly, stoneOnly);
+
+                // ALWAYS run a server scan for items and include tab name string
+                var myScanId = ++_pendingScanId;
+                capi.Event.EnqueueMainThreadTask(() =>
                 {
-                    try
-                    {
-                        var stacklist = composer?.GetFlatList("stacklist");
-                        stacklist?.Elements.Clear();
-                        stacklist?.CalcTotalHeight();
-                        var shown = AccessTools.Field(__instance.GetType(), "shownHandbookPages")?.GetValue(__instance) as System.Collections.IList;
-                        shown?.Clear();
-
-                        var scrollbar = composer?.GetScrollbar("scrollbar");
-                        if (scrollbar != null && stacklist != null)
-                        {
-                            scrollbar.SetHeights(500f, (float)stacklist.insideBounds.fixedHeight);
-                            scrollbar.CurrentYPosition = 0;
-                        }
-
-                        LastDialogPageCount = -1;
-                    }
-                    catch { }
-                }
+                    if (myScanId != _pendingScanId) return;
+                    if (!DialogIsOpen(__instance)) return;
+                    RequestServerScan(capi, NearbyRadius, modsOnly, woodOnly, stoneOnly, tabKey);
+                }, "SCScanOnTabSelect");
             }
             catch (Exception e)
             {
@@ -1484,48 +1479,61 @@ namespace ShowCraftable
             }
         }
 
+
         private static void SetUpdatingText(ICoreClientAPI capi, bool show)
         {
             try
             {
-                var msType = AccessTools.TypeByName("Vintagestory.GameContent.ModSystemSurvivalHandbook");
-                var ms = msType != null ? GetModSystemByType(capi, msType) : null;
-                var dlg = msType != null ? AccessTools.Field(msType, "dialog")?.GetValue(ms) : null;
-                var composer = dlg != null
-                    ? AccessTools.Field(dlg.GetType(), "overviewGui")?.GetValue(dlg) as GuiComposer
-                    : null;
-                if (composer == null) return;
-
-                var dt = composer.GetDynamicText("scUpdating");
-                bool needsRecompose = false;
-                if (show)
+                // Defer all GUI mutations to the next frame to avoid modifying
+                // the composer while OnMouseDown is enumerating its elements.
+                capi?.Event?.RegisterCallback(_ =>
                 {
-                    if (dt == null)
+                    try
                     {
-                        var search = composer.GetTextInput("searchField");
-                        if (search == null) return;
-                        var sb = search.Bounds;
-                        var tb = ElementBounds.Fixed(0, sb.fixedY, 120, sb.fixedHeight);
-                        tb.ParentBounds = sb.ParentBounds;
-                        tb.FixedRightOf(sb, 10);
-                        dt = new GuiElementDynamicText(capi, "Updating...", CairoFont.WhiteSmallishText(), tb);
-                        composer.AddInteractiveElement(dt, "scUpdating");
-                        needsRecompose = true;
-                    }
-                    else
-                    {
-                        dt.SetNewText("Updating...");
-                    }
-                }
-                else
-                {
-                    dt?.SetNewText("");
-                }
+                        var msType = AccessTools.TypeByName("Vintagestory.GameContent.ModSystemSurvivalHandbook");
+                        var ms = msType != null ? GetModSystemByType(capi, msType) : null;
+                        var dlg = msType != null ? AccessTools.Field(msType, "dialog")?.GetValue(ms) : null;
+                        var composer = dlg != null
+                            ? AccessTools.Field(dlg.GetType(), "overviewGui")?.GetValue(dlg) as GuiComposer
+                            : null;
+                        if (composer == null) return;
 
-                if (needsRecompose) composer.ReCompose();
+                        var dt = composer.GetDynamicText("scUpdating");
+                        bool needsRecompose = false;
+
+                        if (show)
+                        {
+                            if (dt == null)
+                            {
+                                var search = composer.GetTextInput("searchField");
+                                if (search == null) return;
+                                var sb = search.Bounds;
+                                var tb = ElementBounds.Fixed(0, sb.fixedY, 120, sb.fixedHeight);
+                                tb.ParentBounds = sb.ParentBounds;
+                                tb.FixedRightOf(sb, 10);
+
+                                dt = new GuiElementDynamicText(capi, "Updating...", CairoFont.WhiteSmallishText(), tb);
+                                composer.AddInteractiveElement(dt, "scUpdating");
+                                needsRecompose = true;
+                            }
+                            else
+                            {
+                                dt.SetNewText("Updating...");
+                            }
+                        }
+                        else
+                        {
+                            dt?.SetNewText("");
+                        }
+
+                        if (needsRecompose) composer.ReCompose();
+                    }
+                    catch { /* best-effort */ }
+                }, 1); // tiny delay → next tick/frame
             }
-            catch { }
+            catch { /* best-effort */ }
         }
+
 
         private static bool IsWoodRecipe(object recipeOrOutput)
         {
@@ -2281,11 +2289,9 @@ namespace ShowCraftable
 
                     if (rebuilt)
                     {
-                        lock (CacheLock)
-                        {
-                            ScanResultCache.Remove(tabKey);
-                            ClearTabCache(tabKey);
-                        }
+                        LogEverywhere(capi,
+                        $"Recipe index rebuilt for variant={variantKey}; keeping DNA & cache. Next scan will decide.",
+                        caller: nameof(StartRecipeIndexBuild));
                     }
 
                     recipeIndexBuilt = true;
@@ -3083,8 +3089,8 @@ namespace ShowCraftable
         {
             try
             {
+                // 1) Build ResourcePool from reply
                 var pool = new ResourcePool();
-
                 for (int i = 0; i < data.Codes.Count; i++)
                 {
                     string code = data.Codes[i];
@@ -3106,51 +3112,91 @@ namespace ShowCraftable
                     if (st != null) pool.Add(st);
                 }
 
-                string variantKey;
-                string tabKey;
-                lock (PendingScanLock)
-                {
-                    variantKey = PendingScanVariantKey;
-                    tabKey = PendingScanTabKey;
-                    PendingScanVariantKey = null;
-                    PendingScanTabKey = null;
-                }
+                // 2) Resolve which tab this reply belongs to (prefer explicit data.TabKey)
+                string tabKey = data.TabKey;
+                string variantKey = null;
+                bool recipeModsOnly = false, recipeWoodOnly = false, recipeStoneOnly = false;
 
-                if (string.IsNullOrEmpty(tabKey))
+                if (string.IsNullOrEmpty(tabKey) && data.ScanId != 0)
                 {
-                    tabKey = !string.IsNullOrEmpty(variantKey)
-                        ? TabKeyFromVariant(variantKey)
-                        : GetActiveTabKey();
-                }
-
-                if (string.IsNullOrEmpty(variantKey))
-                {
-                    variantKey = VariantKeyFromTabKey(tabKey);
-                }
-
-                string poolSignature = pool.GetSignature() ?? string.Empty;
-
-                bool reused = false;
-                lock (CacheLock)
-                {
-                    if (ScanResultCache.TryGetValue(tabKey, out var existingSignature) &&
-                        string.Equals(existingSignature, poolSignature, StringComparison.Ordinal))
+                    // fall back to in-flight map
+                    ScanRequestInfo info;
+                    lock (InflightMapLock)
                     {
-                        CachedPageCodes = GetTabCacheSnapshot(tabKey);
-                        reused = true;
+                        if (!InflightById.TryGetValue(data.ScanId, out info)) info = default;
+                        else InflightById.Remove(data.ScanId);
+                    }
+                    if (!string.IsNullOrEmpty(info.TabKey))
+                    {
+                        tabKey = info.TabKey;
+                        recipeModsOnly = info.ModsOnly;
+                        recipeWoodOnly = info.WoodOnly;
+                        recipeStoneOnly = info.StoneOnly;
+                        variantKey = GetVariantKey(recipeModsOnly, recipeWoodOnly, recipeStoneOnly);
                     }
                 }
 
-                if (reused)
+                // back-compat: still try last pending or active tab
+                if (string.IsNullOrEmpty(tabKey))
                 {
+                    lock (PendingScanLock)
+                    {
+                        variantKey = PendingScanVariantKey;
+                        tabKey = PendingScanTabKey;
+                        PendingScanVariantKey = null;
+                        PendingScanTabKey = null;
+                    }
+                    if (string.IsNullOrEmpty(tabKey))
+                        tabKey = !string.IsNullOrEmpty(variantKey) ? TabKeyFromVariant(variantKey) : GetActiveTabKey();
+                    if (string.IsNullOrEmpty(variantKey)) variantKey = VariantKeyFromTabKey(tabKey);
+
+                    recipeModsOnly = string.Equals(variantKey, "mods", StringComparison.Ordinal);
+                    recipeWoodOnly = string.Equals(variantKey, "wood", StringComparison.Ordinal);
+                    recipeStoneOnly = string.Equals(variantKey, "stone", StringComparison.Ordinal);
+                }
+
+                // 3) Ignore if reply is not for currently active tab
+                var activeTab = GetActiveTabKey();
+                if (!string.Equals(tabKey, activeTab, StringComparison.Ordinal))
+                {
+                    ScanInProgress = false;
+                    HandbookPauseGuard.Release(_capi);
+                    _capi.Event.EnqueueMainThreadTask(() => TryProcessQueuedScan(_capi), "SCPostScanIgnore");
+                    return;
+                }
+
+                // 4) DNA compare (pool signature)
+                ulong dna = ComputeResourcePoolDNA(pool);
+                bool dnaMatch;
+                ulong prev;
+                lock (DnaLock)
+                {
+                    dnaMatch = TabPoolDNA.TryGetValue(tabKey, out prev) && prev == dna;
+                }
+
+                // --- Defensive guard: if match but snapshot is empty, treat as mismatch and rebuild ---
+                List<string> snap = null;
+                if (dnaMatch)
+                {
+                    lock (CacheLock)
+                    {
+                        snap = GetTabCacheSnapshot(tabKey);
+                        if (snap == null || snap.Count == 0) dnaMatch = false;
+                    }
+                }
+
+                if (dnaMatch)
+                {
+                    lock (CacheLock)
+                    {
+                        // reuse verified non-empty snapshot
+                        CachedPageCodes = snap;
+                    }
                     _capi.Event.EnqueueMainThreadTask(() =>
                     {
-                        LogEverywhere(_capi, $"Server scan reused cache (tab={tabKey}) with {CachedPageCodes.Count} page codes", toChat: true, caller: nameof(OnServerScanReply));
+                        LogEverywhere(_capi, $"[Scan] ← #{data.ScanId} DNA MATCH tab={tabKey} dna=0x{dna:X16} pages={snap.Count}", toChat: true);
                         LastDialogPageCount = -1;
-                        if (IsTabActive(tabKey))
-                        {
-                            TryRefreshOpenDialog(_capi);
-                        }
+                        TryRefreshOpenDialog(_capi);
                         SetUpdatingText(_capi, false);
                         TryProcessQueuedScan(_capi);
                     }, null);
@@ -3160,45 +3206,55 @@ namespace ShowCraftable
                     return;
                 }
 
+                // 4b) DNA != DNA → keep current cache visible, show Updating..., then rebuild & swap atomically
+                _capi.Event.EnqueueMainThreadTask(() => SetUpdatingText(_capi, true), "SCSetUpdating");
+
                 Task.Run(() =>
                 {
                     try
                     {
-                        int pages = RebuildCacheWithPool(_capi, pool, tabKey, out int outputs, out int fetched, out int usable, out List<string> _);
-                        lock (CacheLock)
+                        // Build new cache for THIS TAB using THIS POOL
+                        int pages = RebuildCacheWithPool(_capi, pool, tabKey,
+                            out int outputs, out int fetched, out int usable, out List<string> generatedPageCodes);
+
+                        // Atomically replace DNA first, then install the new cache
+                        lock (DnaLock) { TabPoolDNA[tabKey] = dna; }
+                        lock (CacheLock) { SetTabCache(tabKey, generatedPageCodes); }
+
+                        // If still on this tab, show it
+                        _capi.Event.EnqueueMainThreadTask(() =>
                         {
-                            ScanResultCache[tabKey] = poolSignature;
-                        }
-                        _capi.Event.EnqueueMainThreadTask(() => LogEverywhere(_capi, $"Merged server scan results (tab={tabKey}): outputs={outputs}, pages={pages}, fetched={fetched}, usable={usable}", toChat: true, caller: nameof(OnServerScanReply)), null);
+                            LogEverywhere(_capi, $"[Scan] ← #{data.ScanId} DNA MISMATCH → rebuilt tab={tabKey} dna=0x{dna:X16} outputs={outputs}, pages={pages}, fetched={fetched}, usable={usable}", toChat: true);
+                            if (IsTabActive(tabKey))
+                            {
+                                lock (CacheLock) { CachedPageCodes = GetTabCacheSnapshot(tabKey); }
+                                LastDialogPageCount = -1;
+                                TryRefreshOpenDialog(_capi);
+                            }
+                            SetUpdatingText(_capi, false);
+                            TryProcessQueuedScan(_capi);
+                        }, "SCShowNewCache");
                     }
-                    catch (Exception e)
+                    catch (Exception ex)
                     {
-                        _capi.Event.EnqueueMainThreadTask(() => LogEverywhere(_capi, $"Error processing server scan reply: {e}", toChat: true, caller: nameof(OnServerScanReply)), null);
+                        _capi.Event.EnqueueMainThreadTask(() =>
+                            LogEverywhere(_capi, $"Rebuild failed: {ex}", toChat: true), "SCRebuildFail");
                     }
                     finally
                     {
                         ScanInProgress = false;
                         HandbookPauseGuard.Release(_capi);
-                        _capi.Event.EnqueueMainThreadTask(() =>
-                        {
-                            SetUpdatingText(_capi, false);
-                            TryProcessQueuedScan(_capi);
-                        }, "SCPostScanQueue");
                     }
                 });
             }
             catch (Exception e)
             {
-                LogEverywhere(_capi, $"Error processing server scan reply: {e}", toChat: true);
+                LogEverywhere(_capi, $"OnServerScanReply error: {e}", toChat: true);
                 ScanInProgress = false;
                 HandbookPauseGuard.Release(_capi);
-                _capi.Event.EnqueueMainThreadTask(() =>
-                {
-                    SetUpdatingText(_capi, false);
-                    TryProcessQueuedScan(_capi);
-                }, "SCPostScanQueueError");
             }
         }
+
 
 
         private static int RebuildCacheWithPool(
@@ -3482,6 +3538,8 @@ namespace ShowCraftable
         [ProtoMember(1)] public int Radius { get; set; }
         [ProtoMember(2)] public bool CollectItems { get; set; }
         [ProtoMember(3)] public List<CraftIngredientList> Variants { get; set; } = new();
+        [ProtoMember(4)] public int ScanId { get; set; }
+        [ProtoMember(5)] public string TabKey { get; set; }              // NEW: explicit tab routing
     }
 
     [ProtoContract]
@@ -3490,7 +3548,10 @@ namespace ShowCraftable
         [ProtoMember(1)] public List<string> Codes { get; set; } = new();
         [ProtoMember(2)] public List<int> Counts { get; set; } = new();
         [ProtoMember(3)] public List<EnumItemClass> Classes { get; set; } = new();
+        [ProtoMember(4)] public int ScanId { get; set; }
+        [ProtoMember(5)] public string TabKey { get; set; }              // NEW: echoes request.TabKey
     }
+
 
     public class ShowCraftableServerSystem : ModSystem
     {
@@ -3984,10 +4045,13 @@ namespace ShowCraftable
             {
                 Codes = sum.Keys.ToList(),
                 Counts = sum.Values.Select(v => v.count).ToList(),
-                Classes = sum.Values.Select(v => v.cls).ToList()
+                Classes = sum.Values.Select(v => v.cls).ToList(),
+                ScanId = req.ScanId,
+                TabKey = req.TabKey                                   // ← echo back tab
             };
-
             sapi.Network.GetChannel(ShowCraftableSystem.ChannelName).SendPacket(reply, fromPlayer);
+
+
         }
 
 
