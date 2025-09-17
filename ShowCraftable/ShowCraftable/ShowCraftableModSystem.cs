@@ -25,7 +25,7 @@ namespace ShowCraftable
         private Harmony _harmony;
         private ICoreClientAPI _capi;
         public const string HarmonyId = "showcraftable.core";
-        internal static bool DebugEnabled = true;
+        internal static bool DebugEnabled = false;
         internal static int ConfiguredSearchRadius => Math.Max(0, Config?.SearchDistanceItems ?? 20);
         private const string ConfigFileName = "ShowCraftable.json";
         private const string CraftableTabKeyName = "craftableTab";
@@ -1148,34 +1148,15 @@ namespace ShowCraftable
             var miAddInfo = AccessTools.Method(tBeh, "addCreatedByInfo");
             _harmony.Patch(miAddInfo, postfix: new HarmonyMethod(typeof(ShowCraftableSystem), nameof(AddRecipeButton_Postfix)));
 
-            capi.ChatCommands.Create("craftable")
-                .WithDescription("Open Survival Handbook at the Craftable tab (no rescan)")
-                .HandleWith(args =>
-                {
-                    capi.Event.RegisterCallback(_ => OpenCraftableTab(capi), 10);
-                    return TextCommandResult.Success();
-                });
-
-            capi.Event.EnqueueMainThreadTask(() =>
-            {
-                var p = GetCraftableLogPath(capi);
-                LogEverywhere(capi, $"craftable.log path: {p}", toChat: true);
-                try { File.AppendAllText(p, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} [Craftable] (touch)\n"); } catch { }
-            }, "SC.LogPathProbe");
-
             capi.Event.LevelFinalize += () =>
             {
                 lock (ScanQueueLock) { QueuedScanRequest = null; ScanQueueCheckScheduled = false; }
                 lock (PendingScanLock) { PendingScanVariantKey = null; PendingScanTabKey = null; }
                 lock (InflightMapLock) InflightById.Clear();
                 ScanInProgress = false;
-
                 InvalidatePageCodeMapCache();
-
                 StartRecipeIndexBuild(capi);
-
             };
-
             capi.Event.LeaveWorld += InvalidatePageCodeMapCache;
         }
 
@@ -1692,23 +1673,6 @@ namespace ShowCraftable
             {
                 return true;
             }
-        }
-
-        private static void OpenCraftableTab(ICoreClientAPI capi)
-        {
-            try
-            {
-                var msType = AccessTools.TypeByName("Vintagestory.GameContent.ModSystemSurvivalHandbook");
-                if (msType == null) return;
-                var ms = GetModSystemByType(capi, msType);
-                if (ms == null) { capi.Event.RegisterCallback(_ => OpenCraftableTab(capi), 100); return; }
-                var fiDialog = AccessTools.Field(msType, "dialog");
-                var dlg = fiDialog?.GetValue(ms);
-                if (dlg == null) { capi.Event.RegisterCallback(_ => OpenCraftableTab(capi), 100); return; }
-                dlg.GetType().GetMethod("TryOpen")?.Invoke(dlg, null);
-                dlg.GetType().GetMethod("selectTab")?.Invoke(dlg, new object[] { CraftableCategoryCode });
-            }
-            catch { }
         }
 
         private static void TryRefreshOpenDialog(ICoreClientAPI capi)
