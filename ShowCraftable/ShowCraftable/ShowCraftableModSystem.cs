@@ -2700,19 +2700,20 @@ namespace ShowCraftable
             }
         }
 
-        private static void AddCraftablePagesFromAllStacks(
-            ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest,
-            Dictionary<StackKey, List<GridRecipeShim>> index)
-        {
-            AddCraftablePagesFromAllStacks(capi, pool, dest, ConfiguredAllStacksPartitions, index);
-        }
-
-        private static void AddCraftablePagesFromAllStacks(
-            ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest, int partitions,
-            Dictionary<StackKey, List<GridRecipeShim>> index)
+        private static void AddCraftablePagesFromAllStacksFiltered(
+            ICoreClientAPI capi,
+            ResourcePool pool,
+            HashSet<string> dest,
+            int partitions,
+            Dictionary<StackKey, List<GridRecipeShim>> index,
+            Func<GridRecipeShim, bool> recipePredicate,
+            string callerName)
         {
             try
             {
+                var predicate = recipePredicate ?? (_ => true);
+                callerName ??= nameof(AddCraftablePagesFromAllStacks);
+
                 var msType = AccessTools.TypeByName("Vintagestory.GameContent.ModSystemSurvivalHandbook");
                 var ms = msType != null ? GetModSystemByType(capi, msType) : null;
                 var stacks = AccessTools.Field(msType, "allstacks")?.GetValue(ms) as ItemStack[];
@@ -2736,7 +2737,7 @@ namespace ShowCraftable
 
                         foreach (var shim in CandidateShimsForStack(capi, pStack, modsOnly: false, index))
                         {
-                            if (IsWoodRecipe(shim.Raw)) continue;
+                            if (!predicate(shim)) continue;
                             if (RecipeSatisfiedByPool(capi, pool, shim, pStack))
                             {
                                 var pc = miPageCode.Invoke(null, new object[] { pStack }) as string;
@@ -2802,7 +2803,7 @@ namespace ShowCraftable
 
                                 foreach (var shim in CandidateShimsForStack(capi, pStack, modsOnly: false, index))
                                 {
-                                    if (IsWoodRecipe(shim.Raw)) continue;
+                                    if (!predicate(shim)) continue;
                                     if (RecipeSatisfiedByPool(capi, pool, shim, pStack))
                                     {
                                         if (!key2page.TryGetValue(KeyFor(pStack), out var pageCode))
@@ -2824,7 +2825,7 @@ namespace ShowCraftable
 
                         swPart.Stop();
                         LogEverywhere(capi, $"Partition {partIndex + 1}/{partitions} processed {processed} item stacks in {swPart.ElapsedMilliseconds}ms",
-                            caller: nameof(AddCraftablePagesFromAllStacks));
+                            caller: callerName);
                         return local;
                     });
                 }
@@ -2834,9 +2835,30 @@ namespace ShowCraftable
 
                 swTotal.Stop();
                 LogEverywhere(capi, $"Processed {stacks.Length} item stacks in {swTotal.ElapsedMilliseconds}ms using {partitions} partitions",
-                    caller: nameof(AddCraftablePagesFromAllStacks));
+                    caller: callerName);
             }
             catch { }
+        }
+
+        private static void AddCraftablePagesFromAllStacks(
+            ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest,
+            Dictionary<StackKey, List<GridRecipeShim>> index)
+        {
+            AddCraftablePagesFromAllStacks(capi, pool, dest, ConfiguredAllStacksPartitions, index);
+        }
+
+        private static void AddCraftablePagesFromAllStacks(
+            ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest, int partitions,
+            Dictionary<StackKey, List<GridRecipeShim>> index)
+        {
+            AddCraftablePagesFromAllStacksFiltered(
+                capi,
+                pool,
+                dest,
+                partitions,
+                index,
+                static shim => !IsWoodRecipe(shim.Raw),
+                nameof(AddCraftablePagesFromAllStacks));
         }
 
         private static void AddCraftablePagesFromAllStacksFromModStacks(
@@ -2952,40 +2974,32 @@ namespace ShowCraftable
         }
 
         private static void AddCraftablePagesFromAllStacks_WoodOnly(
-    ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest,
-    Dictionary<StackKey, List<GridRecipeShim>> index)
+            ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest,
+            Dictionary<StackKey, List<GridRecipeShim>> index)
+        {
+            AddCraftablePagesFromAllStacks_WoodOnly(
+                capi,
+                pool,
+                dest,
+                ConfiguredAllStacksPartitions,
+                index);
+        }
+
+        private static void AddCraftablePagesFromAllStacks_WoodOnly(
+            ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest, int partitions,
+            Dictionary<StackKey, List<GridRecipeShim>> index)
         {
             var sw = Stopwatch.StartNew();
             try
             {
-                var msType = AccessTools.TypeByName("Vintagestory.GameContent.ModSystemSurvivalHandbook");
-                var ms = msType != null ? GetModSystemByType(capi, msType) : null;
-                var stacks = AccessTools.Field(msType, "allstacks")?.GetValue(ms) as ItemStack[];
-                if (stacks == null || stacks.Length == 0) return;
-
-                var ghType = AccessTools.TypeByName("Vintagestory.GameContent.GuiHandbookItemStackPage");
-                var ctor = ghType?.GetConstructor(new[] { typeof(ICoreClientAPI), typeof(ItemStack) });
-                var fiStack = AccessTools.Field(ghType, "Stack");
-                var miPageCode = ghType?.GetMethod("PageCodeForStack", BindingFlags.Public | BindingFlags.Static);
-                if (ctor == null || miPageCode == null) return;
-
-                foreach (var st in stacks)
-                {
-                    if (st?.Collectible == null) continue;
-                    object page = ctor.Invoke(new object[] { capi, st });
-                    var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
-
-                    foreach (var shim in CandidateShimsForStack(capi, pStack, modsOnly: false, index))
-                    {
-                        if (!IsWoodRecipe(shim.Raw)) continue;
-                        if (RecipeSatisfiedByPool(capi, pool, shim, pStack))
-                        {
-                            var pc = miPageCode.Invoke(null, new object[] { pStack }) as string;
-                            if (!string.IsNullOrEmpty(pc)) dest.Add(pc);
-                            break;
-                        }
-                    }
-                }
+                AddCraftablePagesFromAllStacksFiltered(
+                    capi,
+                    pool,
+                    dest,
+                    partitions,
+                    index,
+                    static shim => IsWoodRecipe(shim.Raw),
+                    nameof(AddCraftablePagesFromAllStacks_WoodOnly));
             }
             catch { }
             finally
@@ -2997,40 +3011,32 @@ namespace ShowCraftable
         }
 
         private static void AddCraftablePagesFromAllStacks_StoneOnly(
-    ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest,
-    Dictionary<StackKey, List<GridRecipeShim>> index)
+            ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest,
+            Dictionary<StackKey, List<GridRecipeShim>> index)
+        {
+            AddCraftablePagesFromAllStacks_StoneOnly(
+                capi,
+                pool,
+                dest,
+                ConfiguredAllStacksPartitions,
+                index);
+        }
+
+        private static void AddCraftablePagesFromAllStacks_StoneOnly(
+            ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest, int partitions,
+            Dictionary<StackKey, List<GridRecipeShim>> index)
         {
             var sw = Stopwatch.StartNew();
             try
             {
-                var msType = AccessTools.TypeByName("Vintagestory.GameContent.ModSystemSurvivalHandbook");
-                var ms = msType != null ? GetModSystemByType(capi, msType) : null;
-                var stacks = AccessTools.Field(msType, "allstacks")?.GetValue(ms) as ItemStack[];
-                if (stacks == null || stacks.Length == 0) return;
-
-                var ghType = AccessTools.TypeByName("Vintagestory.GameContent.GuiHandbookItemStackPage");
-                var ctor = ghType?.GetConstructor(new[] { typeof(ICoreClientAPI), typeof(ItemStack) });
-                var fiStack = AccessTools.Field(ghType, "Stack");
-                var miPageCode = ghType?.GetMethod("PageCodeForStack", BindingFlags.Public | BindingFlags.Static);
-                if (ctor == null || miPageCode == null) return;
-
-                foreach (var st in stacks)
-                {
-                    if (st?.Collectible == null) continue;
-                    object page = ctor.Invoke(new object[] { capi, st });
-                    var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
-
-                    foreach (var shim in CandidateShimsForStack(capi, pStack, modsOnly: false, index))
-                    {
-                        if (!IsStoneRecipe(shim.Raw)) continue;
-                        if (RecipeSatisfiedByPool(capi, pool, shim, pStack))
-                        {
-                            var pc = miPageCode.Invoke(null, new object[] { pStack }) as string;
-                            if (!string.IsNullOrEmpty(pc)) dest.Add(pc);
-                            break;
-                        }
-                    }
-                }
+                AddCraftablePagesFromAllStacksFiltered(
+                    capi,
+                    pool,
+                    dest,
+                    partitions,
+                    index,
+                    static shim => IsStoneRecipe(shim.Raw),
+                    nameof(AddCraftablePagesFromAllStacks_StoneOnly));
             }
             catch { }
             finally
