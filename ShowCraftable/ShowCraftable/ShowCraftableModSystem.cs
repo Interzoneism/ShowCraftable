@@ -233,17 +233,15 @@ namespace ShowCraftable
                     else if (string.Equals(cat, CraftableStoneCategoryCode, StringComparison.Ordinal)) tabKey = StoneTabKeyName;
                     else continue; // not ours
 
-                    string baseName = GetBaseTabName(tabKey);
                     int count = GetTabPageCount(tabKey);
-                    string label = $"{baseName} ({count})";
-
+                    bool scanning = GetTabScanningState(tabKey);
                     if (!string.IsNullOrEmpty(scanningTabKeyOrNull) &&
                         string.Equals(tabKey, scanningTabKeyOrNull, StringComparison.Ordinal))
                     {
-                        label = $"[{label}]";
+                        scanning = true;
                     }
 
-                    SetPF(t, "Name", label);
+                    SetPF(t, "Name", FormatTabDisplayText(tabKey, scanning, count));
                 }
 
                 // Ask the dialog to redraw the tab strip (lightweight)
@@ -685,13 +683,18 @@ namespace ShowCraftable
             }
         }
 
-        private static string FormatTabDisplayText(string tabKey)
+        private static string FormatTabDisplayText(string tabKey, bool scanning, int pageCount)
         {
             var baseName = GetBaseTabName(tabKey);
-            bool scanning = GetTabScanningState(tabKey);
-            int pageCount = GetTabPageCount(tabKey);
             string title = scanning ? $"[{baseName}]" : baseName;
             return $"{title} ({pageCount})";
+        }
+
+        private static string FormatTabDisplayText(string tabKey)
+        {
+            int pageCount = GetTabPageCount(tabKey);
+            bool scanning = GetTabScanningState(tabKey);
+            return FormatTabDisplayText(tabKey, scanning, pageCount);
         }
 
         private static void ScheduleTabUiUpdate(ICoreClientAPI capi)
