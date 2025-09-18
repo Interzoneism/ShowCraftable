@@ -73,6 +73,7 @@ namespace ShowCraftable
         private static string PendingScanTabKey;
         private static string PendingScanVariantKey;
         private static Task recipeIndexBuildTask;
+        private static volatile bool recipeIndexBuildStarted = false;
         private static volatile bool CraftableModsTabActive;
         private static volatile bool CraftableStoneTabActive;
         private static volatile bool CraftableTabActive;
@@ -2195,58 +2196,65 @@ namespace ShowCraftable
 
         private static void StartRecipeIndexBuild(ICoreClientAPI capi)
         {
+            if (capi == null) return;
+
+            bool shouldStart = false;
+            lock (recipeIndexByVariant)
+            {
+                bool allPresent = RecipeIndexVariants.All(v => recipeIndexByVariant.ContainsKey(v.VariantKey));
+                if (recipeIndexBuilt && allPresent) return;
+                if (recipeIndexBuildStarted) return;
+
+                recipeIndexBuildStarted = true;
+                recipeIndexBuilt = false;
+                shouldStart = true;
+            }
+
+            if (!shouldStart) return;
+
             var sw = Stopwatch.StartNew();
             try
             {
-                bool allPresent;
-                lock (recipeIndexByVariant)
-                {
-                    allPresent = RecipeIndexVariants.All(v => recipeIndexByVariant.ContainsKey(v.VariantKey));
-                }
-
-                if (recipeIndexBuilt && allPresent) return;
-
-                if (recipeIndexBuildTask != null && !recipeIndexBuildTask.IsCompleted)
-                {
-                    recipeIndexBuildTask.ContinueWith(_ => StartRecipeIndexBuild(capi));
-                    return;
-                }
-
-                recipeIndexBuilt = false;
-
                 recipeIndexBuildTask = Task.Run(() =>
                 {
-                    foreach (var variant in RecipeIndexVariants)
+                    try
                     {
-                        var variantKey = variant.VariantKey;
-                        var data = LoadRecipeIndex(capi, variant.ModsOnly, variant.WoodOnly, variant.StoneOnly);
-                        bool rebuilt = false;
-                        if (data == null)
+                        foreach (var variant in RecipeIndexVariants)
                         {
-                            data = BuildRecipeIndex(capi, variant.ModsOnly, variant.WoodOnly, variant.StoneOnly);
-                            rebuilt = true;
+                            var variantKey = variant.VariantKey;
+                            var data = LoadRecipeIndex(capi, variant.ModsOnly, variant.WoodOnly, variant.StoneOnly);
+                            bool rebuilt = false;
+                            if (data == null)
+                            {
+                                data = BuildRecipeIndex(capi, variant.ModsOnly, variant.WoodOnly, variant.StoneOnly);
+                                rebuilt = true;
+                            }
+
+                            StoreRecipeIndex(variantKey, data);
+
+                            if (rebuilt)
+                            {
+                                LogEverywhere(capi,
+                                    $"Recipe index built for variant={variantKey}; keeping DNA & cache. Next scan will decide.",
+                                    caller: nameof(StartRecipeIndexBuild));
+                            }
+
+                            var activeTab = GetActiveTabKey();
+                            if (string.Equals(activeTab, TabKeyFromVariant(variantKey), StringComparison.Ordinal))
+                            {
+                                ApplyRecipeIndexVariant(variantKey);
+                            }
                         }
 
-                        StoreRecipeIndex(variantKey, data);
-
-                        if (rebuilt)
-                        {
-                            LogEverywhere(capi,
-                                $"Recipe index rebuilt for variant={variantKey}; keeping DNA & cache. Next scan will decide.",
-                                caller: nameof(StartRecipeIndexBuild));
-                        }
-
-                        var activeTab = GetActiveTabKey();
-                        if (string.Equals(activeTab, TabKeyFromVariant(variantKey), StringComparison.Ordinal))
-                        {
-                            ApplyRecipeIndexVariant(variantKey);
-                        }
+                        recipeIndexBuilt = true;
+                        var activeVariantFinal = VariantKeyFromTabKey(GetActiveTabKey());
+                        ApplyRecipeIndexVariant(activeVariantFinal);
+                        GetCachedPageCodeMap(capi);
                     }
-
-                    recipeIndexBuilt = true;
-                    var activeVariantFinal = VariantKeyFromTabKey(GetActiveTabKey());
-                    ApplyRecipeIndexVariant(activeVariantFinal);
-                    GetCachedPageCodeMap(capi);
+                    catch (Exception e)
+                    {
+                        LogEverywhere(capi, $"Failed to build recipe index: {e}", caller: nameof(StartRecipeIndexBuild));
+                    }
                 });
             }
             finally
