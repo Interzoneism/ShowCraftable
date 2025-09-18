@@ -868,23 +868,6 @@ namespace ShowCraftable
             return CheckOne(recipeOrOutput);
         }
 
-        private static string GetCraftableLogPath(ICoreClientAPI capi)
-        {
-            try
-            {
-                var m = typeof(ICoreAPI).GetMethod("GetOrCreateDataPath", BindingFlags.Public | BindingFlags.Instance);
-                string basePath = m != null ? (string)m.Invoke(capi, new object[] { "ShowCraftable" }) : null;
-                if (string.IsNullOrEmpty(basePath))
-                    basePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ShowCraftable");
-                Directory.CreateDirectory(basePath);
-                return Path.Combine(basePath, "craftable.log");
-            }
-            catch
-            {
-                return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ShowCraftable", "craftable.log");
-            }
-        }
-
         private static void LogEverywhere(ICoreClientAPI capi, string msg, bool toChat = false, [CallerMemberName] string caller = null)
         {
             if (!DebugEnabled) return;
