@@ -33,6 +33,7 @@ namespace ShowCraftable
         private const string ModTabKeyName = "modTab";
         private const string StoneTabKeyName = "stoneTab";
         private const string WoodTabKeyName = "woodTab";
+        private const int SlowStackLogThresholdMs = 175;
         private static bool ScanQueueCheckScheduled;
         private static Dictionary<GridRecipeShim, Dictionary<string, int>> recipeGroupNeeds = new();
         private static Dictionary<StackKey, List<GridRecipeShim>> outputsIndex = new();
@@ -2804,6 +2805,7 @@ namespace ShowCraftable
                                 var st = stacks[i];
                                 if (st?.Collectible == null) continue;
 
+                                var swItem = Stopwatch.StartNew();
                                 object page = ctor.Invoke(new object[] { capi, st });
                                 var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
 
@@ -2820,6 +2822,16 @@ namespace ShowCraftable
                                         if (!string.IsNullOrEmpty(pageCode)) local.Add(pageCode);
                                         break;
                                     }
+                                }
+                                swItem.Stop();
+                                if (swItem.ElapsedMilliseconds > SlowStackLogThresholdMs)
+                                {
+                                    string stackIdent = pStack?.Collectible?.Code?.ToString()
+                                        ?? st.Collectible?.Code?.ToString()
+                                        ?? $"index={i}";
+                                    LogEverywhere(capi,
+                                        $"Slow stack {stackIdent} took {swItem.ElapsedMilliseconds}ms to process on partition {partIndex + 1}/{partitions}",
+                                        caller: callerName);
                                 }
                                 processed++;
                             }
@@ -2942,6 +2954,7 @@ namespace ShowCraftable
                                 var st = stacks[i];
                                 if (st?.Collectible == null) continue;
 
+                                var swItem = Stopwatch.StartNew();
                                 object page = ctor.Invoke(new object[] { capi, st });
                                 var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
 
@@ -2953,6 +2966,16 @@ namespace ShowCraftable
                                         if (!string.IsNullOrEmpty(pc)) local.Add(pc);
                                         break;
                                     }
+                                }
+                                swItem.Stop();
+                                if (swItem.ElapsedMilliseconds > SlowStackLogThresholdMs)
+                                {
+                                    string stackIdent = pStack?.Collectible?.Code?.ToString()
+                                        ?? st.Collectible?.Code?.ToString()
+                                        ?? $"index={i}";
+                                    LogEverywhere(capi,
+                                        $"Slow stack {stackIdent} took {swItem.ElapsedMilliseconds}ms to process on partition {partIndex + 1}/{partitions}",
+                                        caller: nameof(AddCraftablePagesFromAllStacksFromModStacks));
                                 }
                                 processed++;
                             }
