@@ -1,0 +1,18 @@
+[ 
+	{
+		code:"full",
+		shapeElement: "origin/base/top crust full/*"
+	},
+	{
+		code: "square",
+		shapeElement: "origin/base/top crust square/*"
+	},
+	{
+		code: "diagonal",
+		shapeElement: "origin/base/top crust diagonal/*"
+	},
+	{
+		code: "slit",
+		shapeElement: "origin/base/top crust slit/*"
+	}
+]

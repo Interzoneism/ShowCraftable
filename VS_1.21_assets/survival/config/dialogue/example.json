@@ -1,0 +1,141 @@
+{
+	components: [
+		{
+			code: "testhasmet",
+			owner: "trader",
+			type: "condition",
+			variable: "entity.hasmet",
+			isNotValue: "true",
+			thenJumpTo: "firstmeet",
+			elseJumpTo: "welcomeback"
+		},
+		{
+			code: "firstmeet",
+			owner: "trader",
+			type: "talk",
+			setVariables: { "entity.hasmet": "true" },
+			text: [
+				{ value: "Oh look what the cat dragged in! Another scoundrel seeking to do shady business.", condition: { variable: "player.characterclass", isValue: "malefactor" } },
+				{ value: "Hello {characterclass}! Always a pleasure doing business with one of your kind.", condition: { variable: "player.characterclass", isNotValue: "malefactor" } }
+			],
+			jumpTo: "main"
+		},
+		{
+			code: "welcomeback",
+			owner: "trader",
+			type: "talk",
+			text: [
+				{ value: "Welcome back {{playername}}! What can I do for you?" }
+			]
+		},
+		{
+			code: "main",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "Do you know anything interesting around here?", jumpTo: "gotsomething" },
+				{ value: "Where did you get all this stuff?", jumpTo: "whereyouget" },
+				{ value: "Got anything to trade, {{npcname}}?", jumpTo: "opentrade" },
+				{ value: "Did we trade before?", jumpTo: "tradequestion", condition: { variable: "entity.didtrade", isValue: "true" } },
+				{ value: "Got something for free?", jumpTo: "tradefreequestion", condition: { variable: "entity.didgivefree", isNotValue: "true" } },
+				{ value: "Want something in return for that rot?", jumpTo: "requestitem", condition: { variable: "entity.didgivefree", isValue: "true" } },
+				{ value: "I got the stick you asked for", jumpTo: "takeitem", conditions: [{ variable: "entity.requeststick", isValue: "true" }, { variable: "entity.stickreceived", isNotValue: "true" }, { variable: "player.inventory", isValue: "{type: 'item', code: 'stick'}" } ] },
+			]
+		},
+		{
+			code: "tradefreequestion",
+			owner: "trader",
+			type: "talk",
+			text: [
+				{ value: "Yea, here, have this piece of rot, now bug off." }
+			],
+			trigger: "giveitemstack",
+			triggerdata: { type: "item", code: "rot", stacksize: 2 },
+			setVariables: { "entity.didgivefree": "true" },
+			jumpTo: "main"
+		},
+		{
+			code: "gotsomething",
+			owner: "trader",
+			type: "talk",
+			text: [
+				{ value: "Nope, just trees and drifters around here." }
+			],
+			jumpTo: "anythingelse"
+		},
+		{
+			code: "tradequestion",
+			owner: "trader",
+			type: "talk",
+			text: [
+				{ value: "Yes, we've traded before." }
+			],
+		},
+		{
+			code: "tradequestionreply",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "I see.", jumpTo: "anythingelse" }
+			]
+		},
+		{
+			code: "whereyouget",
+			owner: "trader",
+			type: "talk",
+			trigger: "playanimation",
+			triggerdata: { animation: "nod", code: "nod" },
+			text: [
+				{ value: "Oh a little over here, a little over there. Plenty of folks are holed up in villages where they make what they can to survive. I buy the surplus from them and sell it to whoever needs it.." }
+			]
+		},
+		{
+			code: "whereyougetreply",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "That makes sense. Let me have a look!", jumpTo: "opentrade" },
+				{ value: "I see.", jumpTo: "anythingelse" },
+			]
+		},
+		{
+			code: "opentrade",
+			owner: "trader",
+			trigger: "opentrade",
+			setVariables: { "entity.didtrade": "true" },
+		},
+		{
+			code: "anythingelse",
+			owner: "trader",
+			type: "talk",
+			text: [ { value: "Anything else I can help you with?" } ],
+			jumpTo: "main"
+		},
+		{
+			code: "requestitem",
+			owner: "trader",
+			type: "talk",
+			text: [ { value: "Yea, get me a stick so I can smack you off my property!" } ],
+			jumpTo: "main",
+			setVariables: { "entity.requeststick": "true" },
+		},
+		{
+			code: "takeitem",
+			owner: "trader",
+			type: "talk",
+			text: [ { value: "Wow thanks so much, now get off my lawn!!" } ],
+			jumpTo: "smack",
+			trigger: "takefrominventory",
+			triggerdata: {type: 'item', code: 'stick'}
+		},
+		{
+			code: "smack",
+			owner: "trader",
+			jumpTo: "main",
+			sound: "player/slap",
+			trigger: "attack",
+			triggerdata: { damage: 2, type: "BluntAttack" },
+			setVariables: { "entity.stickreceived": "true" },
+		}
+	]
+}

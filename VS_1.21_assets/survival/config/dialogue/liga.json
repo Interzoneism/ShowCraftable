@@ -1,0 +1,143 @@
+{
+	components: [
+		{
+			code: "testhasmet",
+			owner: "liga",
+			type: "condition",
+			variable: "player.hasmetliga",
+			isNotValue: "true",
+			thenJumpTo: "firstmeet",
+			elseJumpTo: "welcomeback"
+		},
+		{
+			code: "firstmeet",
+			owner: "liga",
+			type: "talk",
+			setVariables: { "player.hasmetliga": "true" },
+			text: [
+				{ value: "dialogue-liga-welcome" }
+			],
+		},
+		{
+			code: "main",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-name", jumpTo: "name" },
+				{ value: "dialogue-profession", jumpTo: "profession" },
+				{ value: "dialogue-location", jumpTo: "location" },
+				{ value: "dialogue-trade", jumpTo: "trade" },
+				{ value: "dialogue-liga-getaroom", jumpTo: "room" },
+				{ value: "dialogue-liga-letter", jumpTo: "letter", condition: { variable: "player.inventory", isValue: "{type: 'item', code: 'letter-faded', stacksize: 1}" } },
+				{ value: "dialogue-liga-tobias", jumpTo: "tobias", condition: { variable: "player.heardoftobias", isValue: "true" } },
+			],
+		},
+		{
+			code: "welcomeback",
+			owner: "liga",
+			type: "talk",
+			text: [
+				{ value: "dialogue-liga-nohurry" }
+			],
+			jumpTo: "main"
+		},
+		{
+			code: "name",
+			owner: "liga",
+			type: "talk",
+			trigger: "revealname",
+			text: [
+				{ value: "dialogue-liga-liga"	}
+			],
+			jumpTo: "main"
+		},
+		{
+			code: "profession",
+			owner: "liga",
+			type: "talk",
+			text: [
+				{ value: "dialogue-liga-whatdoyouneed"	}
+			],
+			jumpTo: "lookingtodo"
+		},
+		{
+			code: "lookingtodo",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-liga-rest", jumpTo: "resupply"	},
+				{ value: "dialogue-liga-information", jumpTo: "information"	},
+				{ value: "dialogue-liga-lookingaround", jumpTo: "lookaround"	},
+			],
+		},
+		{
+			code: "resupply",
+			owner: "liga",
+			type: "talk",
+			text: [
+				{ value: "dialogue-liga-wehaveenough"	}
+			],
+			jumpTo: "main"
+		},
+		{
+			code: "information",
+			owner: "liga",
+			type: "talk",
+			text: [
+				{ value: "dialogue-liga-knowthings"	}
+			],
+			jumpTo: "main"
+		},
+		{
+			code: "lookaround",
+			owner: "liga",
+			type: "talk",
+			text: [
+				{ value: "dialogue-liga-feelfree"	}
+			],
+			jumpTo: "main"
+		},
+		{
+			code: "location",
+			owner: "liga",
+			type: "talk",
+			text: [
+				{ value: "dialogue-liga-nadiya" }
+			],
+			jumpTo: "main"	
+		},
+		{
+			code: "trade",
+			owner: "liga",
+			trigger: "opentrade"
+		},
+		{
+			code: "room",
+			owner: "liga",
+			type: "talk",
+			text: [
+				{ value: "dialogue-liga-sorry"	}
+			],
+			jumpTo: "main"
+		},
+		{
+			code: "letter",
+			owner: "liga",
+			type: "talk",
+			setVariables: { "player.heardoftobias": "true" },
+			text: [
+				{ value: "dialogue-liga-veryinteresting"	}
+			],
+			jumpTo: "main"
+		},
+		{
+			code: "tobias",
+			owner: "liga",
+			type: "talk",
+			text: [
+				{ value: "dialogue-liga-sednaknows"	}
+			],
+			jumpTo: "main"
+		},
+	]
+}

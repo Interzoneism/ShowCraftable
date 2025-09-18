@@ -1,0 +1,122 @@
+{
+	components: [
+		{
+			code: "testhasmet",
+			owner: "laura",
+			type: "condition",
+			variable: "entity.hasmet",
+			isNotValue: "true",
+			thenJumpTo: "firstmeet",
+			elseJumpTo: "welcomeback"
+		},
+		{
+			code: "firstmeet",
+			owner: "laura",
+			type: "talk",
+			setVariables: { "entity.hasmet": "true" },
+			text: [
+				{ value: "dialogue-laura-welcome" },
+			],
+			jumpTo: "main"
+		},
+		{
+			code: "welcomeback",
+			owner: "laura",
+			type: "talk",
+			text: [
+				{ value: "dialogue-laura-welcomeback" },
+			],
+			jumpTo: "main"
+		},
+		{
+			code: "main",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-name", jumpTo: "name" },
+				{ value: "dialogue-laura-harvest", jumpTo: "harvest" },
+				{ value: "dialogue-letter", jumpTo: "letter", condition: { variable: "player.inventory", isValue: "{type: 'item', code: 'letter-faded', stacksize: 1}" } },
+			],
+		},
+		{
+			code: "name",
+			owner: "laura",
+			type: "talk",
+			trigger: "revealname",
+			text: [
+				{ value: "dialogue-laura-laura"	}
+			],
+			jumpTo: "main"
+		},
+		{
+			code: "harvest",
+			owner: "laura",
+			type: "talk",
+			text: [
+				{ value: "dialogue-laura-wegetby"	}
+			],
+			jumpTo: "harvestcontinue"
+		},
+		{
+			code: "harvestcontinue",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-continue", jumpTo: "harvest2" },
+			],
+		},
+		{
+			code: "harvest2",
+			owner: "laura",
+			type: "talk",
+			text: [
+				{ value: "dialogue-laura-tried"	}
+			],
+			jumpTo: "harvestcontinue2"
+		},
+		{
+			code: "harvestcontinue2",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-continue", jumpTo: "harvest3" },
+			],
+		},
+		{
+			code: "harvest3",
+			owner: "laura",
+			type: "talk",
+			text: [
+				{ value: "dialogue-laura-tobias"	}
+			],
+			jumpTo: "harvestcontinue3"
+		},
+		{
+			code: "harvestcontinue3",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-laura-likewhat", jumpTo: "harvest4" },
+				{ value: "dialogue-isee", jumpTo: "main" },
+			],
+		},
+		{
+			code: "harvest4",
+			owner: "laura",
+			type: "talk",
+			text: [
+				{ value: "dialogue-laura-otherpeople"	}
+			],
+			jumpTo: "main"
+		},
+		{
+			code: "letter",
+			owner: "laura",
+			type: "talk",
+			text: [
+				{ value: "dialogue-laura-goodluck"	}
+			],
+			jumpTo: "main"
+		},
+	]
+}

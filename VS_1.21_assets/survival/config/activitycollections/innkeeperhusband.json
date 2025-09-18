@@ -1,0 +1,1560 @@
+{
+  "$type": "Vintagestory.GameContent.EntityActivityCollection, VSSurvivalMod",
+  "Name": "innkeeperhusband",
+  "Activities": {
+    "$type": "System.Collections.Generic.List`1[[Vintagestory.GameContent.EntityActivity, VSSurvivalMod]], System.Private.CoreLib",
+    "$values": [
+      {
+        "$type": "Vintagestory.GameContent.EntityActivity, VSSurvivalMod",
+        "Slot": 0,
+        "Priority": 20.0,
+        "Name": "onattacked",
+        "Code": "onattacked",
+        "Conditions": {
+          "$type": "Vintagestory.GameContent.IActionCondition[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.EmotionStateCondition, VSSurvivalMod",
+              "emotionState": "aggressiveondamage",
+              "Invert": false
+            }
+          ]
+        },
+        "Actions": {
+          "$type": "Vintagestory.GameContent.IEntityAction[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.EquipAction, VSSurvivalMod",
+              "Target": "righthand",
+              "Value": "{ type: \"item\", code: \"spear-generic-blackbronze\" }"
+            },
+            {
+              "$type": "Vintagestory.GameContent.StandardAIAction, VSSurvivalMod",
+              "durationSeconds": 60.0
+            }
+          ]
+        },
+        "ConditionsOp": 1
+      },
+      {
+        "$type": "Vintagestory.GameContent.EntityActivity, VSSurvivalMod",
+        "Slot": 0,
+        "Priority": 20.0,
+        "Name": "notaggressive",
+        "Code": "notaggressive",
+        "Conditions": {
+          "$type": "Vintagestory.GameContent.IActionCondition[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.EmotionStateCondition, VSSurvivalMod",
+              "emotionState": "aggressiveondamage",
+              "Invert": true
+            },
+            {
+              "$type": "Vintagestory.GameContent.HeldCondition, VSSurvivalMod",
+              "Code": "game:spear-generic-blackbronze",
+              "Invert": false
+            },
+            {
+              "$type": "Vintagestory.GameContent.TemporalStormCondition, VSSurvivalMod",
+              "Invert": true
+            }
+          ]
+        },
+        "Actions": {
+          "$type": "Vintagestory.GameContent.IEntityAction[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.UnequipAction, VSSurvivalMod",
+              "Target": "righthand"
+            }
+          ]
+        },
+        "ConditionsOp": 1
+      },
+      {
+        "$type": "Vintagestory.GameContent.EntityActivity, VSSurvivalMod",
+        "Slot": 0,
+        "Priority": 20.0,
+        "Name": "tempstorm",
+        "Code": "tempstorm",
+        "Conditions": {
+          "$type": "Vintagestory.GameContent.IActionCondition[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.TemporalStormCondition, VSSurvivalMod",
+              "Invert": false
+            }
+          ]
+        },
+        "Actions": {
+          "$type": "Vintagestory.GameContent.IEntityAction[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.EquipAction, VSSurvivalMod",
+              "Target": "righthand",
+              "Value": "{ type: \"item\", code: \"spear-generic-blackbronze\" }"
+            },
+            {
+              "$type": "Vintagestory.GameContent.StandardAIAction, VSSurvivalMod",
+              "durationSeconds": 30.0
+            }
+          ]
+        },
+        "ConditionsOp": 1
+      },
+      {
+        "$type": "Vintagestory.GameContent.EntityActivity, VSSurvivalMod",
+        "Slot": 0,
+        "Priority": 20.0,
+        "Name": "onattacked",
+        "Code": "onattacked",
+        "Conditions": {
+          "$type": "Vintagestory.GameContent.IActionCondition[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.EmotionStateCondition, VSSurvivalMod",
+              "emotionState": "aggressiveondamage",
+              "Invert": false
+            }
+          ]
+        },
+        "Actions": {
+          "$type": "Vintagestory.GameContent.IEntityAction[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.StandardAIAction, VSSurvivalMod",
+              "durationSeconds": 60.0
+            }
+          ]
+        },
+        "ConditionsOp": 1
+      },
+      {
+        "$type": "Vintagestory.GameContent.EntityActivity, VSSurvivalMod",
+        "Slot": 0,
+        "Priority": 3.200000047683716,
+        "Name": "gotobedroom 5-18",
+        "Code": "gotobedrom",
+        "Conditions": {
+          "$type": "Vintagestory.GameContent.IActionCondition[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.PositionVicinityCondition, VSSurvivalMod",
+              "range": 1.0,
+              "yrange": 1.0,
+              "Invert": true,
+              "targetX": 512804.7,
+              "targetY": 23.0,
+              "targetZ": 511769.5,
+            },
+            {
+              "$type": "Vintagestory.GameContent.TimeOfDayCondition, VSSurvivalMod",
+              "minHour": 5.0,
+              "maxHour": 18.0,
+              "Invert": false
+            },
+            {
+              "$type": "Vintagestory.GameContent.MountedCondition, VSSurvivalMod",
+              "mountCode": "*",
+              "Invert": true
+            }
+          ]
+        },
+        "Actions": {
+          "$type": "Vintagestory.GameContent.IEntityAction[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512804.7,
+              "targetY": 20.0,
+              "targetZ": 511764.7,
+            },
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512803.3,
+              "targetY": 20.0,
+              "targetZ": 511764.7,
+            },
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512803.3,
+              "targetY": 23.0,
+              "targetZ": 511767.2,
+            },
+            {
+              "$type": "Vintagestory.GameContent.ActivateBlockAction, VSSurvivalMod",
+              "targetBlockCode": "game:door*",
+              "searchRange": 1.0,
+              "activateArgs": "{opened: true}",
+              "targetX": 0.0,
+              "targetY": 0.0,
+              "targetZ": 0.0,
+            },
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512803.6,
+              "targetY": 23.0,
+              "targetZ": 511768.5,
+            },
+            {
+              "$type": "Vintagestory.GameContent.ActivateBlockAction, VSSurvivalMod",
+              "targetBlockCode": "game:",
+              "searchRange": 3.0,
+              "activateArgs": "{opened: false}",
+              "targetX": 512803.6,
+              "targetY": 23.0,
+              "targetZ": 511767.4,
+            },
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512804.4,
+              "targetY": 23.0,
+              "targetZ": 511769.0,
+            },
+            {
+              "$type": "Vintagestory.GameContent.TeleportAction, VSSurvivalMod",
+              "TargetX": 512804.4,
+              "TargetY": 23.0,
+              "TargetZ": 511769.0,
+              "Yaw": 4.8
+            },
+            {
+              "$type": "Vintagestory.GameContent.TurnAction, VSSurvivalMod",
+              "yaw": 89.6
+            }
+          ]
+        },
+        "ConditionsOp": 1
+      },
+      {
+        "$type": "Vintagestory.GameContent.EntityActivity, VSSurvivalMod",
+        "Slot": 0,
+        "Priority": 3.0999999046325684,
+        "Name": "sleep 5-18",
+        "Code": "sleep",
+        "Conditions": {
+          "$type": "Vintagestory.GameContent.IActionCondition[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.TimeOfDayCondition, VSSurvivalMod",
+              "minHour": 5.0,
+              "maxHour": 18.0,
+              "Invert": false
+            },
+            {
+              "$type": "Vintagestory.GameContent.MountedCondition, VSSurvivalMod",
+              "mountCode": "*",
+              "Invert": true
+            },
+            {
+              "$type": "Vintagestory.GameContent.PositionVicinityCondition, VSSurvivalMod",
+              "range": 2.0,
+              "yrange": 1.0,
+              "Invert": false,
+              "targetX": 512804.3,
+              "targetY": 23.0,
+              "targetZ": 511769.8,
+            }
+          ]
+        },
+        "Actions": {
+          "$type": "Vintagestory.GameContent.IEntityAction[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.MountBlockAction, VSSurvivalMod",
+              "targetBlockCode": "game:bed*",
+              "searchRange": 2.0,
+              "targetPosition": null
+            }
+          ]
+        },
+        "ConditionsOp": 1
+      },
+      {
+        "$type": "Vintagestory.GameContent.EntityActivity, VSSurvivalMod",
+        "Slot": 0,
+        "Priority": 2.0999999046325684,
+        "Name": "getsupplies 18-5",
+        "Code": "getsupplies",
+        "Conditions": {
+          "$type": "Vintagestory.GameContent.IActionCondition[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.TimeOfDayCondition, VSSurvivalMod",
+              "minHour": 18.0,
+              "maxHour": 5.0,
+              "Invert": false
+            },
+            {
+              "$type": "Vintagestory.GameContent.AfterActivityCondition, VSSurvivalMod",
+              "activity": "cookfood",
+              "Invert": false
+            }
+          ]
+        },
+        "Actions": {
+          "$type": "Vintagestory.GameContent.IEntityAction[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.UndressAction, VSSurvivalMod",
+              "Slot": "heldr"
+            },
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512804.6,
+              "targetY": 20.0,
+              "targetZ": 511761.6,
+            },
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512803.1,
+              "targetY": 20.0,
+              "targetZ": 511761.5,
+            },
+            {
+              "$type": "Vintagestory.GameContent.ActivateBlockAction, VSSurvivalMod",
+              "targetBlockCode": "game:",
+              "searchRange": 1.0,
+              "activateArgs": "{opened: true}",
+              "targetX": 512802.4,
+              "targetY": 20.0,
+              "targetZ": 511761.5,
+            },
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512800.6,
+              "targetY": 20.0,
+              "targetZ": 511761.6,
+            },
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512800.4,
+              "targetY": 20.0,
+              "targetZ": 511764.0,
+            },
+            {
+              "$type": "Vintagestory.GameContent.TurnAction, VSSurvivalMod",
+              "yaw": 91.0
+            },
+            {
+              "$type": "Vintagestory.GameContent.PlayAnimationAction, VSSurvivalMod",
+              "meta": {
+                "$type": "Vintagestory.API.Common.AnimationMetaData, VintagestoryAPI",
+                "Code": "shelves-lookupdown1",
+                "Attributes": null,
+                "Animation": "shelves-lookupdown1",
+                "Weight": 1.0,
+                "ElementWeight": {
+                  "$type": "System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib],[System.Single, System.Private.CoreLib]], System.Private.CoreLib"
+                },
+                "AnimationSpeed": 1.0,
+                "MulWithWalkSpeed": false,
+                "WeightCapFactor": 0.0,
+                "EaseInSpeed": 10.0,
+                "EaseOutSpeed": 10.0,
+                "TriggeredBy": null,
+                "BlendMode": 0,
+                "ElementBlendMode": {
+                  "$type": "System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib],[Vintagestory.API.Common.EnumAnimationBlendMode, VintagestoryAPI]], System.Private.CoreLib"
+                },
+                "SupressDefaultAnimation": false,
+                "HoldEyePosAfterEasein": 99.0,
+                "ClientSide": false,
+                "WithFpVariant": false,
+                "AnimationSound": null,
+                "FpVariant": null,
+                "StartFrameOnce": 0.0,
+                "CodeCrc32": 1891114478,
+                "WasStartedFromTrigger": false
+              },
+              "DurationHours": -1.0,
+              "DurationIrlSeconds": 10.0,
+              "OnAnimEnd": 0
+            },
+            {
+              "$type": "Vintagestory.GameContent.WaitAction, VSSurvivalMod",
+              "durationSeconds": 3.0
+            },
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512800.3,
+              "targetY": 20.0,
+              "targetZ": 511761.7,
+            },
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512801.3,
+              "targetY": 20.0,
+              "targetZ": 511761.6,
+            },
+            {
+              "$type": "Vintagestory.GameContent.ActivateBlockAction, VSSurvivalMod",
+              "targetBlockCode": "game:",
+              "searchRange": 0.0,
+              "activateArgs": "{opened: true}",
+              "targetX": 512803.4,
+              "targetY": 20.0,
+              "targetZ": 511761.5,
+            },
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512803.0,
+              "targetY": 20.0,
+              "targetZ": 511761.5,
+            },
+            {
+              "$type": "Vintagestory.GameContent.ActivateBlockAction, VSSurvivalMod",
+              "targetBlockCode": "game:",
+              "searchRange": 1.0,
+              "activateArgs": "{opened: false}",
+              "targetX": 512802.4,
+              "targetY": 20.0,
+              "targetZ": 511761.5,
+            },
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512804.6,
+              "targetY": 20.0,
+              "targetZ": 511761.6,
+            },
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512804.7,
+              "targetY": 20.0,
+              "targetZ": 511763.6,
+            }
+          ]
+        },
+        "ConditionsOp": 1
+      },
+      {
+        "$type": "Vintagestory.GameContent.EntityActivity, VSSurvivalMod",
+        "Slot": 0,
+        "Priority": 2.0,
+        "Name": "cookfood 18-5",
+        "Code": "cookfood",
+        "Conditions": {
+          "$type": "Vintagestory.GameContent.IActionCondition[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.PositionVicinityCondition, VSSurvivalMod",
+              "range": 3.0,
+              "yrange": -1.0,
+              "Invert": false,
+              "targetX": 512804.5,
+              "targetY": 20.0,
+              "targetZ": 511763.4,
+            },
+            {
+              "$type": "Vintagestory.GameContent.TimeOfDayCondition, VSSurvivalMod",
+              "minHour": 18.0,
+              "maxHour": 5.0,
+              "Invert": false
+            },
+            {
+              "$type": "Vintagestory.GameContent.MountedCondition, VSSurvivalMod",
+              "mountCode": "*",
+              "Invert": true
+            }
+          ]
+        },
+        "Actions": {
+          "$type": "Vintagestory.GameContent.IEntityAction[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.UndressAction, VSSurvivalMod",
+              "Slot": "heldr"
+            },
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512804.2,
+              "targetY": 20.0,
+              "targetZ": 511763.5,
+            },
+            {
+              "$type": "Vintagestory.GameContent.DressAction, VSSurvivalMod",
+              "Code": "heldr-spoon2",
+              "Slot": "heldr"
+            },
+            {
+              "$type": "Vintagestory.GameContent.TeleportAction, VSSurvivalMod",
+              "TargetX": 512804.3,
+              "TargetY": 20.0,
+              "TargetZ": 511763.5,
+              "Yaw": 1.9
+            },
+            {
+              "$type": "Vintagestory.GameContent.TurnAction, VSSurvivalMod",
+              "yaw": 275.5
+            },
+            {
+              "$type": "Vintagestory.GameContent.PlaySoundAction, VSSurvivalMod",
+              "delaySeconds": 0.0,
+              "soundLocation": "effect/cooking",
+              "randomizePitch": false,
+              "range": 12.0,
+              "volume": 1.0
+            },
+            {
+              "$type": "Vintagestory.GameContent.PlayAnimationAction, VSSurvivalMod",
+              "meta": {
+                "$type": "Vintagestory.API.Common.AnimationMetaData, VintagestoryAPI",
+                "Code": "pot-stir",
+                "Attributes": null,
+                "Animation": "pot-stir",
+                "Weight": 1.0,
+                "ElementWeight": {
+                  "$type": "System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib],[System.Single, System.Private.CoreLib]], System.Private.CoreLib"
+                },
+                "AnimationSpeed": 1.0,
+                "MulWithWalkSpeed": false,
+                "WeightCapFactor": 0.0,
+                "EaseInSpeed": 10.0,
+                "EaseOutSpeed": 10.0,
+                "TriggeredBy": null,
+                "BlendMode": 0,
+                "ElementBlendMode": {
+                  "$type": "System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib],[Vintagestory.API.Common.EnumAnimationBlendMode, VintagestoryAPI]], System.Private.CoreLib"
+                },
+                "SupressDefaultAnimation": false,
+                "HoldEyePosAfterEasein": 99.0,
+                "ClientSide": false,
+                "WithFpVariant": false,
+                "AnimationSound": null,
+                "FpVariant": null,
+                "StartFrameOnce": 0.0,
+                "CodeCrc32": 1026087319,
+                "WasStartedFromTrigger": false
+              },
+              "DurationHours": -1.0,
+              "DurationIrlSeconds": 6.0,
+              "OnAnimEnd": 0
+            },
+            {
+              "$type": "Vintagestory.GameContent.WaitAction, VSSurvivalMod",
+              "durationSeconds": 0.5
+            },
+            {
+              "$type": "Vintagestory.GameContent.JumpAction, VSSurvivalMod",
+              "Index": 3,
+              "hourOfDay": -1.0,
+              "MinRepetitions": 1,
+              "MaxRepetitions": 2
+            },
+            {
+              "$type": "Vintagestory.GameContent.PlayAnimationAction, VSSurvivalMod",
+              "meta": {
+                "$type": "Vintagestory.API.Common.AnimationMetaData, VintagestoryAPI",
+                "Code": "pot-taste",
+                "Attributes": null,
+                "Animation": "pot-taste",
+                "Weight": 1.0,
+                "ElementWeight": {
+                  "$type": "System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib],[System.Single, System.Private.CoreLib]], System.Private.CoreLib"
+                },
+                "AnimationSpeed": 1.0,
+                "MulWithWalkSpeed": false,
+                "WeightCapFactor": 0.0,
+                "EaseInSpeed": 10.0,
+                "EaseOutSpeed": 10.0,
+                "TriggeredBy": null,
+                "BlendMode": 0,
+                "ElementBlendMode": {
+                  "$type": "System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib],[Vintagestory.API.Common.EnumAnimationBlendMode, VintagestoryAPI]], System.Private.CoreLib"
+                },
+                "SupressDefaultAnimation": false,
+                "HoldEyePosAfterEasein": 99.0,
+                "ClientSide": false,
+                "WithFpVariant": false,
+                "AnimationSound": null,
+                "FpVariant": null,
+                "StartFrameOnce": 0.0,
+                "CodeCrc32": 327200505,
+                "WasStartedFromTrigger": false
+              },
+              "DurationHours": -1.0,
+              "DurationIrlSeconds": -1.0,
+              "OnAnimEnd": 1
+            },
+            {
+              "$type": "Vintagestory.GameContent.UndressAction, VSSurvivalMod",
+              "Slot": "heldr"
+            },
+            {
+              "$type": "Vintagestory.GameContent.StartActivityAction, VSSurvivalMod",
+              "activityCode": "getsupplies, wipebar1, wipebar2, wipebar3",
+              "target": "self",
+              "priority": -1.0,
+              "slot": -1,
+              "entitySelector": ""
+            }
+          ]
+        },
+        "ConditionsOp": 1
+      },
+      {
+        "$type": "Vintagestory.GameContent.EntityActivity, VSSurvivalMod",
+        "Slot": 0,
+        "Priority": 2.0,
+        "Name": "wipebar1 18-5",
+        "Code": "wipebar1",
+        "Conditions": {
+          "$type": "Vintagestory.GameContent.IActionCondition[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.TimeOfDayCondition, VSSurvivalMod",
+              "minHour": 18.0,
+              "maxHour": 5.0,
+              "Invert": false
+            },
+            {
+              "$type": "Vintagestory.GameContent.MountedCondition, VSSurvivalMod",
+              "mountCode": "*",
+              "Invert": true
+            },
+            {
+              "$type": "Vintagestory.GameContent.PositionVicinityCondition, VSSurvivalMod",
+              "range": 3.0,
+              "yrange": 0.0,
+              "Invert": false,
+              "targetX": 512804.6,
+              "targetY": 20.0,
+              "targetZ": 511763.5,
+            }
+          ]
+        },
+        "Actions": {
+          "$type": "Vintagestory.GameContent.IEntityAction[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512804.6,
+              "targetY": 20.0,
+              "targetZ": 511761.5,
+            },
+            {
+              "$type": "Vintagestory.GameContent.TurnAction, VSSurvivalMod",
+              "yaw": 89.2
+            },
+            {
+              "$type": "Vintagestory.GameContent.DressAction, VSSurvivalMod",
+              "Code": "heldr-rag1",
+              "Slot": "heldr"
+            },
+            {
+              "$type": "Vintagestory.GameContent.PlayAnimationAction, VSSurvivalMod",
+              "meta": {
+                "$type": "Vintagestory.API.Common.AnimationMetaData, VintagestoryAPI",
+                "Code": "wipetable",
+                "Attributes": null,
+                "Animation": "wipetable",
+                "Weight": 1.0,
+                "ElementWeight": {
+                  "$type": "System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib],[System.Single, System.Private.CoreLib]], System.Private.CoreLib"
+                },
+                "AnimationSpeed": 1.0,
+                "MulWithWalkSpeed": false,
+                "WeightCapFactor": 0.0,
+                "EaseInSpeed": 10.0,
+                "EaseOutSpeed": 10.0,
+                "TriggeredBy": null,
+                "BlendMode": 0,
+                "ElementBlendMode": {
+                  "$type": "System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib],[Vintagestory.API.Common.EnumAnimationBlendMode, VintagestoryAPI]], System.Private.CoreLib"
+                },
+                "SupressDefaultAnimation": false,
+                "HoldEyePosAfterEasein": 99.0,
+                "ClientSide": false,
+                "WithFpVariant": false,
+                "AnimationSound": null,
+                "FpVariant": null,
+                "StartFrameOnce": 0.0,
+                "CodeCrc32": 959788987,
+                "WasStartedFromTrigger": false
+              },
+              "DurationHours": -1.0,
+              "DurationIrlSeconds": 4.0,
+              "OnAnimEnd": 0
+            },
+            {
+              "$type": "Vintagestory.GameContent.StartActivityAction, VSSurvivalMod",
+              "activityCode": "cookfood, wipebar2, wipebar3",
+              "target": "self",
+              "priority": -1.0,
+              "slot": -1,
+              "entitySelector": ""
+            }
+          ]
+        },
+        "ConditionsOp": 1
+      },
+      {
+        "$type": "Vintagestory.GameContent.EntityActivity, VSSurvivalMod",
+        "Slot": 0,
+        "Priority": 2.0,
+        "Name": "wipebar2 18-5",
+        "Code": "wipebar2",
+        "Conditions": {
+          "$type": "Vintagestory.GameContent.IActionCondition[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.PositionVicinityCondition, VSSurvivalMod",
+              "range": 3.0,
+              "yrange": 0.0,
+              "Invert": false,
+              "targetX": 512804.6,
+              "targetY": 20.0,
+              "targetZ": 511763.5,
+            },
+            {
+              "$type": "Vintagestory.GameContent.TimeOfDayCondition, VSSurvivalMod",
+              "minHour": 18.0,
+              "maxHour": 5.0,
+              "Invert": false
+            },
+            {
+              "$type": "Vintagestory.GameContent.MountedCondition, VSSurvivalMod",
+              "mountCode": "*",
+              "Invert": true
+            }
+          ]
+        },
+        "Actions": {
+          "$type": "Vintagestory.GameContent.IEntityAction[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512804.6,
+              "targetY": 20.0,
+              "targetZ": 511764.0,
+            },
+            {
+              "$type": "Vintagestory.GameContent.TurnAction, VSSurvivalMod",
+              "yaw": 92.9
+            },
+            {
+              "$type": "Vintagestory.GameContent.DressAction, VSSurvivalMod",
+              "Code": "heldr-rag1",
+              "Slot": "heldr"
+            },
+            {
+              "$type": "Vintagestory.GameContent.PlayAnimationAction, VSSurvivalMod",
+              "meta": {
+                "$type": "Vintagestory.API.Common.AnimationMetaData, VintagestoryAPI",
+                "Code": "wipetable",
+                "Attributes": null,
+                "Animation": "wipetable",
+                "Weight": 1.0,
+                "ElementWeight": {
+                  "$type": "System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib],[System.Single, System.Private.CoreLib]], System.Private.CoreLib"
+                },
+                "AnimationSpeed": 1.0,
+                "MulWithWalkSpeed": false,
+                "WeightCapFactor": 0.0,
+                "EaseInSpeed": 10.0,
+                "EaseOutSpeed": 10.0,
+                "TriggeredBy": null,
+                "BlendMode": 0,
+                "ElementBlendMode": {
+                  "$type": "System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib],[Vintagestory.API.Common.EnumAnimationBlendMode, VintagestoryAPI]], System.Private.CoreLib"
+                },
+                "SupressDefaultAnimation": false,
+                "HoldEyePosAfterEasein": 99.0,
+                "ClientSide": false,
+                "WithFpVariant": false,
+                "AnimationSound": null,
+                "FpVariant": null,
+                "StartFrameOnce": 0.0,
+                "CodeCrc32": 959788987,
+                "WasStartedFromTrigger": false
+              },
+              "DurationHours": -1.0,
+              "DurationIrlSeconds": 4.0,
+              "OnAnimEnd": 0
+            },
+            {
+              "$type": "Vintagestory.GameContent.StartActivityAction, VSSurvivalMod",
+              "activityCode": "cookfood, wipebar1, wipebar3",
+              "target": "self",
+              "priority": -1.0,
+              "slot": -1,
+              "entitySelector": ""
+            }
+          ]
+        },
+        "ConditionsOp": 1
+      },
+      {
+        "$type": "Vintagestory.GameContent.EntityActivity, VSSurvivalMod",
+        "Slot": 0,
+        "Priority": 2.0,
+        "Name": "wipebar3 18-5",
+        "Code": "wipebar3",
+        "Conditions": {
+          "$type": "Vintagestory.GameContent.IActionCondition[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.PositionVicinityCondition, VSSurvivalMod",
+              "range": 3.0,
+              "yrange": 0.0,
+              "Invert": false,
+              "targetX": 512804.6,
+              "targetY": 20.0,
+              "targetZ": 511763.5,
+            },
+            {
+              "$type": "Vintagestory.GameContent.TimeOfDayCondition, VSSurvivalMod",
+              "minHour": 18.0,
+              "maxHour": 5.0,
+              "Invert": false
+            },
+            {
+              "$type": "Vintagestory.GameContent.MountedCondition, VSSurvivalMod",
+              "mountCode": "*",
+              "Invert": true
+            }
+          ]
+        },
+        "Actions": {
+          "$type": "Vintagestory.GameContent.IEntityAction[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512804.6,
+              "targetY": 20.0,
+              "targetZ": 511765.7,
+            },
+            {
+              "$type": "Vintagestory.GameContent.TurnAction, VSSurvivalMod",
+              "yaw": 92.9
+            },
+            {
+              "$type": "Vintagestory.GameContent.DressAction, VSSurvivalMod",
+              "Code": "heldr-rag1",
+              "Slot": "heldr"
+            },
+            {
+              "$type": "Vintagestory.GameContent.PlayAnimationAction, VSSurvivalMod",
+              "meta": {
+                "$type": "Vintagestory.API.Common.AnimationMetaData, VintagestoryAPI",
+                "Code": "wipetable",
+                "Attributes": null,
+                "Animation": "wipetable",
+                "Weight": 1.0,
+                "ElementWeight": {
+                  "$type": "System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib],[System.Single, System.Private.CoreLib]], System.Private.CoreLib"
+                },
+                "AnimationSpeed": 1.0,
+                "MulWithWalkSpeed": false,
+                "WeightCapFactor": 0.0,
+                "EaseInSpeed": 10.0,
+                "EaseOutSpeed": 10.0,
+                "TriggeredBy": null,
+                "BlendMode": 0,
+                "ElementBlendMode": {
+                  "$type": "System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib],[Vintagestory.API.Common.EnumAnimationBlendMode, VintagestoryAPI]], System.Private.CoreLib"
+                },
+                "SupressDefaultAnimation": false,
+                "HoldEyePosAfterEasein": 99.0,
+                "ClientSide": false,
+                "WithFpVariant": false,
+                "AnimationSound": null,
+                "FpVariant": null,
+                "StartFrameOnce": 0.0,
+                "CodeCrc32": 959788987,
+                "WasStartedFromTrigger": false
+              },
+              "DurationHours": -1.0,
+              "DurationIrlSeconds": 4.0,
+              "OnAnimEnd": 0
+            },
+            {
+              "$type": "Vintagestory.GameContent.StartActivityAction, VSSurvivalMod",
+              "activityCode": "cookfood, wipebar1, wipebar2",
+              "target": "self",
+              "priority": -1.0,
+              "slot": -1,
+              "entitySelector": ""
+            }
+          ]
+        },
+        "ConditionsOp": 1
+      },
+      {
+        "$type": "Vintagestory.GameContent.EntityActivity, VSSurvivalMod",
+        "Slot": 0,
+        "Priority": 1.9000098705291748,
+        "Name": "supplyrecover 18-5",
+        "Code": "supplyrecover",
+        "Conditions": {
+          "$type": "Vintagestory.GameContent.IActionCondition[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.TimeOfDayCondition, VSSurvivalMod",
+              "minHour": 18.0,
+              "maxHour": 5.0,
+              "Invert": false
+            },
+            {
+              "$type": "Vintagestory.GameContent.MountedCondition, VSSurvivalMod",
+              "mountCode": "*",
+              "Invert": true
+            },
+            {
+              "$type": "Vintagestory.GameContent.PositionVicinityCondition, VSSurvivalMod",
+              "range": 2.0,
+              "yrange": 1.0,
+              "Invert": false,
+              "targetX": 512799.2,
+              "targetY": 19.9,
+              "targetZ": 511762.6,
+            }
+          ]
+        },
+        "Actions": {
+          "$type": "Vintagestory.GameContent.IEntityAction[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.UndressAction, VSSurvivalMod",
+              "Slot": "heldr"
+            },
+            {
+              "$type": "Vintagestory.GameContent.PlayAnimationAction, VSSurvivalMod",
+              "meta": {
+                "$type": "Vintagestory.API.Common.AnimationMetaData, VintagestoryAPI",
+                "Code": "shelves-lookupdown1",
+                "Attributes": null,
+                "Animation": "shelves-lookupdown1",
+                "Weight": 1.0,
+                "ElementWeight": {
+                  "$type": "System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib],[System.Single, System.Private.CoreLib]], System.Private.CoreLib"
+                },
+                "AnimationSpeed": 1.0,
+                "MulWithWalkSpeed": false,
+                "WeightCapFactor": 0.0,
+                "EaseInSpeed": 10.0,
+                "EaseOutSpeed": 10.0,
+                "TriggeredBy": null,
+                "BlendMode": 0,
+                "ElementBlendMode": {
+                  "$type": "System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib],[Vintagestory.API.Common.EnumAnimationBlendMode, VintagestoryAPI]], System.Private.CoreLib"
+                },
+                "SupressDefaultAnimation": false,
+                "HoldEyePosAfterEasein": 99.0,
+                "ClientSide": false,
+                "WithFpVariant": false,
+                "AnimationSound": null,
+                "FpVariant": null,
+                "StartFrameOnce": 0.0,
+                "CodeCrc32": 1891114478,
+                "WasStartedFromTrigger": false
+              },
+              "DurationHours": -1.0,
+              "DurationIrlSeconds": 10.0,
+              "OnAnimEnd": 0
+            },
+            {
+              "$type": "Vintagestory.GameContent.WaitAction, VSSurvivalMod",
+              "durationSeconds": 3.0
+            },
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512800.3,
+              "targetY": 20.0,
+              "targetZ": 511761.7,
+            },
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512801.3,
+              "targetY": 20.0,
+              "targetZ": 511761.6,
+            },
+            {
+              "$type": "Vintagestory.GameContent.ActivateBlockAction, VSSurvivalMod",
+              "targetBlockCode": "game:",
+              "searchRange": 0.0,
+              "activateArgs": "{opened: true}",
+              "targetX": 512803.4,
+              "targetY": 20.0,
+              "targetZ": 511761.5,
+            },
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512803.0,
+              "targetY": 20.0,
+              "targetZ": 511761.5,
+            },
+            {
+              "$type": "Vintagestory.GameContent.ActivateBlockAction, VSSurvivalMod",
+              "targetBlockCode": "game:",
+              "searchRange": 1.0,
+              "activateArgs": "{opened: false}",
+              "targetX": 512802.4,
+              "targetY": 20.0,
+              "targetZ": 511761.5,
+            },
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512804.6,
+              "targetY": 20.0,
+              "targetZ": 511761.6,
+            },
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512804.7,
+              "targetY": 20.0,
+              "targetZ": 511763.6,
+            }
+          ]
+        },
+        "ConditionsOp": 1
+      },
+      {
+        "$type": "Vintagestory.GameContent.EntityActivity, VSSurvivalMod",
+        "Slot": 0,
+        "Priority": 1.2000000476837158,
+        "Name": "aroundbed 18-5",
+        "Code": "aroundbed",
+        "Conditions": {
+          "$type": "Vintagestory.GameContent.IActionCondition[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.TimeOfDayCondition, VSSurvivalMod",
+              "minHour": 18.0,
+              "maxHour": 5.0,
+              "Invert": false
+            },
+            {
+              "$type": "Vintagestory.GameContent.PositionVicinityCondition, VSSurvivalMod",
+              "range": 1.0,
+              "yrange": -1.0,
+              "Invert": false,
+              "targetX": 512807.6,
+              "targetY": 23.0,
+              "targetZ": 511769.3,
+            },
+            {
+              "$type": "Vintagestory.GameContent.MountedCondition, VSSurvivalMod",
+              "mountCode": "*",
+              "Invert": true
+            }
+          ]
+        },
+        "Actions": {
+          "$type": "Vintagestory.GameContent.IEntityAction[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512807.4,
+              "targetY": 23.0,
+              "targetZ": 511771.4,
+            },
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512803.5,
+              "targetY": 23.0,
+              "targetZ": 511771.3,
+            },
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512803.6,
+              "targetY": 23.0,
+              "targetZ": 511768.9,
+            }
+          ]
+        },
+        "ConditionsOp": 1
+      },
+      {
+        "$type": "Vintagestory.GameContent.EntityActivity, VSSurvivalMod",
+        "Slot": 0,
+        "Priority": 1.2000000476837158,
+        "Name": "aroundbed 18-5",
+        "Code": "aroundbed",
+        "Conditions": {
+          "$type": "Vintagestory.GameContent.IActionCondition[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.TimeOfDayCondition, VSSurvivalMod",
+              "minHour": 18.0,
+              "maxHour": 5.0,
+              "Invert": false
+            },
+            {
+              "$type": "Vintagestory.GameContent.PositionVicinityCondition, VSSurvivalMod",
+              "range": 1.0,
+              "yrange": -1.0,
+              "Invert": false,
+              "targetX": 512807.6,
+              "targetY": 23.0,
+              "targetZ": 511769.3,
+            },
+            {
+              "$type": "Vintagestory.GameContent.MountedCondition, VSSurvivalMod",
+              "mountCode": "*",
+              "Invert": true
+            }
+          ]
+        },
+        "Actions": {
+          "$type": "Vintagestory.GameContent.IEntityAction[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512807.4,
+              "targetY": 23.0,
+              "targetZ": 511771.4,
+            },
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512803.5,
+              "targetY": 23.0,
+              "targetZ": 511771.3,
+            },
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512803.6,
+              "targetY": 23.0,
+              "targetZ": 511768.9,
+            }
+          ]
+        },
+        "ConditionsOp": 1
+      },
+      {
+        "$type": "Vintagestory.GameContent.EntityActivity, VSSurvivalMod",
+        "Slot": 0,
+        "Priority": 1.100000023841858,
+        "Name": "godownstairs 18-5",
+        "Code": "godownstairs",
+        "Conditions": {
+          "$type": "Vintagestory.GameContent.IActionCondition[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.TimeOfDayCondition, VSSurvivalMod",
+              "minHour": 18.0,
+              "maxHour": 5.0,
+              "Invert": false
+            },
+            {
+              "$type": "Vintagestory.GameContent.PositionVicinityCondition, VSSurvivalMod",
+              "range": 3.0,
+              "yrange": 1.0,
+              "Invert": true,
+              "targetX": 512804.7,
+              "targetY": 20.0,
+              "targetZ": 511763.5,
+            },
+            {
+              "$type": "Vintagestory.GameContent.MountedCondition, VSSurvivalMod",
+              "mountCode": "*",
+              "Invert": true
+            }
+          ]
+        },
+        "Actions": {
+          "$type": "Vintagestory.GameContent.IEntityAction[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512803.5,
+              "targetY": 23.0,
+              "targetZ": 511768.4,
+            },
+            {
+              "$type": "Vintagestory.GameContent.ActivateBlockAction, VSSurvivalMod",
+              "targetBlockCode": "game:door*",
+              "searchRange": 1.0,
+              "activateArgs": "{opened: true}",
+              "targetX": 0.0,
+              "targetY": 0.0,
+              "targetZ": 0.0,
+            },
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512803.4,
+              "targetY": 23.0,
+              "targetZ": 511767.0,
+            },
+            {
+              "$type": "Vintagestory.GameContent.ActivateBlockAction, VSSurvivalMod",
+              "targetBlockCode": "game:door*",
+              "searchRange": 1.0,
+              "activateArgs": "{opened: false}",
+              "targetX": 0.0,
+              "targetY": 0.0,
+              "targetZ": 0.0,
+            },
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512803.6,
+              "targetY": 20.0,
+              "targetZ": 511764.5,
+            },
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512804.6,
+              "targetY": 20.0,
+              "targetZ": 511764.6,
+            },
+            {
+              "$type": "Vintagestory.GameContent.GotoAction, VSSurvivalMod",
+              "AnimSpeed": 1.0,
+              "WalkSpeed": 0.02,
+              "AnimCode": "walk",
+              "Astar": false,
+              "Radius": 0.0,
+              "targetX": 512804.6,
+              "targetY": 20.0,
+              "targetZ": 511763.5,
+            },
+            {
+              "$type": "Vintagestory.GameContent.TeleportAction, VSSurvivalMod",
+              "TargetX": 512804.6,
+              "TargetY": 20.0,
+              "TargetZ": 511763.5,
+              "Yaw": 1.9
+            }
+          ]
+        },
+        "ConditionsOp": 1
+      },
+      {
+        "$type": "Vintagestory.GameContent.EntityActivity, VSSurvivalMod",
+        "Slot": 0,
+        "Priority": 1.0,
+        "Name": "wake 5-18",
+        "Code": "wake",
+        "Conditions": {
+          "$type": "Vintagestory.GameContent.IActionCondition[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.TimeOfDayCondition, VSSurvivalMod",
+              "minHour": 18.0,
+              "maxHour": 5.0,
+              "Invert": false
+            },
+            {
+              "$type": "Vintagestory.GameContent.MountedCondition, VSSurvivalMod",
+              "mountCode": "*",
+              "Invert": false
+            }
+          ]
+        },
+        "Actions": {
+          "$type": "Vintagestory.GameContent.IEntityAction[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.UnmountAction, VSSurvivalMod"
+            }
+          ]
+        },
+        "ConditionsOp": 1
+      },
+
+      {
+        "$type": "Vintagestory.GameContent.EntityActivity, VSSurvivalMod",
+        "Slot": 0,
+        "Priority": 0.10000000149011612,
+        "Name": "greet force only",
+        "Code": "greet",
+        "Conditions": {
+          "$type": "Vintagestory.GameContent.IActionCondition[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.MountedCondition, VSSurvivalMod",
+              "mountCode": "*",
+              "Invert": true
+            }
+          ]
+        },
+        "Actions": {
+          "$type": "Vintagestory.GameContent.IEntityAction[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.TurnAction, VSSurvivalMod",
+              "yaw": 120.2
+            },
+            {
+              "$type": "Vintagestory.GameContent.TalkAction, VSSurvivalMod",
+              "talkType": "Meet"
+            },
+            {
+              "$type": "Vintagestory.GameContent.PlayAnimationAction, VSSurvivalMod",
+              "meta": {
+                "$type": "Vintagestory.API.Common.AnimationMetaData, VintagestoryAPI",
+                "Code": "greet",
+                "Attributes": null,
+                "Animation": "greet",
+                "Weight": 1.0,
+                "ElementWeight": {
+                  "$type": "System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib],[System.Single, System.Private.CoreLib]], System.Private.CoreLib"
+                },
+                "AnimationSpeed": 1.0,
+                "MulWithWalkSpeed": false,
+                "WeightCapFactor": 0.0,
+                "EaseInSpeed": 10.0,
+                "EaseOutSpeed": 10.0,
+                "TriggeredBy": null,
+                "BlendMode": 0,
+                "ElementBlendMode": {
+                  "$type": "System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib],[Vintagestory.API.Common.EnumAnimationBlendMode, VintagestoryAPI]], System.Private.CoreLib"
+                },
+                "SupressDefaultAnimation": false,
+                "HoldEyePosAfterEasein": 99.0,
+                "ClientSide": false,
+                "WithFpVariant": false,
+                "AnimationSound": null,
+                "FpVariant": null,
+                "StartFrameOnce": 0.0,
+                "CodeCrc32": 771233627,
+                "WasStartedFromTrigger": false
+              },
+              "DurationHours": -1.0,
+              "DurationIrlSeconds": -1.0,
+              "OnAnimEnd": 1
+            },
+            {
+              "$type": "Vintagestory.GameContent.WaitAction, VSSurvivalMod",
+              "durationSeconds": 2.0
+            }
+          ]
+        },
+        "ConditionsOp": 1
+      },
+      {
+        "$type": "Vintagestory.GameContent.EntityActivity, VSSurvivalMod",
+        "Slot": 0,
+        "Priority": 0.10000000149011611,
+        "Name": "clapforced",
+        "Code": "clapforced",
+        "Conditions": {
+          "$type": "Vintagestory.GameContent.IActionCondition[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.MountedCondition, VSSurvivalMod",
+              "mountCode": "*",
+              "Invert": true
+            }
+          ]
+        },
+        "Actions": {
+          "$type": "Vintagestory.GameContent.IEntityAction[], VSSurvivalMod",
+          "$values": [
+            {
+              "$type": "Vintagestory.GameContent.UndressAction, VSSurvivalMod",
+              "Slot": "heldr"
+            },
+            {
+              "$type": "Vintagestory.GameContent.LookatEntityAction, VSSurvivalMod",
+              "targetEntityCode": "game:*sedna",
+              "searchRange": 5.0
+            },
+            {
+              "$type": "Vintagestory.GameContent.PlayAnimationAction, VSSurvivalMod",
+              "meta": {
+                "$type": "Vintagestory.API.Common.AnimationMetaData, VintagestoryAPI",
+                "Code": "clapslow",
+                "Attributes": null,
+                "Animation": "clapslow",
+                "Weight": 1.0,
+                "ElementWeight": {
+                  "$type": "System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib],[System.Single, System.Private.CoreLib]], System.Private.CoreLib"
+                },
+                "AnimationSpeed": 1.0,
+                "MulWithWalkSpeed": false,
+                "WeightCapFactor": 0.0,
+                "EaseInSpeed": 10.0,
+                "EaseOutSpeed": 10.0,
+                "TriggeredBy": null,
+                "BlendMode": 0,
+                "ElementBlendMode": {
+                  "$type": "System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib],[Vintagestory.API.Common.EnumAnimationBlendMode, VintagestoryAPI]], System.Private.CoreLib"
+                },
+                "SupressDefaultAnimation": false,
+                "HoldEyePosAfterEasein": 99.0,
+                "ClientSide": false,
+                "WithFpVariant": false,
+                "AnimationSound": null,
+                "FpVariant": null,
+                "StartFrameOnce": 0.0,
+                "CodeCrc32": 1500105809,
+                "WasStartedFromTrigger": false
+              },
+              "DurationHours": -1.0,
+              "DurationIrlSeconds": 7.0,
+              "OnAnimEnd": 0
+            }
+          ]
+        },
+        "ConditionsOp": 1
+      }
+    ]
+  }
+}

@@ -25,7 +25,7 @@ namespace ShowCraftable
         private Harmony _harmony;
         private ICoreClientAPI _capi;
         public const string HarmonyId = "showcraftable.core";
-        internal static bool DebugEnabled = false;
+        internal static bool DebugEnabled = true;
         internal static int ConfiguredSearchRadius => Math.Max(0, Config?.SearchDistanceItems ?? 20);
         internal static int ConfiguredAllStacksPartitions => Math.Max(-1, Config?.AllStacksPartitions ?? -1);
         private const string ConfigFileName = "ShowCraftable.json";

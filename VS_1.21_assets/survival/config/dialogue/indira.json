@@ -1,0 +1,105 @@
+{
+	components: [
+		{
+			code: "testhasmet",
+			owner: "indira",
+			type: "condition",
+			variable: "entity.hasmet",
+			isNotValue: "true",
+			thenJumpTo: "firstmeet",
+			elseJumpTo: "welcomeback"
+		},
+		{
+			code: "firstmeet",
+			owner: "indira",
+			type: "talk",
+			setVariables: { "entity.hasmet": "true" },
+			text: [
+				{ value: "dialogue-indira-welcome" },
+			],
+			jumpTo: "main"
+		},
+		{
+			code: "welcomeback",
+			owner: "indira",
+			type: "talk",
+			text: [
+				{ value: "dialogue-indira-welcomeback" },
+			],
+			jumpTo: "main"
+		},
+		{
+			code: "main",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-name", jumpTo: "name" },
+				{ value: "dialogue-indira-worried", jumpTo: "ofcourse" },
+				{ value: "dialogue-letter", jumpTo: "letter", condition: { variable: "player.inventory", isValue: "{type: 'item', code: 'letter-faded', stacksize: 1}" } },
+			],
+		},
+		{
+			code: "name",
+			owner: "indira",
+			type: "talk",
+			trigger: "revealname",
+			text: [
+				{ value: "dialogue-indira-indira"	}
+			],
+			jumpTo: "main"
+		},
+		{
+			code: "ofcourse",
+			owner: "indira",
+			type: "talk",
+			text: [
+				{ value: "dialogue-indira-ofcourse"	}
+			],
+			jumpTo: "storms"
+		},
+		{
+			code: "storms",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-indira-storms", jumpTo: "stand" },
+				{ value: "dialogue-isee", jumpTo: "main" },
+			],
+		},
+		{
+			code: "stand",
+			owner: "indira",
+			type: "talk",
+			text: [
+				{ value: "dialogue-indira-truestorm"	}
+			],
+			jumpTo: "standcontinue"
+		},
+		{
+			code: "standcontinue",
+			owner: "player",
+			type: "talk",
+			text: [
+				{ value: "dialogue-continue", jumpTo: "stand2" },
+			],
+		},
+		{
+			code: "stand2",
+			owner: "indira",
+			type: "talk",
+			text: [
+				{ value: "dialogue-indira-livestock"	}
+			],
+			jumpTo: "main"
+		},
+		{
+			code: "letter",
+			owner: "indira",
+			type: "talk",
+			text: [
+				{ value: "dialogue-indira-noclue"	}
+			],
+			jumpTo: "main"
+		},
+	]
+}

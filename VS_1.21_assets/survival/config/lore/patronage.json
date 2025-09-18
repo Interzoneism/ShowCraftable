@@ -1,0 +1,6 @@
+{
+	code: "patronage",
+	title: "lore-patronage-title",
+	category: "archives",
+	pieces: ["lore-patronage-piece1", "lore-patronage-piece2", "lore-patronage-piece3", "lore-patronage-piece4", "lore-patronage-piece5"]
+}

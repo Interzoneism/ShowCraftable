@@ -1,0 +1,7 @@
+{
+	code: "miller",
+	title: "lore-miller-title",
+	category: "archives",
+	pieces: ["lore-miller-piece1", "lore-miller-piece2", "lore-miller-piece3", "lore-miller-piece4", "lore-miller-piece5", 
+					 "lore-miller-piece6", "lore-miller-piece7", "lore-miller-piece8", "lore-miller-piece9", "lore-miller-piece10"]
+}

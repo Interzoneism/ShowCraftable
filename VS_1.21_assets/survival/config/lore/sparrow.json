@@ -1,0 +1,7 @@
+{
+	code: "sparrow",
+	title: "lore-sparrow-title",
+	category: "archives",
+	pieces: ["lore-sparrow-piece1", "lore-sparrow-piece2", "lore-sparrow-piece3", "lore-sparrow-piece4", "lore-sparrow-piece5", 
+					 "lore-sparrow-piece6", "lore-sparrow-piece7", "lore-sparrow-piece8", "lore-sparrow-piece9", "lore-sparrow-piece10"]
+}
