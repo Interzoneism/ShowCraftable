@@ -4,6 +4,8 @@ public class ShowCraftableConfig
 {
     public bool EnableFetchButton { get; set; } = true;
 
+    public bool AlwaysCheckCraftable { get; set; } = false;
+
     public int SearchDistanceItems { get; set; } = 20;
 
     public int AllStacksPartitions { get; set; } = -1;

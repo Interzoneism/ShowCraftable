@@ -28,6 +28,7 @@ namespace ShowCraftable
         internal static bool DebugEnabled = false;
         internal static int ConfiguredSearchRadius => Math.Max(0, Config?.SearchDistanceItems ?? 20);
         internal static int ConfiguredAllStacksPartitions => Math.Max(-1, Config?.AllStacksPartitions ?? -1);
+        internal static bool AlwaysCheckCraftable => Config?.AlwaysCheckCraftable ?? false;
         private const string ConfigFileName = "ShowCraftable.json";
         private const string CraftableTabKeyName = "craftableTab";
         private const string ModTabKeyName = "modTab";
@@ -68,7 +69,7 @@ namespace ShowCraftable
         private static readonly object PendingScanLock = new();
         private static readonly object ScanQueueLock = new();
         private static readonly object TabUiStateLock = new();
-        private static ScanRequestInfo? QueuedScanRequest;
+        private static readonly Queue<ScanRequestInfo> ScanRequestQueue = new();
         private static ShowCraftableConfig Config = new();
         private static string PendingScanTabKey;
         private static string PendingScanVariantKey;
@@ -995,7 +996,7 @@ namespace ShowCraftable
         {
             lock (ScanQueueLock)
             {
-                QueuedScanRequest = new ScanRequestInfo(modsOnly, woodOnly, stoneOnly, tabKey);
+                ScanRequestQueue.Enqueue(new ScanRequestInfo(modsOnly, woodOnly, stoneOnly, tabKey));
             }
             EnsureQueueCheckScheduled(capi);
         }
@@ -1006,7 +1007,7 @@ namespace ShowCraftable
             bool shouldSchedule = false;
             lock (ScanQueueLock)
             {
-                if (QueuedScanRequest.HasValue && !ScanQueueCheckScheduled)
+                if (ScanRequestQueue.Count > 0 && !ScanQueueCheckScheduled)
                 {
                     ScanQueueCheckScheduled = true;
                     shouldSchedule = true;
@@ -1033,10 +1034,9 @@ namespace ShowCraftable
             ScanRequestInfo? request = null;
             lock (ScanQueueLock)
             {
-                if (!ScanInProgress && QueuedScanRequest.HasValue)
+                if (!ScanInProgress && ScanRequestQueue.Count > 0)
                 {
-                    request = QueuedScanRequest;
-                    QueuedScanRequest = null;
+                    request = ScanRequestQueue.Dequeue();
                 }
             }
 
@@ -1128,13 +1128,20 @@ namespace ShowCraftable
             var miLoadAsync = AccessTools.Method(tBase, "LoadPages_Async");
             _harmony.Patch(miLoadAsync, postfix: new HarmonyMethod(typeof(ShowCraftableSystem), nameof(AfterPagesLoaded_Postfix)));
 
+            var miOnOpened = AccessTools.Method(tBase, "OnGuiOpened");
+            _harmony.Patch(miOnOpened, postfix: new HarmonyMethod(typeof(ShowCraftableSystem), nameof(OnHandbookOpened_Postfix)));
+
             var tBeh = AccessTools.TypeByName("Vintagestory.GameContent.CollectibleBehaviorHandbookTextAndExtraInfo");
             var miAddInfo = AccessTools.Method(tBeh, "addCreatedByInfo");
             _harmony.Patch(miAddInfo, postfix: new HarmonyMethod(typeof(ShowCraftableSystem), nameof(AddRecipeButton_Postfix)));
 
             capi.Event.LevelFinalize += () =>
             {
-                lock (ScanQueueLock) { QueuedScanRequest = null; ScanQueueCheckScheduled = false; }
+                lock (ScanQueueLock)
+                {
+                    ScanRequestQueue.Clear();
+                    ScanQueueCheckScheduled = false;
+                }
                 lock (PendingScanLock) { PendingScanVariantKey = null; PendingScanTabKey = null; }
                 lock (InflightMapLock) InflightById.Clear();
                 ScanInProgress = false;
@@ -1331,13 +1338,20 @@ namespace ShowCraftable
                 TryRefreshOpenDialog(capi);
                 TryUpdateActiveTabFromCache(capi, tabKey, requireReadyFlag: false);
 
-                var myScanId = ++_pendingScanId;
-                capi.Event.EnqueueMainThreadTask(() =>
+                if (AlwaysCheckCraftable)
                 {
-                    if (myScanId != _pendingScanId) return;
-                    if (!DialogIsOpen(__instance)) return;
-                    RequestServerScan(capi, NearbyRadius, modsOnly, woodOnly, stoneOnly, tabKey);
-                }, "SCScanOnTabSelect");
+                    _pendingScanId++;
+                }
+                else
+                {
+                    var myScanId = ++_pendingScanId;
+                    capi.Event.EnqueueMainThreadTask(() =>
+                    {
+                        if (myScanId != _pendingScanId) return;
+                        if (!DialogIsOpen(__instance)) return;
+                        RequestServerScan(capi, NearbyRadius, modsOnly, woodOnly, stoneOnly, tabKey);
+                    }, "SCScanOnTabSelect");
+                }
             }
             catch (Exception e)
             {
@@ -1348,6 +1362,66 @@ namespace ShowCraftable
                 sw.Stop();
                 var logApi = capi ?? _staticCapi;
                 if (logApi != null) LogEverywhere(logApi, $"SelectTab_Postfix completed in {sw.ElapsedMilliseconds}ms", caller: nameof(SelectTab_Postfix));
+            }
+        }
+
+        public static void OnHandbookOpened_Postfix(object __instance)
+        {
+            if (!AlwaysCheckCraftable) return;
+
+            ICoreClientAPI capi = null;
+            var sw = Stopwatch.StartNew();
+            try
+            {
+                capi = AccessTools.Field(__instance.GetType(), "capi")?.GetValue(__instance) as ICoreClientAPI ?? _staticCapi;
+                if (capi == null) return;
+
+                StartRecipeIndexBuild(capi);
+                QueueCraftableTabScans(capi);
+            }
+            catch (Exception e)
+            {
+                LogEverywhere(capi ?? _staticCapi, $"Error in OnHandbookOpened_Postfix: {e}");
+            }
+            finally
+            {
+                sw.Stop();
+                var logApi = capi ?? _staticCapi;
+                if (logApi != null) LogEverywhere(logApi, $"OnHandbookOpened_Postfix completed in {sw.ElapsedMilliseconds}ms", caller: nameof(OnHandbookOpened_Postfix));
+            }
+        }
+
+        private static void QueueCraftableTabScans(ICoreClientAPI capi)
+        {
+            if (capi == null) return;
+
+            var sw = Stopwatch.StartNew();
+            try
+            {
+                var sequence = new[]
+                {
+                    new ScanRequestInfo(modsOnly: false, woodOnly: false, stoneOnly: false, tabKey: CraftableTabKeyName),
+                    new ScanRequestInfo(modsOnly: false, woodOnly: true, stoneOnly: false, tabKey: WoodTabKeyName),
+                    new ScanRequestInfo(modsOnly: false, woodOnly: false, stoneOnly: true, tabKey: StoneTabKeyName),
+                    new ScanRequestInfo(modsOnly: true, woodOnly: false, stoneOnly: false, tabKey: ModTabKeyName)
+                };
+
+                lock (ScanQueueLock)
+                {
+                    ScanRequestQueue.Clear();
+                    foreach (var request in sequence)
+                    {
+                        ScanRequestQueue.Enqueue(request);
+                    }
+                    ScanQueueCheckScheduled = false;
+                }
+
+                TryProcessQueuedScan(capi);
+            }
+            finally
+            {
+                sw.Stop();
+                LogEverywhere(capi, $"QueueCraftableTabScans completed in {sw.ElapsedMilliseconds}ms", caller: nameof(QueueCraftableTabScans));
             }
         }
 
