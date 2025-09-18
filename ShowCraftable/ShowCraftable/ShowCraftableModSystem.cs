@@ -2706,7 +2706,7 @@ namespace ShowCraftable
             HashSet<string> dest,
             int partitions,
             Dictionary<StackKey, List<GridRecipeShim>> index,
-            Func<GridRecipeShim, bool> recipePredicate,
+            System.Func<GridRecipeShim, bool> recipePredicate,
             string callerName)
         {
             try
@@ -2857,7 +2857,7 @@ namespace ShowCraftable
                 dest,
                 partitions,
                 index,
-                static shim => !IsWoodRecipe(shim.Raw),
+                shim => !IsWoodRecipe(shim.Raw),
                 nameof(AddCraftablePagesFromAllStacks));
         }
 
@@ -2998,7 +2998,7 @@ namespace ShowCraftable
                     dest,
                     partitions,
                     index,
-                    static shim => IsWoodRecipe(shim.Raw),
+                    shim => IsWoodRecipe(shim.Raw),
                     nameof(AddCraftablePagesFromAllStacks_WoodOnly));
             }
             catch { }
@@ -3035,7 +3035,7 @@ namespace ShowCraftable
                     dest,
                     partitions,
                     index,
-                    static shim => IsStoneRecipe(shim.Raw),
+                    shim => IsStoneRecipe(shim.Raw),
                     nameof(AddCraftablePagesFromAllStacks_StoneOnly));
             }
             catch { }
