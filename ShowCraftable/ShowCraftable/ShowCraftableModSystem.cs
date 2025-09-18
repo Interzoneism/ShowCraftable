@@ -27,6 +27,7 @@ namespace ShowCraftable
         public const string HarmonyId = "showcraftable.core";
         internal static bool DebugEnabled = false;
         internal static int ConfiguredSearchRadius => Math.Max(0, Config?.SearchDistanceItems ?? 20);
+        internal static int ConfiguredAllStacksPartitions => Math.Max(-1, Config?.AllStacksPartitions ?? -1);
         private const string ConfigFileName = "ShowCraftable.json";
         private const string CraftableTabKeyName = "craftableTab";
         private const string ModTabKeyName = "modTab";
@@ -2716,13 +2717,11 @@ namespace ShowCraftable
             }
         }
 
-        private const int DefaultAllStacksPartitions = -1;
-
         private static void AddCraftablePagesFromAllStacks(
             ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest,
             Dictionary<StackKey, List<GridRecipeShim>> index)
         {
-            AddCraftablePagesFromAllStacks(capi, pool, dest, DefaultAllStacksPartitions, index);
+            AddCraftablePagesFromAllStacks(capi, pool, dest, ConfiguredAllStacksPartitions, index);
         }
 
         private static void AddCraftablePagesFromAllStacks(
@@ -2861,7 +2860,7 @@ namespace ShowCraftable
     ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest,
     Dictionary<StackKey, List<GridRecipeShim>> index)
         {
-            AddCraftablePagesFromAllStacksFromModStacks(capi, pool, dest, DefaultAllStacksPartitions, index);
+            AddCraftablePagesFromAllStacksFromModStacks(capi, pool, dest, ConfiguredAllStacksPartitions, index);
         }
 
         private static void AddCraftablePagesFromAllStacksFromModStacks(
