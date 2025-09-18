@@ -154,6 +154,213 @@ namespace ShowCraftable
             ("stone", ModsOnly: false, WoodOnly: false, StoneOnly: true)
         };
 
+        // --- Tab label UI helpers ---
+        private static string GetBaseTabName(string tabKey)
+        {
+            if (string.Equals(tabKey, ModTabKeyName, StringComparison.Ordinal)) return "Craftable (Mods)";
+            if (string.Equals(tabKey, WoodTabKeyName, StringComparison.Ordinal)) return "Craftable Wood Types";
+            if (string.Equals(tabKey, StoneTabKeyName, StringComparison.Ordinal)) return "Craftable Stone Types";
+            return "Craftable";
+        }
+
+        private static int GetTabPageCount(string tabKey)
+        {
+            lock (CacheLock)
+            {
+                var cache = GetTabCache(tabKey);
+                return cache?.Count ?? 0;
+            }
+        }
+
+        private static void UpdateTabTitles(ICoreClientAPI capi, string scanningTabKeyOrNull)
+        {
+            if (capi == null) return;
+
+            try
+            {
+                // Find the dialog instance
+                var msType = AccessTools.TypeByName("Vintagestory.GameContent.ModSystemSurvivalHandbook");
+                var ms = msType != null ? GetModSystemByType(capi, msType) : null;
+                var dlg = msType != null ? AccessTools.Field(msType, "dialog")?.GetValue(ms) : null;
+                if (dlg == null) return;
+
+                // HandbookTab / GuiTab list is usually in a field called "tabs"
+                var dlgType = dlg.GetType();
+                var tabsObj = AccessTools.Field(dlgType, "tabs")?.GetValue(dlg)
+                           ?? AccessTools.Property(dlgType, "Tabs")?.GetValue(dlg);
+                if (tabsObj is not System.Collections.IList tabs) return;
+
+                // Resolve the tab type (HandbookTab or GuiTab)
+                var tabType = AccessTools.TypeByName("Vintagestory.GameContent.HandbookTab")
+                           ?? AccessTools.TypeByName("Vintagestory.GameContent.GuiTab");
+                if (tabType == null) return;
+
+                // Helpers to get/set tab fields
+                object GetPF(object o, string name)
+                {
+                    var pi = AccessTools.Property(tabType, name);
+                    if (pi != null) return pi.GetValue(o);
+                    var fi = AccessTools.Field(tabType, name);
+                    return fi?.GetValue(o);
+                }
+                void SetPF(object o, string name, object val)
+                {
+                    var pi = AccessTools.Property(tabType, name);
+                    if (pi != null && pi.CanWrite) { pi.SetValue(o, val); return; }
+                    var fi = AccessTools.Field(tabType, name);
+                    fi?.SetValue(o, val);
+                }
+
+                // Walk all tabs, and adjust our four categories
+                for (int i = 0; i < tabs.Count; i++)
+                {
+                    var t = tabs[i];
+                    string cat = GetPF(t, "CategoryCode") as string;
+                    if (string.IsNullOrEmpty(cat)) continue;
+
+                    string tabKey = null;
+                    if (string.Equals(cat, CraftableCategoryCode, StringComparison.Ordinal)) tabKey = CraftableTabKeyName;
+                    else if (string.Equals(cat, CraftableModsCategoryCode, StringComparison.Ordinal)) tabKey = ModTabKeyName;
+                    else if (string.Equals(cat, CraftableWoodCategoryCode, StringComparison.Ordinal)) tabKey = WoodTabKeyName;
+                    else if (string.Equals(cat, CraftableStoneCategoryCode, StringComparison.Ordinal)) tabKey = StoneTabKeyName;
+                    else continue; // not ours
+
+                    string baseName = GetBaseTabName(tabKey);
+                    int count = GetTabPageCount(tabKey);
+                    string label = $"{baseName} ({count})";
+
+                    if (!string.IsNullOrEmpty(scanningTabKeyOrNull) &&
+                        string.Equals(tabKey, scanningTabKeyOrNull, StringComparison.Ordinal))
+                    {
+                        label = $"[{label}]";
+                    }
+
+                    SetPF(t, "Name", label);
+                }
+
+                // Ask the dialog to redraw the tab strip (lightweight)
+                AccessTools.Method(dlgType, "Recompose")?.Invoke(dlg, null);
+            }
+            catch { /* never break the UI because of labels */ }
+        }
+
+
+        // --- Warmup state ---
+        private static readonly object WarmupLock = new();
+        private static Queue<ScanRequestInfo> WarmupQueue = new();
+        private static volatile bool WarmupActive = false;
+
+        // Craftable -> Wood -> Stone -> Mods
+        private static IEnumerable<ScanRequestInfo> WarmupPlan()
+        {
+            // booleans: (modsOnly, woodOnly, stoneOnly)
+            yield return new ScanRequestInfo(false, false, false, GetTabKey(false, false, false)); // Craftable
+            yield return new ScanRequestInfo(false, true, false, GetTabKey(false, true, false)); // Wood Types
+            yield return new ScanRequestInfo(false, false, true, GetTabKey(false, false, true)); // Stone Types
+            yield return new ScanRequestInfo(true, false, false, GetTabKey(true, false, false)); // Mods
+        }
+
+        private static bool HandbookIsOpen(ICoreClientAPI capi)
+        {
+            try
+            {
+                var msType = AccessTools.TypeByName("Vintagestory.GameContent.ModSystemSurvivalHandbook");
+                var ms = msType != null ? GetModSystemByType(capi, msType) : null;
+                var dlg = msType != null ? AccessTools.Field(msType, "dialog")?.GetValue(ms) : null;
+                return dlg != null && DialogIsOpen(dlg);
+            }
+            catch { return false; }
+        }
+
+        private static void BeginHandbookWarmup(ICoreClientAPI capi)
+        {
+            if (capi == null) return;
+            if (Config == null || !Config.alwaysCheckCraftable) return;
+            if (!HandbookIsOpen(capi)) return;
+
+            lock (WarmupLock)
+            {
+                WarmupQueue.Clear();
+                foreach (var step in WarmupPlan()) WarmupQueue.Enqueue(step);
+                WarmupActive = true;
+            }
+
+            // Try immediately (or shortly) – but don't interrupt if a scan is already in flight
+            capi.Event.RegisterCallback(_ => TryStartNextWarmup(capi), 1, permittedWhilePaused: true);
+        }
+
+        private static void CancelWarmup()
+        {
+            lock (WarmupLock)
+            {
+                WarmupQueue.Clear();
+                WarmupActive = false;
+            }
+        }
+
+        private static bool TryDequeueWarmup(out ScanRequestInfo req)
+        {
+            lock (WarmupLock)
+            {
+                if (WarmupActive && WarmupQueue.Count > 0)
+                {
+                    req = WarmupQueue.Dequeue();
+                    return true;
+                }
+                WarmupActive = false;
+                req = default;
+                return false;
+            }
+        }
+
+        private static bool HasUserQueuedRequest()
+        {
+            lock (ScanQueueLock) return QueuedScanRequest.HasValue; // single-slot queue today
+        }
+
+        // Called when: (a) we just opened the handbook, or (b) each scan finishes
+        private static void TryStartNextWarmup(ICoreClientAPI capi)
+        {
+            if (capi == null) return;
+            if (!HandbookIsOpen(capi)) { CancelWarmup(); return; }
+
+            // Give priority to any explicit user action
+            if (HasUserQueuedRequest())
+            {
+                TryProcessQueuedScan(capi); // existing logic
+                return;
+            }
+
+            if (ScanInProgress) return; // next warmup will be attempted on finish
+
+            if (TryDequeueWarmup(out var next))
+            {
+                // Important: allowQueue=false so the warmup doesn't get pushed into the single-slot queue
+                // If a user clicks during this, their RequestServerScan (allowQueue=true) will queue and run next.
+                RequestServerScan(capi, NearbyRadius, next.ModsOnly, next.WoodOnly, next.StoneOnly, next.TabKey, allowQueue: false);
+            }
+            else
+            {
+                // Warmup finished
+                WarmupActive = false;
+            }
+        }
+
+        // Replace FinishScan+queue with a warmup-aware version
+        private static void FinishScanAndMaybeWarmup(ICoreClientAPI capi)
+        {
+            FinishScan(capi); // clears ScanInProgress + releases pause-guard
+            if (HasUserQueuedRequest())
+            {
+                TryProcessQueuedScan(capi); // user gets priority
+            }
+            else
+            {
+                TryStartNextWarmup(capi);   // continue warmup sequence if any
+            }
+        }
+
+
         private static ulong ComputeResourcePoolDNA(ResourcePool pool)
         {
             if (pool == null) return 0UL;
@@ -951,6 +1158,7 @@ namespace ShowCraftable
                     PendingScanVariantKey = variantKey;
                     PendingScanTabKey = tabKey;
                 }
+                UpdateTabTitles(capi, tabKey);
 
                 int scanId = Interlocked.Increment(ref ScanSeq);
                 lock (InflightMapLock)
@@ -1134,6 +1342,7 @@ namespace ShowCraftable
 
             capi.Event.LevelFinalize += () =>
             {
+                CancelWarmup();
                 lock (ScanQueueLock) { QueuedScanRequest = null; ScanQueueCheckScheduled = false; }
                 lock (PendingScanLock) { PendingScanVariantKey = null; PendingScanTabKey = null; }
                 lock (InflightMapLock) InflightById.Clear();
@@ -1238,6 +1447,10 @@ namespace ShowCraftable
                 }
 
                 __result = ToTypedArray(tabType, tabs);
+
+                UpdateTabTitles(_staticCapi, null);
+
+                if (Config?.alwaysCheckCraftable == true) BeginHandbookWarmup(_staticCapi);
             }
             catch { }
         }
@@ -1429,6 +1642,7 @@ namespace ShowCraftable
             LastDialogPageCount = -1;
             TryRefreshOpenDialog(capi);
             SetUpdatingText(capi, false);
+            UpdateTabTitles(capi, null);
             return true;
         }
 
@@ -3140,7 +3354,8 @@ namespace ShowCraftable
                         }
                         finally
                         {
-                            FinishScanAndProcessQueue(_capi);
+                            UpdateTabTitles(_capi, null);
+                            FinishScanAndMaybeWarmup(_capi);
                         }
                     }, "SCScanMatch");
                     return;
@@ -3175,7 +3390,8 @@ namespace ShowCraftable
                             }
                             finally
                             {
-                                FinishScanAndProcessQueue(_capi);
+                                UpdateTabTitles(_capi, null);
+                                FinishScanAndMaybeWarmup(_capi);
                             }
                         }, "SCShowNewCache");
                     }

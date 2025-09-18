@@ -8,6 +8,8 @@ public class ShowCraftableConfig
 
     public int AllStacksPartitions { get; set; } = -1;
 
+    public bool alwaysCheckCraftable = false;
+
     public void Normalize()
     {
         if (SearchDistanceItems < 0)
