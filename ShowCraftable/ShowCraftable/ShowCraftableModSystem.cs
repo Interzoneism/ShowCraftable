@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Text;
 using System.Runtime.CompilerServices;
+using Cairo;
 using Vintagestory.API.Client;
 using Vintagestory.API.Server;
 using Vintagestory.API.Common;
@@ -76,6 +77,8 @@ namespace ShowCraftable
         private static readonly object PendingScanLock = new();
         private static readonly object ScanQueueLock = new();
         private static readonly object TabUiStateLock = new();
+        private static readonly object TabMeasureLock = new();
+        private static readonly FieldInfo VerticalTabsPaddingField = AccessTools.Field(typeof(GuiElementVerticalTabs), "unscaledTabPadding");
         private static ScanRequestInfo? QueuedScanRequest;
         private static ShowCraftableConfig Config = new();
         private static string CurrentScanningTabKey;
@@ -758,9 +761,99 @@ namespace ShowCraftable
                     }
                 }
 
-                if (changed) composer.ReCompose();
+                if (!changed) return;
+
+                double desiredWidthPx = ComputeRequiredTabWidthPx(tabsElement, tabs);
+                EnsureTabBoundsWidth(tabsElement, desiredWidthPx);
+
+                composer.ReCompose();
             }
             catch { }
+        }
+
+        private static double ComputeRequiredTabWidthPx(GuiElementVerticalTabs tabsElement, GuiTab[] tabs)
+        {
+            if (tabsElement == null) return 0;
+
+            double currentWidthPx = 0;
+            try { currentWidthPx = tabsElement.Bounds?.InnerWidth ?? 0; }
+            catch { }
+
+            var font = tabsElement.Font;
+            if (font == null) return currentWidthPx;
+
+            double paddingPx = GuiElement.scaled(GetUnscaledTabPadding(tabsElement));
+            double requiredWidthPx = currentWidthPx;
+
+            bool lockTaken = false;
+            try
+            {
+                Monitor.Enter(TabMeasureLock, ref lockTaken);
+                var ctx = CairoFont.FontMeasuringContext;
+                if (ctx == null) return requiredWidthPx;
+
+                font.SetupContext(ctx);
+                if (tabs != null)
+                {
+                    foreach (var tab in tabs)
+                    {
+                        string textValue = tab?.Name ?? string.Empty;
+                        TextExtents extents;
+                        try { extents = ctx.TextExtents(textValue); }
+                        catch { continue; }
+
+                        int widthInt = (int)(extents.Width + 1.0 + 2.0 * paddingPx);
+                        double widthPx = widthInt + 1;
+                        if (widthPx > requiredWidthPx) requiredWidthPx = widthPx;
+                    }
+                }
+            }
+            catch
+            {
+            }
+            finally
+            {
+                if (lockTaken) Monitor.Exit(TabMeasureLock);
+            }
+
+            return requiredWidthPx;
+        }
+
+        private static double GetUnscaledTabPadding(GuiElementVerticalTabs tabsElement)
+        {
+            if (tabsElement == null) return 3.0;
+            try
+            {
+                var raw = VerticalTabsPaddingField?.GetValue(tabsElement);
+                if (raw != null) return Convert.ToDouble(raw);
+            }
+            catch { }
+            return 3.0;
+        }
+
+        private static void EnsureTabBoundsWidth(GuiElementVerticalTabs tabsElement, double desiredWidthPx)
+        {
+            if (tabsElement?.Bounds == null) return;
+            if (desiredWidthPx <= 0 || double.IsNaN(desiredWidthPx) || double.IsInfinity(desiredWidthPx)) return;
+
+            var bounds = tabsElement.Bounds;
+            double currentWidthPx;
+            try { currentWidthPx = bounds.InnerWidth; }
+            catch { currentWidthPx = 0; }
+
+            if (desiredWidthPx <= currentWidthPx + 0.1) return;
+
+            double scale = GuiElement.scaled(1.0);
+            if (scale <= 0) scale = 1.0;
+
+            double newWidthUnscaled = desiredWidthPx / scale;
+            if (double.IsNaN(newWidthUnscaled) || double.IsInfinity(newWidthUnscaled)) return;
+
+            double rightEdge = bounds.fixedX + bounds.fixedWidth;
+
+            bounds.fixedWidth = newWidthUnscaled;
+            bounds.fixedX = rightEdge - newWidthUnscaled;
+            bounds.MarkDirtyRecursive();
         }
 
         private static void SetActiveScanTab(ICoreClientAPI capi, string tabKey)
