@@ -1373,8 +1373,15 @@ namespace ShowCraftable
             {
                 capi?.Event?.RegisterCallback(_ =>
                 {
+                    bool guardAcquired = false;
                     try
                     {
+                        if (!show && capi?.IsGamePaused == true)
+                        {
+                            HandbookPauseGuard.Acquire(capi);
+                            guardAcquired = true;
+                        }
+
                         var msType = AccessTools.TypeByName("Vintagestory.GameContent.ModSystemSurvivalHandbook");
                         var ms = msType != null ? GetModSystemByType(capi, msType) : null;
                         var dlg = msType != null ? AccessTools.Field(msType, "dialog")?.GetValue(ms) : null;
@@ -1414,6 +1421,13 @@ namespace ShowCraftable
                         if (needsRecompose) composer.ReCompose();
                     }
                     catch { }
+                    finally
+                    {
+                        if (guardAcquired)
+                        {
+                            HandbookPauseGuard.Release(capi);
+                        }
+                    }
                 }, 1, permittedWhilePaused: true);
             }
             catch { }
