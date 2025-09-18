@@ -166,14 +166,13 @@ namespace ShowCraftable
         // --- Tab label UI helpers ---
         private static string GetBaseTabName(string tabKey)
         {
-            if (string.Equals(tabKey, ModTabKeyName, StringComparison.Ordinal)) return "Craftable (Mods)";
-            if (string.Equals(tabKey, WoodTabKeyName, StringComparison.Ordinal)) return "Craftable Wood Types";
-            if (string.Equals(tabKey, StoneTabKeyName, StringComparison.Ordinal)) return "Craftable Stone Types";
-            return "Craftable";
+            if (string.IsNullOrEmpty(tabKey)) return tabKey ?? string.Empty;
+            return TabBaseNames.TryGetValue(tabKey, out var name) ? name : tabKey;
         }
 
         private static int GetTabPageCount(string tabKey)
         {
+            if (string.IsNullOrEmpty(tabKey)) return 0;
             lock (CacheLock)
             {
                 var cache = GetTabCache(tabKey);
@@ -667,12 +666,6 @@ namespace ShowCraftable
             return $"dna={dnaText}, cachePages={cachePages}";
         }
 
-        private static string GetBaseTabName(string tabKey)
-        {
-            if (string.IsNullOrEmpty(tabKey)) return tabKey ?? string.Empty;
-            return TabBaseNames.TryGetValue(tabKey, out var name) ? name : tabKey;
-        }
-
         private static string TabKeyFromCategoryCode(string categoryCode)
         {
             if (string.IsNullOrEmpty(categoryCode)) return null;
@@ -681,16 +674,6 @@ namespace ShowCraftable
             if (string.Equals(categoryCode, CraftableStoneCategoryCode, StringComparison.OrdinalIgnoreCase)) return StoneTabKeyName;
             if (string.Equals(categoryCode, CraftableWoodCategoryCode, StringComparison.OrdinalIgnoreCase)) return WoodTabKeyName;
             return null;
-        }
-
-        private static int GetTabPageCount(string tabKey)
-        {
-            if (string.IsNullOrEmpty(tabKey)) return 0;
-            lock (CacheLock)
-            {
-                var cache = GetTabCache(tabKey);
-                return cache?.Count ?? 0;
-            }
         }
 
         private static bool GetTabScanningState(string tabKey)
@@ -3426,6 +3409,8 @@ namespace ShowCraftable
 
         private void OnServerScanReply(CraftScanReply data)
         {
+            string tabKey = data?.TabKey;
+
             try
             {
                 var pool = new ResourcePool();
@@ -3450,7 +3435,6 @@ namespace ShowCraftable
                     if (st != null) pool.Add(st);
                 }
 
-                string tabKey = data.TabKey;
                 string variantKey = null;
                 bool recipeModsOnly = false, recipeWoodOnly = false, recipeStoneOnly = false;
 
