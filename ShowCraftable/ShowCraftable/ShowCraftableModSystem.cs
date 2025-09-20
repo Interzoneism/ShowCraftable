@@ -3178,7 +3178,7 @@ namespace ShowCraftable
             ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest, int partitions,
             Dictionary<StackKey, List<GridRecipeShim>> index)
         {
-            Func<GridRecipeShim, bool> predicate = SingleCategoryMode
+            System.Func<GridRecipeShim, bool> predicate = SingleCategoryMode
                 ? _ => true
                 : shim => !IsWoodRecipe(shim.Raw);
             bool? modsOnlyFilter = SingleCategoryMode ? (bool?)null : false;
