@@ -1940,6 +1940,65 @@ namespace ShowCraftable
             public EnumItemClass Type;
         }
 
+        private static bool CodeStartsWithBowl(AssetLocation code)
+        {
+            if (code == null) return false;
+
+            string path = code.Path;
+            if (string.IsNullOrEmpty(path))
+            {
+                string full = code.ToString();
+                if (!string.IsNullOrEmpty(full))
+                {
+                    int colonIndex = full.IndexOf(':');
+                    path = colonIndex >= 0 ? full.Substring(colonIndex + 1) : full;
+                }
+            }
+
+            return !string.IsNullOrEmpty(path)
+                && path.StartsWith("bowl", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool StackRepresentsBowl(ItemStack stack)
+        {
+            if (stack?.Collectible?.Code == null) return false;
+            return CodeStartsWithBowl(stack.Collectible.Code);
+        }
+
+        private static bool ShouldSkipGridRecipe(GridRecipeShim shim)
+        {
+            if (shim == null) return false;
+
+            if (shim.Outputs != null)
+            {
+                foreach (var output in shim.Outputs)
+                {
+                    if (StackRepresentsBowl(output)) return true;
+                }
+            }
+
+            if (shim.Ingredients != null)
+            {
+                foreach (var ingredient in shim.Ingredients)
+                {
+                    if (ingredient == null) continue;
+
+                    if (ingredient.PatternCode != null && CodeStartsWithBowl(ingredient.PatternCode))
+                        return true;
+
+                    if (ingredient.Options != null)
+                    {
+                        foreach (var option in ingredient.Options)
+                        {
+                            if (StackRepresentsBowl(option)) return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
         private static List<GridRecipeShim> GetAllGridRecipes(ICoreClientAPI capi, out int fetched, out int usable, bool modsOnly)
         {
             var sw = Stopwatch.StartNew();
@@ -1963,7 +2022,7 @@ namespace ShowCraftable
             {
                 fetched++;
                 var shim = TryBuildGridShim(raw, capi);
-                if (shim != null && shim.Outputs.Count > 0)
+                if (shim != null && shim.Outputs.Count > 0 && !ShouldSkipGridRecipe(shim))
                 {
                     if ((modsOnly && shim.IsMod) || (!modsOnly && !shim.IsMod))
                     {
@@ -2109,81 +2168,110 @@ namespace ShowCraftable
 
                 var index = new RecipeIndexData();
                 var recipes = new List<GridRecipeShim>();
+                int[] recipeIndexMap = (data.Recipes != null)
+                    ? new int[data.Recipes.Count]
+                    : Array.Empty<int>();
+                for (int i = 0; i < recipeIndexMap.Length; i++) recipeIndexMap[i] = -1;
 
-                foreach (var cr in data.Recipes)
+                if (data.Recipes != null)
                 {
-                    var r = new GridRecipeShim();
-                    foreach (var ci in cr.Ingredients)
+                    for (int recipeIdx = 0; recipeIdx < data.Recipes.Count; recipeIdx++)
                     {
-                        var gi = new GridIngredientShim
+                        var cr = data.Recipes[recipeIdx];
+                        if (cr == null) continue;
+
+                        var r = new GridRecipeShim();
+                        var recipeWildGroups = new List<WildGroup>();
+
+                        foreach (var ci in cr.Ingredients ?? Array.Empty<CachedIngredient>())
                         {
-                            IsTool = ci.IsTool,
-                            IsWild = ci.IsWild,
-                            QuantityRequired = ci.QuantityRequired,
-                            PatternCode = ci.PatternCode != null ? new AssetLocation(ci.PatternCode) : null,
-                            Allowed = ci.Allowed,
-                            Type = ci.Type
-                        };
-                        if (ci.Options != null)
-                        {
-                            foreach (var b in ci.Options)
+                            if (ci == null) continue;
+
+                            var gi = new GridIngredientShim
                             {
+                                IsTool = ci.IsTool,
+                                IsWild = ci.IsWild,
+                                QuantityRequired = ci.QuantityRequired,
+                                PatternCode = ci.PatternCode != null ? new AssetLocation(ci.PatternCode) : null,
+                                Allowed = ci.Allowed,
+                                Type = ci.Type
+                            };
+
+                            if (ci.Options != null)
+                            {
+                                foreach (var b in ci.Options)
+                                {
+                                    if (b == null) continue;
+                                    try
+                                    {
+                                        var st = new ItemStack(b);
+                                        st.ResolveBlockOrItem(capi.World);
+                                        gi.Options.Add(st);
+                                    }
+                                    catch { }
+                                }
+                            }
+
+                            r.Ingredients.Add(gi);
+                            if (gi.IsWild && gi.PatternCode != null)
+                            {
+                                var gkey = $"wild:{gi.PatternCode}|{string.Join(",", (gi.Allowed ?? Array.Empty<string>()).OrderBy(x => x))}|T:{gi.Type}";
+                                recipeWildGroups.Add(new WildGroup { Recipe = r, GroupKey = gkey, Type = gi.Type, Pattern = gi.PatternCode, Allowed = gi.Allowed });
+                            }
+                        }
+
+                        if (cr.Outputs != null)
+                        {
+                            foreach (var b in cr.Outputs)
+                            {
+                                if (b == null) continue;
                                 try
                                 {
                                     var st = new ItemStack(b);
                                     st.ResolveBlockOrItem(capi.World);
-                                    gi.Options.Add(st);
+                                    r.Outputs.Add(st);
                                 }
                                 catch { }
                             }
                         }
-                        r.Ingredients.Add(gi);
-                        if (gi.IsWild && gi.PatternCode != null)
-                        {
-                            var gkey = $"wild:{gi.PatternCode}|{string.Join(",", (gi.Allowed ?? Array.Empty<string>()).OrderBy(x => x))}|T:{gi.Type}";
-                            index.WildcardGroups.Add(new WildGroup { Recipe = r, GroupKey = gkey, Type = gi.Type, Pattern = gi.PatternCode, Allowed = gi.Allowed });
-                        }
+
+                        if (r.Outputs == null || r.Outputs.Count == 0) continue;
+                        if (ShouldSkipGridRecipe(r)) continue;
+
+                        recipeIndexMap[recipeIdx] = recipes.Count;
+                        recipes.Add(r);
+                        foreach (var wild in recipeWildGroups) index.WildcardGroups.Add(wild);
+                        index.RecipeGroupNeeds[r] = cr.Needs ?? new Dictionary<string, int>(StringComparer.Ordinal);
                     }
-                    if (cr.Outputs != null)
-                    {
-                        foreach (var b in cr.Outputs)
-                        {
-                            try
-                            {
-                                var st = new ItemStack(b);
-                                st.ResolveBlockOrItem(capi.World);
-                                r.Outputs.Add(st);
-                            }
-                            catch { }
-                        }
-                    }
-                    recipes.Add(r);
-                    index.RecipeGroupNeeds[r] = cr.Needs ?? new Dictionary<string, int>(StringComparer.Ordinal);
                 }
 
-                foreach (var kv in data.CodeToRecipes)
+                foreach (var kv in data.CodeToRecipes ?? new Dictionary<string, List<CodeRecipeRef>>())
                 {
                     var list = new List<(GridRecipeShim Recipe, string GroupKey)>();
-                    foreach (var rref in kv.Value)
+                    if (kv.Value != null)
                     {
-                        if (rref.Recipe >= 0 && rref.Recipe < recipes.Count)
-                            list.Add((recipes[rref.Recipe], rref.GroupKey));
+                        foreach (var rref in kv.Value)
+                        {
+                            if (rref == null) continue;
+                            if (rref.Recipe < 0 || rref.Recipe >= recipeIndexMap.Length) continue;
+
+                            int mapped = recipeIndexMap[rref.Recipe];
+                            if (mapped < 0 || mapped >= recipes.Count) continue;
+
+                            list.Add((recipes[mapped], rref.GroupKey));
+                        }
                     }
                     index.CodeToRecipeGroups[kv.Key] = list;
                 }
-                if (data.CodeToGkeys != null && data.CodeToGkeys.Count > 0)
+
+                foreach (var kv in index.CodeToRecipeGroups)
                 {
-                    foreach (var kv in data.CodeToGkeys)
-                        index.CodeToGkeys[kv.Key] = new HashSet<string>(kv.Value ?? new List<string>(), StringComparer.Ordinal);
-                }
-                else
-                {
-                    foreach (var kv in index.CodeToRecipeGroups)
+                    if (!index.CodeToGkeys.TryGetValue(kv.Key, out var gset))
+                        index.CodeToGkeys[kv.Key] = gset = new HashSet<string>(StringComparer.Ordinal);
+
+                    foreach (var pair in kv.Value)
                     {
-                        if (!index.CodeToGkeys.TryGetValue(kv.Key, out var gset))
-                            index.CodeToGkeys[kv.Key] = gset = new HashSet<string>(StringComparer.Ordinal);
-                        foreach (var pair in kv.Value)
-                            gset.Add(pair.GroupKey);
+                        if (!string.IsNullOrEmpty(pair.GroupKey)) gset.Add(pair.GroupKey);
                     }
                 }
 
