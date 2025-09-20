@@ -2079,6 +2079,8 @@ namespace ShowCraftable
         {
             if (shim == null) return false;
 
+            if (ShouldSkipRawGridRecipe(shim.Raw)) return true;
+
             if (shim.Outputs != null)
             {
                 foreach (var output in shim.Outputs)
@@ -2109,6 +2111,30 @@ namespace ShowCraftable
             return false;
         }
 
+        private static bool ShouldSkipRawGridRecipe(object raw)
+        {
+            if (raw == null) return false;
+
+            var type = raw.GetType();
+            if (type == null || !type.Name.Contains("GridRecipe", StringComparison.OrdinalIgnoreCase)) return false;
+
+            var name = TryGetMember(type, raw, "Name") as AssetLocation;
+            return ShouldSkipRecipeByName(name);
+        }
+
+        private static bool ShouldSkipRecipeByName(AssetLocation name)
+        {
+            if (name == null) return false;
+
+            if (!string.Equals(name.Domain, "game", StringComparison.Ordinal)) return false;
+
+            string path = name.Path;
+            if (string.IsNullOrEmpty(path)) path = name.ToShortString();
+            if (string.IsNullOrEmpty(path)) return false;
+
+            return string.Equals(path, "recipes/grid/nuggets", StringComparison.Ordinal);
+        }
+
         private static List<GridRecipeShim> GetAllGridRecipes(ICoreClientAPI capi, out int fetched, out int usable, bool? modsOnly)
         {
             var sw = Stopwatch.StartNew();
@@ -2130,6 +2156,9 @@ namespace ShowCraftable
 
             foreach (var raw in rawRecipes)
             {
+                if (raw == null) continue;
+                if (ShouldSkipRawGridRecipe(raw)) continue;
+
                 fetched++;
                 var shim = TryBuildGridShim(raw, capi);
                 if (shim != null && shim.Outputs.Count > 0 && !ShouldSkipGridRecipe(shim))
@@ -2664,6 +2693,9 @@ namespace ShowCraftable
             var t = raw.GetType();
             if (!t.Name.Contains("GridRecipe", StringComparison.OrdinalIgnoreCase)) return null;
 
+            var nameAl = TryGetMember(t, raw, "Name") as AssetLocation;
+            if (ShouldSkipRecipeByName(nameAl)) return null;
+
             var shim = new GridRecipeShim { Raw = raw };
 
             bool hadResolved = false;
@@ -2823,7 +2855,6 @@ namespace ShowCraftable
                 }
             }
 
-            var nameAl = TryGetMember(t, raw, "Name") as AssetLocation;
             if (nameAl != null)
             {
                 shim.IsMod = !string.Equals(nameAl.Domain, "game", StringComparison.Ordinal);
