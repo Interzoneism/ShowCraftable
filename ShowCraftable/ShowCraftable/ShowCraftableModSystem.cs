@@ -1,5 +1,7 @@
 ﻿using HarmonyLib;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -499,7 +501,149 @@ namespace ShowCraftable
 
         private static string GetAttrStringSafe(ItemStack st, string key)
         {
-            try { return st?.Attributes?.GetString(key, null); } catch { return null; }
+            try
+            {
+                if (st == null || string.IsNullOrEmpty(key)) return null;
+
+                var attrs = st.Attributes;
+                string direct = attrs?.GetString(key, null);
+                if (!string.IsNullOrEmpty(direct)) return direct;
+
+                string nested = TryGetStringFromTree(attrs, key);
+                if (!string.IsNullOrEmpty(nested)) return nested;
+
+                var json = st.ItemAttributes;
+                if (json?.Exists == true)
+                {
+                    string jsonVal = TryGetStringFromJson(json.Token, key);
+                    if (!string.IsNullOrEmpty(jsonVal)) return jsonVal;
+                }
+
+                var collJson = st.Collectible?.Attributes;
+                if (collJson?.Exists == true)
+                {
+                    string collVal = TryGetStringFromJson(collJson.Token, key);
+                    if (!string.IsNullOrEmpty(collVal)) return collVal;
+                }
+
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static string TryGetStringFromTree(ITreeAttribute tree, string key)
+        {
+            if (tree == null || string.IsNullOrEmpty(key)) return null;
+
+            try
+            {
+                foreach (var kv in tree)
+                {
+                    var attr = kv.Value;
+                    if (attr == null) continue;
+
+                    if (string.Equals(kv.Key, key, StringComparison.OrdinalIgnoreCase))
+                    {
+                        string val = ExtractStringFromAttribute(attr);
+                        if (!string.IsNullOrEmpty(val)) return val;
+                    }
+
+                    if (attr is ITreeAttribute childTree)
+                    {
+                        string nested = TryGetStringFromTree(childTree, key);
+                        if (!string.IsNullOrEmpty(nested)) return nested;
+                        continue;
+                    }
+
+                    object valueObj = SafeGetAttributeValue(attr);
+                    if (valueObj == null) continue;
+
+                    if (valueObj is ITreeAttribute valueTree)
+                    {
+                        string nested = TryGetStringFromTree(valueTree, key);
+                        if (!string.IsNullOrEmpty(nested)) return nested;
+                    }
+                    else if (valueObj is IEnumerable enumerable && valueObj is not string)
+                    {
+                        foreach (var item in enumerable)
+                        {
+                            if (item is ITreeAttribute itemTree)
+                            {
+                                string nested = TryGetStringFromTree(itemTree, key);
+                                if (!string.IsNullOrEmpty(nested)) return nested;
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
+
+            return null;
+        }
+
+        private static object SafeGetAttributeValue(IAttribute attr)
+        {
+            try { return attr?.GetValue(); }
+            catch { return null; }
+        }
+
+        private static string ExtractStringFromAttribute(IAttribute attr)
+        {
+            if (attr == null) return null;
+            try
+            {
+                var value = attr.GetValue();
+                return value as string;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static string TryGetStringFromJson(JToken token, string key)
+        {
+            if (token == null || string.IsNullOrEmpty(key)) return null;
+
+            try
+            {
+                if (token.Type == JTokenType.Object)
+                {
+                    foreach (var prop in ((JObject)token).Properties())
+                    {
+                        if (string.Equals(prop.Name, key, StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (prop.Value.Type == JTokenType.String)
+                            {
+                                string str = prop.Value.ToString();
+                                if (!string.IsNullOrEmpty(str)) return str;
+                            }
+                            else
+                            {
+                                string str = prop.Value?.ToString();
+                                if (!string.IsNullOrEmpty(str)) return str;
+                            }
+                        }
+
+                        string nested = TryGetStringFromJson(prop.Value, key);
+                        if (!string.IsNullOrEmpty(nested)) return nested;
+                    }
+                }
+                else if (token.Type == JTokenType.Array)
+                {
+                    foreach (var item in (JArray)token)
+                    {
+                        string nested = TryGetStringFromJson(item, key);
+                        if (!string.IsNullOrEmpty(nested)) return nested;
+                    }
+                }
+            }
+            catch { }
+
+            return null;
         }
 
         private static StackKey KeyFor(ItemStack st)
