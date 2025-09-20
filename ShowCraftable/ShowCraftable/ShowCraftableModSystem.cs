@@ -2046,19 +2046,37 @@ namespace ShowCraftable
                     catch { return false; }
                 }
 
-                float litres = requirement.RequiredLitres;
-                if (litres <= 0) return true;
+                float litresRequired = requirement.RequiredLitres;
+                if (litresRequired <= 0f) return true;
 
-                WaterTightContainableProps? props = null;
-                try { props = liq.GetContentProps(stack); }
+                float litresAvailable = 0f;
+                bool haveLitres = false;
+
+                try
+                {
+                    litresAvailable = liq.GetCurrentLitres(stack);
+                    haveLitres = !float.IsNaN(litresAvailable);
+                }
                 catch { }
-                float itemsPerLitre = props?.ItemsPerLitre ?? 1f;
-                int neededItems = (int)(itemsPerLitre * litres);
-                int stackSize = Math.Max(1, stack.StackSize);
-                int requiredPerStack = neededItems / stackSize;
-                if (requiredPerStack <= 0) return true;
 
-                return content.StackSize >= requiredPerStack;
+                if (!haveLitres || litresAvailable <= 0f)
+                {
+                    WaterTightContainableProps? props = null;
+                    try { props = liq.GetContentProps(stack); }
+                    catch { }
+
+                    float itemsPerLitre = props?.ItemsPerLitre ?? 0f;
+                    if (itemsPerLitre > 0f)
+                    {
+                        litresAvailable = content.StackSize / itemsPerLitre;
+                        haveLitres = true;
+                    }
+                }
+
+                if (!haveLitres) return false;
+
+                const float tolerance = 0.0005f;
+                return litresAvailable + tolerance >= litresRequired;
             }
         }
 
