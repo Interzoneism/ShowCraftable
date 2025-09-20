@@ -74,6 +74,7 @@ namespace ShowCraftable
         private static string PendingScanTabKey;
         private static string PendingScanVariantKey;
         private static Task recipeIndexBuildTask;
+        private static int recipeIndexBuildToken;
         private static volatile bool recipeIndexBuildStarted = false;
         private static volatile bool CraftableModsTabActive;
         private static volatile bool CraftableStoneTabActive;
@@ -1143,7 +1144,13 @@ namespace ShowCraftable
                 InvalidatePageCodeMapCache();
                 StartRecipeIndexBuild(capi);
             };
-            capi.Event.LeaveWorld += InvalidatePageCodeMapCache;
+            capi.Event.LeaveWorld += OnLeaveWorld;
+        }
+
+        private void OnLeaveWorld()
+        {
+            ClearAllCaches();
+            _capi = null;
         }
 
         public override void Dispose() => _harmony?.UnpatchAll(HarmonyId);
@@ -1804,6 +1811,77 @@ namespace ShowCraftable
             }
         }
 
+        private static void ClearAllCaches()
+        {
+            Interlocked.Increment(ref recipeIndexBuildToken);
+
+            lock (ScanQueueLock)
+            {
+                QueuedScanRequest = null;
+                ScanQueueCheckScheduled = false;
+            }
+
+            lock (PendingScanLock)
+            {
+                PendingScanVariantKey = null;
+                PendingScanTabKey = null;
+            }
+
+            lock (InflightMapLock) InflightById.Clear();
+
+            lock (TabUiStateLock) TabReadyToUpdateUi.Clear();
+
+            lock (DnaLock) TabPoolDNA.Clear();
+
+            lock (WildTokenCountsMemo) WildTokenCountsMemo.Clear();
+
+            lock (recipeIndexByVariant)
+            {
+                recipeIndexByVariant.Clear();
+                recipeIndexBuildStarted = false;
+                recipeIndexBuilt = false;
+            }
+
+            recipeIndexBuildTask = null;
+
+            lock (CacheLock)
+            {
+                CachedPageCodes = new List<string>();
+                CraftableTabCache = new List<string>();
+                ModTabCache = new List<string>();
+                StoneTypeTabCache = new List<string>();
+                WoodTypeTabCache = new List<string>();
+                s_EmptyPages = null;
+            }
+
+            recipeGroupNeeds = new Dictionary<GridRecipeShim, Dictionary<string, int>>();
+            outputsIndex = new Dictionary<StackKey, List<GridRecipeShim>>();
+            codeToRecipeGroups = new Dictionary<string, List<(GridRecipeShim Recipe, string GroupKey)>>();
+            codeToGkeys = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+            wildMatchCache = new Dictionary<string, List<(GridRecipeShim Recipe, string GroupKey)>>(StringComparer.Ordinal);
+            wildcardGroups = new List<WildGroup>();
+
+            recipesFetched = 0;
+            recipesUsable = 0;
+            ScanSeq = 0;
+            _pendingScanId = 0;
+            LastDialogPageCount = 0;
+            NearbyRadius = ConfiguredSearchRadius;
+            recipeIndexForMods = false;
+            recipeIndexForStoneOnly = false;
+            recipeIndexForWoodOnly = false;
+            CraftableModsTabActive = false;
+            CraftableStoneTabActive = false;
+            CraftableTabActive = false;
+            CraftableWoodTabActive = false;
+            ScanInProgress = false;
+            recipeIndexBuildProgress = 0;
+            recipeIndexBuildTotal = 0;
+
+            InvalidatePageCodeMapCache();
+            _staticCapi = null;
+        }
+
         private static ItemStack MakeStackFromCode(ICoreClientAPI capi, string code)
         {
             if (string.IsNullOrEmpty(code)) return null;
@@ -2288,6 +2366,7 @@ namespace ShowCraftable
             if (capi == null) return;
 
             bool shouldStart = false;
+            int buildToken = 0;
             lock (recipeIndexByVariant)
             {
                 bool allPresent = RecipeIndexVariants.All(v => recipeIndexByVariant.ContainsKey(v.VariantKey));
@@ -2296,11 +2375,13 @@ namespace ShowCraftable
 
                 recipeIndexBuildStarted = true;
                 recipeIndexBuilt = false;
+                buildToken = Interlocked.Increment(ref recipeIndexBuildToken);
                 shouldStart = true;
             }
 
             if (!shouldStart) return;
 
+            var localToken = buildToken;
             var sw = Stopwatch.StartNew();
             try
             {
@@ -2310,6 +2391,8 @@ namespace ShowCraftable
                     {
                         foreach (var variant in RecipeIndexVariants)
                         {
+                            if (localToken != Volatile.Read(ref recipeIndexBuildToken)) return;
+
                             var variantKey = variant.VariantKey;
                             var data = LoadRecipeIndex(capi, variant.ModsOnly, variant.WoodOnly, variant.StoneOnly);
                             bool rebuilt = false;
@@ -2318,6 +2401,8 @@ namespace ShowCraftable
                                 data = BuildRecipeIndex(capi, variant.ModsOnly, variant.WoodOnly, variant.StoneOnly);
                                 rebuilt = true;
                             }
+
+                            if (localToken != Volatile.Read(ref recipeIndexBuildToken)) return;
 
                             StoreRecipeIndex(variantKey, data);
 
@@ -2328,6 +2413,8 @@ namespace ShowCraftable
                                     caller: nameof(StartRecipeIndexBuild));
                             }
 
+                            if (localToken != Volatile.Read(ref recipeIndexBuildToken)) return;
+
                             var activeTab = GetActiveTabKey();
                             if (string.Equals(activeTab, TabKeyFromVariant(variantKey), StringComparison.Ordinal))
                             {
@@ -2335,14 +2422,29 @@ namespace ShowCraftable
                             }
                         }
 
+                        if (localToken != Volatile.Read(ref recipeIndexBuildToken)) return;
+
                         recipeIndexBuilt = true;
                         var activeVariantFinal = VariantKeyFromTabKey(GetActiveTabKey());
+                        if (localToken != Volatile.Read(ref recipeIndexBuildToken)) return;
                         ApplyRecipeIndexVariant(activeVariantFinal);
+                        if (localToken != Volatile.Read(ref recipeIndexBuildToken)) return;
                         GetCachedPageCodeMap(capi);
                     }
                     catch (Exception e)
                     {
                         LogEverywhere(capi, $"Failed to build recipe index: {e}", caller: nameof(StartRecipeIndexBuild));
+                    }
+                    finally
+                    {
+                        if (localToken != Volatile.Read(ref recipeIndexBuildToken))
+                        {
+                            lock (recipeIndexByVariant)
+                            {
+                                recipeIndexBuildStarted = false;
+                                recipeIndexBuilt = false;
+                            }
+                        }
                     }
                 });
             }
