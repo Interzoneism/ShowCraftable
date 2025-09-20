@@ -28,6 +28,7 @@ namespace ShowCraftable
         internal static bool DebugEnabled = true;
         internal static int ConfiguredSearchRadius => Math.Max(0, Config?.SearchDistanceItems ?? 20);
         internal static int ConfiguredAllStacksPartitions => Math.Max(-1, Config?.AllStacksPartitions ?? -1);
+        internal static bool SingleCategoryMode => Config?.OneCategory == true;
         private const string ConfigFileName = "ShowCraftable.json";
         private const string CraftableTabKeyName = "craftableTab";
         private const string ModTabKeyName = "modTab";
@@ -150,12 +151,22 @@ namespace ShowCraftable
         }
 
         private static readonly (string VariantKey, bool ModsOnly, bool WoodOnly, bool StoneOnly)[] RecipeIndexVariants =
-{
+        {
             ("van", ModsOnly: false, WoodOnly: false, StoneOnly: false),
             ("mods", ModsOnly: true, WoodOnly: false, StoneOnly: false),
             ("wood", ModsOnly: false, WoodOnly: true, StoneOnly: false),
             ("stone", ModsOnly: false, WoodOnly: false, StoneOnly: true)
         };
+
+        private static readonly (string VariantKey, bool ModsOnly, bool WoodOnly, bool StoneOnly)[] SingleCategoryRecipeVariants =
+        {
+            ("van", ModsOnly: false, WoodOnly: false, StoneOnly: false)
+        };
+
+        private static IEnumerable<(string VariantKey, bool ModsOnly, bool WoodOnly, bool StoneOnly)> EnumerateRecipeIndexVariants()
+        {
+            return SingleCategoryMode ? SingleCategoryRecipeVariants : RecipeIndexVariants;
+        }
 
         private static ulong ComputeResourcePoolDNA(ResourcePool pool)
         {
@@ -306,24 +317,41 @@ namespace ShowCraftable
 
         internal static void ReleaseHandbookPauseGuard(ICoreClientAPI capi) => HandbookPauseGuard.Release(capi);
 
+        private static string NormalizeTabKey(string tabKey)
+        {
+            if (!SingleCategoryMode) return tabKey;
+            if (string.Equals(tabKey, CraftableTabKeyName, StringComparison.Ordinal)) return tabKey;
+            if (string.Equals(tabKey, ModTabKeyName, StringComparison.Ordinal)) return CraftableTabKeyName;
+            if (string.Equals(tabKey, WoodTabKeyName, StringComparison.Ordinal)) return CraftableTabKeyName;
+            if (string.Equals(tabKey, StoneTabKeyName, StringComparison.Ordinal)) return CraftableTabKeyName;
+            return tabKey;
+        }
+
         private static string GetVariantKey(bool modsOnly, bool woodOnly, bool stoneOnly)
         {
-            if (modsOnly) return "mods";
-            if (woodOnly) return "wood";
-            if (stoneOnly) return "stone";
+            if (!SingleCategoryMode)
+            {
+                if (modsOnly) return "mods";
+                if (woodOnly) return "wood";
+                if (stoneOnly) return "stone";
+            }
             return "van";
         }
 
         private static string GetTabKey(bool modsOnly, bool woodOnly, bool stoneOnly)
         {
-            if (modsOnly) return ModTabKeyName;
-            if (woodOnly) return WoodTabKeyName;
-            if (stoneOnly) return StoneTabKeyName;
+            if (!SingleCategoryMode)
+            {
+                if (modsOnly) return ModTabKeyName;
+                if (woodOnly) return WoodTabKeyName;
+                if (stoneOnly) return StoneTabKeyName;
+            }
             return CraftableTabKeyName;
         }
 
         private static string TabKeyFromVariant(string variantKey)
         {
+            if (SingleCategoryMode) return CraftableTabKeyName;
             return variantKey switch
             {
                 "mods" => ModTabKeyName,
@@ -336,6 +364,7 @@ namespace ShowCraftable
 
         private static string VariantKeyFromTabKey(string tabKey)
         {
+            if (SingleCategoryMode) return "van";
             if (string.Equals(tabKey, ModTabKeyName, StringComparison.Ordinal)) return "mods";
             if (string.Equals(tabKey, WoodTabKeyName, StringComparison.Ordinal)) return "wood";
             if (string.Equals(tabKey, StoneTabKeyName, StringComparison.Ordinal)) return "stone";
@@ -344,6 +373,7 @@ namespace ShowCraftable
 
         private static string GetActiveTabKey()
         {
+            if (SingleCategoryMode) return CraftableTabKeyName;
             if (CraftableModsTabActive) return ModTabKeyName;
             if (CraftableWoodTabActive) return WoodTabKeyName;
             if (CraftableStoneTabActive) return StoneTabKeyName;
@@ -353,6 +383,11 @@ namespace ShowCraftable
 
         private static bool IsTabActive(string tabKey)
         {
+            tabKey = NormalizeTabKey(tabKey);
+            if (SingleCategoryMode)
+            {
+                return string.Equals(tabKey, CraftableTabKeyName, StringComparison.Ordinal) && CraftableTabActive;
+            }
             if (string.Equals(tabKey, ModTabKeyName, StringComparison.Ordinal)) return CraftableModsTabActive;
             if (string.Equals(tabKey, WoodTabKeyName, StringComparison.Ordinal)) return CraftableWoodTabActive;
             if (string.Equals(tabKey, StoneTabKeyName, StringComparison.Ordinal)) return CraftableStoneTabActive;
@@ -362,6 +397,7 @@ namespace ShowCraftable
 
         private static bool IsKnownTabKey(string tabKey)
         {
+            tabKey = NormalizeTabKey(tabKey);
             return string.Equals(tabKey, ModTabKeyName, StringComparison.Ordinal)
                 || string.Equals(tabKey, WoodTabKeyName, StringComparison.Ordinal)
                 || string.Equals(tabKey, StoneTabKeyName, StringComparison.Ordinal)
@@ -370,6 +406,7 @@ namespace ShowCraftable
 
         private static List<string> GetTabCache(string tabKey)
         {
+            tabKey = NormalizeTabKey(tabKey);
             if (string.Equals(tabKey, ModTabKeyName, StringComparison.Ordinal)) return ModTabCache;
             if (string.Equals(tabKey, WoodTabKeyName, StringComparison.Ordinal)) return WoodTypeTabCache;
             if (string.Equals(tabKey, StoneTabKeyName, StringComparison.Ordinal)) return StoneTypeTabCache;
@@ -380,6 +417,7 @@ namespace ShowCraftable
 
         private static void SetTabCache(string tabKey, IEnumerable<string> pages)
         {
+            tabKey = NormalizeTabKey(tabKey);
             if (!IsKnownTabKey(tabKey))
             {
                 LogEverywhere(_staticCapi, $"[Cache] Ignoring SetTabCache for unknown tabKey='{tabKey}'", toChat: true);
@@ -395,12 +433,14 @@ namespace ShowCraftable
 
         private static List<string> GetTabCacheSnapshot(string tabKey)
         {
+            tabKey = NormalizeTabKey(tabKey);
             var cache = GetTabCache(tabKey);
             return cache != null ? new List<string>(cache) : new List<string>();
         }
 
         private static void SetTabReadyToUpdateUI(string tabKey, bool ready)
         {
+            tabKey = NormalizeTabKey(tabKey);
             if (string.IsNullOrEmpty(tabKey)) return;
             lock (TabUiStateLock)
             {
@@ -410,6 +450,7 @@ namespace ShowCraftable
 
         private static bool TryAcquireTabUpdateTicket(string tabKey, bool requireReadyFlag)
         {
+            tabKey = NormalizeTabKey(tabKey);
             if (string.IsNullOrEmpty(tabKey)) return false;
 
             lock (TabUiStateLock)
@@ -929,6 +970,7 @@ namespace ShowCraftable
             var sw = Stopwatch.StartNew();
             try
             {
+                tabKey = NormalizeTabKey(tabKey);
                 if (capi == null) return;
 
                 var now = DateTime.UtcNow;
@@ -996,6 +1038,7 @@ namespace ShowCraftable
 
         private static void EnqueueScanRequest(ICoreClientAPI capi, bool modsOnly, bool woodOnly, bool stoneOnly, string tabKey)
         {
+            tabKey = NormalizeTabKey(tabKey);
             lock (ScanQueueLock)
             {
                 QueuedScanRequest = new ScanRequestInfo(modsOnly, woodOnly, stoneOnly, tabKey);
@@ -1181,25 +1224,24 @@ namespace ShowCraftable
                     if (fi != null) fi.SetValue(o, val);
                 }
 
-                bool craftableExists = false;
-                bool craftableModsExists = false;
-                foreach (var t in tabs)
+                bool singleCategory = SingleCategoryMode;
+
+                if (singleCategory)
                 {
-                    var cat = GetPF(tabType, t, "CategoryCode") as string;
-                    if (string.Equals(cat, CraftableCategoryCode, StringComparison.OrdinalIgnoreCase)) craftableExists = true;
-                    if (string.Equals(cat, CraftableModsCategoryCode, StringComparison.OrdinalIgnoreCase)) craftableModsExists = true;
+                    tabs.RemoveAll(t =>
+                    {
+                        var cat = GetPF(tabType, t, "CategoryCode") as string;
+                        return string.Equals(cat, CraftableModsCategoryCode, StringComparison.OrdinalIgnoreCase)
+                            || string.Equals(cat, CraftableWoodCategoryCode, StringComparison.OrdinalIgnoreCase)
+                            || string.Equals(cat, CraftableStoneCategoryCode, StringComparison.OrdinalIgnoreCase);
+                    });
                 }
 
-                bool craftableWoodExists = false;
-                bool craftableStoneExists = false;
-                foreach (var t in tabs)
+                bool craftableExists = tabs.Any(t =>
                 {
                     var cat = GetPF(tabType, t, "CategoryCode") as string;
-                    if (string.Equals(cat, CraftableCategoryCode, StringComparison.OrdinalIgnoreCase)) craftableExists = true;
-                    if (string.Equals(cat, CraftableModsCategoryCode, StringComparison.OrdinalIgnoreCase)) craftableModsExists = true;
-                    if (string.Equals(cat, CraftableWoodCategoryCode, StringComparison.OrdinalIgnoreCase)) craftableWoodExists = true;
-                    if (string.Equals(cat, CraftableStoneCategoryCode, StringComparison.OrdinalIgnoreCase)) craftableStoneExists = true;
-                }
+                    return string.Equals(cat, CraftableCategoryCode, StringComparison.OrdinalIgnoreCase);
+                });
 
                 int insertAt = tabs.Count;
                 if (!craftableExists)
@@ -1213,37 +1255,58 @@ namespace ShowCraftable
                     insertAt++;
                 }
 
-                if (!craftableWoodExists)
+                if (!singleCategory)
                 {
-                    var woodTab = Activator.CreateInstance(tabType);
-                    SetPF(tabType, woodTab, "Name", "Craftable Wood Types");
-                    SetPF(tabType, woodTab, "CategoryCode", CraftableWoodCategoryCode);
-                    SetPF(tabType, woodTab, "DataInt", tabs.Count);
-                    SetPF(tabType, woodTab, "PaddingTop", 5.0);
-                    tabs.Insert(insertAt, woodTab);
-                    insertAt++;
-                }
+                    bool craftableWoodExists = tabs.Any(t =>
+                    {
+                        var cat = GetPF(tabType, t, "CategoryCode") as string;
+                        return string.Equals(cat, CraftableWoodCategoryCode, StringComparison.OrdinalIgnoreCase);
+                    });
 
-                if (!craftableStoneExists)
-                {
-                    var stoneTab = Activator.CreateInstance(tabType);
-                    SetPF(tabType, stoneTab, "Name", "Craftable Stone Types");
-                    SetPF(tabType, stoneTab, "CategoryCode", CraftableStoneCategoryCode);
-                    SetPF(tabType, stoneTab, "DataInt", tabs.Count);
-                    SetPF(tabType, stoneTab, "PaddingTop", 5.0);
-                    tabs.Insert(insertAt, stoneTab);
-                    insertAt++;
-                }
+                    bool craftableStoneExists = tabs.Any(t =>
+                    {
+                        var cat = GetPF(tabType, t, "CategoryCode") as string;
+                        return string.Equals(cat, CraftableStoneCategoryCode, StringComparison.OrdinalIgnoreCase);
+                    });
 
-                if (!craftableModsExists)
-                {
-                    var newTabMods = Activator.CreateInstance(tabType);
-                    SetPF(tabType, newTabMods, "Name", "Craftable (Mods)");
-                    SetPF(tabType, newTabMods, "CategoryCode", CraftableModsCategoryCode);
-                    SetPF(tabType, newTabMods, "DataInt", tabs.Count);
-                    SetPF(tabType, newTabMods, "PaddingTop", 5.0);
-                    tabs.Insert(insertAt, newTabMods);
-                    insertAt++;
+                    bool craftableModsExists = tabs.Any(t =>
+                    {
+                        var cat = GetPF(tabType, t, "CategoryCode") as string;
+                        return string.Equals(cat, CraftableModsCategoryCode, StringComparison.OrdinalIgnoreCase);
+                    });
+
+                    if (!craftableWoodExists)
+                    {
+                        var woodTab = Activator.CreateInstance(tabType);
+                        SetPF(tabType, woodTab, "Name", "Craftable Wood Types");
+                        SetPF(tabType, woodTab, "CategoryCode", CraftableWoodCategoryCode);
+                        SetPF(tabType, woodTab, "DataInt", tabs.Count);
+                        SetPF(tabType, woodTab, "PaddingTop", 5.0);
+                        tabs.Insert(insertAt, woodTab);
+                        insertAt++;
+                    }
+
+                    if (!craftableStoneExists)
+                    {
+                        var stoneTab = Activator.CreateInstance(tabType);
+                        SetPF(tabType, stoneTab, "Name", "Craftable Stone Types");
+                        SetPF(tabType, stoneTab, "CategoryCode", CraftableStoneCategoryCode);
+                        SetPF(tabType, stoneTab, "DataInt", tabs.Count);
+                        SetPF(tabType, stoneTab, "PaddingTop", 5.0);
+                        tabs.Insert(insertAt, stoneTab);
+                        insertAt++;
+                    }
+
+                    if (!craftableModsExists)
+                    {
+                        var newTabMods = Activator.CreateInstance(tabType);
+                        SetPF(tabType, newTabMods, "Name", "Craftable (Mods)");
+                        SetPF(tabType, newTabMods, "CategoryCode", CraftableModsCategoryCode);
+                        SetPF(tabType, newTabMods, "DataInt", tabs.Count);
+                        SetPF(tabType, newTabMods, "PaddingTop", 5.0);
+                        tabs.Insert(insertAt, newTabMods);
+                        insertAt++;
+                    }
                 }
 
                 __result = ToTypedArray(tabType, tabs);
@@ -1271,16 +1334,36 @@ namespace ShowCraftable
             var sw = Stopwatch.StartNew();
             try
             {
+                bool singleCategory = SingleCategoryMode;
+
                 CraftableTabActive = string.Equals(code, CraftableCategoryCode, StringComparison.Ordinal);
-                CraftableModsTabActive = string.Equals(code, CraftableModsCategoryCode, StringComparison.Ordinal);
-                CraftableWoodTabActive = string.Equals(code, CraftableWoodCategoryCode, StringComparison.Ordinal);
-                CraftableStoneTabActive = string.Equals(code, CraftableStoneCategoryCode, StringComparison.Ordinal);
 
-                bool modsOnly = CraftableModsTabActive;
-                bool woodOnly = CraftableWoodTabActive;
-                bool stoneOnly = CraftableStoneTabActive;
+                if (singleCategory)
+                {
+                    if (!CraftableTabActive)
+                    {
+                        CraftableTabActive = string.Equals(code, CraftableModsCategoryCode, StringComparison.Ordinal)
+                            || string.Equals(code, CraftableWoodCategoryCode, StringComparison.Ordinal)
+                            || string.Equals(code, CraftableStoneCategoryCode, StringComparison.Ordinal);
+                    }
 
-                bool anyCraftable = CraftableTabActive || CraftableModsTabActive || CraftableWoodTabActive || CraftableStoneTabActive;
+                    CraftableModsTabActive = false;
+                    CraftableWoodTabActive = false;
+                    CraftableStoneTabActive = false;
+                }
+                else
+                {
+                    CraftableModsTabActive = string.Equals(code, CraftableModsCategoryCode, StringComparison.Ordinal);
+                    CraftableWoodTabActive = string.Equals(code, CraftableWoodCategoryCode, StringComparison.Ordinal);
+                    CraftableStoneTabActive = string.Equals(code, CraftableStoneCategoryCode, StringComparison.Ordinal);
+                }
+
+                bool modsOnly = !singleCategory && CraftableModsTabActive;
+                bool woodOnly = !singleCategory && CraftableWoodTabActive;
+                bool stoneOnly = !singleCategory && CraftableStoneTabActive;
+
+                bool anyCraftable = CraftableTabActive
+                    || (!singleCategory && (CraftableModsTabActive || CraftableWoodTabActive || CraftableStoneTabActive));
                 string tabKey = GetTabKey(modsOnly, woodOnly, stoneOnly);
                 string variantKey = GetVariantKey(modsOnly, woodOnly, stoneOnly);
 
@@ -1296,9 +1379,9 @@ namespace ShowCraftable
                 string diagnosticsSuffix = anyCraftable ? $" ({FormatTabScanState(tabKey)})" : string.Empty;
 
                 if (CraftableTabActive) LogEverywhere(capi, $"Craftable tab selected by user{diagnosticsSuffix}");
-                else if (CraftableModsTabActive) LogEverywhere(capi, $"Craftable (Mods) tab selected by user{diagnosticsSuffix}");
-                else if (CraftableWoodTabActive) LogEverywhere(capi, $"Craftable Wood Types tab selected by user{diagnosticsSuffix}");
-                else if (CraftableStoneTabActive) LogEverywhere(capi, $"Craftable Stone Types tab selected by user{diagnosticsSuffix}");
+                else if (!singleCategory && CraftableModsTabActive) LogEverywhere(capi, $"Craftable (Mods) tab selected by user{diagnosticsSuffix}");
+                else if (!singleCategory && CraftableWoodTabActive) LogEverywhere(capi, $"Craftable Wood Types tab selected by user{diagnosticsSuffix}");
+                else if (!singleCategory && CraftableStoneTabActive) LogEverywhere(capi, $"Craftable Stone Types tab selected by user{diagnosticsSuffix}");
 
                 var fiOverview = AccessTools.Field(__instance.GetType(), "overviewGui");
                 var composer = fiOverview?.GetValue(__instance) as GuiComposer;
@@ -2102,7 +2185,21 @@ namespace ShowCraftable
                 var shim = TryBuildGridShim(raw, capi);
                 if (shim != null && shim.Outputs.Count > 0 && !ShouldSkipGridRecipe(shim))
                 {
-                    if ((modsOnly && shim.IsMod) || (!modsOnly && !shim.IsMod))
+                    bool include = false;
+                    if (modsOnly)
+                    {
+                        include = shim.IsMod;
+                    }
+                    else if (SingleCategoryMode)
+                    {
+                        include = true;
+                    }
+                    else
+                    {
+                        include = !shim.IsMod;
+                    }
+
+                    if (include)
                     {
                         usable++;
                         list.Add(shim);
@@ -2239,6 +2336,7 @@ namespace ShowCraftable
         {
             try
             {
+                if (SingleCategoryMode && !modsOnly && !woodOnly && !stoneOnly) return null;
                 var path = GetCachePath(capi, modsOnly, woodOnly, stoneOnly);
                 if (!File.Exists(path)) return null;
                 RecipeIndexCache data;
@@ -2367,9 +2465,10 @@ namespace ShowCraftable
 
             bool shouldStart = false;
             int buildToken = 0;
+            var variants = EnumerateRecipeIndexVariants().ToArray();
             lock (recipeIndexByVariant)
             {
-                bool allPresent = RecipeIndexVariants.All(v => recipeIndexByVariant.ContainsKey(v.VariantKey));
+                bool allPresent = variants.All(v => recipeIndexByVariant.ContainsKey(v.VariantKey));
                 if (recipeIndexBuilt && allPresent) return;
                 if (recipeIndexBuildStarted) return;
 
@@ -2385,11 +2484,12 @@ namespace ShowCraftable
             var sw = Stopwatch.StartNew();
             try
             {
+                var variantsLocal = variants;
                 recipeIndexBuildTask = Task.Run(() =>
                 {
                     try
                     {
-                        foreach (var variant in RecipeIndexVariants)
+                        foreach (var variant in variantsLocal)
                         {
                             if (localToken != Volatile.Read(ref recipeIndexBuildToken)) return;
 
@@ -2463,11 +2563,19 @@ namespace ShowCraftable
             var recipes = GetAllGridRecipes(capi, out var fetched, out var usable, modsOnly);
 
             if (woodOnly)
-                recipes = recipes.Where(r => !r.IsMod && IsWoodRecipe(r.Raw)).ToList();
+            {
+                recipes = recipes.Where(r => (SingleCategoryMode || !r.IsMod) && IsWoodRecipe(r.Raw)).ToList();
+            }
             else if (stoneOnly)
-                recipes = recipes.Where(r => !r.IsMod && IsStoneRecipe(r.Raw)).ToList();
+            {
+                recipes = recipes.Where(r => (SingleCategoryMode || !r.IsMod) && IsStoneRecipe(r.Raw)).ToList();
+            }
             else if (!modsOnly)
-                recipes = recipes.Where(r => !r.IsMod && !IsWoodRecipe(r.Raw) && !IsStoneRecipe(r.Raw)).ToList();
+            {
+                recipes = recipes.Where(r =>
+                    (SingleCategoryMode || !r.IsMod)
+                    && (SingleCategoryMode || (!IsWoodRecipe(r.Raw) && !IsStoneRecipe(r.Raw)))).ToList();
+            }
 
             index.RecipesFetched = fetched;
             index.RecipesUsable = usable;
@@ -2914,7 +3022,8 @@ namespace ShowCraftable
             int partitions,
             Dictionary<StackKey, List<GridRecipeShim>> index,
             System.Func<GridRecipeShim, bool> recipePredicate,
-            string callerName)
+            string callerName,
+            bool? modsOnlyFilter = false)
         {
             try
             {
@@ -2942,7 +3051,7 @@ namespace ShowCraftable
                         object page = ctor.Invoke(new object[] { capi, st });
                         var pStack = fiStack?.GetValue(page) as ItemStack ?? st;
 
-                        foreach (var shim in CandidateShimsForStack(capi, pStack, modsOnly: false, index))
+                        foreach (var shim in CandidateShimsForStack(capi, pStack, modsOnlyFilter, index))
                         {
                             if (!predicate(shim)) continue;
                             if (RecipeSatisfiedByPool(capi, pool, shim, pStack))
@@ -3009,7 +3118,7 @@ namespace ShowCraftable
 
                                 var key2page = GetCachedPageCodeMap(capi);
 
-                                foreach (var shim in CandidateShimsForStack(capi, pStack, modsOnly: false, index))
+                                foreach (var shim in CandidateShimsForStack(capi, pStack, modsOnlyFilter, index))
                                 {
                                     if (!predicate(shim)) continue;
                                     if (RecipeSatisfiedByPool(capi, pool, shim, pStack))
@@ -3069,14 +3178,20 @@ namespace ShowCraftable
             ICoreClientAPI capi, ResourcePool pool, HashSet<string> dest, int partitions,
             Dictionary<StackKey, List<GridRecipeShim>> index)
         {
+            Func<GridRecipeShim, bool> predicate = SingleCategoryMode
+                ? _ => true
+                : shim => !IsWoodRecipe(shim.Raw);
+            bool? modsOnlyFilter = SingleCategoryMode ? (bool?)null : false;
+
             AddCraftablePagesFromAllStacksFiltered(
                 capi,
                 pool,
                 dest,
                 partitions,
                 index,
-                shim => !IsWoodRecipe(shim.Raw),
-                nameof(AddCraftablePagesFromAllStacks));
+                predicate,
+                nameof(AddCraftablePagesFromAllStacks),
+                modsOnlyFilter);
         }
 
         private static void AddCraftablePagesFromAllStacksFromModStacks(
