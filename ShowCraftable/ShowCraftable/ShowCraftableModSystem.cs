@@ -1823,10 +1823,19 @@ namespace ShowCraftable
             public override int GetHashCode() => Code?.GetHashCode() ?? 0;
         }
 
+        private sealed class LiquidRequirement
+        {
+            public AssetLocation ContentCodePattern;
+            public string ContentType;
+            public float RequiredLitres;
+            public bool ConsumeContainer;
+        }
+
         private sealed class ResourcePool
         {
             public readonly Dictionary<Key, int> Counts = new();
             public readonly Dictionary<Key, EnumItemClass> Classes = new();
+            public readonly Dictionary<Key, List<ItemStack>> Stacks = new();
 
             public void Add(ItemStack stack)
             {
@@ -1847,6 +1856,20 @@ namespace ShowCraftable
                     if (eff == EnumItemClass.Item && stack.Block != null) eff = EnumItemClass.Block;
                     Classes[k] = eff;
                 }
+
+                if (!Stacks.TryGetValue(k, out var list))
+                {
+                    list = new List<ItemStack>();
+                    Stacks[k] = list;
+                }
+                try
+                {
+                    list.Add(stack.Clone());
+                }
+                catch
+                {
+                    // ignore clone failures
+                }
             }
 
             public string GetSignature()
@@ -1861,7 +1884,7 @@ namespace ShowCraftable
                 return sb.ToString();
             }
 
-            public bool TryConsumeAny(IEnumerable<ItemStack> options, int quantity, bool consume)
+            public bool TryConsumeAny(IEnumerable<ItemStack> options, int quantity, bool consume, LiquidRequirement requirement)
             {
                 if (options == null) return false;
                 foreach (var opt in options)
@@ -1869,16 +1892,26 @@ namespace ShowCraftable
                     var code = opt?.Collectible?.Code?.ToString();
                     if (string.IsNullOrEmpty(code)) continue;
                     var k = new Key { Code = code };
-                    if (Counts.TryGetValue(k, out int have) && have >= quantity)
+                    if (!Counts.TryGetValue(k, out int have) || have < quantity) continue;
+
+                    if (requirement != null)
                     {
-                        if (consume)
-                        {
-                            have -= quantity;
-                            if (have <= 0) { Counts.Remove(k); Classes.Remove(k); }
-                            else Counts[k] = have;
-                        }
+                        if (!TryConsumeLiquidMatch(k, quantity, consume, requirement)) continue;
                         return true;
                     }
+
+                    if (consume)
+                    {
+                        have -= quantity;
+                        if (have <= 0)
+                        {
+                            Counts.Remove(k);
+                            Classes.Remove(k);
+                            Stacks.Remove(k);
+                        }
+                        else Counts[k] = have;
+                    }
+                    return true;
                 }
                 return false;
             }
@@ -1894,7 +1927,7 @@ namespace ShowCraftable
                 }
                 return false;
             }
-            public bool TryConsumeWildcard(EnumItemClass type, AssetLocation pattern, string[] allowed, int quantity, bool consume)
+            public bool TryConsumeWildcard(EnumItemClass type, AssetLocation pattern, string[] allowed, int quantity, bool consume, LiquidRequirement requirement)
             {
                 if (pattern == null) return false;
 
@@ -1906,18 +1939,126 @@ namespace ShowCraftable
                     var code = new AssetLocation(k.Code);
                     if (!WildcardUtil.Match(pattern, code, allowed)) continue;
 
+                    if (requirement != null)
+                    {
+                        if (!TryConsumeLiquidMatch(k, quantity, consume, requirement)) continue;
+                        return true;
+                    }
+
                     if (kv.Value >= quantity)
                     {
                         if (consume)
                         {
                             int left = kv.Value - quantity;
-                            if (left <= 0) { Counts.Remove(k); Classes.Remove(k); }
+                            if (left <= 0)
+                            {
+                                Counts.Remove(k);
+                                Classes.Remove(k);
+                                Stacks.Remove(k);
+                            }
                             else Counts[k] = left;
                         }
                         return true;
                     }
                 }
                 return false;
+            }
+
+            private bool TryConsumeLiquidMatch(Key key, int quantity, bool consume, LiquidRequirement requirement)
+            {
+                if (requirement == null) return false;
+                if (!Stacks.TryGetValue(key, out var stacks) || stacks == null || stacks.Count == 0) return false;
+
+                int remaining = quantity;
+                var consumed = new List<(int Index, int Take)>();
+
+                for (int i = 0; i < stacks.Count && remaining > 0; i++)
+                {
+                    var stack = stacks[i];
+                    if (!LiquidRequirementSatisfied(stack, requirement)) continue;
+
+                    int available = Math.Max(1, stack?.StackSize ?? 0);
+                    if (available <= 0) continue;
+
+                    int take = Math.Min(available, remaining);
+                    consumed.Add((i, take));
+                    remaining -= take;
+                }
+
+                if (remaining > 0) return false;
+
+                if (consume)
+                {
+                    for (int i = consumed.Count - 1; i >= 0; i--)
+                    {
+                        var (index, take) = consumed[i];
+                        var stack = stacks[index];
+                        stack.StackSize -= take;
+                        if (stack.StackSize <= 0)
+                        {
+                            stacks.RemoveAt(index);
+                        }
+                    }
+
+                    if (stacks.Count == 0)
+                    {
+                        Stacks.Remove(key);
+                    }
+
+                    if (Counts.TryGetValue(key, out var have))
+                    {
+                        have -= quantity;
+                        if (have <= 0)
+                        {
+                            Counts.Remove(key);
+                            Classes.Remove(key);
+                        }
+                        else Counts[key] = have;
+                    }
+                }
+
+                return true;
+            }
+
+            private static bool LiquidRequirementSatisfied(ItemStack stack, LiquidRequirement requirement)
+            {
+                if (stack?.Collectible == null || requirement == null) return false;
+                if (stack.Collectible is not ILiquidInterface liq) return false;
+
+                ItemStack content = null;
+                try { content = liq.GetContent(stack); }
+                catch { return false; }
+                if (content == null || content.Collectible?.Code == null) return false;
+
+                if (!string.IsNullOrEmpty(requirement.ContentType))
+                {
+                    string actualType = content.Class.ToString();
+                    if (!string.Equals(actualType, requirement.ContentType, StringComparison.OrdinalIgnoreCase)) return false;
+                }
+
+                if (requirement.ContentCodePattern != null)
+                {
+                    try
+                    {
+                        if (!WildcardUtil.Match(requirement.ContentCodePattern, content.Collectible.Code))
+                            return false;
+                    }
+                    catch { return false; }
+                }
+
+                float litres = requirement.RequiredLitres;
+                if (litres <= 0) return true;
+
+                WaterTightContainableProps? props = null;
+                try { props = liq.GetContentProps(stack); }
+                catch { }
+                float itemsPerLitre = props?.ItemsPerLitre ?? 1f;
+                int neededItems = (int)(itemsPerLitre * litres);
+                int stackSize = Math.Max(1, stack.StackSize);
+                int requiredPerStack = neededItems / stackSize;
+                if (requiredPerStack <= 0) return true;
+
+                return content.StackSize >= requiredPerStack;
             }
         }
 
@@ -1938,6 +2079,7 @@ namespace ShowCraftable
             public AssetLocation PatternCode;
             public string[] Allowed;
             public EnumItemClass Type;
+            public LiquidRequirement LiquidRequirement;
         }
 
         private static List<GridRecipeShim> GetAllGridRecipes(ICoreClientAPI capi, out int fetched, out int usable, bool modsOnly)
@@ -2431,6 +2573,80 @@ namespace ShowCraftable
             public int GetHashCode(object obj) => System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(obj);
         }
 
+        private static LiquidRequirement ResolveLiquidRequirement(JsonObject ingredientAttrs, JsonObject recipeAttrs)
+        {
+            var req = TryParseLiquidRequirement(ingredientAttrs);
+            if (req != null) return req;
+
+            JsonObject recipeObj = null;
+            try { recipeObj = recipeAttrs?["liquidContainerProps"]; }
+            catch { }
+            return TryParseLiquidRequirement(recipeObj);
+        }
+
+        private static LiquidRequirement TryParseLiquidRequirement(JsonObject obj)
+        {
+            if (obj == null || !obj.Exists) return null;
+
+            JsonObject contentObj = null;
+            try { contentObj = obj["requiresContent"]; }
+            catch { }
+            if (contentObj == null || !contentObj.Exists) return null;
+
+            string codeStr = null;
+            string typeStr = null;
+            float litres = 0f;
+            bool consume = false;
+
+            try { codeStr = contentObj["code"].AsString(null); } catch { }
+            try { typeStr = contentObj["type"].AsString(null); } catch { }
+            try { litres = obj["requiresLitres"].AsFloat(0f); } catch { }
+            try { consume = obj["consumeContainer"].AsBool(false); } catch { }
+
+            AssetLocation pattern = null;
+            if (!string.IsNullOrEmpty(codeStr))
+            {
+                try { pattern = new AssetLocation(codeStr); }
+                catch { pattern = null; }
+            }
+
+            if (pattern == null && litres <= 0f) return null;
+
+            return new LiquidRequirement
+            {
+                ContentCodePattern = pattern,
+                ContentType = typeStr,
+                RequiredLitres = litres,
+                ConsumeContainer = consume
+            };
+        }
+
+        private static bool StackIsLiquidContainer(ICoreClientAPI capi, ItemStack stack)
+        {
+            if (stack == null) return false;
+
+            ItemStack probe = stack;
+            try
+            {
+                probe = stack.Clone();
+            }
+            catch
+            {
+                probe = stack;
+            }
+
+            try
+            {
+                if (probe.Collectible == null && capi != null)
+                {
+                    probe.ResolveBlockOrItem(capi.World);
+                }
+            }
+            catch { }
+
+            return probe?.Collectible is ILiquidInterface;
+        }
+
         private static GridRecipeShim TryBuildGridShim(object raw, ICoreClientAPI capi)
         {
             if (raw == null) return null;
@@ -2438,6 +2654,7 @@ namespace ShowCraftable
             if (!t.Name.Contains("GridRecipe", StringComparison.OrdinalIgnoreCase)) return null;
 
             var shim = new GridRecipeShim { Raw = raw };
+            var recipeAttrs = TryGetMember(t, raw, "Attributes") as JsonObject;
 
             bool hadResolved = false;
             var resolvedIngreds = TryGetMember(t, raw, "resolvedIngredients");
@@ -2448,6 +2665,8 @@ namespace ShowCraftable
                     if (ingRaw == null) continue;
                     var it = ingRaw.GetType();
                     var gi = new GridIngredientShim();
+                    var ingredientAttrs = TryGetMember(it, ingRaw, "RecipeAttributes") as JsonObject;
+                    var requirement = ResolveLiquidRequirement(ingredientAttrs, recipeAttrs);
 
                     gi.IsTool = TryGetMember(it, ingRaw, "IsTool") as bool? ?? false;
                     gi.IsWild = TryGetMember(it, ingRaw, "IsWildCard") as bool? ?? false;
@@ -2464,6 +2683,23 @@ namespace ShowCraftable
                     var resolvedStack = TryGetMember(it, ingRaw, "ResolvedItemstack") as ItemStack;
                     var resolvedList = TryGetMember(it, ingRaw, "ResolvedItemstacks") as System.Collections.IEnumerable;
 
+                    bool isContainer = false;
+                    if (!isContainer && resolvedStack != null)
+                    {
+                        isContainer = StackIsLiquidContainer(capi, resolvedStack);
+                    }
+                    if (!isContainer && resolvedList != null)
+                    {
+                        foreach (var s in resolvedList)
+                        {
+                            if (s is ItemStack opt && StackIsLiquidContainer(capi, opt))
+                            {
+                                isContainer = true;
+                                break;
+                            }
+                        }
+                    }
+
                     if (gi.IsWild)
                     {
                         gi.QuantityRequired = TryGetMember(it, ingRaw, "Quantity") as int? ?? 1;
@@ -2473,10 +2709,23 @@ namespace ShowCraftable
                         if (resolvedStack != null) gi.Options.Add(resolvedStack);
                         else if (resolvedList != null) foreach (var s in resolvedList) if (s is ItemStack st) gi.Options.Add(st);
 
+                        if (!isContainer && gi.Options.Count > 0)
+                        {
+                            foreach (var opt in gi.Options)
+                            {
+                                if (StackIsLiquidContainer(capi, opt)) { isContainer = true; break; }
+                            }
+                        }
+
                         int qty = 1;
                         if (resolvedStack != null) qty = Math.Max(1, resolvedStack.StackSize);
                         else if (gi.Options.Count > 0) qty = Math.Max(1, gi.Options[0].StackSize);
                         gi.QuantityRequired = qty;
+                    }
+
+                    if (requirement != null && isContainer)
+                    {
+                        gi.LiquidRequirement = requirement;
                     }
 
                     if (gi.IsWild || gi.Options.Count > 0) shim.Ingredients.Add(gi);
@@ -2500,6 +2749,8 @@ namespace ShowCraftable
                         if (ingRaw == null) continue;
                         var it = ingRaw.GetType();
                         var gi = new GridIngredientShim();
+                        var ingredientAttrs = TryGetMember(it, ingRaw, "RecipeAttributes") as JsonObject;
+                        var requirement = ResolveLiquidRequirement(ingredientAttrs, recipeAttrs);
 
                         gi.IsTool = TryGetMember(it, ingRaw, "IsTool") as bool? ?? false;
                         gi.PatternCode = TryGetMember(it, ingRaw, "Code") as AssetLocation;
@@ -2519,6 +2770,7 @@ namespace ShowCraftable
                         }
                         gi.IsWild = isWild;
 
+                        bool isContainer = false;
                         if (!gi.IsWild)
                         {
                             var codeStr = gi.PatternCode?.ToString();
@@ -2527,7 +2779,13 @@ namespace ShowCraftable
                             {
                                 st.StackSize = gi.QuantityRequired;
                                 gi.Options.Add(st);
+                                isContainer = StackIsLiquidContainer(capi, st);
                             }
+                        }
+
+                        if (requirement != null && isContainer)
+                        {
+                            gi.LiquidRequirement = requirement;
                         }
 
                         if (gi.IsWild || gi.Options.Count > 0) shim.Ingredients.Add(gi);
@@ -2648,6 +2906,23 @@ namespace ShowCraftable
             {
                 res.Classes[new Key { Code = kv.Key.Code }] = kv.Value;
             }
+            foreach (var kv in pool.Stacks)
+            {
+                var key = new Key { Code = kv.Key.Code };
+                if (!res.Stacks.TryGetValue(key, out var list))
+                {
+                    list = new List<ItemStack>();
+                    res.Stacks[key] = list;
+                }
+                foreach (var st in kv.Value)
+                {
+                    try
+                    {
+                        list.Add(st?.Clone());
+                    }
+                    catch { }
+                }
+            }
             return res;
         }
 
@@ -2670,12 +2945,12 @@ namespace ShowCraftable
                         string match = allowed.FirstOrDefault(v => target.Contains(v));
                         if (match != null) allowed = new[] { match };
                     }
-                    if (!temp.TryConsumeWildcard(ing.Type, ing.PatternCode, allowed, Math.Max(1, ing.QuantityRequired), true))
+                    if (!temp.TryConsumeWildcard(ing.Type, ing.PatternCode, allowed, Math.Max(1, ing.QuantityRequired), true, ing.LiquidRequirement))
                         return false;
                 }
                 else
                 {
-                    if (!temp.TryConsumeAny(ing.Options, Math.Max(1, ing.QuantityRequired), true))
+                    if (!temp.TryConsumeAny(ing.Options, Math.Max(1, ing.QuantityRequired), true, ing.LiquidRequirement))
                         return false;
                 }
             }
@@ -3083,25 +3358,42 @@ namespace ShowCraftable
             try
             {
                 var pool = new ResourcePool();
-                for (int i = 0; i < data.Codes.Count; i++)
+                if (data.Stacks != null && data.Stacks.Count > 0)
                 {
-                    string code = data.Codes[i];
-                    int cnt = data.Counts[i];
-                    var cls = data.Classes[i];
+                    foreach (var raw in data.Stacks)
+                    {
+                        if (raw == null || raw.Length == 0) continue;
+                        try
+                        {
+                            var st = new ItemStack(raw);
+                            if (!st.ResolveBlockOrItem(_capi.World)) continue;
+                            pool.Add(st);
+                        }
+                        catch { }
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < data.Codes.Count; i++)
+                    {
+                        string code = data.Codes[i];
+                        int cnt = data.Counts[i];
+                        var cls = data.Classes[i];
 
-                    var loc = new AssetLocation(code);
-                    ItemStack st = null;
-                    if (cls == EnumItemClass.Item)
-                    {
-                        var it = _capi.World.GetItem(loc);
-                        if (it != null) st = new ItemStack(it, cnt);
+                        var loc = new AssetLocation(code);
+                        ItemStack st = null;
+                        if (cls == EnumItemClass.Item)
+                        {
+                            var it = _capi.World.GetItem(loc);
+                            if (it != null) st = new ItemStack(it, cnt);
+                        }
+                        else
+                        {
+                            var bl = _capi.World.GetBlock(loc);
+                            if (bl != null) st = new ItemStack(bl, cnt);
+                        }
+                        if (st != null) pool.Add(st);
                     }
-                    else
-                    {
-                        var bl = _capi.World.GetBlock(loc);
-                        if (bl != null) st = new ItemStack(bl, cnt);
-                    }
-                    if (st != null) pool.Add(st);
                 }
 
                 string tabKey = data.TabKey;
@@ -3482,6 +3774,7 @@ namespace ShowCraftable
         [ProtoMember(3)] public List<EnumItemClass> Classes { get; set; } = new();
         [ProtoMember(4)] public int ScanId { get; set; }
         [ProtoMember(5)] public string TabKey { get; set; }
+        [ProtoMember(6)] public List<byte[]> Stacks { get; set; } = new();
     }
 
     public class ShowCraftableServerSystem : ModSystem
@@ -3822,6 +4115,7 @@ namespace ShowCraftable
             var sum = new Dictionary<string, (int count, EnumItemClass cls)>();
             var slots = new List<SlotRef>();
             var playerCounts = new Dictionary<string, int>();
+            var stackData = new List<byte[]>();
 
             var seenSlotRefs = new HashSet<ItemSlot>();     
             var seenStackRefs = new HashSet<ItemStack>();  
@@ -3864,6 +4158,7 @@ namespace ShowCraftable
 
                     if (sum.TryGetValue(code, out var cur)) sum[code] = (cur.count + add, cls); else sum[code] = (add, cls);
                     if (playerCounts.TryGetValue(code, out var pc)) playerCounts[code] = pc + add; else playerCounts[code] = add;
+                    try { stackData.Add(st.ToBytes()); } catch { }
                 }
             }
 
@@ -3896,6 +4191,7 @@ namespace ShowCraftable
                             if (sum.TryGetValue(code, out var cur)) sum[code] = (cur.count + add, cls); else sum[code] = (add, cls);
 
                             slots.Add(new SlotRef { Slot = slot, Code = code, Class = cls, BlockEntity = be });
+                            try { stackData.Add(st.ToBytes()); } catch { }
                         }
                     }
 
@@ -3975,7 +4271,8 @@ namespace ShowCraftable
                 Counts = sum.Values.Select(v => v.count).ToList(),
                 Classes = sum.Values.Select(v => v.cls).ToList(),
                 ScanId = req.ScanId,
-                TabKey = req.TabKey                                   
+                TabKey = req.TabKey,
+                Stacks = stackData
             };
             sapi.Network.GetChannel(ShowCraftableSystem.ChannelName).SendPacket(reply, fromPlayer);
 
