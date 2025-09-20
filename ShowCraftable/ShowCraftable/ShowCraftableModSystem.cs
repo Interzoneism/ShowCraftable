@@ -2261,7 +2261,7 @@ namespace ShowCraftable
                         var r = new GridRecipeShim();
                         var recipeWildGroups = new List<WildGroup>();
 
-                        foreach (var ci in cr.Ingredients ?? Array.Empty<CachedIngredient>())
+                        foreach (var ci in (cr.Ingredients != null ? cr.Ingredients : new List<CachedIngredient>()))
                         {
                             if (ci == null) continue;
 
