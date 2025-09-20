@@ -2231,6 +2231,7 @@ namespace ShowCraftable
             public object Raw;
             public List<GridIngredientShim> Ingredients = new();
             public List<ItemStack> Outputs = new();
+            public AssetLocation Name;
             public bool IsMod;
         }
 
@@ -2270,9 +2271,111 @@ namespace ShowCraftable
             return CodeStartsWithBowl(stack.Collectible.Code);
         }
 
+        private static string AssetPath(AssetLocation location)
+        {
+            if (location == null) return null;
+            string path = location.Path;
+            if (!string.IsNullOrEmpty(path)) return path;
+
+            string full = location.ToString();
+            if (string.IsNullOrEmpty(full)) return null;
+
+            int colonIndex = full.IndexOf(':');
+            return colonIndex >= 0 ? full.Substring(colonIndex + 1) : full;
+        }
+
+        private static bool ShouldSkipRecipeByName(AssetLocation recipeName)
+        {
+            if (recipeName == null) return false;
+
+            string domain = recipeName.Domain;
+            if (!string.IsNullOrEmpty(domain)
+                && !string.Equals(domain, "game", StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(domain, "survival", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            string path = AssetPath(recipeName)?.Replace('\\', '/');
+            if (string.IsNullOrEmpty(path)) return false;
+
+            int slashIndex = path.LastIndexOf('/');
+            string finalSegment = slashIndex >= 0 ? path.Substring(slashIndex + 1) : path;
+
+            return string.Equals(finalSegment, "nuggets", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsLikelyNuggetRecipe(GridRecipeShim shim)
+        {
+            if (shim == null) return false;
+            if (shim.IsMod) return false;
+            if (shim.Outputs == null || shim.Outputs.Count == 0) return false;
+
+            bool outputsAllNuggets = true;
+            foreach (var output in shim.Outputs)
+            {
+                var codePath = output?.Collectible?.Code?.Path;
+                if (string.IsNullOrEmpty(codePath)
+                    || !codePath.StartsWith("nugget-", StringComparison.OrdinalIgnoreCase))
+                {
+                    outputsAllNuggets = false;
+                    break;
+                }
+            }
+
+            if (!outputsAllNuggets) return false;
+            if (shim.Ingredients == null || shim.Ingredients.Count == 0) return false;
+
+            bool hasHammerTool = false;
+            bool hasOreWildcard = false;
+
+            foreach (var ingredient in shim.Ingredients)
+            {
+                if (ingredient == null) continue;
+
+                string patternPath = AssetPath(ingredient.PatternCode);
+                if (!string.IsNullOrEmpty(patternPath))
+                {
+                    if (!hasHammerTool && ingredient.IsTool
+                        && patternPath.StartsWith("hammer-", StringComparison.OrdinalIgnoreCase))
+                    {
+                        hasHammerTool = true;
+                    }
+
+                    if (!hasOreWildcard && ingredient.IsWild
+                        && (patternPath.StartsWith("ore-", StringComparison.OrdinalIgnoreCase)
+                            || patternPath.StartsWith("crystalizedore-", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        hasOreWildcard = true;
+                    }
+                }
+
+                if (!hasHammerTool && ingredient.Options != null)
+                {
+                    foreach (var option in ingredient.Options)
+                    {
+                        var optPath = option?.Collectible?.Code?.Path;
+                        if (!string.IsNullOrEmpty(optPath)
+                            && optPath.StartsWith("hammer-", StringComparison.OrdinalIgnoreCase))
+                        {
+                            hasHammerTool = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (hasHammerTool && hasOreWildcard) break;
+            }
+
+            return hasHammerTool && hasOreWildcard;
+        }
+
         private static bool ShouldSkipGridRecipe(GridRecipeShim shim)
         {
             if (shim == null) return false;
+
+            if (ShouldSkipRecipeByName(shim.Name) || IsLikelyNuggetRecipe(shim))
+                return true;
 
             if (shim.Outputs != null)
             {
@@ -3039,6 +3142,7 @@ namespace ShowCraftable
             }
 
             var nameAl = TryGetMember(t, raw, "Name") as AssetLocation;
+            shim.Name = nameAl;
             if (nameAl != null)
             {
                 shim.IsMod = !string.Equals(nameAl.Domain, "game", StringComparison.Ordinal);
