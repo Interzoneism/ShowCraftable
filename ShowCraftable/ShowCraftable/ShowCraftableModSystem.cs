@@ -61,6 +61,7 @@ namespace ShowCraftable
         private static readonly Dictionary<string, Dictionary<string, int>> WildTokenCountsMemo = new(StringComparer.Ordinal);
         private static readonly Dictionary<string, RecipeIndexData> recipeIndexByVariant = new(StringComparer.Ordinal);
         private static readonly Dictionary<string, ulong> TabPoolDNA = new(StringComparer.Ordinal);
+        private static readonly Dictionary<Type, MethodInfo> SelectTabMethodsCache = new();
         private static readonly object CacheLock = new();
         private static readonly object DnaLock = new();
         private static readonly object InflightMapLock = new();
@@ -69,6 +70,7 @@ namespace ShowCraftable
         private static readonly object PendingScanLock = new();
         private static readonly object ScanQueueLock = new();
         private static readonly object TabUiStateLock = new();
+        private static readonly object TabCycleLock = new();
         private static ScanRequestInfo? QueuedScanRequest;
         private static ShowCraftableConfig Config = new();
         private static string PendingScanTabKey;
@@ -87,11 +89,19 @@ namespace ShowCraftable
         private static volatile bool ScanInProgress = false;
         private static volatile int recipeIndexBuildProgress;
         private static volatile int recipeIndexBuildTotal;
+        private static volatile bool TabCycleInProgress;
         public const string ChannelName = "showcraftablescan";
         public const string CraftableCategoryCode = "craftable";
         public const string CraftableModsCategoryCode = "craftablemods";
         public const string CraftableStoneCategoryCode = "craftablestonetypes";
         public const string CraftableWoodCategoryCode = "craftablewoodtypes";
+        private static readonly (string TabKey, string CategoryCode)[] CraftableTabSelectionOrder =
+        {
+            (CraftableTabKeyName, CraftableCategoryCode),
+            (ModTabKeyName, CraftableModsCategoryCode),
+            (WoodTabKeyName, CraftableWoodCategoryCode),
+            (StoneTabKeyName, CraftableStoneCategoryCode)
+        };
 
         [ProtoContract]
         private class CachedIngredient
@@ -1265,6 +1275,163 @@ namespace ShowCraftable
             return mi != null && mi.ReturnType == typeof(bool) && (bool)mi.Invoke(inst, Array.Empty<object>());
         }
 
+        private static MethodInfo GetSelectTabMethod(object dialogInstance)
+        {
+            if (dialogInstance == null) return null;
+
+            var type = dialogInstance.GetType();
+            lock (SelectTabMethodsCache)
+            {
+                if (!SelectTabMethodsCache.TryGetValue(type, out var method) || method == null)
+                {
+                    method = AccessTools.Method(type, "selectTab")
+                          ?? AccessTools.Method(type.BaseType, "selectTab");
+                    SelectTabMethodsCache[type] = method;
+                }
+
+                return method;
+            }
+        }
+
+        private static (string TabKey, string CategoryCode)[] BuildCraftableTabSequence(string startingCategoryCode)
+        {
+            if (string.IsNullOrEmpty(startingCategoryCode)) return CraftableTabSelectionOrder;
+
+            int startIndex = Array.FindIndex(CraftableTabSelectionOrder,
+                entry => string.Equals(entry.CategoryCode, startingCategoryCode, StringComparison.Ordinal));
+
+            if (startIndex <= 0) return CraftableTabSelectionOrder;
+
+            var sequence = new (string TabKey, string CategoryCode)[CraftableTabSelectionOrder.Length];
+            for (int i = 0; i < CraftableTabSelectionOrder.Length; i++)
+            {
+                sequence[i] = CraftableTabSelectionOrder[(startIndex + i) % CraftableTabSelectionOrder.Length];
+            }
+
+            return sequence;
+        }
+
+        private static void StartCraftableTabCycle(object dialogInstance, ICoreClientAPI capi, string startingCategoryCode)
+        {
+            var effectiveApi = capi ?? _staticCapi;
+            if (dialogInstance == null || effectiveApi == null) return;
+
+            lock (TabCycleLock)
+            {
+                if (TabCycleInProgress) return;
+                TabCycleInProgress = true;
+            }
+
+            Task.Run(() => RunCraftableTabCycle(dialogInstance, effectiveApi, startingCategoryCode));
+        }
+
+        private static void RunCraftableTabCycle(object dialogInstance, ICoreClientAPI capi, string startingCategoryCode)
+        {
+            try
+            {
+                if (!DialogIsOpen(dialogInstance)) return;
+
+                Thread.Sleep(150);
+
+                var sequence = BuildCraftableTabSequence(startingCategoryCode);
+                foreach (var (tabKey, categoryCode) in sequence)
+                {
+                    if (!DialogIsOpen(dialogInstance)) break;
+
+                    if (!TrySimulateTabSelection(dialogInstance, capi, categoryCode)) break;
+
+                    WaitForTabUpdate(dialogInstance, tabKey);
+                }
+            }
+            catch (Exception e)
+            {
+                LogEverywhere(capi ?? _staticCapi, $"Craftable tab cycle failed: {e}", caller: nameof(RunCraftableTabCycle));
+            }
+            finally
+            {
+                lock (TabCycleLock)
+                {
+                    TabCycleInProgress = false;
+                }
+            }
+        }
+
+        private static bool TrySimulateTabSelection(object dialogInstance, ICoreClientAPI capi, string categoryCode)
+        {
+            if (dialogInstance == null || capi == null || string.IsNullOrEmpty(categoryCode)) return false;
+
+            var method = GetSelectTabMethod(dialogInstance);
+            if (method == null) return false;
+
+            var tcs = new TaskCompletionSource<bool>();
+
+            capi.Event.EnqueueMainThreadTask(() =>
+            {
+                try
+                {
+                    if (!DialogIsOpen(dialogInstance))
+                    {
+                        tcs.TrySetResult(false);
+                        return;
+                    }
+
+                    method.Invoke(dialogInstance, new object[] { categoryCode });
+                    tcs.TrySetResult(true);
+                }
+                catch (Exception ex)
+                {
+                    LogEverywhere(capi ?? _staticCapi, $"Failed to simulate selecting tab '{categoryCode}': {ex}",
+                        caller: nameof(TrySimulateTabSelection));
+                    tcs.TrySetResult(false);
+                }
+            }, "SCSimSelectTab");
+
+            try
+            {
+                if (!tcs.Task.Wait(2000)) return false;
+            }
+            catch
+            {
+                return false;
+            }
+
+            return tcs.Task.Result;
+        }
+
+        private static void WaitForTabUpdate(object dialogInstance, string tabKey)
+        {
+            _ = tabKey;
+            const int totalWaitMs = 8000;
+            const int intervalMs = 100;
+            const int minWaitNoScanMs = 600;
+
+            int waited = 0;
+            bool sawScan = false;
+
+            while (waited < totalWaitMs)
+            {
+                if (!DialogIsOpen(dialogInstance)) break;
+
+                if (ScanInProgress)
+                {
+                    sawScan = true;
+                }
+                else if (sawScan)
+                {
+                    break;
+                }
+                else if (waited >= minWaitNoScanMs)
+                {
+                    break;
+                }
+
+                Thread.Sleep(intervalMs);
+                waited += intervalMs;
+            }
+
+            Thread.Sleep(150);
+        }
+
         public static void SelectTab_Postfix(object __instance, string code)
         {
             ICoreClientAPI capi = null;
@@ -1347,6 +1514,11 @@ namespace ShowCraftable
                     if (!DialogIsOpen(__instance)) return;
                     RequestServerScan(capi, NearbyRadius, modsOnly, woodOnly, stoneOnly, tabKey);
                 }, "SCScanOnTabSelect");
+
+                if (anyCraftable)
+                {
+                    StartCraftableTabCycle(__instance, capi, code);
+                }
             }
             catch (Exception e)
             {
