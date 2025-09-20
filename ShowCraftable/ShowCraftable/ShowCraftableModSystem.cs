@@ -2669,9 +2669,18 @@ namespace ShowCraftable
                     var requirement = ResolveLiquidRequirement(ingredientAttrs, recipeAttrs);
 
                     gi.IsTool = TryGetMember(it, ingRaw, "IsTool") as bool? ?? false;
-                    gi.IsWild = TryGetMember(it, ingRaw, "IsWildCard") as bool? ?? false;
 
                     gi.PatternCode = TryGetMember(it, ingRaw, "Code") as AssetLocation;
+                    bool isWild = TryGetMember(it, ingRaw, "IsWildCard") as bool? ?? false;
+                    if (!isWild)
+                    {
+                        var path = gi.PatternCode?.Path;
+                        if (path != null && (path.Contains("*") || path.Contains("{") || path.Contains("}") || path.StartsWith("@")))
+                        {
+                            isWild = true;
+                        }
+                    }
+                    gi.IsWild = isWild;
                     var allowedObj = TryGetMember(it, ingRaw, "AllowedVariants");
                     gi.Allowed = allowedObj as string[];
                     if (gi.Allowed == null && allowedObj is Dictionary<string, string[]> dict)
@@ -2723,7 +2732,8 @@ namespace ShowCraftable
                         gi.QuantityRequired = qty;
                     }
 
-                    if (requirement != null && isContainer)
+                    bool applyRequirement = requirement != null && (isContainer || gi.IsWild);
+                    if (applyRequirement)
                     {
                         gi.LiquidRequirement = requirement;
                     }
@@ -2783,7 +2793,8 @@ namespace ShowCraftable
                             }
                         }
 
-                        if (requirement != null && isContainer)
+                        bool applyRequirement = requirement != null && (isContainer || isWild);
+                        if (applyRequirement)
                         {
                             gi.LiquidRequirement = requirement;
                         }
