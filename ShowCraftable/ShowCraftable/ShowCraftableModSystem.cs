@@ -70,6 +70,9 @@ namespace ShowCraftable
         private static readonly object PageCodeMapLock = new();
         private static readonly object PendingScanLock = new();
         private static readonly object ScanQueueLock = new();
+        private static readonly object AllTabQueueLock = new();
+        private static readonly Queue<ScanRequestInfo> AllTabScanQueue = new();
+        private static volatile bool AllTabScanSequenceActive;
         private static readonly object TabUiStateLock = new();
         private static ScanRequestInfo? QueuedScanRequest;
         private static ShowCraftableConfig Config = new();
