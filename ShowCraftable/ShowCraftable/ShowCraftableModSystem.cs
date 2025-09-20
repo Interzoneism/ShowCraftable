@@ -29,6 +29,7 @@ namespace ShowCraftable
         internal static int ConfiguredSearchRadius => Math.Max(0, Config?.SearchDistanceItems ?? 20);
         internal static int ConfiguredAllStacksPartitions => Math.Max(-1, Config?.AllStacksPartitions ?? -1);
         private const string ConfigFileName = "ShowCraftable.json";
+        private const string CraftableAllTabKeyName = "allTab";
         private const string CraftableTabKeyName = "craftableTab";
         private const string ModTabKeyName = "modTab";
         private const string StoneTabKeyName = "stoneTab";
@@ -50,6 +51,7 @@ namespace ShowCraftable
         private static int _pendingScanId;
         private static ItemStack[] AllStacksPageCodeMapSource;
         private static List<string> CachedPageCodes = new();
+        private static List<string> CraftableAllTabCache = new();
         private static List<string> CraftableTabCache = new();
         private static List<string> ModTabCache = new();
         private static List<string> s_EmptyPages;
@@ -76,6 +78,7 @@ namespace ShowCraftable
         private static Task recipeIndexBuildTask;
         private static int recipeIndexBuildToken;
         private static volatile bool recipeIndexBuildStarted = false;
+        private static volatile bool CraftableAllTabActive;
         private static volatile bool CraftableModsTabActive;
         private static volatile bool CraftableStoneTabActive;
         private static volatile bool CraftableTabActive;
@@ -88,6 +91,7 @@ namespace ShowCraftable
         private static volatile int recipeIndexBuildProgress;
         private static volatile int recipeIndexBuildTotal;
         public const string ChannelName = "showcraftablescan";
+        public const string CraftableAllCategoryCode = "craftableall";
         public const string CraftableCategoryCode = "craftable";
         public const string CraftableModsCategoryCode = "craftablemods";
         public const string CraftableStoneCategoryCode = "craftablestonetypes";
@@ -336,6 +340,7 @@ namespace ShowCraftable
 
         private static string VariantKeyFromTabKey(string tabKey)
         {
+            if (string.Equals(tabKey, CraftableAllTabKeyName, StringComparison.Ordinal)) return "van";
             if (string.Equals(tabKey, ModTabKeyName, StringComparison.Ordinal)) return "mods";
             if (string.Equals(tabKey, WoodTabKeyName, StringComparison.Ordinal)) return "wood";
             if (string.Equals(tabKey, StoneTabKeyName, StringComparison.Ordinal)) return "stone";
@@ -344,6 +349,7 @@ namespace ShowCraftable
 
         private static string GetActiveTabKey()
         {
+            if (CraftableAllTabActive) return CraftableAllTabKeyName;
             if (CraftableModsTabActive) return ModTabKeyName;
             if (CraftableWoodTabActive) return WoodTabKeyName;
             if (CraftableStoneTabActive) return StoneTabKeyName;
@@ -353,6 +359,7 @@ namespace ShowCraftable
 
         private static bool IsTabActive(string tabKey)
         {
+            if (string.Equals(tabKey, CraftableAllTabKeyName, StringComparison.Ordinal)) return CraftableAllTabActive;
             if (string.Equals(tabKey, ModTabKeyName, StringComparison.Ordinal)) return CraftableModsTabActive;
             if (string.Equals(tabKey, WoodTabKeyName, StringComparison.Ordinal)) return CraftableWoodTabActive;
             if (string.Equals(tabKey, StoneTabKeyName, StringComparison.Ordinal)) return CraftableStoneTabActive;
@@ -365,11 +372,13 @@ namespace ShowCraftable
             return string.Equals(tabKey, ModTabKeyName, StringComparison.Ordinal)
                 || string.Equals(tabKey, WoodTabKeyName, StringComparison.Ordinal)
                 || string.Equals(tabKey, StoneTabKeyName, StringComparison.Ordinal)
-                || string.Equals(tabKey, CraftableTabKeyName, StringComparison.Ordinal);
+                || string.Equals(tabKey, CraftableTabKeyName, StringComparison.Ordinal)
+                || string.Equals(tabKey, CraftableAllTabKeyName, StringComparison.Ordinal);
         }
 
         private static List<string> GetTabCache(string tabKey)
         {
+            if (string.Equals(tabKey, CraftableAllTabKeyName, StringComparison.Ordinal)) return CraftableAllTabCache;
             if (string.Equals(tabKey, ModTabKeyName, StringComparison.Ordinal)) return ModTabCache;
             if (string.Equals(tabKey, WoodTabKeyName, StringComparison.Ordinal)) return WoodTypeTabCache;
             if (string.Equals(tabKey, StoneTabKeyName, StringComparison.Ordinal)) return StoneTypeTabCache;
@@ -387,7 +396,8 @@ namespace ShowCraftable
             }
 
             var list = pages != null ? new List<string>(pages) : new List<string>();
-            if (string.Equals(tabKey, ModTabKeyName, StringComparison.Ordinal)) ModTabCache = list;
+            if (string.Equals(tabKey, CraftableAllTabKeyName, StringComparison.Ordinal)) CraftableAllTabCache = list;
+            else if (string.Equals(tabKey, ModTabKeyName, StringComparison.Ordinal)) ModTabCache = list;
             else if (string.Equals(tabKey, WoodTabKeyName, StringComparison.Ordinal)) WoodTypeTabCache = list;
             else if (string.Equals(tabKey, StoneTabKeyName, StringComparison.Ordinal)) StoneTypeTabCache = list;
             else CraftableTabCache = list;
@@ -982,9 +992,8 @@ namespace ShowCraftable
                     }
                     lock (InflightMapLock) InflightById.Remove(scanId);
 
-                    FinishScan(capi);
                     LogEverywhere(capi, $"Failed to send scan request: {e}", toChat: true);
-                    capi.Event.EnqueueMainThreadTask(() => TryProcessQueuedScan(capi), "SCProcessScanQueueFail");
+                    capi.Event.EnqueueMainThreadTask(() => FinishScanAndProcessQueue(capi), "SCProcessScanQueueFail");
                 }
             }
             finally
@@ -1062,7 +1071,131 @@ namespace ShowCraftable
         private static void FinishScanAndProcessQueue(ICoreClientAPI capi)
         {
             FinishScan(capi);
+            if (TryStartNextAllTabScan(capi)) return;
             TryProcessQueuedScan(capi);
+        }
+
+        private static void StartAllTabScanSequence(ICoreClientAPI capi)
+        {
+            if (capi == null) return;
+
+            lock (AllTabQueueLock)
+            {
+                AllTabScanQueue.Clear();
+                AllTabScanQueue.Enqueue(new ScanRequestInfo(modsOnly: false, woodOnly: false, stoneOnly: false, CraftableTabKeyName));
+                AllTabScanQueue.Enqueue(new ScanRequestInfo(modsOnly: false, woodOnly: true, stoneOnly: false, WoodTabKeyName));
+                AllTabScanQueue.Enqueue(new ScanRequestInfo(modsOnly: false, woodOnly: false, stoneOnly: true, StoneTabKeyName));
+                AllTabScanQueue.Enqueue(new ScanRequestInfo(modsOnly: true, woodOnly: false, stoneOnly: false, ModTabKeyName));
+                AllTabScanSequenceActive = true;
+            }
+
+            SetTabReadyToUpdateUI(CraftableAllTabKeyName, false);
+
+            capi.Event.EnqueueMainThreadTask(() =>
+            {
+                if (IsTabActive(CraftableAllTabKeyName)) SetUpdatingText(capi, true);
+            }, "SCAllSetUpdating");
+
+            TryStartNextAllTabScan(capi);
+        }
+
+        private static bool TryStartNextAllTabScan(ICoreClientAPI capi)
+        {
+            if (capi == null) return false;
+
+            ScanRequestInfo? next = null;
+
+            lock (AllTabQueueLock)
+            {
+                if (!AllTabScanSequenceActive) return false;
+
+                if (ScanInProgress)
+                {
+                    return true;
+                }
+
+                if (AllTabScanQueue.Count > 0)
+                {
+                    next = AllTabScanQueue.Dequeue();
+                }
+                else
+                {
+                    AllTabScanSequenceActive = false;
+                }
+            }
+
+            if (next.HasValue)
+            {
+                var req = next.Value;
+                RequestServerScan(capi, NearbyRadius, req.ModsOnly, req.WoodOnly, req.StoneOnly, req.TabKey, allowQueue: false);
+                return true;
+            }
+
+            FinalizeAllTabCache(capi);
+            return false;
+        }
+
+        private static void FinalizeAllTabCache(ICoreClientAPI capi)
+        {
+            List<string> combined;
+            lock (CacheLock)
+            {
+                var seen = new HashSet<string>(StringComparer.Ordinal);
+                combined = new List<string>();
+                foreach (var key in new[] { CraftableTabKeyName, WoodTabKeyName, StoneTabKeyName, ModTabKeyName })
+                {
+                    var cache = GetTabCache(key);
+                    if (cache == null) continue;
+                    foreach (var page in cache)
+                    {
+                        if (seen.Add(page)) combined.Add(page);
+                    }
+                }
+
+                CraftableAllTabCache = new List<string>(combined);
+            }
+
+            lock (DnaLock)
+            {
+                const ulong offset = 1469598103934665603UL;
+                const ulong prime = 1099511628211UL;
+                ulong hash = offset;
+                bool any = false;
+
+                foreach (var key in new[] { CraftableTabKeyName, WoodTabKeyName, StoneTabKeyName, ModTabKeyName })
+                {
+                    if (TabPoolDNA.TryGetValue(key, out var dna))
+                    {
+                        any = true;
+                        hash = unchecked((hash ^ dna) * prime);
+                    }
+                }
+
+                if (any)
+                {
+                    TabPoolDNA[CraftableAllTabKeyName] = hash;
+                }
+                else
+                {
+                    TabPoolDNA.Remove(CraftableAllTabKeyName);
+                }
+            }
+
+            SetTabReadyToUpdateUI(CraftableAllTabKeyName, true);
+
+            capi?.Event.EnqueueMainThreadTask(() =>
+            {
+                try
+                {
+                    if (IsTabActive(CraftableAllTabKeyName))
+                    {
+                        TryUpdateActiveTabFromCache(capi, CraftableAllTabKeyName);
+                    }
+                }
+                catch { }
+            }, "SCAllFinalize");
+
+            LogEverywhere(capi ?? _staticCapi, $"[AllTab] Combined cache ready with {CraftableAllTabCache.Count} pages", caller: nameof(FinalizeAllTabCache));
         }
 
         public override void Start(ICoreAPI api)
@@ -1181,11 +1314,13 @@ namespace ShowCraftable
                     if (fi != null) fi.SetValue(o, val);
                 }
 
+                bool craftableAllExists = false;
                 bool craftableExists = false;
                 bool craftableModsExists = false;
                 foreach (var t in tabs)
                 {
                     var cat = GetPF(tabType, t, "CategoryCode") as string;
+                    if (string.Equals(cat, CraftableAllCategoryCode, StringComparison.OrdinalIgnoreCase)) craftableAllExists = true;
                     if (string.Equals(cat, CraftableCategoryCode, StringComparison.OrdinalIgnoreCase)) craftableExists = true;
                     if (string.Equals(cat, CraftableModsCategoryCode, StringComparison.OrdinalIgnoreCase)) craftableModsExists = true;
                 }
@@ -1195,13 +1330,26 @@ namespace ShowCraftable
                 foreach (var t in tabs)
                 {
                     var cat = GetPF(tabType, t, "CategoryCode") as string;
+                    if (string.Equals(cat, CraftableAllCategoryCode, StringComparison.OrdinalIgnoreCase)) craftableAllExists = true;
                     if (string.Equals(cat, CraftableCategoryCode, StringComparison.OrdinalIgnoreCase)) craftableExists = true;
                     if (string.Equals(cat, CraftableModsCategoryCode, StringComparison.OrdinalIgnoreCase)) craftableModsExists = true;
                     if (string.Equals(cat, CraftableWoodCategoryCode, StringComparison.OrdinalIgnoreCase)) craftableWoodExists = true;
                     if (string.Equals(cat, CraftableStoneCategoryCode, StringComparison.OrdinalIgnoreCase)) craftableStoneExists = true;
                 }
 
-                int insertAt = tabs.Count;
+                int insertStart = tabs.Count;
+                if (!craftableAllExists)
+                {
+                    var allTab = Activator.CreateInstance(tabType);
+                    SetPF(tabType, allTab, "Name", "Craftable (All)");
+                    SetPF(tabType, allTab, "CategoryCode", CraftableAllCategoryCode);
+                    SetPF(tabType, allTab, "DataInt", tabs.Count);
+                    SetPF(tabType, allTab, "PaddingTop", 20.0);
+                    tabs.Insert(insertStart, allTab);
+                    insertStart++;
+                }
+
+                int insertAt = insertStart;
                 if (!craftableExists)
                 {
                     var newTab = Activator.CreateInstance(tabType);
@@ -1275,14 +1423,17 @@ namespace ShowCraftable
                 CraftableModsTabActive = string.Equals(code, CraftableModsCategoryCode, StringComparison.Ordinal);
                 CraftableWoodTabActive = string.Equals(code, CraftableWoodCategoryCode, StringComparison.Ordinal);
                 CraftableStoneTabActive = string.Equals(code, CraftableStoneCategoryCode, StringComparison.Ordinal);
+                CraftableAllTabActive = string.Equals(code, CraftableAllCategoryCode, StringComparison.Ordinal);
 
                 bool modsOnly = CraftableModsTabActive;
                 bool woodOnly = CraftableWoodTabActive;
                 bool stoneOnly = CraftableStoneTabActive;
+                bool allVariants = CraftableAllTabActive;
 
-                bool anyCraftable = CraftableTabActive || CraftableModsTabActive || CraftableWoodTabActive || CraftableStoneTabActive;
-                string tabKey = GetTabKey(modsOnly, woodOnly, stoneOnly);
+                bool anyCraftable = CraftableTabActive || CraftableModsTabActive || CraftableWoodTabActive || CraftableStoneTabActive || CraftableAllTabActive;
+                string tabKey = allVariants ? CraftableAllTabKeyName : GetTabKey(modsOnly, woodOnly, stoneOnly);
                 string variantKey = GetVariantKey(modsOnly, woodOnly, stoneOnly);
+                if (allVariants) variantKey = VariantKeyFromTabKey(tabKey);
 
                 if (!DialogIsOpen(__instance))
                 {
@@ -1296,6 +1447,7 @@ namespace ShowCraftable
                 string diagnosticsSuffix = anyCraftable ? $" ({FormatTabScanState(tabKey)})" : string.Empty;
 
                 if (CraftableTabActive) LogEverywhere(capi, $"Craftable tab selected by user{diagnosticsSuffix}");
+                else if (CraftableAllTabActive) LogEverywhere(capi, $"Craftable (All) tab selected by user{diagnosticsSuffix}");
                 else if (CraftableModsTabActive) LogEverywhere(capi, $"Craftable (Mods) tab selected by user{diagnosticsSuffix}");
                 else if (CraftableWoodTabActive) LogEverywhere(capi, $"Craftable Wood Types tab selected by user{diagnosticsSuffix}");
                 else if (CraftableStoneTabActive) LogEverywhere(capi, $"Craftable Stone Types tab selected by user{diagnosticsSuffix}");
@@ -1318,18 +1470,21 @@ namespace ShowCraftable
                 searchInput?.GetType().GetMethod("SetValue")?.Invoke(searchInput, new object[] { "", true });
                 AccessTools.Field(__instance.GetType(), "currentSearchText")?.SetValue(__instance, null);
 
-                bool variantReady;
-                lock (recipeIndexByVariant)
+                bool variantReady = false;
+                if (!string.IsNullOrEmpty(variantKey))
                 {
-                    variantReady = recipeIndexByVariant.ContainsKey(variantKey);
-                }
-                if (variantReady)
-                {
-                    ApplyRecipeIndexVariant(variantKey);
-                }
-                else
-                {
-                    StartRecipeIndexBuild(capi);
+                    lock (recipeIndexByVariant)
+                    {
+                        variantReady = recipeIndexByVariant.ContainsKey(variantKey);
+                    }
+                    if (variantReady)
+                    {
+                        ApplyRecipeIndexVariant(variantKey);
+                    }
+                    else
+                    {
+                        StartRecipeIndexBuild(capi);
+                    }
                 }
 
                 lock (CacheLock)
@@ -1345,7 +1500,14 @@ namespace ShowCraftable
                 {
                     if (myScanId != _pendingScanId) return;
                     if (!DialogIsOpen(__instance)) return;
-                    RequestServerScan(capi, NearbyRadius, modsOnly, woodOnly, stoneOnly, tabKey);
+                    if (allVariants)
+                    {
+                        StartAllTabScanSequence(capi);
+                    }
+                    else
+                    {
+                        RequestServerScan(capi, NearbyRadius, modsOnly, woodOnly, stoneOnly, tabKey);
+                    }
                 }, "SCScanOnTabSelect");
             }
             catch (Exception e)
@@ -1847,11 +2009,18 @@ namespace ShowCraftable
             lock (CacheLock)
             {
                 CachedPageCodes = new List<string>();
+                CraftableAllTabCache = new List<string>();
                 CraftableTabCache = new List<string>();
                 ModTabCache = new List<string>();
                 StoneTypeTabCache = new List<string>();
                 WoodTypeTabCache = new List<string>();
                 s_EmptyPages = null;
+            }
+
+            lock (AllTabQueueLock)
+            {
+                AllTabScanQueue.Clear();
+                AllTabScanSequenceActive = false;
             }
 
             recipeGroupNeeds = new Dictionary<GridRecipeShim, Dictionary<string, int>>();
@@ -1870,6 +2039,7 @@ namespace ShowCraftable
             recipeIndexForMods = false;
             recipeIndexForStoneOnly = false;
             recipeIndexForWoodOnly = false;
+            CraftableAllTabActive = false;
             CraftableModsTabActive = false;
             CraftableStoneTabActive = false;
             CraftableTabActive = false;
@@ -3433,8 +3603,14 @@ namespace ShowCraftable
             catch (Exception e)
             {
                 LogEverywhere(_capi, $"OnServerScanReply error: {e}", toChat: true);
-                FinishScan(_capi);
-                _capi?.Event.EnqueueMainThreadTask(() => TryProcessQueuedScan(_capi), "SCScanReplyError");
+                if (_capi != null)
+                {
+                    _capi.Event.EnqueueMainThreadTask(() => FinishScanAndProcessQueue(_capi), "SCScanReplyError");
+                }
+                else
+                {
+                    FinishScan(null);
+                }
             }
         }
 
