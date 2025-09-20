@@ -2651,9 +2651,26 @@ namespace ShowCraftable
             return res;
         }
 
+        private static bool RecipeOutputsMatchDesired(GridRecipeShim shim, ItemStack desired)
+        {
+            if (desired == null) return true;
+            if (shim == null || shim.Outputs == null || shim.Outputs.Count == 0) return false;
+
+            foreach (var st in shim.Outputs)
+            {
+                if (st != null && st.Satisfies(desired) && desired.Satisfies(st))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private static bool RecipeSatisfiedByPool(ICoreClientAPI capi, ResourcePool pool, GridRecipeShim shim, ItemStack desired)
         {
             if (shim == null) return false;
+            if (!RecipeOutputsMatchDesired(shim, desired)) return false;
 
             string target = desired == null ? null :
                 ((desired.Collectible?.Code?.ToString() ?? "") + " " + ((desired.Attributes as TreeAttribute)?.ToJsonToken() ?? ""));
@@ -2680,15 +2697,6 @@ namespace ShowCraftable
                 }
             }
 
-            if (desired != null)
-            {
-                bool match = false;
-                foreach (var st in shim.Outputs)
-                {
-                    if (st != null && st.Satisfies(desired) && desired.Satisfies(st)) { match = true; break; }
-                }
-                if (!match) return false;
-            }
             return true;
         }
 
