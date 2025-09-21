@@ -8,6 +8,8 @@ internal sealed class GuiElementVerticalTabsWithCustomFonts : GuiElementVertical
 {
     private readonly string _defaultFontName;
     private readonly string _defaultSelectedFontName;
+    private readonly FontWeight _defaultFontWeight;
+    private readonly FontWeight _defaultSelectedFontWeight;
     private double[] _textOffsets = Array.Empty<double>();
 
     public GuiElementVerticalTabsWithCustomFonts(ICoreClientAPI capi, GuiTab[] tabs, CairoFont font, CairoFont selectedFont, ElementBounds bounds, Action<int, GuiTab> onTabClicked)
@@ -15,6 +17,8 @@ internal sealed class GuiElementVerticalTabsWithCustomFonts : GuiElementVertical
     {
         _defaultFontName = font.Fontname;
         _defaultSelectedFontName = selectedFont.Fontname;
+        _defaultFontWeight = font.FontWeight;
+        _defaultSelectedFontWeight = selectedFont.FontWeight;
     }
 
     public override void ComposeTextElements(Context ctxStatic, ImageSurface surfaceStatic)
@@ -166,23 +170,31 @@ internal sealed class GuiElementVerticalTabsWithCustomFonts : GuiElementVertical
 
     private void ApplyRegularFontForTab(GuiTab tab)
     {
-        var fontName = ShowCraftableSystem.GetCraftableTabFontName(ShowCraftableSystem.TryGetCategoryCode(tab));
+        var categoryCode = ShowCraftableSystem.TryGetCategoryCode(tab);
+        var fontName = ShowCraftableSystem.GetCraftableTabFontName(categoryCode);
+        var fontWeight = ShowCraftableSystem.GetCraftableTabFontWeight(categoryCode);
         Font.WithFont(fontName ?? _defaultFontName);
+        Font.WithWeight(fontWeight ?? _defaultFontWeight);
     }
 
     private void RestoreRegularFont()
     {
         Font.WithFont(_defaultFontName);
+        Font.WithWeight(_defaultFontWeight);
     }
 
     private void ApplySelectedFontForTab(GuiTab tab)
     {
-        var fontName = ShowCraftableSystem.GetCraftableTabFontName(ShowCraftableSystem.TryGetCategoryCode(tab));
+        var categoryCode = ShowCraftableSystem.TryGetCategoryCode(tab);
+        var fontName = ShowCraftableSystem.GetCraftableTabFontName(categoryCode);
+        var fontWeight = ShowCraftableSystem.GetCraftableTabFontWeight(categoryCode);
         selectedFont.WithFont(fontName ?? _defaultSelectedFontName);
+        selectedFont.WithWeight(fontWeight ?? _defaultSelectedFontWeight);
     }
 
     private void RestoreSelectedFont()
     {
         selectedFont.WithFont(_defaultSelectedFontName);
+        selectedFont.WithWeight(_defaultSelectedFontWeight);
     }
 }

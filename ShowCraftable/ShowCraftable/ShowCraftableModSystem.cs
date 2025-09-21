@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Text;
 using System.Runtime.CompilerServices;
+using Cairo;
 using Vintagestory.API.Client;
 using Vintagestory.API.Server;
 using Vintagestory.API.Common;
@@ -126,6 +127,19 @@ namespace ShowCraftable
                 || string.Equals(categoryCode, CraftableStoneCategoryCode, StringComparison.OrdinalIgnoreCase))
             {
                 return ArialFontName;
+            }
+
+            return null;
+        }
+
+        internal static FontWeight? GetCraftableTabFontWeight(string categoryCode)
+        {
+            if (string.Equals(categoryCode, CraftableCategoryCode, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(categoryCode, CraftableModsCategoryCode, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(categoryCode, CraftableWoodCategoryCode, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(categoryCode, CraftableStoneCategoryCode, StringComparison.OrdinalIgnoreCase))
+            {
+                return FontWeight.Bold;
             }
 
             return null;
@@ -937,9 +951,9 @@ namespace ShowCraftable
                 var m = typeof(ICoreAPI).GetMethod("GetOrCreateDataPath", BindingFlags.Public | BindingFlags.Instance);
                 if (m != null) basePath = (string)m.Invoke(capi, new object[] { "ShowCraftable" });
                 if (string.IsNullOrEmpty(basePath))
-                    basePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ShowCraftable");
+                    basePath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ShowCraftable");
                 Directory.CreateDirectory(basePath);
-                var f = Path.Combine(basePath, "craftable.log");
+                var f = System.IO.Path.Combine(basePath, "craftable.log");
                 lock (LogFileLock)
                 {
                     File.AppendAllText(f, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} [Craftable] {caller}: {msg}\n");
@@ -2281,7 +2295,7 @@ namespace ShowCraftable
             }
             catch { basePath = null; }
             if (string.IsNullOrEmpty(basePath))
-                basePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ShowCraftable");
+                basePath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ShowCraftable");
             Directory.CreateDirectory(basePath);
 
             string name =
@@ -2291,7 +2305,7 @@ namespace ShowCraftable
                 stoneOnly ? "recipeindex_stone.bin" :
                             "recipeindex_vanilla.bin";
 
-            return Path.Combine(basePath, name);
+            return System.IO.Path.Combine(basePath, name);
         }
 
         private static int RecommendParallelism(
