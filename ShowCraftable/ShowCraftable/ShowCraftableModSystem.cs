@@ -1217,7 +1217,7 @@ namespace ShowCraftable
                 if (!craftableAllExists)
                 {
                     var allTab = Activator.CreateInstance(tabType);
-                    SetPF(tabType, allTab, "Name", "Craftable (All)");
+                    SetPF(tabType, allTab, "Name", "Craftable");
                     SetPF(tabType, allTab, "CategoryCode", CraftableAllCategoryCode);
                     SetPF(tabType, allTab, "DataInt", tabs.Count);
                     SetPF(tabType, allTab, "PaddingTop", 20.0);
@@ -1229,7 +1229,7 @@ namespace ShowCraftable
                 if (!craftableExists)
                 {
                     var newTab = Activator.CreateInstance(tabType);
-                    SetPF(tabType, newTab, "Name", "Craftable");
+                    SetPF(tabType, newTab, "Name", "Base Items");
                     SetPF(tabType, newTab, "CategoryCode", CraftableCategoryCode);
                     SetPF(tabType, newTab, "DataInt", tabs.Count);
                     SetPF(tabType, newTab, "PaddingTop", craftableAllExists ? 5.0 : 20.0);
@@ -1240,7 +1240,7 @@ namespace ShowCraftable
                 if (!craftableWoodExists)
                 {
                     var woodTab = Activator.CreateInstance(tabType);
-                    SetPF(tabType, woodTab, "Name", "Craftable Wood Types");
+                    SetPF(tabType, woodTab, "Name", "Wood Types");
                     SetPF(tabType, woodTab, "CategoryCode", CraftableWoodCategoryCode);
                     SetPF(tabType, woodTab, "DataInt", tabs.Count);
                     SetPF(tabType, woodTab, "PaddingTop", 5.0);
@@ -1251,7 +1251,7 @@ namespace ShowCraftable
                 if (!craftableStoneExists)
                 {
                     var stoneTab = Activator.CreateInstance(tabType);
-                    SetPF(tabType, stoneTab, "Name", "Craftable Stone Types");
+                    SetPF(tabType, stoneTab, "Name", "Stone Types");
                     SetPF(tabType, stoneTab, "CategoryCode", CraftableStoneCategoryCode);
                     SetPF(tabType, stoneTab, "DataInt", tabs.Count);
                     SetPF(tabType, stoneTab, "PaddingTop", 5.0);
@@ -1262,7 +1262,7 @@ namespace ShowCraftable
                 if (!craftableModsExists)
                 {
                     var newTabMods = Activator.CreateInstance(tabType);
-                    SetPF(tabType, newTabMods, "Name", "Craftable (Mods)");
+                    SetPF(tabType, newTabMods, "Name", "Mod Items");
                     SetPF(tabType, newTabMods, "CategoryCode", CraftableModsCategoryCode);
                     SetPF(tabType, newTabMods, "DataInt", tabs.Count);
                     SetPF(tabType, newTabMods, "PaddingTop", 5.0);
@@ -1321,11 +1321,11 @@ namespace ShowCraftable
 
                 string diagnosticsSuffix = anyCraftable ? $" ({FormatTabScanState(tabKey)})" : string.Empty;
 
-                if (CraftableAllTabActive) LogEverywhere(capi, $"Craftable (All) tab selected by user{diagnosticsSuffix}");
-                else if (CraftableTabActive) LogEverywhere(capi, $"Craftable tab selected by user{diagnosticsSuffix}");
-                else if (CraftableModsTabActive) LogEverywhere(capi, $"Craftable (Mods) tab selected by user{diagnosticsSuffix}");
-                else if (CraftableWoodTabActive) LogEverywhere(capi, $"Craftable Wood Types tab selected by user{diagnosticsSuffix}");
-                else if (CraftableStoneTabActive) LogEverywhere(capi, $"Craftable Stone Types tab selected by user{diagnosticsSuffix}");
+                if (CraftableAllTabActive) LogEverywhere(capi, $"Craftable tab selected by user{diagnosticsSuffix}");
+                else if (CraftableTabActive) LogEverywhere(capi, $"Base Items tab selected by user{diagnosticsSuffix}");
+                else if (CraftableModsTabActive) LogEverywhere(capi, $"Mod Items tab selected by user{diagnosticsSuffix}");
+                else if (CraftableWoodTabActive) LogEverywhere(capi, $"Wood Types tab selected by user{diagnosticsSuffix}");
+                else if (CraftableStoneTabActive) LogEverywhere(capi, $"Stone Types tab selected by user{diagnosticsSuffix}");
 
                 var fiOverview = AccessTools.Field(__instance.GetType(), "overviewGui");
                 var composer = fiOverview?.GetValue(__instance) as GuiComposer;
