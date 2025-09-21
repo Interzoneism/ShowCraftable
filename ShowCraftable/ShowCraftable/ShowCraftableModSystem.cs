@@ -3486,6 +3486,28 @@ namespace ShowCraftable
         {
             try
             {
+                if (data?.IsFetch == true)
+                {
+                    int codeCount = data.Codes?.Count ?? 0;
+                    int scanId = data.ScanId;
+
+                    _capi.Event.EnqueueMainThreadTask(() =>
+                    {
+                        try
+                        {
+                            LogEverywhere(_capi,
+                                $"[Fetch] ← #{scanId} stacks={codeCount} (skipping cache rebuild)",
+                                toChat: true);
+                        }
+                        finally
+                        {
+                            FinishScanAndProcessQueue(_capi);
+                        }
+                    }, "SCFetchReply");
+
+                    return;
+                }
+
                 var pool = new ResourcePool();
                 for (int i = 0; i < data.Codes.Count; i++)
                 {
@@ -3896,6 +3918,7 @@ namespace ShowCraftable
         [ProtoMember(3)] public List<EnumItemClass> Classes { get; set; } = new();
         [ProtoMember(4)] public int ScanId { get; set; }
         [ProtoMember(5)] public string TabKey { get; set; }
+        [ProtoMember(6)] public bool IsFetch { get; set; }
     }
 
     public class ShowCraftableServerSystem : ModSystem
@@ -4233,6 +4256,8 @@ namespace ShowCraftable
             var ba = sapi.World.BlockAccessor;
             int r = Math.Max(0, req.Radius);
 
+            bool isFetch = req.CollectItems && req.Variants != null && req.Variants.Count > 0;
+
             var sum = new Dictionary<string, (int count, EnumItemClass cls)>();
             var slots = new List<SlotRef>();
             var playerCounts = new Dictionary<string, int>();
@@ -4313,7 +4338,7 @@ namespace ShowCraftable
                         }
                     }
 
-            if (req.CollectItems && req.Variants != null && req.Variants.Count > 0)
+            if (isFetch)
             {
                 var counts = sum.ToDictionary(kv => kv.Key, kv => kv.Value.count);
                 bool done = false;
@@ -4398,7 +4423,8 @@ namespace ShowCraftable
                 Counts = sum.Values.Select(v => v.count).ToList(),
                 Classes = sum.Values.Select(v => v.cls).ToList(),
                 ScanId = req.ScanId,
-                TabKey = req.TabKey                                   
+                TabKey = req.TabKey,
+                IsFetch = isFetch
             };
             sapi.Network.GetChannel(ShowCraftableSystem.ChannelName).SendPacket(reply, fromPlayer);
 
