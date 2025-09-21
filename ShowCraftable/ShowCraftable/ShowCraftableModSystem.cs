@@ -1,8 +1,10 @@
 ﻿using HarmonyLib;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Diagnostics;
 using System.Threading;
@@ -13,12 +15,14 @@ using Cairo;
 using Vintagestory.API.Client;
 using Vintagestory.API.Server;
 using Vintagestory.API.Common;
+using Vintagestory.API.MathTools;
 using Vintagestory.API.Util;
 using Vintagestory.API.Config;
 using Vintagestory.GameContent;
 using Vintagestory.API.Datastructures;
 using ProtoBuf;
 using ClientGuiComposerHelpers = Vintagestory.API.Client.GuiComposerHelpers;
+using InventoryGetterFunc = System.Func<Vintagestory.API.Common.BlockEntity, Vintagestory.API.Common.IInventory>;
 
 namespace ShowCraftable
 {
@@ -81,6 +85,7 @@ namespace ShowCraftable
         private static readonly object PendingScanLock = new();
         private static readonly object ScanQueueLock = new();
         private static readonly object TabUiStateLock = new();
+        private static readonly ConcurrentDictionary<Type, InventoryGetterFunc> InventoryGetterCache = new();
         private static ScanRequestInfo? QueuedScanRequest;
         private static ShowCraftableConfig Config = new();
         private static string PendingScanTabKey;
@@ -971,17 +976,84 @@ namespace ShowCraftable
         {
             if (be == null) return null;
 
-            if (be is IBlockEntityContainer ibec && ibec.Inventory != null) return ibec.Inventory;
+            if (be is IBlockEntityContainer ibec)
+            {
+                var inv = ibec.Inventory;
+                if (inv != null) return inv;
+            }
 
-            var t = be.GetType();
-            var pi = t.GetProperty("Inventory", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            var invObj = pi?.GetValue(be);
-            if (invObj == null)
-                invObj = t.GetField("Inventory", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)?.GetValue(be);
-            if (invObj == null)
-                invObj = t.GetField("inventory", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)?.GetValue(be);
+            var type = be.GetType();
+            if (type == null) return null;
 
-            return invObj as IInventory;
+            var getter = InventoryGetterCache.GetOrAdd(type, BuildInventoryGetter);
+            if (getter == null) return null;
+
+            try
+            {
+                return getter(be);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static InventoryGetterFunc BuildInventoryGetter(Type type)
+        {
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+
+            for (var current = type; current != null && current != typeof(object); current = current.BaseType)
+            {
+                var pi = current.GetProperty("Inventory", flags);
+                if (pi?.CanRead == true && pi.GetIndexParameters().Length == 0)
+                {
+                    var getterMethod = pi.GetGetMethod(true);
+                    if (getterMethod != null)
+                    {
+                        try
+                        {
+                            var param = Expression.Parameter(typeof(BlockEntity), "be");
+                            var castParam = Expression.Convert(param, current);
+                            var call = Expression.Call(castParam, getterMethod);
+                            var convert = Expression.TypeAs(call, typeof(IInventory));
+                            return Expression.Lambda<InventoryGetterFunc>(convert, param).Compile();
+                        }
+                        catch
+                        {
+                            var prop = pi;
+                            return be =>
+                            {
+                                try { return prop.GetValue(be) as IInventory; }
+                                catch { return null; }
+                            };
+                        }
+                    }
+                }
+
+                var field = current.GetField("Inventory", flags) ?? current.GetField("inventory", flags);
+                if (field != null)
+                {
+                    try
+                    {
+                        var param = Expression.Parameter(typeof(BlockEntity), "be");
+                        var castParam = Expression.Convert(param, current);
+                        var fieldAccess = Expression.Field(castParam, field);
+                        var convert = Expression.TypeAs(fieldAccess, typeof(IInventory));
+                        return Expression.Lambda<InventoryGetterFunc>(convert, param).Compile();
+                    }
+                    catch
+                    {
+                        var fieldInfo = field;
+                        return be =>
+                        {
+                            try { return fieldInfo.GetValue(be) as IInventory; }
+                            catch { return null; }
+                        };
+                    }
+                }
+            }
+
+            return _ => null;
         }
 
         private static DateTime _lastScanAt = DateTime.MinValue;
@@ -4209,6 +4281,10 @@ namespace ShowCraftable
             var pos = fromPlayer.Entity.Pos.AsBlockPos;
             var ba = sapi.World.BlockAccessor;
             int r = Math.Max(0, req.Radius);
+            int originX = pos.X;
+            int originY = pos.Y;
+            int originZ = pos.Z;
+            var scanPos = new BlockPos(originX, originY, originZ, pos.dimension);
 
             var sum = new Dictionary<string, (int count, EnumItemClass cls)>();
             var slots = new List<SlotRef>();
@@ -4261,10 +4337,15 @@ namespace ShowCraftable
             var msbr = sapi.ModLoader.GetModSystem<ModSystemBlockReinforcement>();
 
             for (int dx = -r; dx <= r; dx++)
+            {
+                int x = originX + dx;
                 for (int dy = -1; dy <= 2; dy++)
+                {
+                    int y = originY + dy;
                     for (int dz = -r; dz <= r; dz++)
                     {
-                        var be = ba.GetBlockEntity(pos.AddCopy(dx, dy, dz));
+                        scanPos.Set(x, y, originZ + dz);
+                        var be = ba.GetBlockEntity(scanPos);
                         if (be == null) continue;
 
                         if (msbr?.IsLockedForInteract(be.Pos, fromPlayer) == true) continue;
@@ -4289,6 +4370,8 @@ namespace ShowCraftable
                             slots.Add(new SlotRef { Slot = slot, Code = code, Class = cls, BlockEntity = be });
                         }
                     }
+                }
+            }
 
             if (req.CollectItems && req.Variants != null && req.Variants.Count > 0)
             {
