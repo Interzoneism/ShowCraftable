@@ -30,6 +30,7 @@ namespace ShowCraftable
         internal static bool DebugEnabled = true;
         internal static int ConfiguredSearchRadius => Math.Max(0, Config?.SearchDistanceItems ?? 20);
         internal static int ConfiguredAllStacksPartitions => Math.Max(-1, Config?.AllStacksPartitions ?? -1);
+        internal static bool UseDefaultFont => Config?.UseDefaultFont ?? false;
         private const string ConfigFileName = "ShowCraftable.json";
         private const string AllTabKeyName = "allTab";
         private const string CraftableTabKeyName = "craftableTab";
@@ -119,6 +120,8 @@ namespace ShowCraftable
 
         internal static string GetCraftableTabFontName(string categoryCode)
         {
+            if (UseDefaultFont) return null;
+
             if (string.Equals(categoryCode, CraftableAllCategoryCode, StringComparison.OrdinalIgnoreCase)) return ArialBlackFontName;
 
             if (string.Equals(categoryCode, CraftableCategoryCode, StringComparison.OrdinalIgnoreCase)
@@ -134,6 +137,8 @@ namespace ShowCraftable
 
         internal static FontWeight? GetCraftableTabFontWeight(string categoryCode)
         {
+            if (UseDefaultFont) return null;
+
             if (string.Equals(categoryCode, CraftableCategoryCode, StringComparison.OrdinalIgnoreCase)
                 || string.Equals(categoryCode, CraftableModsCategoryCode, StringComparison.OrdinalIgnoreCase)
                 || string.Equals(categoryCode, CraftableWoodCategoryCode, StringComparison.OrdinalIgnoreCase)
@@ -1238,6 +1243,7 @@ namespace ShowCraftable
         private static bool ShouldApplyCraftableFonts(GuiTab[] tabs)
         {
             if (tabs == null || tabs.Length == 0) return false;
+            if (UseDefaultFont) return false;
 
             foreach (var tab in tabs)
             {
