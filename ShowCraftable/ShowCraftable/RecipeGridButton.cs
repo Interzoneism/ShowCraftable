@@ -81,8 +81,26 @@ public class RecipeGridButton : ButtonFetch
 
             bool guardAcquired = false;
             bool requestSent = false;
+            bool fetchStarted = false;
             try
             {
+                if (!ShowCraftableSystem.TryBeginFetch())
+                {
+                    if (ShowCraftableSystem.DebugEnabled)
+                    {
+                        bool fetch = ShowCraftableSystem.IsFetchInProgress();
+                        bool scan = ShowCraftableSystem.IsScanInProgress();
+                        string reason = fetch
+                            ? "fetch ignored, another fetch is in progress."
+                            : scan
+                                ? "fetch ignored, another scan is in progress."
+                                : "fetch ignored.";
+                        api.ShowChatMessage("[ShowCraftable] RecipeGridButton.OnClick: " + reason);
+                    }
+                    return;
+                }
+                fetchStarted = true;
+
                 ShowCraftableSystem.AcquireHandbookPauseGuard(api);
                 guardAcquired = true;
 
@@ -107,6 +125,11 @@ public class RecipeGridButton : ButtonFetch
                     ShowCraftableSystem.ReleaseHandbookPauseGuard(api);
                     guardAcquired = false;
                 }
+                if (fetchStarted)
+                {
+                    ShowCraftableSystem.EndFetch();
+                    fetchStarted = false;
+                }
                 if (ShowCraftableSystem.DebugEnabled)
                 {
                     api.ShowChatMessage("[ShowCraftable] RecipeGridButton.OnClick: fetch request failed: " + e.Message);
@@ -117,6 +140,10 @@ public class RecipeGridButton : ButtonFetch
                 if (guardAcquired && !requestSent)
                 {
                     ShowCraftableSystem.ReleaseHandbookPauseGuard(api);
+                }
+                if (fetchStarted && !requestSent)
+                {
+                    ShowCraftableSystem.EndFetch();
                 }
             }
         }
