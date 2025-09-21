@@ -4344,12 +4344,10 @@ namespace ShowCraftable
                 bool done = false;
                 bool nospace = false;
                 bool partial = false;
-                bool playerHasIngredients = false;
 
                 foreach (var variant in req.Variants)
                 {
                     bool ignorePlayer = CanSatisfyVariant(playerCounts, variant);
-                    if (ignorePlayer) playerHasIngredients = true;
                     Dictionary<string, int> checkCounts;
                     Dictionary<string, int> pcounts;
 
@@ -4398,14 +4396,9 @@ namespace ShowCraftable
                         string msg = "[ShowCraftable] Not enough inventory space to fetch the ingredients!";
                         fromPlayer.SendMessage(GlobalConstants.InfoLogChatGroup, msg, EnumChatType.CommandError);
                     }
-                    else if (playerHasIngredients)
-                    {
-                        fromPlayer.SendMessage(GlobalConstants.InfoLogChatGroup,
-                            "[ShowCraftable] You already have the required ingredients.", EnumChatType.Notification);
-                    }
                     else
                     {
-                        string msg = "[ShowCraftable] Could not collect required ingredients";
+                        string msg = "[ShowCraftable] Could not find required ingredients to fetch.";
                         fromPlayer.SendMessage(GlobalConstants.InfoLogChatGroup, msg, EnumChatType.CommandError);
                     }
                 }
