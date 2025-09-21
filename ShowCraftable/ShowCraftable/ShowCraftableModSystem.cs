@@ -98,6 +98,7 @@ namespace ShowCraftable
         private static volatile bool recipeIndexForStoneOnly;
         private static volatile bool recipeIndexForWoodOnly;
         private static volatile bool ScanInProgress = false;
+        private static int FetchInProgressFlag = 0;
         private static volatile int recipeIndexBuildProgress;
         private static volatile int recipeIndexBuildTotal;
         public const string ChannelName = "showcraftablescan";
@@ -365,6 +366,27 @@ namespace ShowCraftable
         internal static void AcquireHandbookPauseGuard(ICoreClientAPI capi) => HandbookPauseGuard.Acquire(capi);
 
         internal static void ReleaseHandbookPauseGuard(ICoreClientAPI capi) => HandbookPauseGuard.Release(capi);
+
+        internal static bool TryBeginFetch()
+        {
+            if (ScanInProgress) return false;
+            return Interlocked.CompareExchange(ref FetchInProgressFlag, 1, 0) == 0;
+        }
+
+        internal static void EndFetch()
+        {
+            Interlocked.Exchange(ref FetchInProgressFlag, 0);
+        }
+
+        internal static bool IsFetchInProgress()
+        {
+            return Volatile.Read(ref FetchInProgressFlag) != 0;
+        }
+
+        internal static bool IsScanInProgress()
+        {
+            return ScanInProgress;
+        }
 
         private static string GetVariantKey(bool includeAll, bool modsOnly, bool woodOnly, bool stoneOnly)
         {
@@ -1126,6 +1148,7 @@ namespace ShowCraftable
         private static void FinishScan(ICoreClientAPI capi)
         {
             ScanInProgress = false;
+            EndFetch();
             HandbookPauseGuard.Release(capi);
         }
 
