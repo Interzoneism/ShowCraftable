@@ -3,12 +3,12 @@
   "modid": "showcraftable",
   "name": "ShowCraftable",
   "authors": [
-    "Interzoner"
+    "Interzoneism"
   ],
   "description": "Scans nearby storage and tells you whats Craftable",
   "VersionMap": {
-    "VS1.20": "1.0.1",
-    "VS1.21": "1.1.0"
+    "VS1.20": "1.0.2",
+    "VS1.21": "1.2.0"
   },
   "dependencies": {
     "game": ""
