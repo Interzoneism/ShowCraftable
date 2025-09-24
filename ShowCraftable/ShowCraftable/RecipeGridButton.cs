@@ -26,6 +26,19 @@ public class RecipeGridButton : ButtonFetch
     {
         api.Gui.PlaySound("menubutton_press");
 
+        if (!ShowCraftableSystem.IsFetchButtonEnabled())
+        {
+            if (ShowCraftableSystem.IsServerFetchDisabled())
+            {
+                api.ShowChatMessage("[ShowCraftable] Fetching ingredients is disabled by the server.");
+            }
+            else if (!ShowCraftableSystem.IsFetchButtonEnabledInConfig())
+            {
+                api.ShowChatMessage("[ShowCraftable] The fetch button is disabled in your configuration.");
+            }
+            return;
+        }
+
         try
         {
             if (slideshow == null)
