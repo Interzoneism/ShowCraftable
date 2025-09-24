@@ -7,33 +7,21 @@
 
 	<PropertyGroup>
 		
-		<TargetFrameworks>net7.0;net8.0</TargetFrameworks>
+		<TargetFrameworks>net8.0</TargetFrameworks>
 
 		
 		<AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
 		<OutputPath>bin\$(Configuration)\Mods\mod\</OutputPath>
 	</PropertyGroup>
 
-	
-	<PropertyGroup Condition="'$(TargetFramework)'=='net7.0' and '$(VS120)'!=''">
-		<GameDllRoot>$(VS120)</GameDllRoot>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(TargetFramework)'=='net7.0' and '$(VS120)'==''">
-		<GameDllRoot>$(VINTAGE_STORY)</GameDllRoot>
-	</PropertyGroup>
+
 	<PropertyGroup Condition="'$(TargetFramework)'=='net8.0' and '$(VS121)'!=''">
 		<GameDllRoot>$(VS121)</GameDllRoot>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(TargetFramework)'=='net8.0' and '$(VS121)'==''">
 		<GameDllRoot>$(VINTAGE_STORY)</GameDllRoot>
 	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0|AnyCPU'">
-	  <DebugType>none</DebugType>
-	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0|AnyCPU'">
-	  <DebugType>none</DebugType>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0|AnyCPU'">
 	  <DebugType>none</DebugType>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0|AnyCPU'">

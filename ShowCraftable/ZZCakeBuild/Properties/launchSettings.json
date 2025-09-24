@@ -3,9 +3,9 @@
     "CakeBuild": {
       "commandName": "Project",
       "workingDirectory": "$(MSBuildProjectDirectory)",
-      "commandLineArgs": "--target=Default --configuration=Release --copyZipTo \"C:\\Games\\Vintagestorydata\\Mods\"",
+      "commandLineArgs": "--target=Default --configuration=Release --copyZipTo \"C:\\Users\\Martin\\AppData\\Roaming\\Vintagestorydata\\Mods\"",
       "environmentVariables": {
-        "COPY_ZIP_TO": "C:\\Games\\Vintagestorydata\\Mods"
+        "COPY_ZIP_TO": "C:\\Users\\Martin\\AppData\\Roaming\\Vintagestorydata\\Mods"
       }
     }
   }

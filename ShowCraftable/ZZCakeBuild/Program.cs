@@ -38,7 +38,6 @@ namespace CakeBuild
         public string[] ProjectPaths { get; }                 
         public (string Label, string Tfm)[] Targets { get; } =
         {
-            ("VS1.20","net7.0"),
             ("VS1.21","net8.0")
         };
 
