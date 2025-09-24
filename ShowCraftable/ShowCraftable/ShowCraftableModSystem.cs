@@ -99,6 +99,7 @@ namespace ShowCraftable
         private static volatile bool recipeIndexForWoodOnly;
         private static volatile bool ScanInProgress = false;
         private static int FetchInProgressFlag = 0;
+        private static int ServerFetchDisabledFlag = 0;
         private static volatile int recipeIndexBuildProgress;
         private static volatile int recipeIndexBuildTotal;
         public const string ChannelName = "showcraftablescan";
@@ -149,6 +150,36 @@ namespace ShowCraftable
             }
 
             return null;
+        }
+
+        internal static bool IsFetchButtonEnabled()
+        {
+            return Config?.EnableFetchButton == true && !IsServerFetchDisabled();
+        }
+
+        internal static bool IsFetchButtonEnabledInConfig()
+        {
+            return Config?.EnableFetchButton == true;
+        }
+
+        internal static bool IsServerFetchDisabled()
+        {
+            return Volatile.Read(ref ServerFetchDisabledFlag) != 0;
+        }
+
+        internal static void SetServerFetchDisabled(bool disabled)
+        {
+            Interlocked.Exchange(ref ServerFetchDisabledFlag, disabled ? 1 : 0);
+        }
+
+        internal static void SetServerFetchDisabledAndSave(ICoreAPI api, bool disabled)
+        {
+            SetServerFetchDisabled(disabled);
+            if (Config != null)
+            {
+                Config.DisableFetchButtonOnServer = disabled;
+                SaveConfig(api);
+            }
         }
 
         [ProtoContract]
@@ -369,6 +400,7 @@ namespace ShowCraftable
 
         internal static bool TryBeginFetch()
         {
+            if (!IsFetchButtonEnabled()) return false;
             if (ScanInProgress) return false;
             return Interlocked.CompareExchange(ref FetchInProgressFlag, 1, 0) == 0;
         }
@@ -1187,6 +1219,14 @@ namespace ShowCraftable
 
             Config = config;
             NearbyRadius = ConfiguredSearchRadius;
+            SetServerFetchDisabled(Config.DisableFetchButtonOnServer);
+
+            SaveConfig(api);
+        }
+
+        private static void SaveConfig(ICoreAPI api)
+        {
+            if (api == null) return;
 
             try
             {
@@ -1207,11 +1247,12 @@ namespace ShowCraftable
             var miAddVerticalTabs = AccessTools.Method(typeof(ClientGuiComposerHelpers), nameof(ClientGuiComposerHelpers.AddVerticalTabs));
             _harmony.Patch(miAddVerticalTabs, prefix: new HarmonyMethod(typeof(ShowCraftableSystem), nameof(AddVerticalTabs_Prefix)));
 
-            capi.Network
-                .RegisterChannel(ChannelName)
-                .RegisterMessageType(typeof(CraftScanRequest))
-                .RegisterMessageType(typeof(CraftScanReply))
-                .SetMessageHandler<CraftScanReply>(OnServerScanReply);
+            IClientNetworkChannel channel = capi.Network.RegisterChannel(ChannelName);
+            channel.RegisterMessageType(typeof(CraftScanRequest));
+            channel.RegisterMessageType(typeof(CraftScanReply));
+            channel.RegisterMessageType(typeof(FetchAvailabilityMessage));
+            channel.SetMessageHandler<CraftScanReply>(OnServerScanReply);
+            channel.SetMessageHandler<FetchAvailabilityMessage>(OnFetchAvailabilityMessage);
 
             var tSurv = AccessTools.TypeByName("Vintagestory.GameContent.GuiDialogSurvivalHandbook");
             var miGenTabs = AccessTools.Method(tSurv, "genTabs");
@@ -1727,7 +1768,7 @@ namespace ShowCraftable
         private static void AddRecipeButton_Postfix(List<RichTextComponentBase> components)
         {
             if (_staticCapi == null || components == null) return;
-            if (!Config.EnableFetchButton) return;
+            if (!IsFetchButtonEnabled()) return;
             for (int i = 0; i < components.Count; i++)
             {
                 if (components[i] is SlideshowGridRecipeTextComponent slide)
@@ -3668,6 +3709,32 @@ namespace ShowCraftable
             }
         }
 
+        private void OnFetchAvailabilityMessage(FetchAvailabilityMessage message)
+        {
+            try
+            {
+                bool disabled = message?.FetchDisabled == true;
+                bool wasDisabled = IsServerFetchDisabled();
+                SetServerFetchDisabled(disabled);
+
+                if (_capi == null || wasDisabled == disabled) return;
+
+                string text = disabled
+                    ? "[ShowCraftable] Fetching ingredients has been disabled by the server."
+                    : "[ShowCraftable] Fetching ingredients has been enabled by the server.";
+
+                _capi.Event.EnqueueMainThreadTask(() =>
+                {
+                    try
+                    {
+                        _capi.ShowChatMessage(text);
+                    }
+                    catch { }
+                }, "SCFetchAvailabilityChanged");
+            }
+            catch { }
+        }
+
         private static int RebuildCacheWithPool(
     ICoreClientAPI capi, ResourcePool pool, string tabKey,
     out int craftableOutputsCount, out int fetched, out int usable,
@@ -3921,19 +3988,107 @@ namespace ShowCraftable
         [ProtoMember(6)] public bool IsFetch { get; set; }
     }
 
+    [ProtoContract]
+    public class FetchAvailabilityMessage
+    {
+        [ProtoMember(1)] public bool FetchDisabled { get; set; }
+    }
+
     public class ShowCraftableServerSystem : ModSystem
     {
         private ICoreServerAPI sapi;
+        private IServerNetworkChannel channel;
 
         public override void StartServerSide(ICoreServerAPI api)
         {
             sapi = api;
 
-            api.Network
-               .RegisterChannel(ShowCraftableSystem.ChannelName)
-               .RegisterMessageType(typeof(CraftScanRequest))
-               .RegisterMessageType(typeof(CraftScanReply))
-               .SetMessageHandler<CraftScanRequest>(OnScanRequest);
+            channel = api.Network.RegisterChannel(ShowCraftableSystem.ChannelName);
+            channel.RegisterMessageType(typeof(CraftScanRequest));
+            channel.RegisterMessageType(typeof(CraftScanReply));
+            channel.RegisterMessageType(typeof(FetchAvailabilityMessage));
+            channel.SetMessageHandler<CraftScanRequest>(OnScanRequest);
+
+            api.Event.PlayerNowPlaying += Event_PlayerNowPlaying;
+
+            RegisterCommands();
+
+            BroadcastFetchAvailability();
+        }
+
+        private void RegisterCommands()
+        {
+            sapi?.ChatCommands
+                ?.Create("showcraftablefetch")
+                ?.RequiresPrivilege(Privilege.controlserver)
+                ?.WithDescription("Controls the ShowCraftable fetch button for all clients.")
+                ?.HandleWith(OnShowCraftableFetchCommand);
+        }
+
+        private TextCommandResult OnShowCraftableFetchCommand(TextCommandCallingArgs args)
+        {
+            string arg = args?.RawArgs?.PopWord()?.ToLowerInvariant();
+
+            if (string.IsNullOrEmpty(arg) || arg == "status")
+            {
+                string status = ShowCraftableSystem.IsServerFetchDisabled() ? "disabled" : "enabled";
+                return TextCommandResult.Success($"Fetch button is currently {status} for all clients.");
+            }
+
+            bool disable;
+            if (arg == "on" || arg == "enable" || arg == "true")
+            {
+                disable = false;
+            }
+            else if (arg == "off" || arg == "disable" || arg == "false")
+            {
+                disable = true;
+            }
+            else
+            {
+                return TextCommandResult.Error("Usage: /showcraftablefetch <on|off|enable|disable|true|false|status>");
+            }
+
+            ShowCraftableSystem.SetServerFetchDisabledAndSave(sapi, disable);
+            BroadcastFetchAvailability();
+
+            string result = disable ? "disabled" : "enabled";
+            return TextCommandResult.Success($"Fetch button has been {result} for all clients.");
+        }
+
+        private void Event_PlayerNowPlaying(IServerPlayer byPlayer)
+        {
+            SendFetchAvailability(byPlayer);
+        }
+
+        private void BroadcastFetchAvailability()
+        {
+            if (channel == null || sapi?.World?.AllOnlinePlayers == null) return;
+
+            var message = new FetchAvailabilityMessage
+            {
+                FetchDisabled = ShowCraftableSystem.IsServerFetchDisabled()
+            };
+
+            foreach (var player in sapi.World.AllOnlinePlayers)
+            {
+                if (player is IServerPlayer serverPlayer)
+                {
+                    channel.SendPacket(message, serverPlayer);
+                }
+            }
+        }
+
+        private void SendFetchAvailability(IServerPlayer player)
+        {
+            if (player == null || channel == null) return;
+
+            var message = new FetchAvailabilityMessage
+            {
+                FetchDisabled = ShowCraftableSystem.IsServerFetchDisabled()
+            };
+
+            channel.SendPacket(message, player);
         }
 
         private class SlotRef
@@ -4257,6 +4412,23 @@ namespace ShowCraftable
             int r = Math.Max(0, req.Radius);
 
             bool isFetch = req.CollectItems && req.Variants != null && req.Variants.Count > 0;
+
+            if (isFetch && ShowCraftableSystem.IsServerFetchDisabled())
+            {
+                fromPlayer?.SendMessage(GlobalConstants.InfoLogChatGroup,
+                    "[ShowCraftable] Fetching ingredients is disabled by the server.",
+                    EnumChatType.CommandError);
+
+                var denied = new CraftScanReply
+                {
+                    ScanId = req.ScanId,
+                    TabKey = req.TabKey,
+                    IsFetch = true
+                };
+
+                channel?.SendPacket(denied, fromPlayer);
+                return;
+            }
 
             var sum = new Dictionary<string, (int count, EnumItemClass cls)>();
             var slots = new List<SlotRef>();
