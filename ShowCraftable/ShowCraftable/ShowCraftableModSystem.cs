@@ -4019,7 +4019,7 @@ namespace ShowCraftable
         private void RegisterCommands()
         {
             sapi?.ChatCommands
-                ?.Create("showcraftablefetch")
+                ?.Create("SCfetch")
                 ?.RequiresPrivilege(Privilege.controlserver)
                 ?.WithDescription("Controls the ShowCraftable fetch button for all clients.")
                 ?.WithArgs(sapi.ChatCommands.Parsers.OptionalWord("state"))
@@ -4060,7 +4060,7 @@ namespace ShowCraftable
             }
             else
             {
-                return TextCommandResult.Error("Usage: /showcraftablefetch <on|off|enable|disable|true|false|status>");
+                return TextCommandResult.Error("Usage: /SCfetch <on|off|enable|disable|true|false|status>");
             }
 
             ShowCraftableSystem.SetServerFetchDisabledAndSave(sapi, disable);
