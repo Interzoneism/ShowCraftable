@@ -7,8 +7,8 @@
   ],
   "description": "Scans nearby storage and tells you whats Craftable",
   "VersionMap": {
-    "VS1.20": "1.0.2",
-    "VS1.21": "1.2.0"
+    "VS1.20": "1.0.25",
+    "VS1.21": "1.2.5"
   },
   "dependencies": {
     "game": ""
