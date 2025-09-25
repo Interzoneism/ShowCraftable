@@ -4022,6 +4022,7 @@ namespace ShowCraftable
                 ?.Create("showcraftablefetch")
                 ?.RequiresPrivilege(Privilege.controlserver)
                 ?.WithDescription("Controls the ShowCraftable fetch button for all clients.")
+                ?.WithArgs(sapi.ChatCommands.Parsers.OptionalWord("state"))
                 ?.HandleWith(OnShowCraftableFetchCommand);
         }
 
