@@ -4028,7 +4028,20 @@ namespace ShowCraftable
 
         private TextCommandResult OnShowCraftableFetchCommand(TextCommandCallingArgs args)
         {
-            string arg = args?.RawArgs?.PopWord()?.ToLowerInvariant();
+            string arg = null;
+            if (args != null)
+            {
+                if (args.Parsers != null && args.Parsers.Count > 0)
+                {
+                    arg = args[0] as string;
+                }
+                else
+                {
+                    arg = args.RawArgs?.PeekWord();
+                }
+            }
+
+            arg = arg?.ToLowerInvariant();
 
             if (string.IsNullOrEmpty(arg) || arg == "status")
             {
