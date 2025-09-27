@@ -1268,6 +1268,18 @@ namespace ShowCraftable
             var miLoadAsync = AccessTools.Method(tBase, "LoadPages_Async");
             _harmony.Patch(miLoadAsync, postfix: new HarmonyMethod(typeof(ShowCraftableSystem), nameof(AfterPagesLoaded_Postfix)));
 
+            var miInitOverview = AccessTools.Method(tBase, "initOverviewGui");
+            if (miInitOverview != null)
+            {
+                _harmony.Patch(miInitOverview, postfix: new HarmonyMethod(typeof(ShowCraftableSystem), nameof(InitOverviewGui_Postfix)));
+            }
+
+            var miInitDetail = AccessTools.Method(tBase, "initDetailGui");
+            if (miInitDetail != null)
+            {
+                _harmony.Patch(miInitDetail, postfix: new HarmonyMethod(typeof(ShowCraftableSystem), nameof(InitDetailGui_Postfix)));
+            }
+
             var tBeh = AccessTools.TypeByName("Vintagestory.GameContent.CollectibleBehaviorHandbookTextAndExtraInfo");
             var miAddInfo = AccessTools.Method(tBeh, "addCreatedByInfo");
             _harmony.Patch(miAddInfo, postfix: new HarmonyMethod(typeof(ShowCraftableSystem), nameof(AddRecipeButton_Postfix)));
@@ -1302,6 +1314,86 @@ namespace ShowCraftable
             composer.AddInteractiveElement(new GuiElementVerticalTabsWithCustomFonts(composer.Api, tabs, font, selectedFont, bounds, onTabClicked), key);
             __result = composer;
             return false;
+        }
+
+        public static void InitOverviewGui_Postfix(object __instance)
+        {
+            try
+            {
+                var composer = AccessTools.Field(__instance.GetType(), "overviewGui")?.GetValue(__instance) as GuiComposer;
+                MoveHandbookTabsToRight(composer);
+            }
+            catch (Exception e)
+            {
+                LogEverywhere(_staticCapi, $"Error in InitOverviewGui_Postfix: {e}");
+            }
+        }
+
+        public static void InitDetailGui_Postfix(object __instance)
+        {
+            try
+            {
+                var composer = AccessTools.Field(__instance.GetType(), "detailViewGui")?.GetValue(__instance) as GuiComposer;
+                MoveHandbookTabsToRight(composer);
+            }
+            catch (Exception e)
+            {
+                LogEverywhere(_staticCapi, $"Error in InitDetailGui_Postfix: {e}");
+            }
+        }
+
+        private static void MoveHandbookTabsToRight(GuiComposer composer)
+        {
+            if (composer == null) return;
+
+            try
+            {
+                var tabsElement = composer.GetVerticalTab("verticalTabs");
+                if (tabsElement == null) return;
+
+                var bounds = tabsElement.Bounds;
+                if (bounds == null) return;
+
+                double targetX = bounds.fixedX;
+
+                var stackList = composer.GetFlatList("stacklist");
+                if (stackList?.Bounds != null)
+                {
+                    targetX = stackList.Bounds.fixedX + stackList.Bounds.fixedWidth + GuiStyle.ElementToDialogPadding;
+                }
+                else
+                {
+                    var scrollbar = composer.GetScrollbar("scrollbar");
+                    if (scrollbar?.Bounds != null)
+                    {
+                        targetX = scrollbar.Bounds.fixedX + scrollbar.Bounds.fixedWidth + GuiStyle.ElementToDialogPadding;
+                    }
+                }
+
+                bool needsRecompose = false;
+
+                if (!tabsElement.Right)
+                {
+                    tabsElement.Right = true;
+                    needsRecompose = true;
+                }
+
+                if (Math.Abs(bounds.fixedX - targetX) > 0.01)
+                {
+                    bounds.fixedX = targetX;
+                    needsRecompose = true;
+                }
+
+                if (needsRecompose)
+                {
+                    bounds.MarkDirtyRecursive();
+                    composer.ReCompose();
+                }
+            }
+            catch (Exception e)
+            {
+                LogEverywhere(_staticCapi, $"Error while moving handbook tabs: {e}");
+            }
         }
 
         private static bool ShouldApplyCraftableFonts(GuiTab[] tabs)
