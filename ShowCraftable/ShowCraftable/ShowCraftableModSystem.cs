@@ -73,6 +73,7 @@ namespace ShowCraftable
         private static readonly Dictionary<string, Dictionary<string, int>> WildTokenCountsMemo = new(StringComparer.Ordinal);
         private static readonly Dictionary<string, RecipeIndexData> recipeIndexByVariant = new(StringComparer.Ordinal);
         private static readonly Dictionary<string, ulong> TabPoolDNA = new(StringComparer.Ordinal);
+        private static readonly Dictionary<string, CustomTabState> CustomTabStates = new(StringComparer.Ordinal);
         private static readonly object CacheLock = new();
         private static readonly object DnaLock = new();
         private static readonly object InflightMapLock = new();
@@ -81,7 +82,8 @@ namespace ShowCraftable
         private static readonly object PendingScanLock = new();
         private static readonly object ScanQueueLock = new();
         private static readonly object TabUiStateLock = new();
-        private static ScanRequestInfo? QueuedScanRequest;
+        private static readonly object CustomTabStateLock = new();
+        private static ScanRequestInfo QueuedScanRequest;
         private static ShowCraftableConfig Config = new();
         private static string PendingScanTabKey;
         private static string PendingScanVariantKey;
@@ -98,6 +100,7 @@ namespace ShowCraftable
         private static volatile bool recipeIndexForStoneOnly;
         private static volatile bool recipeIndexForWoodOnly;
         private static volatile bool ScanInProgress = false;
+        private static int CustomScanSeq;
         private static int FetchInProgressFlag = 0;
         private static int ServerFetchDisabledFlag = 0;
         private static volatile int recipeIndexBuildProgress;
@@ -213,22 +216,69 @@ namespace ShowCraftable
             [ProtoMember(2)] public Dictionary<string, List<CodeRecipeRef>> CodeToRecipes { get; set; } = new();
             [ProtoMember(3)] public Dictionary<string, List<string>> CodeToGkeys { get; set; } = new();
         }
-        private struct ScanRequestInfo
+        private sealed class ScanRequestInfo
         {
-            public bool IncludeAll;
-            public bool ModsOnly;
-            public bool WoodOnly;
-            public bool StoneOnly;
-            public string TabKey;
+            public bool IncludeAll { get; }
+            public bool ModsOnly { get; }
+            public bool WoodOnly { get; }
+            public bool StoneOnly { get; }
+            public string TabKey { get; }
+            public bool IsCustomTabScan { get; }
+            public string CategoryCode { get; }
+            public List<CustomPageInfo> CandidatePages { get; }
+            public bool SkipDna { get; }
+            public int CustomScanToken { get; }
+            public int ScanId { get; set; }
 
-            public ScanRequestInfo(bool includeAll, bool modsOnly, bool woodOnly, bool stoneOnly, string tabKey)
+            public ScanRequestInfo(
+                bool includeAll,
+                bool modsOnly,
+                bool woodOnly,
+                bool stoneOnly,
+                string tabKey,
+                bool isCustomTabScan = false,
+                string categoryCode = null,
+                List<CustomPageInfo> candidatePages = null,
+                bool skipDna = false,
+                int customScanToken = 0)
             {
                 IncludeAll = includeAll;
                 ModsOnly = modsOnly;
                 WoodOnly = woodOnly;
                 StoneOnly = stoneOnly;
                 TabKey = tabKey;
+                IsCustomTabScan = isCustomTabScan;
+                CategoryCode = categoryCode;
+                CandidatePages = candidatePages;
+                SkipDna = skipDna;
+                CustomScanToken = customScanToken;
             }
+        }
+
+        private sealed class CustomTabState
+        {
+            public bool CtrlActive;
+            public bool ScanInProgress;
+            public string TabKey;
+            public int ActiveToken;
+            public List<string> CandidatePageCodes = new();
+            public List<string> FilteredPageCodes = new();
+        }
+
+        private sealed class CustomPageInfo
+        {
+            public CustomPageInfo(string pageCode, StackKey primaryKey, StackKey codeOnlyKey, bool canCheck)
+            {
+                PageCode = pageCode;
+                PrimaryKey = primaryKey;
+                CodeOnlyKey = codeOnlyKey;
+                CanCheck = canCheck;
+            }
+
+            public string PageCode { get; }
+            public StackKey PrimaryKey { get; }
+            public StackKey CodeOnlyKey { get; }
+            public bool CanCheck { get; }
         }
 
         private sealed class WildGroup
@@ -1043,46 +1093,58 @@ namespace ShowCraftable
         private static void RequestServerScan(
             ICoreClientAPI capi,
             int radius,
-            bool includeAll,
-            bool modsOnly,
-            bool woodOnly,
-            bool stoneOnly,
-            string tabKey,
+            ScanRequestInfo info,
             bool allowQueue = true)
         {
             var sw = Stopwatch.StartNew();
             try
             {
-                if (capi == null) return;
+                if (capi == null || info == null) return;
 
                 var now = DateTime.UtcNow;
                 if ((now - _lastScanAt).TotalMilliseconds < 400 && allowQueue)
                 {
-                    EnqueueScanRequest(capi, includeAll, modsOnly, woodOnly, stoneOnly, tabKey);
+                    EnqueueScanRequest(capi, info);
                     return;
                 }
                 _lastScanAt = now;
 
                 if (ScanInProgress)
                 {
-                    if (allowQueue) EnqueueScanRequest(capi, includeAll, modsOnly, woodOnly, stoneOnly, tabKey);
+                    if (allowQueue) EnqueueScanRequest(capi, info);
                     return;
                 }
                 ScanInProgress = true;
                 HandbookPauseGuard.Acquire(capi);
 
-                var variantKey = GetVariantKey(includeAll, modsOnly, woodOnly, stoneOnly);
+                var variantKey = GetVariantKey(info.IncludeAll, info.ModsOnly, info.WoodOnly, info.StoneOnly);
 
-                lock (PendingScanLock)
+                if (!info.SkipDna)
                 {
-                    PendingScanVariantKey = variantKey;
-                    PendingScanTabKey = tabKey;
+                    lock (PendingScanLock)
+                    {
+                        PendingScanVariantKey = variantKey;
+                        PendingScanTabKey = info.TabKey;
+                    }
+                }
+                else
+                {
+                    lock (PendingScanLock)
+                    {
+                        if (string.Equals(PendingScanVariantKey, variantKey, StringComparison.Ordinal)
+                            && string.Equals(PendingScanTabKey, info.TabKey, StringComparison.Ordinal))
+                        {
+                            PendingScanVariantKey = null;
+                            PendingScanTabKey = null;
+                        }
+                    }
                 }
 
                 int scanId = Interlocked.Increment(ref ScanSeq);
+                info.ScanId = scanId;
                 lock (InflightMapLock)
                 {
-                    InflightById[scanId] = new ScanRequestInfo(includeAll, modsOnly, woodOnly, stoneOnly, tabKey);
+                    InflightById[scanId] = info;
                 }
 
                 try
@@ -1093,9 +1155,10 @@ namespace ShowCraftable
                         CollectItems = true,
                         Variants = new List<CraftIngredientList>(),
                         ScanId = scanId,
-                        TabKey = tabKey
+                        TabKey = info.TabKey
                     });
-                    LogEverywhere(capi, $"[Scan] → sent ScanId={scanId} (radius={radius}, variant={variantKey}, tab={tabKey})");
+                    string type = info.IsCustomTabScan ? "custom" : "tab";
+                    LogEverywhere(capi, $"[Scan] → sent ScanId={scanId} (radius={radius}, variant={variantKey}, {type}={info.TabKey})");
                 }
                 catch (Exception e)
                 {
@@ -1118,11 +1181,11 @@ namespace ShowCraftable
             }
         }
 
-        private static void EnqueueScanRequest(ICoreClientAPI capi, bool includeAll, bool modsOnly, bool woodOnly, bool stoneOnly, string tabKey)
+        private static void EnqueueScanRequest(ICoreClientAPI capi, ScanRequestInfo info)
         {
             lock (ScanQueueLock)
             {
-                QueuedScanRequest = new ScanRequestInfo(includeAll, modsOnly, woodOnly, stoneOnly, tabKey);
+                QueuedScanRequest = info;
             }
             EnsureQueueCheckScheduled(capi);
         }
@@ -1133,7 +1196,7 @@ namespace ShowCraftable
             bool shouldSchedule = false;
             lock (ScanQueueLock)
             {
-                if (QueuedScanRequest.HasValue && !ScanQueueCheckScheduled)
+                if (QueuedScanRequest != null && !ScanQueueCheckScheduled)
                 {
                     ScanQueueCheckScheduled = true;
                     shouldSchedule = true;
@@ -1157,24 +1220,431 @@ namespace ShowCraftable
         {
             if (capi == null) return;
 
-            ScanRequestInfo? request = null;
+            ScanRequestInfo request = null;
             lock (ScanQueueLock)
             {
-                if (!ScanInProgress && QueuedScanRequest.HasValue)
+                if (!ScanInProgress && QueuedScanRequest != null)
                 {
                     request = QueuedScanRequest;
                     QueuedScanRequest = null;
                 }
             }
 
-            if (request.HasValue)
+            if (request != null)
             {
-                RequestServerScan(capi, NearbyRadius, request.Value.IncludeAll, request.Value.ModsOnly, request.Value.WoodOnly, request.Value.StoneOnly, request.Value.TabKey, allowQueue: false);
+                RequestServerScan(capi, NearbyRadius, request, allowQueue: false);
             }
             else
             {
                 EnsureQueueCheckScheduled(capi);
             }
+        }
+
+        private static string BuildCustomTabKey(string categoryCode)
+        {
+            return $"custom:{categoryCode ?? string.Empty}";
+        }
+
+        private static CustomTabState GetOrCreateCustomTabState(string categoryCode)
+        {
+            if (string.IsNullOrEmpty(categoryCode)) return null;
+            lock (CustomTabStateLock)
+            {
+                if (!CustomTabStates.TryGetValue(categoryCode, out var state))
+                {
+                    state = new CustomTabState();
+                    CustomTabStates[categoryCode] = state;
+                }
+                return state;
+            }
+        }
+
+        private static bool TryGetCustomTabState(string categoryCode, out CustomTabState state)
+        {
+            if (string.IsNullOrEmpty(categoryCode))
+            {
+                state = null;
+                return false;
+            }
+
+            lock (CustomTabStateLock)
+            {
+                return CustomTabStates.TryGetValue(categoryCode, out state);
+            }
+        }
+
+        private static bool IsCustomTabActive(string categoryCode)
+        {
+            if (string.IsNullOrEmpty(categoryCode)) return false;
+            lock (CustomTabStateLock)
+            {
+                return CustomTabStates.TryGetValue(categoryCode, out var state)
+                       && (state.CtrlActive || state.ScanInProgress);
+            }
+        }
+
+        private static void HandleCustomTabNormalClick(ICoreClientAPI capi, string categoryCode)
+        {
+            if (string.IsNullOrEmpty(categoryCode)) return;
+
+            lock (CustomTabStateLock)
+            {
+                if (CustomTabStates.TryGetValue(categoryCode, out var state))
+                {
+                    state.CtrlActive = false;
+                    state.ScanInProgress = false;
+                    state.ActiveToken = 0;
+                    state.FilteredPageCodes.Clear();
+                    state.CandidatePageCodes.Clear();
+                }
+            }
+
+            SetUpdatingText(capi, false);
+        }
+
+        private static void HandleCustomTabCtrlClick(object dialogInstance, ICoreClientAPI capi, string categoryCode)
+        {
+            if (dialogInstance == null || capi == null || string.IsNullOrEmpty(categoryCode)) return;
+
+            var state = GetOrCreateCustomTabState(categoryCode);
+            if (state == null) return;
+
+            var candidates = CaptureCustomTabPages(dialogInstance, categoryCode, out var pageCodes);
+            int token = Interlocked.Increment(ref CustomScanSeq);
+            string tabKey = BuildCustomTabKey(categoryCode);
+
+            StartRecipeIndexBuild(capi);
+
+            lock (CustomTabStateLock)
+            {
+                state.CtrlActive = true;
+                state.ScanInProgress = true;
+                state.ActiveToken = token;
+                state.TabKey = tabKey;
+                state.CandidatePageCodes = pageCodes;
+                state.FilteredPageCodes = new List<string>(pageCodes);
+            }
+
+            SetUpdatingText(capi, true);
+
+            lock (CacheLock)
+            {
+                CachedPageCodes = new List<string>(pageCodes);
+            }
+            LastDialogPageCount = -1;
+            TryRefreshOpenDialog(capi);
+
+            var info = new ScanRequestInfo(
+                includeAll: false,
+                modsOnly: false,
+                woodOnly: false,
+                stoneOnly: false,
+                tabKey: tabKey,
+                isCustomTabScan: true,
+                categoryCode: categoryCode,
+                candidatePages: candidates,
+                skipDna: true,
+                customScanToken: token);
+
+            RequestServerScan(capi, NearbyRadius, info);
+        }
+
+        private static List<CustomPageInfo> CaptureCustomTabPages(object dialogInstance, string categoryCode, out List<string> pageCodes)
+        {
+            pageCodes = new List<string>();
+            var result = new List<CustomPageInfo>();
+            if (dialogInstance == null || string.IsNullOrEmpty(categoryCode)) return result;
+
+            var fiPages = AccessTools.Field(dialogInstance.GetType(), "allHandbookPages");
+            var pages = fiPages?.GetValue(dialogInstance) as System.Collections.IList;
+            if (pages == null) return result;
+
+            foreach (var pageObj in pages)
+            {
+                if (pageObj == null) continue;
+                var type = pageObj.GetType();
+                string cat = AccessTools.Property(type, "CategoryCode")?.GetValue(pageObj) as string
+                             ?? AccessTools.Field(type, "CategoryCode")?.GetValue(pageObj) as string;
+                if (!string.Equals(cat, categoryCode, StringComparison.Ordinal)) continue;
+
+                string pageCode = AccessTools.Property(type, "PageCode")?.GetValue(pageObj) as string
+                                 ?? AccessTools.Field(type, "PageCode")?.GetValue(pageObj) as string;
+                if (string.IsNullOrEmpty(pageCode)) continue;
+                pageCodes.Add(pageCode);
+
+                bool canCheck = false;
+                StackKey primaryKey = default;
+                StackKey codeOnlyKey = default;
+
+                try
+                {
+                    if (pageObj is GuiHandbookItemStackPage stackPage)
+                    {
+                        var stack = stackPage.Stack;
+                        if (stack?.Collectible?.Code != null)
+                        {
+                            primaryKey = KeyFor(stack);
+                            codeOnlyKey = new StackKey(primaryKey.Code, string.Empty, string.Empty);
+                            canCheck = true;
+                        }
+                    }
+                    else
+                    {
+                        var piStack = AccessTools.Property(type, "Stack");
+                        var stackObj = piStack?.GetValue(pageObj) as ItemStack;
+                        if (stackObj?.Collectible?.Code != null)
+                        {
+                            primaryKey = KeyFor(stackObj);
+                            codeOnlyKey = new StackKey(primaryKey.Code, string.Empty, string.Empty);
+                            canCheck = true;
+                        }
+                    }
+                }
+                catch
+                {
+                    canCheck = false;
+                }
+
+                result.Add(new CustomPageInfo(pageCode, primaryKey, codeOnlyKey, canCheck));
+            }
+
+            return result;
+        }
+
+        private void HandleCustomTabScanReply(ResourcePool pool, ScanRequestInfo info)
+        {
+            if (_capi == null)
+            {
+                FinishScan(_capi);
+                return;
+            }
+
+            if (info == null || string.IsNullOrEmpty(info.CategoryCode))
+            {
+                _capi.Event.EnqueueMainThreadTask(() =>
+                {
+                    SetUpdatingText(_capi, false);
+                    FinishScanAndProcessQueue(_capi);
+                }, "SCCustomScanInvalid");
+                return;
+            }
+
+            if (!TryGetCustomTabState(info.CategoryCode, out var state) || state == null)
+            {
+                _capi.Event.EnqueueMainThreadTask(() => FinishScanAndProcessQueue(_capi), "SCCustomScanNoState");
+                return;
+            }
+
+            if (state.ActiveToken != info.CustomScanToken)
+            {
+                _capi.Event.EnqueueMainThreadTask(() => FinishScanAndProcessQueue(_capi), "SCCustomScanStale");
+                return;
+            }
+
+            var candidatePages = info.CandidatePages ?? new List<CustomPageInfo>();
+            var pageCodes = candidatePages.Select(cp => cp.PageCode).Where(pc => pc != null).ToList();
+
+            Task.Run(() =>
+            {
+                try
+                {
+                    string variantKey = GetVariantKey(info.IncludeAll, info.ModsOnly, info.WoodOnly, info.StoneOnly);
+                    var craftableKeys = ComputeCraftableStackKeys(_capi, pool, variantKey);
+
+                    var currentPages = new List<string>(pageCodes);
+                    int removed = 0;
+
+                    foreach (var candidate in candidatePages)
+                    {
+                        if (candidate == null || string.IsNullOrEmpty(candidate.PageCode)) continue;
+                        if (!candidate.CanCheck) continue;
+
+                        bool craftable = craftableKeys.Contains(candidate.PrimaryKey) || craftableKeys.Contains(candidate.CodeOnlyKey);
+                        if (!craftable)
+                        {
+                            currentPages.Remove(candidate.PageCode);
+                            removed++;
+                            if (removed % 4 == 0)
+                            {
+                                var snapshot = currentPages.ToList();
+                                ScheduleCustomTabUpdate(_capi, info.CategoryCode, snapshot, isFinal: false, info.CustomScanToken);
+                            }
+                        }
+                    }
+
+                    var finalSnapshot = currentPages.ToList();
+                    ScheduleCustomTabUpdate(_capi, info.CategoryCode, finalSnapshot, isFinal: true, info.CustomScanToken);
+                }
+                catch (Exception ex)
+                {
+                    _capi.Event.EnqueueMainThreadTask(() =>
+                    {
+                        try
+                        {
+                            LogEverywhere(_capi, $"Custom tab scan failed: {ex}", toChat: true);
+                        }
+                        finally
+                        {
+                            SetUpdatingText(_capi, false);
+                            FinishScanAndProcessQueue(_capi);
+                        }
+                    }, "SCCustomScanError");
+                }
+            });
+        }
+
+        private static void ScheduleCustomTabUpdate(ICoreClientAPI capi, string categoryCode, List<string> snapshot, bool isFinal, int token)
+        {
+            if (capi == null) return;
+            capi.Event.EnqueueMainThreadTask(() =>
+            {
+                try
+                {
+                    if (!TryGetCustomTabState(categoryCode, out var state) || state == null) return;
+                    if (state.ActiveToken != token)
+                    {
+                        if (isFinal) FinishScanAndProcessQueue(capi);
+                        return;
+                    }
+
+                    state.FilteredPageCodes = snapshot != null ? new List<string>(snapshot) : new List<string>();
+                    if (!isFinal) state.ScanInProgress = true;
+
+                    lock (CacheLock)
+                    {
+                        CachedPageCodes = snapshot != null ? new List<string>(snapshot) : new List<string>();
+                    }
+
+                    LastDialogPageCount = -1;
+                    TryRefreshOpenDialog(capi);
+
+                    if (isFinal)
+                    {
+                        state.ScanInProgress = false;
+                        SetUpdatingText(capi, false);
+                        FinishScanAndProcessQueue(capi);
+                    }
+                }
+                catch
+                {
+                    if (isFinal) FinishScanAndProcessQueue(capi);
+                }
+            }, isFinal ? "SCCustomScanFinal" : "SCCustomScanProgress");
+        }
+
+        private static HashSet<StackKey> ComputeCraftableStackKeys(ICoreClientAPI capi, ResourcePool pool, string variantKey)
+        {
+            var craftableKeys = new HashSet<StackKey>();
+            if (capi == null || pool == null) return craftableKeys;
+
+            if (string.IsNullOrEmpty(variantKey)) variantKey = "van";
+            if (!EnsureRecipeIndexVariantReady(capi, variantKey)) return craftableKeys;
+
+            var candidates = new HashSet<GridRecipeShim>(ReferenceEqualityComparer.Instance);
+            foreach (var pkv in pool.Counts)
+            {
+                var code = pkv.Key.Code;
+                if (codeToRecipeGroups.TryGetValue(code, out var uses))
+                {
+                    foreach (var (recipe, _) in uses) candidates.Add(recipe);
+                }
+            }
+
+            var remaining = new Dictionary<GridRecipeShim, Dictionary<string, int>>(ReferenceEqualityComparer.Instance);
+            foreach (var recipe in candidates)
+            {
+                if (recipeGroupNeeds.TryGetValue(recipe, out var needs))
+                {
+                    remaining[recipe] = needs.ToDictionary(g => g.Key, g => g.Value, StringComparer.Ordinal);
+                }
+            }
+
+            var ambRecipes = new HashSet<GridRecipeShim>(ReferenceEqualityComparer.Instance);
+            foreach (var pkv in pool.Counts)
+            {
+                var code = pkv.Key.Code;
+                var haveQty = pkv.Value;
+                if (haveQty <= 0) continue;
+
+                if (!codeToRecipeGroups.TryGetValue(code, out var uses) || uses == null || uses.Count == 0) continue;
+
+                var hitsPerRecipe = new Dictionary<GridRecipeShim, int>(ReferenceEqualityComparer.Instance);
+
+                foreach (var (recipe, gkey) in uses)
+                {
+                    if (!remaining.TryGetValue(recipe, out var groups)) continue;
+                    if (!groups.TryGetValue(gkey, out var need) || need <= 0) continue;
+
+                    int take = Math.Min(need, haveQty);
+                    if (take > 0) groups[gkey] = need - take;
+
+                    hitsPerRecipe[recipe] = (hitsPerRecipe.TryGetValue(recipe, out var cur) ? cur : 0) + 1;
+                }
+
+                foreach (var kv in hitsPerRecipe)
+                {
+                    if (kv.Value >= 2) ambRecipes.Add(kv.Key);
+                }
+            }
+
+            bool CanSatisfyPrecisely_NoGkeyToCodes(GridRecipeShim recipe, ResourcePool poolLocal)
+            {
+                if (recipe == null) return false;
+
+                var codeAvail = new Dictionary<string, int>(StringComparer.Ordinal);
+                foreach (var pkv in poolLocal.Counts) codeAvail[pkv.Key.Code] = pkv.Value;
+
+                foreach (var gkv in recipeGroupNeeds[recipe])
+                {
+                    int need = gkv.Value;
+                    if (need <= 0) continue;
+
+                    IEnumerable<string> candidatesLocal;
+                    if (gkv.Key.StartsWith("wild:", StringComparison.Ordinal))
+                    {
+                        candidatesLocal = codeAvail.Keys.Where(c =>
+                            codeToGkeys.TryGetValue(c, out var set) && set != null && set.Contains(gkv.Key));
+                    }
+                    else
+                    {
+                        candidatesLocal = gkv.Key.Split('|').Where(c => codeAvail.ContainsKey(c));
+                    }
+
+                    int taken = 0;
+                    foreach (var c in candidatesLocal)
+                    {
+                        int have = codeAvail.TryGetValue(c, out var v) ? v : 0;
+                        if (have <= 0) continue;
+                        int take = Math.Min(need - taken, have);
+                        if (take > 0)
+                        {
+                            codeAvail[c] = have - take;
+                            taken += take;
+                            if (taken >= need) break;
+                        }
+                    }
+
+                    if (taken < need) return false;
+                }
+
+                return true;
+            }
+
+            foreach (var kv in remaining)
+            {
+                var recipe = kv.Key;
+                var groups = kv.Value;
+
+                bool prelimOk = groups.Count > 0 && groups.All(g => g.Value <= 0);
+                if (!prelimOk) continue;
+
+                bool ok = !ambRecipes.Contains(recipe) || CanSatisfyPrecisely_NoGkeyToCodes(recipe, pool);
+                if (!ok) continue;
+
+                ExpandOutputsForRecipe(capi, pool, recipe, craftableKeys, recipeGroupNeeds);
+            }
+
+            return craftableKeys;
         }
 
         private static void FinishScan(ICoreClientAPI capi)
@@ -1497,6 +1967,7 @@ namespace ShowCraftable
 
                 var fiCapi = AccessTools.Field(__instance.GetType(), "capi");
                 capi = fiCapi?.GetValue(__instance) as ICoreClientAPI ?? _staticCapi;
+                bool ctrlPressed = capi?.Input?.IsHotKeyPressed("ctrl") == true;
 
                 string diagnosticsSuffix = anyCraftable ? $" ({FormatTabScanState(tabKey)})" : string.Empty;
 
@@ -1515,6 +1986,14 @@ namespace ShowCraftable
 
                 if (!anyCraftable)
                 {
+                    if (ctrlPressed)
+                    {
+                        HandleCustomTabCtrlClick(__instance, capi, code);
+                    }
+                    else
+                    {
+                        HandleCustomTabNormalClick(capi, code);
+                    }
                     _pendingScanId++;
                     return;
                 }
@@ -1551,7 +2030,8 @@ namespace ShowCraftable
                 {
                     if (myScanId != _pendingScanId) return;
                     if (!DialogIsOpen(__instance)) return;
-                    RequestServerScan(capi, NearbyRadius, includeAll, modsOnly, woodOnly, stoneOnly, tabKey);
+                    var requestInfo = new ScanRequestInfo(includeAll, modsOnly, woodOnly, stoneOnly, tabKey);
+                    RequestServerScan(capi, NearbyRadius, requestInfo);
                 }, "SCScanOnTabSelect");
             }
             catch (Exception e)
@@ -1784,11 +2264,13 @@ namespace ShowCraftable
             try
             {
                 string cat = (string)AccessTools.Field(__instance.GetType(), "currentCatgoryCode").GetValue(__instance);
-                if (!(string.Equals(cat, CraftableAllCategoryCode, StringComparison.Ordinal) ||
-                      string.Equals(cat, CraftableCategoryCode, StringComparison.Ordinal) ||
-                      string.Equals(cat, CraftableModsCategoryCode, StringComparison.Ordinal) ||
-                      string.Equals(cat, CraftableWoodCategoryCode, StringComparison.Ordinal) ||
-                      string.Equals(cat, CraftableStoneCategoryCode, StringComparison.Ordinal))) return true;
+                bool craftableCat = string.Equals(cat, CraftableAllCategoryCode, StringComparison.Ordinal)
+                                    || string.Equals(cat, CraftableCategoryCode, StringComparison.Ordinal)
+                                    || string.Equals(cat, CraftableModsCategoryCode, StringComparison.Ordinal)
+                                    || string.Equals(cat, CraftableWoodCategoryCode, StringComparison.Ordinal)
+                                    || string.Equals(cat, CraftableStoneCategoryCode, StringComparison.Ordinal);
+                bool customCat = !craftableCat && IsCustomTabActive(cat);
+                if (!craftableCat && !customCat) return true;
 
                 var fiCapi = AccessTools.Field(__instance.GetType(), "capi");
                 var fiShown = AccessTools.Field(__instance.GetType(), "shownHandbookPages");
@@ -1804,6 +2286,17 @@ namespace ShowCraftable
                 bool loading = fiLoading != null && (bool)fiLoading.GetValue(__instance);
 
                 if (shown == null || composer == null) return true;
+
+                if (customCat && TryGetCustomTabState(cat, out var customState) && customState != null)
+                {
+                    if (!customState.ScanInProgress && customState.FilteredPageCodes != null && customState.FilteredPageCodes.Count > 0)
+                    {
+                        lock (CacheLock)
+                        {
+                            CachedPageCodes = new List<string>(customState.FilteredPageCodes);
+                        }
+                    }
+                }
 
                 var piSingle = AccessTools.Property(__instance.GetType(), "SingleComposer")
                            ?? AccessTools.Property(__instance.GetType().BaseType, "SingleComposer");
@@ -1909,11 +2402,13 @@ namespace ShowCraftable
                     return;
                 }
                 var cur = AccessTools.Field(dlg.GetType(), "currentCatgoryCode")?.GetValue(dlg) as string;
-                if (!(string.Equals(cur, CraftableAllCategoryCode, StringComparison.Ordinal) ||
-                        string.Equals(cur, CraftableCategoryCode, StringComparison.Ordinal) ||
-                        string.Equals(cur, CraftableModsCategoryCode, StringComparison.Ordinal) ||
-                        string.Equals(cur, CraftableWoodCategoryCode, StringComparison.Ordinal) ||
-                        string.Equals(cur, CraftableStoneCategoryCode, StringComparison.Ordinal)))
+                bool craftableCat = string.Equals(cur, CraftableAllCategoryCode, StringComparison.Ordinal)
+                                    || string.Equals(cur, CraftableCategoryCode, StringComparison.Ordinal)
+                                    || string.Equals(cur, CraftableModsCategoryCode, StringComparison.Ordinal)
+                                    || string.Equals(cur, CraftableWoodCategoryCode, StringComparison.Ordinal)
+                                    || string.Equals(cur, CraftableStoneCategoryCode, StringComparison.Ordinal);
+                bool customCat = !craftableCat && IsCustomTabActive(cur);
+                if (!craftableCat && !customCat)
                 {
                     LastDialogPageCount = 0;
                     return;
@@ -2041,6 +2536,10 @@ namespace ShowCraftable
             lock (TabUiStateLock) TabReadyToUpdateUi.Clear();
 
             lock (DnaLock) TabPoolDNA.Clear();
+
+            lock (CustomTabStateLock) CustomTabStates.Clear();
+
+            CustomScanSeq = 0;
 
             lock (WildTokenCountsMemo) WildTokenCountsMemo.Clear();
 
@@ -3575,7 +4074,7 @@ namespace ShowCraftable
                 string variantKey = null;
                 bool recipeAll = false, recipeModsOnly = false, recipeWoodOnly = false, recipeStoneOnly = false;
 
-                ScanRequestInfo info = default;
+                ScanRequestInfo info = null;
                 bool haveInfo = false;
                 if (data.ScanId != 0)
                 {
@@ -3589,7 +4088,13 @@ namespace ShowCraftable
                     }
                 }
 
-                if (string.IsNullOrEmpty(tabKey) && haveInfo && !string.IsNullOrEmpty(info.TabKey))
+                if (info?.IsCustomTabScan == true)
+                {
+                    HandleCustomTabScanReply(pool, info);
+                    return;
+                }
+
+                if (string.IsNullOrEmpty(tabKey) && haveInfo && info != null && !string.IsNullOrEmpty(info.TabKey))
                 {
                     tabKey = info.TabKey;
                     recipeAll = info.IncludeAll;
