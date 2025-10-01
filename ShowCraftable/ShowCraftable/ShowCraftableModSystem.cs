@@ -1411,7 +1411,7 @@ namespace ShowCraftable
                     SetPF(tabType, newTab, "Name", BaseItemsTabDisplayName);
                     SetPF(tabType, newTab, "CategoryCode", CraftableCategoryCode);
                     SetPF(tabType, newTab, "DataInt", tabs.Count);
-                    SetPF(tabType, newTab, "PaddingTop", craftableAllExists ? 5.0 : 20.0);
+                    SetPF(tabType, newTab, "PaddingTop", craftableAllExists ? 1.0 : 20.0);
                     tabs.Insert(insertAt, newTab);
                     insertAt++;
                 }
@@ -1422,7 +1422,7 @@ namespace ShowCraftable
                     SetPF(tabType, woodTab, "Name", WoodTypesTabDisplayName);
                     SetPF(tabType, woodTab, "CategoryCode", CraftableWoodCategoryCode);
                     SetPF(tabType, woodTab, "DataInt", tabs.Count);
-                    SetPF(tabType, woodTab, "PaddingTop", 5.0);
+                    SetPF(tabType, woodTab, "PaddingTop", 1.0);
                     tabs.Insert(insertAt, woodTab);
                     insertAt++;
                 }
@@ -1433,7 +1433,7 @@ namespace ShowCraftable
                     SetPF(tabType, stoneTab, "Name", StoneTypesTabDisplayName);
                     SetPF(tabType, stoneTab, "CategoryCode", CraftableStoneCategoryCode);
                     SetPF(tabType, stoneTab, "DataInt", tabs.Count);
-                    SetPF(tabType, stoneTab, "PaddingTop", 5.0);
+                    SetPF(tabType, stoneTab, "PaddingTop", 1.0);
                     tabs.Insert(insertAt, stoneTab);
                     insertAt++;
                 }
@@ -1444,7 +1444,7 @@ namespace ShowCraftable
                     SetPF(tabType, newTabMods, "Name", ModItemsTabDisplayName);
                     SetPF(tabType, newTabMods, "CategoryCode", CraftableModsCategoryCode);
                     SetPF(tabType, newTabMods, "DataInt", tabs.Count);
-                    SetPF(tabType, newTabMods, "PaddingTop", 5.0);
+                    SetPF(tabType, newTabMods, "PaddingTop", 1.0);
                     tabs.Insert(insertAt, newTabMods);
                     insertAt++;
                 }
