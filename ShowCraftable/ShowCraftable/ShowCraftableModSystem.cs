@@ -37,11 +37,6 @@ namespace ShowCraftable
         private const string ModTabKeyName = "modTab";
         private const string StoneTabKeyName = "stoneTab";
         private const string WoodTabKeyName = "woodTab";
-        private const string CraftableAllTabDisplayName = "Craftable";
-        private const string BaseItemsTabDisplayName = "● Base Items";
-        private const string WoodTypesTabDisplayName = "● Wood Types";
-        private const string StoneTypesTabDisplayName = "● Stone Types";
-        private const string ModItemsTabDisplayName = "● Mod Items";
         private const string ArialFontName = "Arial";
         private const string ArialBlackFontName = "Arial Black";
         private const int SlowStackLogThresholdMs = 175;
@@ -61,12 +56,8 @@ namespace ShowCraftable
         private static int _pendingScanId;
         private static ItemStack[] AllStacksPageCodeMapSource;
         private static List<string> CachedPageCodes = new();
-        private static List<string> AllTabCache = new();
-        private static List<string> CraftableTabCache = new();
-        private static List<string> ModTabCache = new();
+        private static Dictionary<string, List<string>> TabCaches = new(StringComparer.Ordinal);
         private static List<string> s_EmptyPages;
-        private static List<string> StoneTypeTabCache = new();
-        private static List<string> WoodTypeTabCache = new();
         private static List<WildGroup> wildcardGroups = new();
         private static readonly Dictionary<int, ScanRequestInfo> InflightById = new();
         private static readonly Dictionary<string, bool> TabReadyToUpdateUi = new(StringComparer.Ordinal);
@@ -83,16 +74,20 @@ namespace ShowCraftable
         private static readonly object TabUiStateLock = new();
         private static ScanRequestInfo? QueuedScanRequest;
         private static ShowCraftableConfig Config = new();
+        private static CraftableTabDefinition[] CraftableTabDefinitions = Array.Empty<CraftableTabDefinition>();
+        private static Dictionary<string, CraftableTabDefinition> CraftableTabsByCategoryCode
+            = new(StringComparer.OrdinalIgnoreCase);
+        private static Dictionary<string, CraftableTabDefinition> CraftableTabsByTabKey
+            = new(StringComparer.Ordinal);
+        private static Dictionary<string, CraftableTabDefinition> CraftableTabsByVariantKey
+            = new(StringComparer.OrdinalIgnoreCase);
+        private static CraftableTabDefinition DefaultCraftableTab;
         private static string PendingScanTabKey;
         private static string PendingScanVariantKey;
         private static Task recipeIndexBuildTask;
         private static int recipeIndexBuildToken;
         private static volatile bool recipeIndexBuildStarted = false;
-        private static volatile bool CraftableAllTabActive;
-        private static volatile bool CraftableModsTabActive;
-        private static volatile bool CraftableStoneTabActive;
-        private static volatile bool CraftableTabActive;
-        private static volatile bool CraftableWoodTabActive;
+        private static string ActiveCraftableTabKey;
         private static volatile bool recipeIndexBuilt = false;
         private static volatile bool recipeIndexForMods = false;
         private static volatile bool recipeIndexForStoneOnly;
@@ -109,29 +104,53 @@ namespace ShowCraftable
         public const string CraftableStoneCategoryCode = "craftablestonetypes";
         public const string CraftableWoodCategoryCode = "craftablewoodtypes";
 
+        private class CraftableTabDefinition
+        {
+            public string VariantKey { get; init; }
+            public string TabKey { get; init; }
+            public string CategoryCode { get; init; }
+            public string DisplayName { get; init; }
+            public bool IncludeAll { get; init; }
+            public bool ModsOnly { get; init; }
+            public bool WoodOnly { get; init; }
+            public bool StoneOnly { get; init; }
+            public double? PaddingTop { get; init; }
+            public string FontName { get; init; }
+            public FontWeight? FontWeight { get; init; }
+            public int Order { get; init; }
+
+            public bool Matches(bool includeAll, bool modsOnly, bool woodOnly, bool stoneOnly)
+            {
+                return IncludeAll == includeAll
+                       && ModsOnly == modsOnly
+                       && WoodOnly == woodOnly
+                       && StoneOnly == stoneOnly;
+            }
+
+            public bool IsDefaultVariant => !IncludeAll && !ModsOnly && !WoodOnly && !StoneOnly;
+
+            public double ResolvePadding(bool firstCraftableInserted)
+            {
+                if (PaddingTop != null) return PaddingTop.Value;
+                return firstCraftableInserted ? 20.0 : 5.0;
+            }
+        }
+
         internal static bool IsCraftableCategoryCode(string categoryCode)
         {
             if (string.IsNullOrEmpty(categoryCode)) return false;
 
-            return string.Equals(categoryCode, CraftableAllCategoryCode, StringComparison.OrdinalIgnoreCase)
-                   || string.Equals(categoryCode, CraftableCategoryCode, StringComparison.OrdinalIgnoreCase)
-                   || string.Equals(categoryCode, CraftableModsCategoryCode, StringComparison.OrdinalIgnoreCase)
-                   || string.Equals(categoryCode, CraftableWoodCategoryCode, StringComparison.OrdinalIgnoreCase)
-                   || string.Equals(categoryCode, CraftableStoneCategoryCode, StringComparison.OrdinalIgnoreCase);
+            return CraftableTabsByCategoryCode.ContainsKey(categoryCode);
         }
 
         internal static string GetCraftableTabFontName(string categoryCode)
         {
             if (UseDefaultFont) return null;
 
-            if (string.Equals(categoryCode, CraftableAllCategoryCode, StringComparison.OrdinalIgnoreCase)) return ArialBlackFontName;
-
-            if (string.Equals(categoryCode, CraftableCategoryCode, StringComparison.OrdinalIgnoreCase)
-                || string.Equals(categoryCode, CraftableModsCategoryCode, StringComparison.OrdinalIgnoreCase)
-                || string.Equals(categoryCode, CraftableWoodCategoryCode, StringComparison.OrdinalIgnoreCase)
-                || string.Equals(categoryCode, CraftableStoneCategoryCode, StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrEmpty(categoryCode)) return null;
+            if (CraftableTabsByCategoryCode.TryGetValue(categoryCode, out var def))
             {
-                return ArialFontName;
+                return def.FontName;
             }
 
             return null;
@@ -141,12 +160,10 @@ namespace ShowCraftable
         {
             if (UseDefaultFont) return null;
 
-            if (string.Equals(categoryCode, CraftableCategoryCode, StringComparison.OrdinalIgnoreCase)
-                || string.Equals(categoryCode, CraftableModsCategoryCode, StringComparison.OrdinalIgnoreCase)
-                || string.Equals(categoryCode, CraftableWoodCategoryCode, StringComparison.OrdinalIgnoreCase)
-                || string.Equals(categoryCode, CraftableStoneCategoryCode, StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrEmpty(categoryCode)) return null;
+            if (CraftableTabsByCategoryCode.TryGetValue(categoryCode, out var def))
             {
-                return FontWeight.Bold;
+                return def.FontWeight;
             }
 
             return null;
@@ -422,81 +439,60 @@ namespace ShowCraftable
 
         private static string GetVariantKey(bool includeAll, bool modsOnly, bool woodOnly, bool stoneOnly)
         {
-            if (includeAll) return "all";
-            if (modsOnly) return "mods";
-            if (woodOnly) return "wood";
-            if (stoneOnly) return "stone";
-            return "van";
+            var def = FindTabDefinition(includeAll, modsOnly, woodOnly, stoneOnly);
+            if (def != null && !string.IsNullOrEmpty(def.VariantKey)) return def.VariantKey;
+            return DefaultCraftableTab?.VariantKey ?? "van";
         }
 
         private static string GetTabKey(bool includeAll, bool modsOnly, bool woodOnly, bool stoneOnly)
         {
-            if (includeAll) return AllTabKeyName;
-            if (modsOnly) return ModTabKeyName;
-            if (woodOnly) return WoodTabKeyName;
-            if (stoneOnly) return StoneTabKeyName;
-            return CraftableTabKeyName;
+            var def = FindTabDefinition(includeAll, modsOnly, woodOnly, stoneOnly);
+            if (def != null && !string.IsNullOrEmpty(def.TabKey)) return def.TabKey;
+            return DefaultCraftableTab?.TabKey ?? CraftableTabKeyName;
         }
 
         private static string TabKeyFromVariant(string variantKey)
         {
-            return variantKey switch
+            if (!string.IsNullOrEmpty(variantKey) && CraftableTabsByVariantKey.TryGetValue(variantKey, out var def))
             {
-                "all" => AllTabKeyName,
-                "mods" => ModTabKeyName,
-                "wood" => WoodTabKeyName,
-                "stone" => StoneTabKeyName,
-                "van" => CraftableTabKeyName,
-                _ => CraftableTabKeyName
-            };
+                return def.TabKey;
+            }
+
+            return DefaultCraftableTab?.TabKey ?? CraftableTabKeyName;
         }
 
         private static string VariantKeyFromTabKey(string tabKey)
         {
-            if (string.Equals(tabKey, AllTabKeyName, StringComparison.Ordinal)) return "all";
-            if (string.Equals(tabKey, ModTabKeyName, StringComparison.Ordinal)) return "mods";
-            if (string.Equals(tabKey, WoodTabKeyName, StringComparison.Ordinal)) return "wood";
-            if (string.Equals(tabKey, StoneTabKeyName, StringComparison.Ordinal)) return "stone";
-            return "van";
+            if (!string.IsNullOrEmpty(tabKey) && CraftableTabsByTabKey.TryGetValue(tabKey, out var def))
+            {
+                return def.VariantKey;
+            }
+
+            return DefaultCraftableTab?.VariantKey ?? "van";
         }
 
         private static string GetActiveTabKey()
         {
-            if (CraftableAllTabActive) return AllTabKeyName;
-            if (CraftableModsTabActive) return ModTabKeyName;
-            if (CraftableWoodTabActive) return WoodTabKeyName;
-            if (CraftableStoneTabActive) return StoneTabKeyName;
-            if (CraftableTabActive) return CraftableTabKeyName;
-            return CraftableTabKeyName;
+            var key = Volatile.Read(ref ActiveCraftableTabKey);
+            if (!string.IsNullOrEmpty(key)) return key;
+            return DefaultCraftableTab?.TabKey ?? CraftableTabKeyName;
         }
 
         private static bool IsTabActive(string tabKey)
         {
-            if (string.Equals(tabKey, AllTabKeyName, StringComparison.Ordinal)) return CraftableAllTabActive;
-            if (string.Equals(tabKey, ModTabKeyName, StringComparison.Ordinal)) return CraftableModsTabActive;
-            if (string.Equals(tabKey, WoodTabKeyName, StringComparison.Ordinal)) return CraftableWoodTabActive;
-            if (string.Equals(tabKey, StoneTabKeyName, StringComparison.Ordinal)) return CraftableStoneTabActive;
-            if (string.Equals(tabKey, CraftableTabKeyName, StringComparison.Ordinal)) return CraftableTabActive;
-            return false;
+            var key = Volatile.Read(ref ActiveCraftableTabKey);
+            return !string.IsNullOrEmpty(key) && string.Equals(tabKey, key, StringComparison.Ordinal);
         }
 
         private static bool IsKnownTabKey(string tabKey)
         {
-            return string.Equals(tabKey, AllTabKeyName, StringComparison.Ordinal)
-                || string.Equals(tabKey, ModTabKeyName, StringComparison.Ordinal)
-                || string.Equals(tabKey, WoodTabKeyName, StringComparison.Ordinal)
-                || string.Equals(tabKey, StoneTabKeyName, StringComparison.Ordinal)
-                || string.Equals(tabKey, CraftableTabKeyName, StringComparison.Ordinal);
+            if (string.IsNullOrEmpty(tabKey)) return false;
+            return CraftableTabsByTabKey.ContainsKey(tabKey);
         }
 
         private static List<string> GetTabCache(string tabKey)
         {
-            if (string.Equals(tabKey, AllTabKeyName, StringComparison.Ordinal)) return AllTabCache;
-            if (string.Equals(tabKey, ModTabKeyName, StringComparison.Ordinal)) return ModTabCache;
-            if (string.Equals(tabKey, WoodTabKeyName, StringComparison.Ordinal)) return WoodTypeTabCache;
-            if (string.Equals(tabKey, StoneTabKeyName, StringComparison.Ordinal)) return StoneTypeTabCache;
-            if (string.Equals(tabKey, CraftableTabKeyName, StringComparison.Ordinal)) return CraftableTabCache;
-
+            if (!string.IsNullOrEmpty(tabKey) && TabCaches.TryGetValue(tabKey, out var cache)) return cache;
             return s_EmptyPages ??= new List<string>();
         }
 
@@ -509,11 +505,7 @@ namespace ShowCraftable
             }
 
             var list = pages != null ? new List<string>(pages) : new List<string>();
-            if (string.Equals(tabKey, AllTabKeyName, StringComparison.Ordinal)) AllTabCache = list;
-            else if (string.Equals(tabKey, ModTabKeyName, StringComparison.Ordinal)) ModTabCache = list;
-            else if (string.Equals(tabKey, WoodTabKeyName, StringComparison.Ordinal)) WoodTypeTabCache = list;
-            else if (string.Equals(tabKey, StoneTabKeyName, StringComparison.Ordinal)) StoneTypeTabCache = list;
-            else CraftableTabCache = list;
+            TabCaches[tabKey] = list;
         }
 
         private static List<string> GetTabCacheSnapshot(string tabKey)
@@ -1218,6 +1210,7 @@ namespace ShowCraftable
             config.Normalize();
 
             Config = config;
+            UpdateCraftableTabDefinitionsFromConfig();
             NearbyRadius = ConfiguredSearchRadius;
             SetServerFetchDisabled(Config.DisableFetchButtonOnServer);
 
@@ -1292,6 +1285,214 @@ namespace ShowCraftable
 
         public override void Dispose() => _harmony?.UnpatchAll(HarmonyId);
 
+        private static void UpdateCraftableTabDefinitionsFromConfig()
+        {
+            var configs = Config?.CraftableTabs ?? CraftableTabConfig.CreateDefaultList();
+            var definitions = new List<CraftableTabDefinition>();
+            var seenCategory = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var seenTabKey = new HashSet<string>(StringComparer.Ordinal);
+            var seenVariant = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            if (configs == null || configs.Count == 0)
+            {
+                configs = CraftableTabConfig.CreateDefaultList();
+            }
+
+            for (int i = 0; i < configs.Count; i++)
+            {
+                var cfg = configs[i];
+                if (cfg == null || cfg.Enabled == false) continue;
+
+                var def = BuildDefinitionFromConfig(cfg, i);
+                if (def == null) continue;
+
+                if (!seenCategory.Add(def.CategoryCode)) continue;
+                if (!seenTabKey.Add(def.TabKey)) continue;
+                if (!seenVariant.Add(def.VariantKey)) continue;
+
+                definitions.Add(def);
+            }
+
+            if (definitions.Count == 0)
+            {
+                var defaults = CraftableTabConfig.CreateDefaultList();
+                for (int i = 0; i < defaults.Count; i++)
+                {
+                    var def = BuildDefinitionFromConfig(defaults[i], i);
+                    if (def != null) definitions.Add(def);
+                }
+            }
+
+            if (!definitions.Any(d => d.IsDefaultVariant))
+            {
+                var defaultBase = CraftableTabConfig.CreateDefaultList()
+                    .FirstOrDefault(d => !d.IncludeAll && !d.ModsOnly && !d.WoodOnly && !d.StoneOnly);
+                if (defaultBase != null)
+                {
+                    var fallback = BuildDefinitionFromConfig(defaultBase, definitions.Count);
+                    if (fallback != null) definitions.Add(fallback);
+                }
+            }
+
+            var ordered = definitions
+                .OrderBy(d => d.Order)
+                .ToArray();
+
+            CraftableTabDefinitions = ordered;
+            CraftableTabsByCategoryCode = ordered
+                .ToDictionary(d => d.CategoryCode, StringComparer.OrdinalIgnoreCase);
+            CraftableTabsByTabKey = ordered
+                .ToDictionary(d => d.TabKey, StringComparer.Ordinal);
+            CraftableTabsByVariantKey = ordered
+                .ToDictionary(d => d.VariantKey, StringComparer.OrdinalIgnoreCase);
+
+            DefaultCraftableTab = ordered.FirstOrDefault(d => d.IsDefaultVariant)
+                                   ?? ordered.FirstOrDefault()
+                                   ?? BuildDefinitionFromConfig(
+                                       CraftableTabConfig.CreateDefaultList()
+                                           .FirstOrDefault(d => !d.IncludeAll && !d.ModsOnly && !d.WoodOnly && !d.StoneOnly)
+                                       ?? new CraftableTabConfig
+                                       {
+                                           VariantKey = "van",
+                                           TabKey = CraftableTabKeyName,
+                                           CategoryCode = CraftableCategoryCode,
+                                           DisplayName = "Craftable"
+                                       },
+                                       0);
+
+            var newCaches = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+            foreach (var def in ordered)
+            {
+                if (def == null || string.IsNullOrEmpty(def.TabKey)) continue;
+                if (TabCaches.TryGetValue(def.TabKey, out var existing))
+                {
+                    newCaches[def.TabKey] = new List<string>(existing);
+                }
+                else
+                {
+                    newCaches[def.TabKey] = new List<string>();
+                }
+            }
+            TabCaches = newCaches;
+        }
+
+        private static CraftableTabDefinition BuildDefinitionFromConfig(CraftableTabConfig cfg, int order)
+        {
+            if (cfg == null) return null;
+
+            string variant = string.IsNullOrWhiteSpace(cfg.VariantKey)
+                ? GetDefaultVariantKey(cfg)
+                : cfg.VariantKey.Trim();
+            string tabKey = string.IsNullOrWhiteSpace(cfg.TabKey)
+                ? GetDefaultTabKeyForVariant(variant, cfg)
+                : cfg.TabKey.Trim();
+            string categoryCode = string.IsNullOrWhiteSpace(cfg.CategoryCode)
+                ? GetDefaultCategoryCodeForVariant(variant, cfg)
+                : cfg.CategoryCode.Trim();
+
+            if (string.IsNullOrEmpty(variant) || string.IsNullOrEmpty(tabKey) || string.IsNullOrEmpty(categoryCode))
+            {
+                return null;
+            }
+
+            string displayName = string.IsNullOrWhiteSpace(cfg.DisplayName)
+                ? GetDefaultDisplayNameForVariant(variant)
+                : cfg.DisplayName;
+
+            string fontName = string.IsNullOrWhiteSpace(cfg.FontName)
+                ? GetDefaultFontName(cfg)
+                : cfg.FontName.Trim();
+
+            var fontWeight = string.IsNullOrWhiteSpace(cfg.FontWeight)
+                ? GetDefaultFontWeight(cfg)
+                : ParseFontWeight(cfg.FontWeight);
+
+            return new CraftableTabDefinition
+            {
+                VariantKey = variant,
+                TabKey = tabKey,
+                CategoryCode = categoryCode,
+                DisplayName = string.IsNullOrWhiteSpace(displayName) ? categoryCode : displayName,
+                IncludeAll = cfg.IncludeAll,
+                ModsOnly = cfg.ModsOnly,
+                WoodOnly = cfg.WoodOnly,
+                StoneOnly = cfg.StoneOnly,
+                PaddingTop = cfg.PaddingTop,
+                FontName = fontName,
+                FontWeight = fontWeight,
+                Order = order
+            };
+        }
+
+        private static string GetDefaultVariantKey(CraftableTabConfig cfg)
+        {
+            if (cfg?.IncludeAll == true) return "all";
+            if (cfg?.ModsOnly == true) return "mods";
+            if (cfg?.WoodOnly == true) return "wood";
+            if (cfg?.StoneOnly == true) return "stone";
+            return "van";
+        }
+
+        private static string GetDefaultTabKeyForVariant(string variant, CraftableTabConfig cfg)
+        {
+            var def = FindDefaultConfigForVariant(variant) ?? cfg;
+            return string.IsNullOrWhiteSpace(def?.TabKey) ? CraftableTabKeyName : def.TabKey.Trim();
+        }
+
+        private static string GetDefaultCategoryCodeForVariant(string variant, CraftableTabConfig cfg)
+        {
+            var def = FindDefaultConfigForVariant(variant) ?? cfg;
+            if (!string.IsNullOrWhiteSpace(def?.CategoryCode)) return def.CategoryCode.Trim();
+
+            if (variant == "all") return CraftableAllCategoryCode;
+            if (variant == "mods") return CraftableModsCategoryCode;
+            if (variant == "wood") return CraftableWoodCategoryCode;
+            if (variant == "stone") return CraftableStoneCategoryCode;
+            return CraftableCategoryCode;
+        }
+
+        private static string GetDefaultDisplayNameForVariant(string variant)
+        {
+            var def = FindDefaultConfigForVariant(variant);
+            return def?.DisplayName;
+        }
+
+        private static string GetDefaultFontName(CraftableTabConfig cfg)
+        {
+            if (cfg?.IncludeAll == true) return ArialBlackFontName;
+            return ArialFontName;
+        }
+
+        private static FontWeight? GetDefaultFontWeight(CraftableTabConfig cfg)
+        {
+            if (cfg?.IncludeAll == true) return null;
+            return FontWeight.Bold;
+        }
+
+        private static CraftableTabConfig FindDefaultConfigForVariant(string variant)
+        {
+            if (string.IsNullOrWhiteSpace(variant)) return null;
+            return CraftableTabConfig.CreateDefaultList()
+                .FirstOrDefault(c => string.Equals(c.VariantKey, variant, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static FontWeight? ParseFontWeight(string fontWeight)
+        {
+            if (string.IsNullOrWhiteSpace(fontWeight)) return null;
+            if (Enum.TryParse(fontWeight, true, out FontWeight parsed)) return parsed;
+            return null;
+        }
+
+        private static CraftableTabDefinition FindTabDefinition(bool includeAll, bool modsOnly, bool woodOnly, bool stoneOnly)
+        {
+            foreach (var def in CraftableTabDefinitions)
+            {
+                if (def != null && def.Matches(includeAll, modsOnly, woodOnly, stoneOnly)) return def;
+            }
+
+            return null;
+        }
+
         public static bool AddVerticalTabs_Prefix(GuiComposer composer, GuiTab[] tabs, ElementBounds bounds, Action<int, GuiTab> onTabClicked, string key, ref GuiComposer __result)
         {
             if (composer == null || composer.Composed) return true;
@@ -1357,96 +1558,50 @@ namespace ShowCraftable
                     if (fi != null) fi.SetValue(o, val);
                 }
 
-                bool craftableAllExists = false;
-                bool craftableExists = false;
-                bool craftableModsExists = false;
-                bool craftableWoodExists = false;
-                bool craftableStoneExists = false;
+                var definitions = CraftableTabDefinitions ?? Array.Empty<CraftableTabDefinition>();
+                if (definitions.Length == 0)
+                {
+                    __result = ToTypedArray(tabType, tabs);
+                    return;
+                }
+
+                var existing = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                 foreach (var t in tabs)
                 {
                     var cat = GetPF(tabType, t, "CategoryCode") as string;
-                    if (string.Equals(cat, CraftableAllCategoryCode, StringComparison.OrdinalIgnoreCase))
+                    if (string.IsNullOrEmpty(cat)) continue;
+
+                    if (CraftableTabsByCategoryCode.TryGetValue(cat, out var def) && def != null)
                     {
-                        craftableAllExists = true;
-                        SetPF(tabType, t, "Name", CraftableAllTabDisplayName);
-                    }
-                    if (string.Equals(cat, CraftableCategoryCode, StringComparison.OrdinalIgnoreCase))
-                    {
-                        craftableExists = true;
-                        SetPF(tabType, t, "Name", BaseItemsTabDisplayName);
-                    }
-                    if (string.Equals(cat, CraftableModsCategoryCode, StringComparison.OrdinalIgnoreCase))
-                    {
-                        craftableModsExists = true;
-                        SetPF(tabType, t, "Name", ModItemsTabDisplayName);
-                    }
-                    if (string.Equals(cat, CraftableWoodCategoryCode, StringComparison.OrdinalIgnoreCase))
-                    {
-                        craftableWoodExists = true;
-                        SetPF(tabType, t, "Name", WoodTypesTabDisplayName);
-                    }
-                    if (string.Equals(cat, CraftableStoneCategoryCode, StringComparison.OrdinalIgnoreCase))
-                    {
-                        craftableStoneExists = true;
-                        SetPF(tabType, t, "Name", StoneTypesTabDisplayName);
+                        existing.Add(def.CategoryCode);
+                        if (!string.IsNullOrEmpty(def.DisplayName))
+                        {
+                            SetPF(tabType, t, "Name", def.DisplayName);
+                        }
                     }
                 }
 
                 int insertAt = tabs.Count;
-                if (!craftableAllExists)
+                bool anyCraftableSeen = existing.Count > 0;
+                foreach (var def in definitions)
                 {
-                    var allTab = Activator.CreateInstance(tabType);
-                    SetPF(tabType, allTab, "Name", CraftableAllTabDisplayName);
-                    SetPF(tabType, allTab, "CategoryCode", CraftableAllCategoryCode);
-                    SetPF(tabType, allTab, "DataInt", tabs.Count);
-                    SetPF(tabType, allTab, "PaddingTop", 20.0);
-                    tabs.Insert(insertAt, allTab);
-                    insertAt++;
-                    craftableAllExists = true;
-                }
+                    if (def == null) continue;
+                    if (existing.Contains(def.CategoryCode))
+                    {
+                        anyCraftableSeen = true;
+                        continue;
+                    }
 
-                if (!craftableExists)
-                {
                     var newTab = Activator.CreateInstance(tabType);
-                    SetPF(tabType, newTab, "Name", BaseItemsTabDisplayName);
-                    SetPF(tabType, newTab, "CategoryCode", CraftableCategoryCode);
+                    SetPF(tabType, newTab, "Name", def.DisplayName);
+                    SetPF(tabType, newTab, "CategoryCode", def.CategoryCode);
                     SetPF(tabType, newTab, "DataInt", tabs.Count);
-                    SetPF(tabType, newTab, "PaddingTop", craftableAllExists ? 5.0 : 20.0);
+                    var padding = def.ResolvePadding(!anyCraftableSeen);
+                    SetPF(tabType, newTab, "PaddingTop", padding);
                     tabs.Insert(insertAt, newTab);
                     insertAt++;
-                }
-
-                if (!craftableWoodExists)
-                {
-                    var woodTab = Activator.CreateInstance(tabType);
-                    SetPF(tabType, woodTab, "Name", WoodTypesTabDisplayName);
-                    SetPF(tabType, woodTab, "CategoryCode", CraftableWoodCategoryCode);
-                    SetPF(tabType, woodTab, "DataInt", tabs.Count);
-                    SetPF(tabType, woodTab, "PaddingTop", 5.0);
-                    tabs.Insert(insertAt, woodTab);
-                    insertAt++;
-                }
-
-                if (!craftableStoneExists)
-                {
-                    var stoneTab = Activator.CreateInstance(tabType);
-                    SetPF(tabType, stoneTab, "Name", StoneTypesTabDisplayName);
-                    SetPF(tabType, stoneTab, "CategoryCode", CraftableStoneCategoryCode);
-                    SetPF(tabType, stoneTab, "DataInt", tabs.Count);
-                    SetPF(tabType, stoneTab, "PaddingTop", 5.0);
-                    tabs.Insert(insertAt, stoneTab);
-                    insertAt++;
-                }
-
-                if (!craftableModsExists)
-                {
-                    var newTabMods = Activator.CreateInstance(tabType);
-                    SetPF(tabType, newTabMods, "Name", ModItemsTabDisplayName);
-                    SetPF(tabType, newTabMods, "CategoryCode", CraftableModsCategoryCode);
-                    SetPF(tabType, newTabMods, "DataInt", tabs.Count);
-                    SetPF(tabType, newTabMods, "PaddingTop", 5.0);
-                    tabs.Insert(insertAt, newTabMods);
-                    insertAt++;
+                    anyCraftableSeen = true;
+                    existing.Add(def.CategoryCode);
                 }
 
                 __result = ToTypedArray(tabType, tabs);
@@ -1474,20 +1629,20 @@ namespace ShowCraftable
             var sw = Stopwatch.StartNew();
             try
             {
-                CraftableAllTabActive = string.Equals(code, CraftableAllCategoryCode, StringComparison.Ordinal);
-                CraftableTabActive = string.Equals(code, CraftableCategoryCode, StringComparison.Ordinal);
-                CraftableModsTabActive = string.Equals(code, CraftableModsCategoryCode, StringComparison.Ordinal);
-                CraftableWoodTabActive = string.Equals(code, CraftableWoodCategoryCode, StringComparison.Ordinal);
-                CraftableStoneTabActive = string.Equals(code, CraftableStoneCategoryCode, StringComparison.Ordinal);
+                CraftableTabsByCategoryCode.TryGetValue(code, out var selectedDef);
+                var selectedTabKey = selectedDef?.TabKey;
+                var selectedVariantKey = selectedDef?.VariantKey;
 
-                bool includeAll = CraftableAllTabActive;
-                bool modsOnly = CraftableModsTabActive;
-                bool woodOnly = CraftableWoodTabActive;
-                bool stoneOnly = CraftableStoneTabActive;
+                Volatile.Write(ref ActiveCraftableTabKey, selectedTabKey);
 
-                bool anyCraftable = CraftableAllTabActive || CraftableTabActive || CraftableModsTabActive || CraftableWoodTabActive || CraftableStoneTabActive;
-                string tabKey = GetTabKey(includeAll, modsOnly, woodOnly, stoneOnly);
-                string variantKey = GetVariantKey(includeAll, modsOnly, woodOnly, stoneOnly);
+                bool includeAll = selectedDef?.IncludeAll == true;
+                bool modsOnly = selectedDef?.ModsOnly == true;
+                bool woodOnly = selectedDef?.WoodOnly == true;
+                bool stoneOnly = selectedDef?.StoneOnly == true;
+
+                bool anyCraftable = selectedDef != null;
+                string tabKey = selectedTabKey ?? GetTabKey(includeAll, modsOnly, woodOnly, stoneOnly);
+                string variantKey = selectedVariantKey ?? GetVariantKey(includeAll, modsOnly, woodOnly, stoneOnly);
 
                 if (!DialogIsOpen(__instance))
                 {
@@ -1499,12 +1654,10 @@ namespace ShowCraftable
                 capi = fiCapi?.GetValue(__instance) as ICoreClientAPI ?? _staticCapi;
 
                 string diagnosticsSuffix = anyCraftable ? $" ({FormatTabScanState(tabKey)})" : string.Empty;
-
-                if (CraftableAllTabActive) LogEverywhere(capi, $"Craftable tab selected by user{diagnosticsSuffix}");
-                else if (CraftableTabActive) LogEverywhere(capi, $"Base Items tab selected by user{diagnosticsSuffix}");
-                else if (CraftableModsTabActive) LogEverywhere(capi, $"Mod Items tab selected by user{diagnosticsSuffix}");
-                else if (CraftableWoodTabActive) LogEverywhere(capi, $"Wood Types tab selected by user{diagnosticsSuffix}");
-                else if (CraftableStoneTabActive) LogEverywhere(capi, $"Stone Types tab selected by user{diagnosticsSuffix}");
+                if (selectedDef != null)
+                {
+                    LogEverywhere(capi, $"{selectedDef.DisplayName} tab selected by user{diagnosticsSuffix}");
+                }
 
                 var fiOverview = AccessTools.Field(__instance.GetType(), "overviewGui");
                 var composer = fiOverview?.GetValue(__instance) as GuiComposer;
@@ -1720,12 +1873,7 @@ namespace ShowCraftable
                 var capi = fiCapi?.GetValue(__instance) as ICoreClientAPI;
                 var cur = AccessTools.Field(__instance.GetType(), "currentCatgoryCode")?.GetValue(__instance) as string;
 
-                if (capi != null && (
-                    string.Equals(cur, CraftableAllCategoryCode, StringComparison.Ordinal) ||
-                    string.Equals(cur, CraftableCategoryCode, StringComparison.Ordinal) ||
-                    string.Equals(cur, CraftableModsCategoryCode, StringComparison.Ordinal) ||
-                    string.Equals(cur, CraftableWoodCategoryCode, StringComparison.Ordinal) ||
-                    string.Equals(cur, CraftableStoneCategoryCode, StringComparison.Ordinal)))
+                if (capi != null && IsCraftableCategoryCode(cur))
                 {
                     var fiPages = AccessTools.Field(__instance.GetType(), "allHandbookPages");
                     var fiDict = AccessTools.Field(__instance.GetType(), "pageNumberByPageCode");
@@ -1784,11 +1932,7 @@ namespace ShowCraftable
             try
             {
                 string cat = (string)AccessTools.Field(__instance.GetType(), "currentCatgoryCode").GetValue(__instance);
-                if (!(string.Equals(cat, CraftableAllCategoryCode, StringComparison.Ordinal) ||
-                      string.Equals(cat, CraftableCategoryCode, StringComparison.Ordinal) ||
-                      string.Equals(cat, CraftableModsCategoryCode, StringComparison.Ordinal) ||
-                      string.Equals(cat, CraftableWoodCategoryCode, StringComparison.Ordinal) ||
-                      string.Equals(cat, CraftableStoneCategoryCode, StringComparison.Ordinal))) return true;
+                if (!IsCraftableCategoryCode(cat)) return true;
 
                 var fiCapi = AccessTools.Field(__instance.GetType(), "capi");
                 var fiShown = AccessTools.Field(__instance.GetType(), "shownHandbookPages");
@@ -1909,11 +2053,7 @@ namespace ShowCraftable
                     return;
                 }
                 var cur = AccessTools.Field(dlg.GetType(), "currentCatgoryCode")?.GetValue(dlg) as string;
-                if (!(string.Equals(cur, CraftableAllCategoryCode, StringComparison.Ordinal) ||
-                        string.Equals(cur, CraftableCategoryCode, StringComparison.Ordinal) ||
-                        string.Equals(cur, CraftableModsCategoryCode, StringComparison.Ordinal) ||
-                        string.Equals(cur, CraftableWoodCategoryCode, StringComparison.Ordinal) ||
-                        string.Equals(cur, CraftableStoneCategoryCode, StringComparison.Ordinal)))
+                if (!IsCraftableCategoryCode(cur))
                 {
                     LastDialogPageCount = 0;
                     return;
@@ -2056,11 +2196,13 @@ namespace ShowCraftable
             lock (CacheLock)
             {
                 CachedPageCodes = new List<string>();
-                AllTabCache = new List<string>();
-                CraftableTabCache = new List<string>();
-                ModTabCache = new List<string>();
-                StoneTypeTabCache = new List<string>();
-                WoodTypeTabCache = new List<string>();
+                var newCaches = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+                foreach (var def in CraftableTabDefinitions)
+                {
+                    if (def == null || string.IsNullOrEmpty(def.TabKey)) continue;
+                    newCaches[def.TabKey] = new List<string>();
+                }
+                TabCaches = newCaches;
                 s_EmptyPages = null;
             }
 
@@ -2080,14 +2222,11 @@ namespace ShowCraftable
             recipeIndexForMods = false;
             recipeIndexForStoneOnly = false;
             recipeIndexForWoodOnly = false;
-            CraftableAllTabActive = false;
-            CraftableModsTabActive = false;
-            CraftableStoneTabActive = false;
-            CraftableTabActive = false;
-            CraftableWoodTabActive = false;
             ScanInProgress = false;
             recipeIndexBuildProgress = 0;
             recipeIndexBuildTotal = 0;
+
+            Volatile.Write(ref ActiveCraftableTabKey, null);
 
             InvalidatePageCodeMapCache();
             _staticCapi = null;
