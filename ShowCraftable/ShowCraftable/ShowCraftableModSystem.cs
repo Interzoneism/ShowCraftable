@@ -2616,6 +2616,8 @@ namespace ShowCraftable
             public readonly Dictionary<Key, int> Counts = new();
             public readonly Dictionary<Key, EnumItemClass> Classes = new();
 
+            public bool IsEmpty => Counts.Count == 0;
+
             public void Add(ItemStack stack)
             {
                 if (stack == null) return;
@@ -4257,6 +4259,22 @@ namespace ShowCraftable
             bool variantWoodOnly = string.Equals(variantKey, "wood", StringComparison.Ordinal);
             bool variantStoneOnly = string.Equals(variantKey, "stone", StringComparison.Ordinal);
             craftableOutputsCount = 0; fetched = recipesFetched; usable = recipesUsable;
+
+            if (pool == null || pool.IsEmpty)
+            {
+                generatedPageCodes = new List<string>();
+                lock (CacheLock)
+                {
+                    SetTabCache(tabKey, generatedPageCodes);
+                }
+
+                sw.Stop();
+                LogEverywhere(capi,
+                    $"RebuildCacheWithPool skipped for empty pool (tab={tabKey}) in {sw.ElapsedMilliseconds}ms",
+                    caller: nameof(RebuildCacheWithPool));
+
+                return 0;
+            }
 
             var candidates = new HashSet<GridRecipeShim>(ReferenceEqualityComparer.Instance);
             foreach (var pkv in pool.Counts)
