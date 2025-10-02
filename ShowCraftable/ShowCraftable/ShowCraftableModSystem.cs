@@ -68,6 +68,7 @@ namespace ShowCraftable
         private static List<string> StoneTypeTabCache = new();
         private static List<string> WoodTypeTabCache = new();
         private static List<WildGroup> wildcardGroups = new();
+        private static RecipeIndexSource recipeIndexSource;
         private static readonly Dictionary<int, ScanRequestInfo> InflightById = new();
         private static readonly Dictionary<string, bool> TabReadyToUpdateUi = new(StringComparer.Ordinal);
         private static readonly Dictionary<string, Dictionary<string, int>> WildTokenCountsMemo = new(StringComparer.Ordinal);
@@ -80,6 +81,7 @@ namespace ShowCraftable
         private static readonly object LogFileLock = new();
         private static readonly object PageCodeMapLock = new();
         private static readonly object PendingScanLock = new();
+        private static readonly object RecipeIndexSourceLock = new();
         private static readonly object ScanQueueLock = new();
         private static readonly object TabUiStateLock = new();
         private static readonly object CustomTabStateLock = new();
@@ -682,6 +684,40 @@ namespace ShowCraftable
 
             public int RecipesFetched { get; set; }
             public int RecipesUsable { get; set; }
+        }
+
+        private sealed class RecipeIndexSource
+        {
+            public List<RecipeDescriptor> Recipes { get; } = new();
+
+            public Dictionary<string, List<string>> WildMatchesBySignature { get; }
+                = new(StringComparer.Ordinal);
+
+            public int RecipesFetched { get; set; }
+            public int RecipesUsableAll { get; set; }
+            public int RecipesUsableVanilla { get; set; }
+            public int RecipesUsableMods { get; set; }
+        }
+
+        private sealed class RecipeDescriptor
+        {
+            public RecipeDescriptor(GridRecipeShim recipe)
+            {
+                Recipe = recipe;
+            }
+
+            public GridRecipeShim Recipe { get; }
+
+            public Dictionary<string, int> GroupNeeds { get; } = new(StringComparer.Ordinal);
+
+            public Dictionary<string, HashSet<string>> CodeToGroupKeys { get; } = new(StringComparer.Ordinal);
+
+            public List<WildGroup> WildGroups { get; } = new();
+
+            public List<StackKey> OutputKeys { get; } = new();
+
+            public bool IsWood { get; set; }
+            public bool IsStone { get; set; }
         }
 
         private static string ExtractTokenFromPath(string patternPath, string codePath)
@@ -2563,6 +2599,11 @@ namespace ShowCraftable
 
             recipeIndexBuildTask = null;
 
+            lock (RecipeIndexSourceLock)
+            {
+                recipeIndexSource = null;
+            }
+
             lock (CacheLock)
             {
                 CachedPageCodes = new List<string>();
@@ -3114,6 +3155,156 @@ namespace ShowCraftable
             catch { return null; }
         }
 
+        private static RecipeIndexSource EnsureRecipeIndexSource(ICoreClientAPI capi)
+        {
+            if (capi == null) return null;
+
+            lock (RecipeIndexSourceLock)
+            {
+                if (recipeIndexSource != null) return recipeIndexSource;
+
+                recipeIndexSource = BuildRecipeIndexSource(capi);
+                return recipeIndexSource;
+            }
+        }
+
+        private static RecipeIndexSource BuildRecipeIndexSource(ICoreClientAPI capi)
+        {
+            var sw = Stopwatch.StartNew();
+            var source = new RecipeIndexSource();
+
+            var recipes = GetAllGridRecipes(capi, out var fetched, out var usableAll, modsOnly: null);
+
+            source.RecipesFetched = fetched;
+            source.RecipesUsableAll = usableAll;
+
+            int vanillaCount = 0;
+            int modCount = 0;
+
+            foreach (var shim in recipes)
+            {
+                if (shim == null) continue;
+
+                if (shim.IsMod) modCount++;
+                else vanillaCount++;
+
+                var descriptor = new RecipeDescriptor(shim)
+                {
+                    IsWood = !shim.IsMod && IsWoodRecipe(shim.Raw),
+                    IsStone = !shim.IsMod && IsStoneRecipe(shim.Raw)
+                };
+
+                foreach (var output in shim.Outputs ?? Enumerable.Empty<ItemStack>())
+                {
+                    if (output?.Collectible?.Code == null) continue;
+                    descriptor.OutputKeys.Add(KeyFor(output));
+                }
+
+                foreach (var ing in shim.Ingredients ?? Enumerable.Empty<GridIngredientShim>())
+                {
+                    if (ing == null) continue;
+
+                    string groupKey;
+                    IEnumerable<string> satisfiableCodes;
+
+                    if (ing.IsWild)
+                    {
+                        groupKey = BuildWildcardGroupKey(ing.PatternCode, ing.Allowed, ing.Type);
+                        satisfiableCodes = GetOrBuildWildMatches(capi, source, ing, groupKey);
+
+                        if (ing.PatternCode != null)
+                        {
+                            descriptor.WildGroups.Add(new WildGroup
+                            {
+                                Recipe = shim,
+                                GroupKey = groupKey,
+                                Type = ing.Type,
+                                Pattern = ing.PatternCode,
+                                Allowed = ing.Allowed
+                            });
+                        }
+                    }
+                    else
+                    {
+                        var codes = ing.Options
+                            .Select(st => st?.Collectible?.Code?.ToString())
+                            .Where(s => !string.IsNullOrEmpty(s))
+                            .Distinct(StringComparer.Ordinal)
+                            .ToList();
+
+                        groupKey = string.Join("|", codes.OrderBy(s => s, StringComparer.Ordinal));
+                        satisfiableCodes = codes;
+                    }
+
+                    int qty = Math.Max(1, ing.QuantityRequired);
+                    if (ing.IsTool) qty = 1;
+
+                    if (!descriptor.GroupNeeds.TryGetValue(groupKey, out var cur)) cur = 0;
+                    descriptor.GroupNeeds[groupKey] = cur + qty;
+
+                    foreach (var code in satisfiableCodes ?? Enumerable.Empty<string>())
+                    {
+                        if (string.IsNullOrEmpty(code)) continue;
+                        if (!descriptor.CodeToGroupKeys.TryGetValue(code, out var set))
+                            descriptor.CodeToGroupKeys[code] = set = new HashSet<string>(StringComparer.Ordinal);
+                        set.Add(groupKey);
+                    }
+                }
+
+                source.Recipes.Add(descriptor);
+            }
+
+            source.RecipesUsableVanilla = vanillaCount;
+            source.RecipesUsableMods = modCount;
+
+            sw.Stop();
+            LogEverywhere(capi,
+                $"Recipe index source built with {source.Recipes.Count} recipes in {sw.ElapsedMilliseconds}ms",
+                caller: nameof(BuildRecipeIndexSource));
+
+            return source;
+        }
+
+        private static IEnumerable<string> GetOrBuildWildMatches(ICoreClientAPI capi, RecipeIndexSource source, GridIngredientShim ing, string signature)
+        {
+            if (capi == null || source == null || ing == null) return Array.Empty<string>();
+
+            if (!source.WildMatchesBySignature.TryGetValue(signature, out var cached))
+            {
+                var results = new List<string>();
+                IEnumerable<CollectibleObject> coll = null;
+
+                if (ing.Type == EnumItemClass.Item)
+                    coll = capi.World.Items?.Where(i => i != null);
+                else if (ing.Type == EnumItemClass.Block)
+                    coll = capi.World.Blocks?.Where(b => b != null);
+
+                if (coll != null)
+                {
+                    foreach (var collectible in coll)
+                    {
+                        var code = collectible?.Code?.ToString();
+                        if (string.IsNullOrEmpty(code)) continue;
+
+                        try
+                        {
+                            var al = new AssetLocation(code);
+                            if (WildcardUtil.Match(ing.PatternCode, al, ing.Allowed ?? Array.Empty<string>()))
+                            {
+                                results.Add(code);
+                            }
+                        }
+                        catch { }
+                    }
+                }
+
+                cached = results.Distinct(StringComparer.Ordinal).ToList();
+                source.WildMatchesBySignature[signature] = cached;
+            }
+
+            return cached;
+        }
+
         private static void StartRecipeIndexBuild(ICoreClientAPI capi)
         {
             if (capi == null) return;
@@ -3142,6 +3333,8 @@ namespace ShowCraftable
                 {
                     try
                     {
+                        RecipeIndexSource source = null;
+
                         foreach (var variant in RecipeIndexVariants)
                         {
                             if (localToken != Volatile.Read(ref recipeIndexBuildToken)) return;
@@ -3151,7 +3344,8 @@ namespace ShowCraftable
                             bool rebuilt = false;
                             if (data == null)
                             {
-                                data = BuildRecipeIndex(capi, variant.IncludeAll, variant.ModsOnly, variant.WoodOnly, variant.StoneOnly);
+                                source ??= EnsureRecipeIndexSource(capi);
+                                data = BuildRecipeIndex(capi, source, variant.IncludeAll, variant.ModsOnly, variant.WoodOnly, variant.StoneOnly);
                                 rebuilt = true;
                             }
 
@@ -3208,130 +3402,105 @@ namespace ShowCraftable
             }
         }
 
-        private static RecipeIndexData BuildRecipeIndex(ICoreClientAPI capi, bool includeAll, bool modsOnly, bool woodOnly, bool stoneOnly)
+        private static RecipeIndexData BuildRecipeIndex(ICoreClientAPI capi, RecipeIndexSource source, bool includeAll, bool modsOnly, bool woodOnly, bool stoneOnly)
         {
+            if (capi == null || source == null) return null;
+
             var sw = Stopwatch.StartNew();
             var index = new RecipeIndexData();
 
-            var recipes = GetAllGridRecipes(capi, out var fetched, out var usable, includeAll ? (bool?)null : modsOnly);
+            IEnumerable<RecipeDescriptor> selection = source.Recipes;
 
             if (includeAll)
             {
                 // keep all recipes
             }
-            else if (woodOnly)
-                recipes = recipes.Where(r => !r.IsMod && IsWoodRecipe(r.Raw)).ToList();
-            else if (stoneOnly)
-                recipes = recipes.Where(r => !r.IsMod && IsStoneRecipe(r.Raw)).ToList();
-            else if (!modsOnly)
-                recipes = recipes.Where(r => !r.IsMod && !IsWoodRecipe(r.Raw) && !IsStoneRecipe(r.Raw)).ToList();
-
-            index.RecipesFetched = fetched;
-            index.RecipesUsable = usable;
-
-            recipeIndexBuildTotal = recipes.Count;
-            recipeIndexBuildProgress = 0;
-            index.OutputsIndex = BuildOutputsIndexFrom(recipes);
-
-            var wildCache = new Dictionary<string, List<string>>(StringComparer.Ordinal);
-
-            IEnumerable<string> GetWildMatches(GridIngredientShim ing)
+            else if (modsOnly)
             {
-                if (ing == null || ing.PatternCode == null) return Array.Empty<string>();
-
-                var allowed = ing.Allowed ?? Array.Empty<string>();
-                string sig = BuildWildcardGroupKey(ing.PatternCode, allowed, ing.Type);
-
-                if (wildCache.TryGetValue(sig, out var cached)) return cached;
-
-                var results = new List<string>();
-
-                IEnumerable<CollectibleObject> coll = null;
-                if (ing.Type == EnumItemClass.Item) coll = capi.World.Items?.Where(i => i != null);
-                else if (ing.Type == EnumItemClass.Block) coll = capi.World.Blocks?.Where(b => b != null);
-
-                if (coll != null)
-                {
-                    foreach (var c in coll)
-                    {
-                        var code = c?.Code?.ToString();
-                        if (string.IsNullOrEmpty(code)) continue;
-                        try
-                        {
-                            var al = new AssetLocation(code);
-                            if (WildcardUtil.Match(ing.PatternCode, al, allowed)) results.Add(code);
-                        }
-                        catch { }
-                    }
-                }
-
-                var distinct = results.Distinct(StringComparer.Ordinal).ToList();
-                wildCache[sig] = distinct;
-                return distinct;
+                selection = selection.Where(d => d?.Recipe?.IsMod == true);
+            }
+            else if (woodOnly)
+            {
+                selection = selection.Where(d => d?.Recipe != null && !d.Recipe.IsMod && d.IsWood);
+            }
+            else if (stoneOnly)
+            {
+                selection = selection.Where(d => d?.Recipe != null && !d.Recipe.IsMod && d.IsStone);
+            }
+            else
+            {
+                selection = selection.Where(d => d?.Recipe != null && !d.Recipe.IsMod && !d.IsWood && !d.IsStone);
             }
 
-            foreach (var r in recipes)
+            var descriptors = selection.Where(d => d?.Recipe != null).ToList();
+
+            recipeIndexBuildTotal = descriptors.Count;
+            recipeIndexBuildProgress = 0;
+
+            foreach (var descriptor in descriptors)
             {
-                var groups = new Dictionary<string, int>(StringComparer.Ordinal);
+                var recipe = descriptor.Recipe;
+                if (recipe == null) continue;
 
-                foreach (var ing in r.Ingredients)
+                index.RecipeGroupNeeds[recipe] = new Dictionary<string, int>(descriptor.GroupNeeds, StringComparer.Ordinal);
+
+                foreach (var kv in descriptor.CodeToGroupKeys)
                 {
-                    if (ing == null) continue;
+                    var code = kv.Key;
+                    if (string.IsNullOrEmpty(code)) continue;
 
-                    string groupKey;
-                    IEnumerable<string> satisfiableCodes;
+                    if (!index.CodeToRecipeGroups.TryGetValue(code, out var list))
+                        list = index.CodeToRecipeGroups[code] = new List<(GridRecipeShim Recipe, string GroupKey)>();
 
-                    if (ing.IsWild)
+                    if (!index.CodeToGkeys.TryGetValue(code, out var gset))
+                        gset = index.CodeToGkeys[code] = new HashSet<string>(StringComparer.Ordinal);
+
+                    foreach (var groupKey in kv.Value)
                     {
-                        var allowed = ing.Allowed ?? Array.Empty<string>();
-                        groupKey = BuildWildcardGroupKey(ing.PatternCode, allowed, ing.Type);
-                        satisfiableCodes = GetWildMatches(ing);
-                        if (ing.PatternCode != null)
-                        {
-                            index.WildcardGroups.Add(new WildGroup { Recipe = r, GroupKey = groupKey, Type = ing.Type, Pattern = ing.PatternCode, Allowed = ing.Allowed });
-                        }
-                    }
-                    else
-                    {
-                        var codes = ing.Options
-                            .Select(st => st?.Collectible?.Code?.ToString())
-                            .Where(s => !string.IsNullOrEmpty(s))
-                            .Distinct(StringComparer.Ordinal);
-                        groupKey = string.Join("|", codes.OrderBy(s => s));
-                        satisfiableCodes = codes;
-                    }
-
-                    int qty = Math.Max(1, ing.QuantityRequired);
-                    if (ing.IsTool) qty = 1;
-                    if (!groups.TryGetValue(groupKey, out var cur)) cur = 0;
-                    groups[groupKey] = cur + qty;
-
-                    foreach (var code in satisfiableCodes)
-                    {
-                        if (string.IsNullOrEmpty(code)) continue;
-                        if (!index.CodeToRecipeGroups.TryGetValue(code, out var list))
-                            index.CodeToRecipeGroups[code] = list = new List<(GridRecipeShim Recipe, string GroupKey)>();
-                        if (!list.Any(p => ReferenceEquals(p.Recipe, r) && p.GroupKey == groupKey))
-                            list.Add((r, groupKey));
-                    }
-
-                    foreach (var code in satisfiableCodes)
-                    {
-                        if (string.IsNullOrEmpty(code)) continue;
-                        if (!index.CodeToGkeys.TryGetValue(code, out var gset))
-                            index.CodeToGkeys[code] = gset = new HashSet<string>(StringComparer.Ordinal);
+                        list.Add((recipe, groupKey));
                         gset.Add(groupKey);
                     }
                 }
 
-                index.RecipeGroupNeeds[r] = groups;
+                foreach (var wild in descriptor.WildGroups)
+                {
+                    if (wild == null) continue;
+                    index.WildcardGroups.Add(wild);
+
+                    if (!string.IsNullOrEmpty(wild.GroupKey)
+                        && source.WildMatchesBySignature.TryGetValue(wild.GroupKey, out var matches))
+                    {
+                        foreach (var match in matches)
+                        {
+                            if (string.IsNullOrEmpty(match)) continue;
+                            if (!index.WildMatchCache.TryGetValue(match, out var matchList))
+                                matchList = index.WildMatchCache[match] = new List<(GridRecipeShim Recipe, string GroupKey)>();
+                            matchList.Add((recipe, wild.GroupKey));
+                        }
+                    }
+                }
+
+                foreach (var outputKey in descriptor.OutputKeys)
+                {
+                    if (!index.OutputsIndex.TryGetValue(outputKey, out var outList))
+                        outList = index.OutputsIndex[outputKey] = new List<GridRecipeShim>(2);
+                    outList.Add(recipe);
+                }
+
                 recipeIndexBuildProgress++;
             }
+
+            index.RecipesFetched = source.RecipesFetched;
+            index.RecipesUsable = includeAll
+                ? source.RecipesUsableAll
+                : (modsOnly ? source.RecipesUsableMods : source.RecipesUsableVanilla);
 
             sw.Stop();
             long elapsedMs = sw.ElapsedMilliseconds;
             capi.Event.EnqueueMainThreadTask(() =>
-                LogEverywhere(capi, $"Recipe index build processed {recipeIndexBuildProgress}/{recipeIndexBuildTotal} recipes in {elapsedMs}ms", caller: nameof(BuildRecipeIndex)), null);
+                LogEverywhere(capi,
+                    $"Recipe index build processed {recipeIndexBuildProgress}/{recipeIndexBuildTotal} recipes in {elapsedMs}ms",
+                    caller: nameof(BuildRecipeIndex)), null);
 
             return index;
         }
