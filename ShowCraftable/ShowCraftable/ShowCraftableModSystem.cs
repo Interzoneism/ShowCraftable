@@ -38,10 +38,10 @@ namespace ShowCraftable
         private const string StoneTabKeyName = "stoneTab";
         private const string WoodTabKeyName = "woodTab";
         private const string CraftableAllTabDisplayName = "Craftable";
-        private const string BaseItemsTabDisplayName = "● Base Items";
-        private const string WoodTypesTabDisplayName = "● Wood Types";
-        private const string StoneTypesTabDisplayName = "● Stone Types";
-        private const string ModItemsTabDisplayName = "● Mod Items";
+        private const string BaseItemsTabDisplayName = "Base Items";
+        private const string WoodTypesTabDisplayName = "Wood Types";
+        private const string StoneTypesTabDisplayName = "Stone Types";
+        private const string ModItemsTabDisplayName = "Mod Items";
         private const string ArialFontName = "Arial";
         private const string ArialBlackFontName = "Arial Black";
         private const int SlowStackLogThresholdMs = 175;
@@ -146,7 +146,7 @@ namespace ShowCraftable
                 || string.Equals(categoryCode, CraftableWoodCategoryCode, StringComparison.OrdinalIgnoreCase)
                 || string.Equals(categoryCode, CraftableStoneCategoryCode, StringComparison.OrdinalIgnoreCase))
             {
-                return FontWeight.Bold;
+                return FontWeight.Normal;
             }
 
             return null;
