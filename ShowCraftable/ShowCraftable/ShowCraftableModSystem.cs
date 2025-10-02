@@ -701,12 +701,23 @@ namespace ShowCraftable
             return c >= 0 ? domainCode.Substring(c + 1) : domainCode ?? "";
         }
 
+        private static string BuildAllowedVariantsKey(IEnumerable<string> allowed)
+        {
+            allowed ??= Array.Empty<string>();
+            return string.Join(",", allowed.OrderBy(s => s, StringComparer.Ordinal));
+        }
+
+        private static string BuildWildcardGroupKey(AssetLocation patternCode, IEnumerable<string> allowed, EnumItemClass type)
+        {
+            return $"wild:{patternCode}|{BuildAllowedVariantsKey(allowed)}|T:{type}";
+        }
+
         private static Dictionary<string, int> GetWildcardTokenCounts(ResourcePool pool, AssetLocation pattern, string[] allowed)
         {
             var res = new Dictionary<string, int>(StringComparer.Ordinal);
             if (pool == null || pattern == null) return res;
 
-            string allowedCsv = (allowed != null && allowed.Length > 0) ? string.Join(",", allowed.OrderBy(x => x)) : "";
+            string allowedCsv = BuildAllowedVariantsKey(allowed);
             string memoKey = (pool.GetSignature() ?? "") + "||" + (pattern.ToString() ?? "") + "||" + allowedCsv;
 
             lock (WildTokenCountsMemo)
@@ -748,7 +759,7 @@ namespace ShowCraftable
             int neededFromWild = 0;
             if (wild != null && originalNeeds != null && originalNeeds.TryGetValue(recipe, out var needMap) && needMap != null)
             {
-                var gkey = $"wild:{wild.PatternCode}|{string.Join(",", (allowed ?? Array.Empty<string>()).OrderBy(x => x))}|T:{wild.Type}";
+                var gkey = BuildWildcardGroupKey(wild.PatternCode, allowed ?? Array.Empty<string>(), wild.Type);
                 if (!needMap.TryGetValue(gkey, out neededFromWild))
                     neededFromWild = Math.Max(1, wild.QuantityRequired);
             }
@@ -3035,7 +3046,7 @@ namespace ShowCraftable
                             r.Ingredients.Add(gi);
                             if (gi.IsWild && gi.PatternCode != null)
                             {
-                                var gkey = $"wild:{gi.PatternCode}|{string.Join(",", (gi.Allowed ?? Array.Empty<string>()).OrderBy(x => x))}|T:{gi.Type}";
+                                var gkey = BuildWildcardGroupKey(gi.PatternCode, gi.Allowed ?? Array.Empty<string>(), gi.Type);
                                 recipeWildGroups.Add(new WildGroup { Recipe = r, GroupKey = gkey, Type = gi.Type, Pattern = gi.PatternCode, Allowed = gi.Allowed });
                             }
                         }
@@ -3229,7 +3240,7 @@ namespace ShowCraftable
                 if (ing == null || ing.PatternCode == null) return Array.Empty<string>();
 
                 var allowed = ing.Allowed ?? Array.Empty<string>();
-                string sig = $"wild:{ing.PatternCode}|{string.Join(",", allowed.OrderBy(x => x))}|T:{ing.Type}";
+                string sig = BuildWildcardGroupKey(ing.PatternCode, allowed, ing.Type);
 
                 if (wildCache.TryGetValue(sig, out var cached)) return cached;
 
@@ -3273,7 +3284,7 @@ namespace ShowCraftable
                     if (ing.IsWild)
                     {
                         var allowed = ing.Allowed ?? Array.Empty<string>();
-                        groupKey = $"wild:{ing.PatternCode}|{string.Join(",", allowed.OrderBy(x => x))}|T:{ing.Type}";
+                        groupKey = BuildWildcardGroupKey(ing.PatternCode, allowed, ing.Type);
                         satisfiableCodes = GetWildMatches(ing);
                         if (ing.PatternCode != null)
                         {
