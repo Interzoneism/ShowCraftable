@@ -2014,8 +2014,6 @@ namespace ShowCraftable
 
                 var fiCapi = AccessTools.Field(__instance.GetType(), "capi");
                 capi = fiCapi?.GetValue(__instance) as ICoreClientAPI ?? _staticCapi;
-                bool ctrlPressed = capi?.Input?.IsHotKeyPressed("ctrl") == true;
-
                 string diagnosticsSuffix = anyCraftable ? $" ({FormatTabScanState(tabKey)})" : string.Empty;
 
                 if (CraftableAllTabActive) LogEverywhere(capi, $"Craftable tab selected by user{diagnosticsSuffix}");
@@ -2033,14 +2031,7 @@ namespace ShowCraftable
 
                 if (!anyCraftable)
                 {
-                    if (ctrlPressed)
-                    {
-                        HandleCustomTabCtrlClick(__instance, capi, code);
-                    }
-                    else
-                    {
-                        HandleCustomTabNormalClick(capi, code);
-                    }
+                    HandleCustomTabNormalClick(capi, code);
                     _pendingScanId++;
                     return;
                 }
