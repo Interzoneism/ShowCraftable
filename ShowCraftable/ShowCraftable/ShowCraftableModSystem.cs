@@ -1368,15 +1368,15 @@ namespace ShowCraftable
                 state.ScanInProgress = true;
                 state.ActiveToken = token;
                 state.TabKey = tabKey;
-                state.CandidatePageCodes = pageCodes;
-                state.FilteredPageCodes = new List<string>(pageCodes);
+                state.CandidatePageCodes = pageCodes != null ? new List<string>(pageCodes) : new List<string>();
+                state.FilteredPageCodes = new List<string>();
             }
 
             SetUpdatingText(capi, true);
 
             lock (CacheLock)
             {
-                CachedPageCodes = new List<string>(pageCodes);
+                CachedPageCodes = new List<string>();
             }
             LastDialogPageCount = -1;
             TryRefreshOpenDialog(capi);
@@ -1489,8 +1489,6 @@ namespace ShowCraftable
             }
 
             var candidatePages = info.CandidatePages ?? new List<CustomPageInfo>();
-            var pageCodes = candidatePages.Select(cp => cp.PageCode).Where(pc => pc != null).ToList();
-
             Task.Run(() =>
             {
                 try
@@ -1498,8 +1496,8 @@ namespace ShowCraftable
                     string variantKey = GetVariantKey(info.IncludeAll, info.ModsOnly, info.WoodOnly, info.StoneOnly);
                     var craftableKeys = ComputeCraftableStackKeys(_capi, pool, variantKey);
 
-                    var currentPages = new List<string>(pageCodes);
-                    int removed = 0;
+                    var currentPages = new List<string>();
+                    int added = 0;
 
                     foreach (var candidate in candidatePages)
                     {
@@ -1509,13 +1507,15 @@ namespace ShowCraftable
                         bool craftable = craftableKeys.Contains(candidate.PrimaryKey) || craftableKeys.Contains(candidate.CodeOnlyKey);
                         if (!craftable)
                         {
-                            currentPages.Remove(candidate.PageCode);
-                            removed++;
-                            if (removed % 4 == 0)
-                            {
-                                var snapshot = currentPages.ToList();
-                                ScheduleCustomTabUpdate(_capi, info.CategoryCode, snapshot, isFinal: false, info.CustomScanToken);
-                            }
+                            continue;
+                        }
+
+                        currentPages.Add(candidate.PageCode);
+                        added++;
+                        if (added % 4 == 0)
+                        {
+                            var snapshot = currentPages.ToList();
+                            ScheduleCustomTabUpdate(_capi, info.CategoryCode, snapshot, isFinal: false, info.CustomScanToken);
                         }
                     }
 
