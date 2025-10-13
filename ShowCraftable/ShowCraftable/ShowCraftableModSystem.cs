@@ -114,6 +114,21 @@ namespace ShowCraftable
         public const string CraftableStoneCategoryCode = "craftablestonetypes";
         public const string CraftableWoodCategoryCode = "craftablewoodtypes";
 
+        private static string GetGroupPageDisplayName(string categoryCode, string fallback)
+        {
+            if (string.IsNullOrEmpty(categoryCode)) return fallback;
+
+            var map = Config?.GroupPageCategoryNames;
+            if (map == null || map.Count == 0) return fallback;
+
+            if (map.TryGetValue(categoryCode, out var custom) && !string.IsNullOrWhiteSpace(custom))
+            {
+                return custom;
+            }
+
+            return fallback;
+        }
+
         internal static bool IsCraftableCategoryCode(string categoryCode)
         {
             if (string.IsNullOrEmpty(categoryCode)) return false;
@@ -1885,27 +1900,27 @@ namespace ShowCraftable
                     if (string.Equals(cat, CraftableAllCategoryCode, StringComparison.OrdinalIgnoreCase))
                     {
                         craftableAllExists = true;
-                        SetPF(tabType, t, "Name", CraftableAllTabDisplayName);
+                        SetPF(tabType, t, "Name", GetGroupPageDisplayName(CraftableAllCategoryCode, CraftableAllTabDisplayName));
                     }
                     if (string.Equals(cat, CraftableCategoryCode, StringComparison.OrdinalIgnoreCase))
                     {
                         craftableExists = true;
-                        SetPF(tabType, t, "Name", BaseItemsTabDisplayName);
+                        SetPF(tabType, t, "Name", GetGroupPageDisplayName(CraftableCategoryCode, BaseItemsTabDisplayName));
                     }
                     if (string.Equals(cat, CraftableModsCategoryCode, StringComparison.OrdinalIgnoreCase))
                     {
                         craftableModsExists = true;
-                        SetPF(tabType, t, "Name", ModItemsTabDisplayName);
+                        SetPF(tabType, t, "Name", GetGroupPageDisplayName(CraftableModsCategoryCode, ModItemsTabDisplayName));
                     }
                     if (string.Equals(cat, CraftableWoodCategoryCode, StringComparison.OrdinalIgnoreCase))
                     {
                         craftableWoodExists = true;
-                        SetPF(tabType, t, "Name", WoodTypesTabDisplayName);
+                        SetPF(tabType, t, "Name", GetGroupPageDisplayName(CraftableWoodCategoryCode, WoodTypesTabDisplayName));
                     }
                     if (string.Equals(cat, CraftableStoneCategoryCode, StringComparison.OrdinalIgnoreCase))
                     {
                         craftableStoneExists = true;
-                        SetPF(tabType, t, "Name", StoneTypesTabDisplayName);
+                        SetPF(tabType, t, "Name", GetGroupPageDisplayName(CraftableStoneCategoryCode, StoneTypesTabDisplayName));
                     }
                 }
 
@@ -1913,7 +1928,7 @@ namespace ShowCraftable
                 if (!craftableAllExists)
                 {
                     var allTab = Activator.CreateInstance(tabType);
-                    SetPF(tabType, allTab, "Name", CraftableAllTabDisplayName);
+                    SetPF(tabType, allTab, "Name", GetGroupPageDisplayName(CraftableAllCategoryCode, CraftableAllTabDisplayName));
                     SetPF(tabType, allTab, "CategoryCode", CraftableAllCategoryCode);
                     SetPF(tabType, allTab, "DataInt", tabs.Count);
                     SetPF(tabType, allTab, "PaddingTop", 20.0);
@@ -1925,7 +1940,7 @@ namespace ShowCraftable
                 if (!craftableExists)
                 {
                     var newTab = Activator.CreateInstance(tabType);
-                    SetPF(tabType, newTab, "Name", BaseItemsTabDisplayName);
+                    SetPF(tabType, newTab, "Name", GetGroupPageDisplayName(CraftableCategoryCode, BaseItemsTabDisplayName));
                     SetPF(tabType, newTab, "CategoryCode", CraftableCategoryCode);
                     SetPF(tabType, newTab, "DataInt", tabs.Count);
                     SetPF(tabType, newTab, "PaddingTop", craftableAllExists ? 1.0 : 20.0);
@@ -1936,7 +1951,7 @@ namespace ShowCraftable
                 if (!craftableWoodExists)
                 {
                     var woodTab = Activator.CreateInstance(tabType);
-                    SetPF(tabType, woodTab, "Name", WoodTypesTabDisplayName);
+                    SetPF(tabType, woodTab, "Name", GetGroupPageDisplayName(CraftableWoodCategoryCode, WoodTypesTabDisplayName));
                     SetPF(tabType, woodTab, "CategoryCode", CraftableWoodCategoryCode);
                     SetPF(tabType, woodTab, "DataInt", tabs.Count);
                     SetPF(tabType, woodTab, "PaddingTop", 1.0);
@@ -1947,7 +1962,7 @@ namespace ShowCraftable
                 if (!craftableStoneExists)
                 {
                     var stoneTab = Activator.CreateInstance(tabType);
-                    SetPF(tabType, stoneTab, "Name", StoneTypesTabDisplayName);
+                    SetPF(tabType, stoneTab, "Name", GetGroupPageDisplayName(CraftableStoneCategoryCode, StoneTypesTabDisplayName));
                     SetPF(tabType, stoneTab, "CategoryCode", CraftableStoneCategoryCode);
                     SetPF(tabType, stoneTab, "DataInt", tabs.Count);
                     SetPF(tabType, stoneTab, "PaddingTop", 1.0);
@@ -1958,7 +1973,7 @@ namespace ShowCraftable
                 if (!craftableModsExists)
                 {
                     var newTabMods = Activator.CreateInstance(tabType);
-                    SetPF(tabType, newTabMods, "Name", ModItemsTabDisplayName);
+                    SetPF(tabType, newTabMods, "Name", GetGroupPageDisplayName(CraftableModsCategoryCode, ModItemsTabDisplayName));
                     SetPF(tabType, newTabMods, "CategoryCode", CraftableModsCategoryCode);
                     SetPF(tabType, newTabMods, "DataInt", tabs.Count);
                     SetPF(tabType, newTabMods, "PaddingTop", 1.0);
