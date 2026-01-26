@@ -67,6 +67,7 @@ namespace ShowCraftable
         private static List<string> s_EmptyPages;
         private static List<string> StoneTypeTabCache = new();
         private static List<string> WoodTypeTabCache = new();
+        private static readonly Dictionary<string, bool> TabCachePrimed = new(StringComparer.Ordinal);
         private static List<WildGroup> wildcardGroups = new();
         private static RecipeIndexSource recipeIndexSource;
         private static readonly Dictionary<int, ScanRequestInfo> InflightById = new();
@@ -581,6 +582,8 @@ namespace ShowCraftable
             else if (string.Equals(tabKey, WoodTabKeyName, StringComparison.Ordinal)) WoodTypeTabCache = list;
             else if (string.Equals(tabKey, StoneTabKeyName, StringComparison.Ordinal)) StoneTypeTabCache = list;
             else CraftableTabCache = list;
+
+            TabCachePrimed[tabKey] = true;
         }
 
         private static List<string> GetTabCacheSnapshot(string tabKey)
@@ -2619,6 +2622,7 @@ namespace ShowCraftable
                 StoneTypeTabCache = new List<string>();
                 WoodTypeTabCache = new List<string>();
                 s_EmptyPages = null;
+                TabCachePrimed.Clear();
             }
 
             recipeGroupNeeds = new Dictionary<GridRecipeShim, Dictionary<string, int>>();
@@ -4320,14 +4324,16 @@ namespace ShowCraftable
                 }
 
                 int cachedPages;
+                bool cachePrimed;
                 lock (CacheLock)
                 {
                     var cache = GetTabCache(tabKey);
                     cachedPages = cache?.Count ?? 0;
+                    cachePrimed = TabCachePrimed.TryGetValue(tabKey, out var primed) && primed;
                 }
                 bool cacheEmpty = cachedPages == 0;
 
-                if (dnaMatch && !cacheEmpty)
+                if (dnaMatch && (cachePrimed || !cacheEmpty))
                 {
                     SetTabReadyToUpdateUI(tabKey, true);
                     _capi.Event.EnqueueMainThreadTask(() =>
