@@ -1,8 +1,0 @@
-[
-	{
-		code: "smallhail",
-		weight: 0.2,
-		precType: "hail",
-		particleSize: { avg: 0.4, var: 0.2 }
-	}
-]

@@ -1,9 +1,0 @@
-[
-	{
-		code: "still",
-		name: "Still",
-		weight: 1,
-		durationHours: { avg: 6, var: 12, dist: "invexp" },
-		strength: { avg: 0, var: 0.05 },
-	}
-]

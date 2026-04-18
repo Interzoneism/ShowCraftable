@@ -1,7 +1,0 @@
-[
-	{
-		code: "noevent",
-		weight: 5,
-		particleSize: { avg: 0.75, var: 0.25 }
-	}
-]

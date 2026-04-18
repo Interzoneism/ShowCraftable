@@ -1,9 +1,0 @@
-{
-	ingredientPattern: "R_R	RRR	R_R",
-	ingredients: {
-		"R": { type: "item", code: "rope", quantity: 2 }
-	},
-	width: 3,
-	height: 3,
-	output: { type: "item", code: "ratlines", quantity: 1  }
-}
